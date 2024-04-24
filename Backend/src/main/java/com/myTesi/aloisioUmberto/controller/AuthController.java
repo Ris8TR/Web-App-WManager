@@ -29,7 +29,7 @@ public class AuthController {
     private JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/login/user")
-    public Object loginUser(HttpServletRequest req, HttpServletResponse resp, @RequestBody @Valid Map<String, String> requestBody) {
+    public Object loginUser(HttpServletRequest req, HttpServletResponse resp, @RequestBody Map<String, String> requestBody) {
         return authService.loginUser(req, resp, requestBody);
 
     }

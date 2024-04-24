@@ -8,6 +8,7 @@ import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatDialog } from "@angular/material/dialog";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ToolbarComponent } from '../components/toolbar/toolbar.component';
 
 @Component({
   selector: 'app-login',
@@ -23,17 +24,13 @@ export class LoginComponent {
     private authService: AuthService,
     private cookieService: CookieService, 
     private router: Router, 
+    private toolbar:ToolbarComponent,
     private snackBar: MatSnackBar,
     private dialog: MatDialog ) {}
 
   
   showResetPasswordModal: boolean = false;
   loginUser: LoginDto = {
-    email: '',
-    password: ''
-  };
-
-  loginManu: LoginDto = {
     email: '',
     password: ''
   };
@@ -66,6 +63,7 @@ export class LoginComponent {
         this.cookieService.set('role', "USER")
         console.log("GG")
         this.snackBar.open("Autenticazione avvenuta con successo", 'OK',{ duration: 3000 });
+        this.toolbar.checkUserCookie()
         this.router.navigate(['/home']);
       },
       (error) => {
