@@ -42,4 +42,10 @@ public class User {
     @Field
     private String password;
 
+
+    //Altro
+    private UserPreference userPreference; // Preferenze di visualizzazione dell'utente
+    private List<InterestArea> interestAreas; // Aree di interesse dell'utente
+
+
 }
