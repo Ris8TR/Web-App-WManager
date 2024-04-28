@@ -11,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "UserPreference")
 @Data
 public class UserPreference {
+    //DA CAMBIARE DI SICURO
     private ObjectId id; // Identificatore univoco del documento nel database
     private ObjectId userId; // ID dell'utente a cui appartengono le preferenze di visualizzazione
     private String[] dataTypesToShow; // Tipi di dati geografici da mostrare

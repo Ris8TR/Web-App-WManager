@@ -14,7 +14,7 @@ public class InterestArea {
     private ObjectId id; // Identificatore univoco del documento nel database
     private ObjectId userId; // ID dell'utente a cui appartiene l'area di interesse
     private String name; // Nome dell'area di interesse
-    private String geometry; // Geometria dell'
+    private String geometry; // Geometria dell'area
 
 
 }
