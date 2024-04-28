@@ -1,4 +1,4 @@
-package com.myTesi.aloisioUmberto.dto;
+package com.myTesi.aloisioUmberto.dto.New;
 
 
 import jakarta.validation.constraints.Email;

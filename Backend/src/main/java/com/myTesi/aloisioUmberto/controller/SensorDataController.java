@@ -1,10 +1,11 @@
 package com.myTesi.aloisioUmberto.controller;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
+import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
+import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,35 +21,31 @@ public class SensorDataController {
     private final SensorDataService sensorDataService;
 
     @PostMapping("/SensorData")
-    public ResponseEntity<Void> saveSensorData(@RequestBody SensorData sensorData) {
-        sensorDataService.saveSensorData(sensorData);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<SensorData> saveSensorData(@RequestBody NewSensorDataDto newSensorDataDTO) {
+        //TODO ADD TOKEN CHECK
+        return ResponseEntity.ok(sensorDataService.save(newSensorDataDTO));
     }
 
     @GetMapping("/SensorData/get-all")
-    public ResponseEntity<List<SensorData>> getAllSensorData() {
-        List<SensorData> sensorDataList = sensorDataService.getAllSensorData();
-        return ResponseEntity.ok(sensorDataList);
+    public ResponseEntity<List<SensorDataDto>> getAllSensorData() {
+        return ResponseEntity.ok(sensorDataService.getAllSensorData());
     }
 
     @GetMapping("/SensorData/{id}")
-    public ResponseEntity<SensorData> getSensorDataById(@PathVariable String id) {
-        SensorData sensorData = sensorDataService.getSensorDataById(id);
-        if (sensorData == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(sensorData);
+    public ResponseEntity<SensorDataDto> getSensorDataById(@PathVariable String id) {
+        return ResponseEntity.ok(sensorDataService.getSensorDataById(id));
     }
 
     @PutMapping("/SensorData/{id}")
-    public ResponseEntity<Void> updateSensorData(@PathVariable String id, @RequestBody SensorData newSensorData) {
-        sensorDataService.updateSensorData(id, newSensorData);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<SensorData> updateSensorData(@RequestBody SensorData newSensorData) {
+        //TODO ADD TOKEN CHECK
+        return ResponseEntity.ok(sensorDataService.update(newSensorData));
     }
 
     @DeleteMapping("/SensorData/{id}")
-    public ResponseEntity<Void> deleteSensorData(@PathVariable String id) {
-        sensorDataService.deleteSensorData(id);
-        return ResponseEntity.noContent().build();
+    public HttpStatus deleteSensorData(@PathVariable String id) {
+        //TODO ADD TOKEN CHECK
+        sensorDataService.delete(id);
+        return HttpStatus.OK;
     }
 }

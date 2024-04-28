@@ -2,7 +2,7 @@ package com.myTesi.aloisioUmberto.controller;
 
 
 import com.myTesi.aloisioUmberto.data.services.interfaces.UserService;
-import com.myTesi.aloisioUmberto.dto.NewUserDto;
+import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

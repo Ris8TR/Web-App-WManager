@@ -31,6 +31,7 @@ public class InterestAreaController {
 
     @GetMapping("/interestarea/{id}")
     public ResponseEntity<InterestArea> getInterestArea(@PathVariable ObjectId id) {
+        //TODO ADD TOKEN CHECK
         InterestArea interestArea = interestAreaService.getInterestArea(id);
         if (interestArea == null) {
             return ResponseEntity.notFound().build();
@@ -40,12 +41,14 @@ public class InterestAreaController {
 
     @GetMapping("/interestarea")
     public ResponseEntity<List<InterestArea>> getInterestAreasByUserId(@RequestParam ObjectId userId) {
+        //TODO ADD TOKEN CHECK
         List<InterestArea> interestAreas = interestAreaService.getInterestAreasByUserId(userId);
         return ResponseEntity.ok(interestAreas);
     }
 
     @DeleteMapping("/interestarea/{id}")
     public ResponseEntity<Void> deleteInterestArea(@PathVariable ObjectId id) {
+        //TODO ADD TOKEN CHECK
         interestAreaService.deleteInterestArea(id);
         return ResponseEntity.noContent().build();
     }

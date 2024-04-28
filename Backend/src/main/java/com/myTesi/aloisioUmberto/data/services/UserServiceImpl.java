@@ -5,7 +5,7 @@ import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.interfaces.UserService;
-import com.myTesi.aloisioUmberto.dto.NewUserDto;
+import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
