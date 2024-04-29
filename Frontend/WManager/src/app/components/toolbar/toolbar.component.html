@@ -2,13 +2,16 @@
     <span routerLink="/home" style="cursor: pointer;">WManager</span>
     <div style="padding-left: 80%;">
         
+       
+        <a *ngIf="logStringResult == 'Login'">
+            <span style="margin: 5%;">{{ logStringResult }}</span>
+        </a>
         <mat-icon  *ngIf="logStringResult == 'Login'" fontSet="material-symbols-outlined" routerLink="/login" style="cursor: pointer;">login</mat-icon>
-
-        <a *ngIf="logStringResult !== 'Login'" (click)="logOut()"  style="color:black; margin-left: 5%; text-decoration: none;  cursor: pointer;">
+        <a *ngIf="logStringResult !== 'Login'"   style="color:black; margin-left: 5%; text-decoration: none;  cursor: pointer;">
             <a   *ngIf="logStringResult !== 'Login'" (click)="redirectToProfile()" style="color: black; cursor: pointer;">
                 <span>{{ logStringResult }}</span>
               </a>
-            <span style="margin-left: 8%;">Esci</span></a>
+            <span style="margin-left: 8%;" (click)="logOut()">Esci</span></a>
             
     </div>
 </mat-toolbar>

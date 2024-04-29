@@ -1,37 +1,42 @@
 <div class="mainContainer" style="background-color: black; min-height: 50.3vh; display: flex; justify-content: space-around; align-items: center;">
     <div class="loginCardContainer" style="width: 45%;">
-      <div class="front">
-        <h2 style="margin-top: 10%; margin-left:10%">LOGIN UTENTE</h2>
+      <h2 style="color: white;">ACCEDI</h2>
+      <div class="front" style="display: flex; flex-direction: column; align-items: center;">
         <div id="firstColumn">
           <div style="margin: 2%;">
-            <label style="margin: 0 5px;">Email:</label>
-            <input type="email" style="margin: 0 5px;" [(ngModel)]="loginUser.email" name="loginMail">
-            <label style="margin: 0 5px; margin-top: 10%;">Password:</label>
-            <input type="password" style="margin: 0 5px; margin-top: 3%;" [(ngModel)]="loginUser.password" name="loginPassword">
-            <button mat-flat-button style="margin-left:1%; margin-bottom: 0.5%; color: rgb(149, 151, 149);" (click)="logInUser()">Accedi</button>
+            <mat-form-field style="width: 300px;" >
+              <mat-label>Email</mat-label>
+              <input matInput type="email" placeholder="me@example.com" value="me@example.com" [(ngModel)]="loginUser.email" name="loginMail">
+            </mat-form-field>
+  
+            <mat-form-field style="width: 300px;">
+              <mat-label>Password</mat-label>
+              <input matInput  type="password" placeholder="**********" value="***********" [(ngModel)]="loginUser.password" name="loginPassword">
+            </mat-form-field>
+            </div>
+            <button mat-flat-button style="align-items: center;margin-left: 18%; margin-bottom: 0.5%; color: rgb(0, 0, 0);" (click)="logInUser()">Accedi</button>
           </div>
         </div>
       </div>
-    </div>
+
 
     <div class="divisore" style=" border: 1px solid white; height: 300px">
     </div>
       
   
   
-  <div>
-    <div>
-      <button mat-button style="margin-bottom:15%; width: 100%" (click)="openResetPasswordModal()">Password dimenticata?</button>
+  <div (click)="$event.stopPropagation()">
+    <div (click)="$event.stopPropagation()">
+      <button mat-flat-button style="margin-bottom:15%; width: 100%" (click)="openResetPasswordModal()">Password dimenticata?</button>
     </div>
 
 
-    <! -- Reset  Modal -->
-    <div *ngIf="showResetPasswordModal" class="reset-password-modal" (click)="handleClickOutside($event)">
-      <h2>Password dimenticata?</h2>
-      <p>Inserisci la tua email per reimpostare la password:</p>
-    
-      <div style="display: flex; align-items: center;">
-        <input type="email" [(ngModel)]="resetPasswordEmail" placeholder="Email" style="margin-right: 10px;">
-        <button mat-flat-button (click)="resetPass()">Reset</button>
+    <div *ngIf="showResetPasswordModal" class="reset-password-modal" (click)="handleClickOutside($event)" (click)="$event.stopPropagation()">
+      <div style="display: flex; align-items: center;"(click)="$event.stopPropagation()" >
+        <mat-form-field style="margin-left: 2%; width: 320px;" (click)="$event.stopPropagation()">
+          <mat-label>Email</mat-label>
+          <input matInput placeholder="me@example.com" value="me@example.com" [(ngModel)]="resetPasswordEmail" name="loginMail" (click)="$event.stopPropagation()">
+        </mat-form-field>
       </div>
+      <button style="align-items: center;margin-left: 42%; " mat-flat-button (click)="resetPass()" (click)="$event.stopPropagation()">Reset</button>
     </div>

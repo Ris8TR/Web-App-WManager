@@ -19,7 +19,7 @@ import { CommonModule } from '@angular/common';
 export class ToolbarComponent {
 
   pageNumber: number = 0;
-  logStringResult: string | undefined;
+  logStringResult: string ="Login";
   productDetails = [[] as any];
   showLoadButton = false;
   role:string = this.cookieService.get("role")

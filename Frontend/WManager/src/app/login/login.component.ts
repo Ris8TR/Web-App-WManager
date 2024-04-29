@@ -9,15 +9,21 @@ import { MatDialog } from "@angular/material/dialog";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ToolbarComponent } from '../components/toolbar/toolbar.component';
+import {MatButtonModule} from '@angular/material/button';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {MatInputModule} from '@angular/material/input';
+import {ElementRef, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule,CommonModule],
+  imports: [FormsModule,CommonModule,MatInputModule,MatButtonModule,MatFormFieldModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
 export class LoginComponent {
+
+  @ViewChild('resetPasswordInput') resetPasswordInput!: ElementRef;
   modalElement: any;
 
   constructor(
@@ -85,6 +91,10 @@ export class LoginComponent {
   
 
     }
+  }
+
+  stopClickPropagation(event: MouseEvent) {
+    event.stopPropagation();
   }
 
   
