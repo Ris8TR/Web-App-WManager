@@ -1,13 +1,14 @@
 package com.myTesi.aloisioUmberto.data.services.interfaces;
 
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
+import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import org.bson.types.ObjectId;
 
 import java.util.List;
 
 public interface InterestAreaService {
 
-    InterestArea createInterestArea(ObjectId userId, String name, String geometry);
+    InterestArea save(NewInterestAreaDto newInterestAreaDto);
 
     InterestArea getInterestArea(ObjectId id);
 

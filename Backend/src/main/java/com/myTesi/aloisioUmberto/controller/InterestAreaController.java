@@ -2,6 +2,7 @@ package com.myTesi.aloisioUmberto.controller;
 
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
+import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
@@ -21,22 +22,16 @@ public class InterestAreaController {
     private final InterestAreaService interestAreaService;
 
 
-        /*
     @PostMapping
-    public ResponseEntity<InterestArea> createInterestArea(@RequestBody CreateInterestAreaRequest request) {
-        InterestArea interestArea = interestAreaService.createInterestArea(request.getUserId(), request.getName(), request.getGeometry());
-        return ResponseEntity.ok(interestArea);
+    public ResponseEntity<InterestArea> createInterestArea(@RequestBody NewInterestAreaDto request) {
+        return ResponseEntity.ok( interestAreaService.save(request));
     }
-        */
+
 
     @GetMapping("/interestarea/{id}")
     public ResponseEntity<InterestArea> getInterestArea(@PathVariable ObjectId id) {
         //TODO ADD TOKEN CHECK
-        InterestArea interestArea = interestAreaService.getInterestArea(id);
-        if (interestArea == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(interestArea);
+        return ResponseEntity.ok(interestAreaService.getInterestArea(id));
     }
 
     @GetMapping("/interestarea")
