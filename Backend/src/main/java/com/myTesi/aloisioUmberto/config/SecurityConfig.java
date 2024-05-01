@@ -3,6 +3,7 @@ package com.myTesi.aloisioUmberto.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,6 +27,10 @@ public class SecurityConfig {
                     .requestMatchers("/**"
                     ).permitAll()
 
+                    /*      Questi se servono in caso si attivano
+                    .requestMatchers(HttpMethod.GET,"/v1/admin/users").denyAll()
+                    .requestMatchers(HttpMethod.GET,"/v1/users/{idUser}").permitAll()
+                    */
 
                     .anyRequest()
                     .authenticated()

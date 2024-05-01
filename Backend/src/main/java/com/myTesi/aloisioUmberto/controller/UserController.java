@@ -46,7 +46,7 @@ public class UserController {
                     )
             }
     )
-    @GetMapping("/all-users")
+    @GetMapping("/users/all-users")
     public ResponseEntity<List<UserDto>> getAll() {
         return ResponseEntity.ok(userService.getAllUserDtoSortedByLastnameAscending());
     }
