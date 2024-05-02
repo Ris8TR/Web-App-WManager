@@ -7,6 +7,7 @@ import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.interfaces.UserService;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
+import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -56,7 +57,7 @@ public class UserServiceImpl implements UserService {
 
         User user = modelMapper.map(newUserDto, User.class);
         user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
-        user.setRole("USER");
+        user.setRole(Role.valueOf("USER"));
         try {
             userDao.save(user);
             return modelMapper.map(user, NewUserDto.class);

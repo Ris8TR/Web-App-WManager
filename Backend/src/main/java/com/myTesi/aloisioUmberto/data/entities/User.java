@@ -2,6 +2,7 @@ package com.myTesi.aloisioUmberto.data.entities;
 
 
 
+import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.bson.types.ObjectId;
@@ -11,6 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import java.util.List;
 
 @Data
@@ -38,7 +41,8 @@ public class User {
     private String email;
 
     @Field
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @NotNull
     @Field
