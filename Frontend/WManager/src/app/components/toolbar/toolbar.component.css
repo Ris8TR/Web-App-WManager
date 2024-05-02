@@ -1,0 +1,15 @@
+.mat-toolbar {
+  display: flex;
+  align-items: center;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end; /* Allinea gli elementi all'angolo destro */
+  margin-left: auto; /* Sposta il container all'angolo destro */
+}

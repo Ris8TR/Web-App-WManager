@@ -1,0 +1,34 @@
+<div style="display: flex; justify-content: center; align-items: center; min-height: 86vh;">
+  <!-- Form di registrazione utente -->
+  <div class="back">
+      <h2 style="margin-left: 5%;">Registrazione Utente</h2>
+      <form id="registrationUser">
+          <div style="display: flex; flex-direction: column; align-items: center;">  
+              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
+                  <mat-label>Nome:</mat-label>
+                  <input matInput type="text" placeholder="Mario" value="Mario" [(ngModel)]="newUser.firstName" name="registerFirstName" maxlength="12">
+              </mat-form-field>      
+              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
+                  <mat-label>Cognome:</mat-label>
+                  <input matInput type="text" placeholder="Rossi" value="Rossi" [(ngModel)]="newUser.lastName" name="registerLastName" maxlength="12">
+              </mat-form-field>      
+              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
+                  <mat-label>Email:</mat-label>
+                  <p style="color: red; margin: 0 25%; margin-top: 1%; margin-bottom: 1%;" *ngIf="userIsPresent">Questa email è già in uso!</p>
+                  <input matInput type="email" placeholder="me@example.com" value="email@example.com" [(ngModel)]="newUser.email" name="registerMail" maxlength="25">
+              </mat-form-field>  
+              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
+                  <mat-label>Password:</mat-label>
+                  <input matInput type="password" placeholder="*********" value="*********" [(ngModel)]="newUser.password" name="registerPassword" maxlength="30">
+              </mat-form-field> 
+              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
+                  <mat-label>Conferma password:</mat-label>
+                  <input matInput type="password" placeholder="*********" value="*********" [(ngModel)]="passwordCheckUser" name="registerConfirmPassword" maxlength="30">
+              </mat-form-field> 
+          </div>
+      </form>
+      <div style="display: flex; justify-content: center;">
+          <button mat-flat-button style="margin-top: 20px;" (click)="userSignIn()">Registrati</button>
+      </div>
+  </div>
+</div>

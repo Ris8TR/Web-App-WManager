@@ -1,18 +1,18 @@
 <mat-toolbar>
-    <span routerLink="/home" style="cursor: pointer;">WManager</span>
-    <div style="padding-left: 80%;">
-        
-       
-        <a *ngIf="logStringResult == 'Login'">
-            <span style="margin: 5%;">{{ logStringResult }}</span>
+    <span routerLink="/home" style="cursor: pointer; margin-left: 10px; text-decoration: none; cursor: pointer;">WManager</span>
+    <div class="spacer"></div>
+    <div class="container">
+        <a *ngIf="logStringResult == 'Login'" routerLink="/login" style="color: black; text-decoration: none;">
+            <span style="margin-right: 10px;">{{ logStringResult }}</span>
         </a>
-        <mat-icon  *ngIf="logStringResult == 'Login'" fontSet="material-symbols-outlined" routerLink="/login" style="cursor: pointer;">login</mat-icon>
-        <a *ngIf="logStringResult !== 'Login'"   style="color:black; margin-left: 5%; text-decoration: none;  cursor: pointer;">
-            <a   *ngIf="logStringResult !== 'Login'" (click)="redirectToProfile()" style="color: black; cursor: pointer;">
-                <span>{{ logStringResult }}</span>
-              </a>
-            <span style="margin-left: 8%;" (click)="logOut()">Esci</span></a>
-            
+        <a *ngIf="logStringResult !== 'Login'" style="color: black; text-decoration: none; margin-right: 2%;">
+            <span (click)="redirectToProfile()">{{ logStringResult }}</span>
+
+        </a>
+        <a *ngIf="logStringResult == 'Login'"  style="color: black; margin-left: 10px; margin-right: 10px; text-decoration: none;">
+            <span style="color: black; text-decoration: none; margin-right: 10%;cursor: pointer;" routerLink="/signin">Registrati</span>
+        </a>
+        <mat-icon *ngIf="logStringResult !== 'Login'" fontSet="material-symbols-outlined"style="cursor: pointer;" routerLink=" " (click)="logOut()" >login</mat-icon>
     </div>
 </mat-toolbar>
 <router-outlet></router-outlet>

@@ -17,7 +17,6 @@ public class UserListener extends AbstractMongoEventListener<User> {
     @Override
     public void onAfterLoad(AfterLoadEvent<User> event) {
         super.onAfterLoad(event);
-        System.out.println("sss");
         Document document = event.getSource();
         System.out.println(document);
         User user = modelMapper.map(document, User.class);

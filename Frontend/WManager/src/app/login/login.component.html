@@ -1,17 +1,18 @@
 <div class="mainContainer" style="background-color: black; min-height: 50.3vh; display: flex; justify-content: space-around; align-items: center;">
     <div class="loginCardContainer" style="width: 45%;">
-      <h2 style="color: white;">ACCEDI</h2>
+    
       <div class="front" style="display: flex; flex-direction: column; align-items: center;">
         <div id="firstColumn">
+          <h2 style="color: white; margin-left: 2%;">ACCEDI</h2>
           <div style="margin: 2%;">
             <mat-form-field style="width: 300px;" >
               <mat-label>Email</mat-label>
-              <input matInput type="email" placeholder="me@example.com" value="me@example.com" [(ngModel)]="loginUser.email" name="loginMail">
+              <input matInput type="email" placeholder="me@example.com" value="me@example.com" [(ngModel)]="loginUser.email" name="loginMail" maxlength="25">
             </mat-form-field>
   
             <mat-form-field style="width: 300px;">
               <mat-label>Password</mat-label>
-              <input matInput  type="password" placeholder="**********" value="***********" [(ngModel)]="loginUser.password" name="loginPassword">
+              <input matInput  type="password" placeholder="**********" value="***********" [(ngModel)]="loginUser.password" name="loginPassword" maxlength="30">
             </mat-form-field>
             </div>
             <button mat-flat-button style="align-items: center;margin-left: 18%; margin-bottom: 0.5%; color: rgb(0, 0, 0);" (click)="logInUser()">Accedi</button>
