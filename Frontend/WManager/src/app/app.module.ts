@@ -3,14 +3,16 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms'; // Import here
 
 import { AppComponent } from './app.component';
-import { LoginComponent } from './login/login.component';
 import { AuthService } from './service/auth.service';
-import { SigninComponent } from './signin/signin.component';
+import { UserService } from './service/api';
+import { LoginComponent } from './components/login/login.component';
+import { SigninComponent } from './components/signin/signin.component';
+import { ToolbarComponent } from './components/toolbar/toolbar.component';
 
 @NgModule({
-  declarations: [AppComponent, LoginComponent,AuthService, SigninComponent],
-  imports: [BrowserModule, FormsModule], 
-  providers: [AuthService],
-  bootstrap: [AppComponent]
+  declarations: [],
+  imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent ], 
+  providers: [AuthService,UserService],
+  bootstrap: []
 })
 export class AppModule { }

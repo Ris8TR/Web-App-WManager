@@ -1,18 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, Inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { LoginDto } from '../model/loginDto';
-import { NewUserDto } from '../model/newUserDto';
-import { AuthService } from '../service/auth.service';
 import { CookieService } from "ngx-cookie-service";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { MatDialog } from "@angular/material/dialog";
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ToolbarComponent } from '../components/toolbar/toolbar.component';
 import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {ElementRef, ViewChild } from '@angular/core';
+import { LoginDto } from '../../model/loginDto';
+import { NewUserDto } from '../../model/newUserDto';
+import { AuthService } from '../../service/auth.service';
+import { ToolbarComponent } from '../toolbar/toolbar.component';
 
 @Component({
   selector: 'app-login',
@@ -21,6 +21,7 @@ import {ElementRef, ViewChild } from '@angular/core';
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
 })
+
 export class LoginComponent {
 
   @ViewChild('resetPasswordInput') resetPasswordInput!: ElementRef;
@@ -62,7 +63,7 @@ export class LoginComponent {
 
   logInUser() {
     this.authService.loginUser(this.loginUser.email!, this.loginUser.password!, 'body').subscribe(
-      (data) => {
+      (data: { token: string; }) => {
         const token = data.token;
         this.cookieService.set('Token', data.token)
         this.cookieService.set('user', this.loginUser.email!)
@@ -72,7 +73,7 @@ export class LoginComponent {
         this.toolbar.checkUserCookie()
         this.router.navigate(['/home']);
       },
-      (error) => {
+      (error: any) => {
         this.snackBar.open("Email o Passworderrati", 'RIPROVARE', { duration: 3000 });
         console.error('Error logging in:', error);
       }
@@ -100,13 +101,13 @@ export class LoginComponent {
   
   resetPass(): void {
     this.authService.resetPass(this.resetPasswordEmail, 'body').subscribe(
-      (data) => {
+      (data: any) => {
         console.log("GG")
         this.snackBar.open("Email inviata con successo", 'OK');
         this.showResetPasswordModal=false
         this.router.navigate(['/login']);
       },
-      (error) => {
+      (error: any) => {
         // Handle login error
         console.error('Error logging in:', error);
       }

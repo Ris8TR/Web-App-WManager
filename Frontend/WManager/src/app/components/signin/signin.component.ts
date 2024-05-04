@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
-import { NewUserDto } from '../model/newUserDto';
-import { UserService } from '../service/user.service';
+import { Component, Inject } from '@angular/core';
+
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CookieService } from 'ngx-cookie-service';
 import { Router } from '@angular/router';
@@ -9,6 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { UserService } from '../../service/user.service';
+import { NewUserDto } from '../../model/newUserDto';
 
 @Component({
   selector: 'app-signin',
@@ -20,7 +21,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 export class SigninComponent {
 
   constructor(
-    //private userService: UserService,
+    private userService: UserService,
     private snackBar: MatSnackBar,
     private cookieSevices: CookieService,
     private router: Router,
@@ -55,8 +56,8 @@ export class SigninComponent {
       return false;
     }
   }
-  userSignIn(){}
-  /*
+ 
+  
   userSignIn() {
     if (this.validateUser()) {
       this.userService.addUser(this.newUser, 'body').subscribe(
@@ -77,5 +78,5 @@ export class SigninComponent {
       );
     }
   }
-  */
+  
 }

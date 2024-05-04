@@ -9,10 +9,11 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { ObjectId } from './objectId';
 
-export interface NewUserDto { 
-    email?: string;
-    firstName: string;
-    lastName: string;
-    password: string;
+export interface InterestArea { 
+    id?: ObjectId;
+    userId?: ObjectId;
+    name?: string;
+    geometry?: string;
 }

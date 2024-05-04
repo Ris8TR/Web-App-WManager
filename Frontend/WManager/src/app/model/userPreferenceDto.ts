@@ -10,9 +10,9 @@
  * Do not edit the class manually.
  */
 
-export interface NewUserDto { 
-    email?: string;
-    firstName: string;
-    lastName: string;
-    password: string;
+export interface UserPreferenceDto { 
+    id?: string;
+    userId?: string;
+    dataTypesToShow?: Array<string>;
+    overlayLayers?: boolean;
 }

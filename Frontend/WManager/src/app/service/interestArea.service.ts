@@ -17,16 +17,17 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
-import { NewUserDto } from '../model/newUserDto';
+import { InterestArea } from '../model/interestArea';
+import { NewInterestAreaDto } from '../model/newInterestAreaDto';
+import { ObjectId } from '../model/objectId';
 import { ServiceError } from '../model/serviceError';
-import { UserDto } from '../model/userDto';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 
 
 @Injectable()
-export class UserService {
+export class InterestAreaService {
 
     protected basePath = 'http://localhost:8010';
     public defaultHeaders = new HttpHeaders();
@@ -64,13 +65,13 @@ export class UserService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public addUser(body: NewUserDto, observe?: 'body', reportProgress?: boolean): Observable<NewUserDto>;
-    public addUser(body: NewUserDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<NewUserDto>>;
-    public addUser(body: NewUserDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<NewUserDto>>;
-    public addUser(body: NewUserDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public createInterestArea(body: NewInterestAreaDto, observe?: 'body', reportProgress?: boolean): Observable<InterestArea>;
+    public createInterestArea(body: NewInterestAreaDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestArea>>;
+    public createInterestArea(body: NewInterestAreaDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestArea>>;
+    public createInterestArea(body: NewInterestAreaDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling addUser.');
+            throw new Error('Required parameter body was null or undefined when calling createInterestArea.');
         }
 
         let headers = this.defaultHeaders;
@@ -93,7 +94,7 @@ export class UserService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
-        return this.httpClient.request<NewUserDto>('post',`${this.basePath}/v1/users`,
+        return this.httpClient.request<InterestArea>('post',`${this.basePath}/v1`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,
@@ -107,17 +108,17 @@ export class UserService {
     /**
      * 
      * 
-     * @param email 
+     * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public findByEmail(email: string, observe?: 'body', reportProgress?: boolean): Observable<UserDto>;
-    public findByEmail(email: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserDto>>;
-    public findByEmail(email: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserDto>>;
-    public findByEmail(email: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public deleteInterestArea(id: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public deleteInterestArea(id: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public deleteInterestArea(id: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public deleteInterestArea(id: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
-        if (email === null || email === undefined) {
-            throw new Error('Required parameter email was null or undefined when calling findByEmail.');
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling deleteInterestArea.');
         }
 
         let headers = this.defaultHeaders;
@@ -135,7 +136,7 @@ export class UserService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<UserDto>('get',`${this.basePath}/v1/users/${encodeURIComponent(String(email))}`,
+        return this.httpClient.request<any>('delete',`${this.basePath}/v1/interestarea/${encodeURIComponent(String(id))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -146,15 +147,20 @@ export class UserService {
     }
 
     /**
-     * this is the list of user
-     * Get endpoint for user
+     * 
+     * 
+     * @param id 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getAll(observe?: 'body', reportProgress?: boolean): Observable<Array<UserDto>>;
-    public getAll(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<UserDto>>>;
-    public getAll(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<UserDto>>>;
-    public getAll(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getInterestArea(id: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<InterestArea>;
+    public getInterestArea(id: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestArea>>;
+    public getInterestArea(id: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestArea>>;
+    public getInterestArea(id: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (id === null || id === undefined) {
+            throw new Error('Required parameter id was null or undefined when calling getInterestArea.');
+        }
 
         let headers = this.defaultHeaders;
 
@@ -171,8 +177,55 @@ export class UserService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Array<UserDto>>('get',`${this.basePath}/v1/users/all-users`,
+        return this.httpClient.request<InterestArea>('get',`${this.basePath}/v1/interestarea/${encodeURIComponent(String(id))}`,
             {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
+     * @param userId 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getInterestAreasByUserId(userId: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<Array<InterestArea>>;
+    public getInterestAreasByUserId(userId: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<InterestArea>>>;
+    public getInterestAreasByUserId(userId: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<InterestArea>>>;
+    public getInterestAreasByUserId(userId: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (userId === null || userId === undefined) {
+            throw new Error('Required parameter userId was null or undefined when calling getInterestAreasByUserId.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (userId !== undefined && userId !== null) {
+            queryParameters = queryParameters.set('userId', <any>userId);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            '*/*'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<Array<InterestArea>>('get',`${this.basePath}/v1/interestarea`,
+            {
+                params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,

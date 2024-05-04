@@ -10,9 +10,8 @@
  * Do not edit the class manually.
  */
 
-export interface NewUserDto { 
-    email?: string;
-    firstName: string;
-    lastName: string;
-    password: string;
+export interface ServiceError { 
+    timestamp?: Date;
+    url?: string;
+    message?: string;
 }
