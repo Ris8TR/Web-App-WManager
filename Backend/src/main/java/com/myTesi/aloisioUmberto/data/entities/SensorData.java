@@ -12,12 +12,13 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 public class SensorData {
     private ObjectId id; // Identificatore univoco del documento nel database
-    private ObjectId userId; // ID dell'utente che ha inviato i dati
+    private String userId; // ID dell'utente che ha inviato i dati
     private String dataType; // Tipo di dati (JSON, GeoJSON, Raster, Shapefile, ecc.)
     private String data; // I dati effettivi inviati dal sensore (può essere rappresentato come una stringa)
     private long timestamp; // Timestamp dei dati inviati
     private double latitude; // Latitudine delle coordinate geografiche
     private double longitude; // Longitudine delle coordinate geografiche
+
 
 
 }

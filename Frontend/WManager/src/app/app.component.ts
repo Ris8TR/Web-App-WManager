@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { HttpClientModule } from '@angular/common/http';
-import { MapComponent } from './components/map/map.component';
+import { MapComponent } from './components/map/observations/map.component';
 
 
 @Component({

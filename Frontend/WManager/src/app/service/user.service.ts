@@ -19,10 +19,12 @@ import { Observable }                                        from 'rxjs';
 
 import { NewUserDto } from '../model/newUserDto';
 import { ServiceError } from '../model/serviceError';
-import { UserDto } from '../model/userDto';
+
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
+import { UserDto } from '../model/userDto';
+import { SensorDto } from '../model/sensorDto';
 
 
 @Injectable()
@@ -180,5 +182,42 @@ export class UserService {
             }
         );
     }
+
+    /**
+     * 
+     * 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getAllSensor(observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDto>>;
+    public getAllSensor(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDto>>>;
+    public getAllSensor(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDto>>>;
+    public getAllSensor(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            '*/*'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<Array<SensorDto>>('get',`${this.basePath}/v1/users/all-sensors`,
+            {
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
 
 }

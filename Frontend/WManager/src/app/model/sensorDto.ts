@@ -1,5 +1,5 @@
 /**
- * OpenAPi BellaBirra
+ * OpenAPi WManager
  * OpenApi documentation for Spring Security
  *
  * OpenAPI spec version: 1.0
@@ -9,14 +9,9 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { Order } from './order';
 
-export interface User { 
-    id?: number;
+export interface SensorDto { 
     firstName?: string;
-    lastName?: string;
-    email?: string;
-    password?: string;
-    phoneNumber?: number;
-    orders?: Array<Order>;
+    latitude?: number;
+    longitude?: number;
 }

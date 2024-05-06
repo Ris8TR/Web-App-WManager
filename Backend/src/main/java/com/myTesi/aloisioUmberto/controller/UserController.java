@@ -3,6 +3,7 @@ package com.myTesi.aloisioUmberto.controller;
 
 import com.myTesi.aloisioUmberto.data.services.interfaces.UserService;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
+import com.myTesi.aloisioUmberto.dto.SensorDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/v1")
@@ -50,6 +52,13 @@ public class UserController {
     public ResponseEntity<List<UserDto>> getAll() {
         return ResponseEntity.ok(userService.getAllUserDtoSortedByLastnameAscending());
     }
+
+    @GetMapping("/users/all-sensors")
+    public ResponseEntity<List<SensorDto>> getAllSensor() {
+        return ResponseEntity.ok(userService.getAllSensor());
+    }
+
+
 
     @GetMapping("/users/{email}")
     public ResponseEntity <UserDto> findByEmail(@PathVariable @Valid String email) {

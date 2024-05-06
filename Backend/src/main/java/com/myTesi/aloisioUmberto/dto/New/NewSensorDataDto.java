@@ -9,7 +9,7 @@ import org.bson.types.ObjectId;
 @NoArgsConstructor
 @ToString
 public class NewSensorDataDto {
-    private ObjectId userId;
+    private String userId;
     private String dataType;
     private String data;
     private long timestamp;

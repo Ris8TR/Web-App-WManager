@@ -26,6 +26,7 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.save(newSensorDataDTO));
     }
 
+
     @GetMapping("/SensorData/get-all")
     public ResponseEntity<List<SensorDataDto>> getAllSensorData() {
         return ResponseEntity.ok(sensorDataService.getAllSensorData());

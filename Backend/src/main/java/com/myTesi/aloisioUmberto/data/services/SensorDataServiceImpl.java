@@ -30,6 +30,7 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Override
     public SensorData save(NewSensorDataDto newSensorDataDTO) {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
+        data.setUserId(newSensorDataDTO.getUserId());
         return sensorDataRepository.save(data);
     }
 

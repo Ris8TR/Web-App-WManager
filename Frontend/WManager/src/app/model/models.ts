@@ -6,6 +6,7 @@ export * from './newUserPreferenceDto';
 export * from './objectId';
 export * from './sensorData';
 export * from './sensorDataDto';
+export * from './sensorDto';
 export * from './serviceError';
 export * from './userDto';
 export * from './userPreferenceDto';
