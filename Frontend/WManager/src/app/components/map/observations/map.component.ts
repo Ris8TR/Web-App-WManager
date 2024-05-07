@@ -31,15 +31,12 @@ export class MapComponent implements AfterViewInit {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(this.map);
   }
-
   private loadSensorData(): void {
     this.userService.getAllSensor().subscribe(
       (sensorDtos: SensorDto[]) => {
         sensorDtos.forEach((sensorDto: SensorDto) => {
-          if (sensorDto.latitude && sensorDto.longitude) {
-            L.marker([sensorDto.latitude, sensorDto.longitude]).addTo(this.map)
-              .bindPopup(sensorDto.firstName || '');
-          }
+          L.marker([sensorDto.latitude!, sensorDto.longitude!]).addTo(this.map)
+            .bindPopup(sensorDto.firstName || String(sensorDto.latitude) || String(sensorDto.longitude) ||'');
         });
       },
       (error: any) => {
@@ -47,5 +44,5 @@ export class MapComponent implements AfterViewInit {
       }
     );
   }
-
+  
 }

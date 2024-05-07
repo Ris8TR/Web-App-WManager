@@ -70,7 +70,6 @@ public class UserServiceImpl implements UserService {
         }
 
     }
-
     @Override
     public List<SensorDto> getAllSensor() {
         List<User> users = userDao.findAllByRole(Role.SENSOR);
@@ -85,12 +84,9 @@ public class UserServiceImpl implements UserService {
                 sensorDto.setLongitude(sensorData.getLongitude());
                 sensorDtoList.add(sensorDto);
             }
-
-            return sensorDtoList;
-
         }
 
-        return  null;
+        return sensorDtoList;
     }
 
 }
