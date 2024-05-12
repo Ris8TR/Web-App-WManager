@@ -6,13 +6,14 @@ import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { CommonModule } from '@angular/common';
+import { MatButton } from '@angular/material/button';
 
 
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [MatToolbarModule,RouterOutlet, RouterLink,MatIconModule,HttpClientModule, CommonModule ],
+  imports: [MatToolbarModule,RouterOutlet, RouterLink,MatIconModule,HttpClientModule, CommonModule, MatButton ],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.css'
 })

@@ -4,12 +4,13 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { HttpClientModule } from '@angular/common/http';
 import { MapComponent } from './components/map/observations/map.component';
+import { MatButton } from '@angular/material/button';
 
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule,ToolbarComponent,HttpClientModule,MapComponent,RouterLink, RouterOutlet],
+  imports: [CommonModule,ToolbarComponent,HttpClientModule,MapComponent,RouterLink, RouterOutlet,],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
