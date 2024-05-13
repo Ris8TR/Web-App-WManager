@@ -13,3 +13,30 @@
   justify-content: flex-end; /* Allinea gli elementi all'angolo destro */
   margin-left: auto; /* Sposta il container all'angolo destro */
 }
+.toolbar-link {
+  cursor: pointer;
+  margin-left: 10px;
+  text-decoration: none;
+  color: black;
+}
+
+.toolbar-button {
+  cursor: pointer;
+  margin-left: 10px;
+  text-decoration: none;
+  color: black;
+  background-color: transparent;
+  border: none;
+}
+
+.toolbar-button-text {
+  margin-right: 5px;
+}
+
+.toolbar-icon {
+  cursor: pointer;
+}
+
+.toolbar-button:active {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12); /* Regola l'ombra quando il pulsante è cliccato */
+}

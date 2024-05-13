@@ -1,20 +1,27 @@
 <mat-toolbar>
-    <span routerLink="/home" style="cursor: pointer; margin-left: 10px; text-decoration: none; cursor: pointer;">WManager</span>
-    
+    <span routerLink="/home" class="toolbar-link">WManager</span>
+    <div class="container">
+        <button mat-button [matMenuTriggerFor]="observationsMenu" class="toolbar-button" style="width: auto;margin-top: 2px; margin-left: 20px; text-size-adjust: 5px; justify-content: flex-end; background-color: whitesmoke;">
+            <span class="toolbar-button-text" style="font-size: 1rem; ">Observations</span>
+        </button>   
+    </div>
+
+    <mat-menu #observationsMenu="matMenu">
+        <button mat-menu-item (click)="redirectToGroundStations()">Ground Stations</button>
+    </mat-menu>
 
     <div class="spacer"></div>
     <div class="container">
-        <a *ngIf="logStringResult == 'Login'" routerLink="/login" style="color: black; text-decoration: none;">
+        <a *ngIf="logStringResult == 'Login'" routerLink="/login" class="toolbar-link">
             <span style="margin-right: 10px;">{{ logStringResult }}</span>
         </a>
-        <a *ngIf="logStringResult !== 'Login'" style="color: black; text-decoration: none; margin-right: 2%;">
+        <a *ngIf="logStringResult !== 'Login'" class="toolbar-link">
             <span (click)="redirectToProfile()">{{ logStringResult }}</span>
-
         </a>
-        <a *ngIf="logStringResult == 'Login'"  style="color: black; margin-left: 10px; margin-right: 10px; text-decoration: none;">
-            <span style="color: black; text-decoration: none; margin-right: 10%;cursor: pointer;" routerLink="/signin">Registrati</span>
+        <a *ngIf="logStringResult == 'Login'" class="toolbar-link">
+            <span routerLink="/signin">Registrati</span>
         </a>
-        <mat-icon *ngIf="logStringResult !== 'Login'" fontSet="material-symbols-outlined"style="cursor: pointer;" routerLink=" " (click)="logOut()" >login</mat-icon>
+        <mat-icon *ngIf="logStringResult !== 'Login'" fontSet="material-symbols-outlined" class="toolbar-icon" (click)="logOut()">login</mat-icon>
     </div>
 </mat-toolbar>
 <router-outlet></router-outlet>

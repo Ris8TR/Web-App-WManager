@@ -1,31 +1,32 @@
 import { Component } from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import {MatIconModule, MatIconRegistry} from '@angular/material/icon';
+import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { CommonModule } from '@angular/common';
 import { MatButton } from '@angular/material/button';
-
+import { MatMenuModule } from '@angular/material/menu';
+import {MatButtonModule} from '@angular/material/button';
 
 
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [MatToolbarModule,RouterOutlet, RouterLink,MatIconModule,HttpClientModule, CommonModule, MatButton ],
+  imports: [MatToolbarModule, RouterOutlet, RouterLink, MatIconModule, HttpClientModule, CommonModule, MatButton, MatMenuModule, MatButtonModule],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.css'
 })
 export class ToolbarComponent {
 
   pageNumber: number = 0;
-  logStringResult: string ="Login";
+  logStringResult: string = "Login";
   productDetails = [[] as any];
   showLoadButton = false;
-  role:string = this.cookieService.get("role")
+  role: string = this.cookieService.get("role");
 
-  constructor(private cookieService: CookieService, 
+  constructor(private cookieService: CookieService,
     private router: Router,
     iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
     iconRegistry.addSvgIconSet(
@@ -34,19 +35,15 @@ export class ToolbarComponent {
   }
 
   ngOnInit(): void {
-    this.checkUserCookie()
+    this.checkUserCookie();
   }
 
-
-  
   redirectToSearch(searchKeyword: string) {
-
     const formattedSearch = searchKeyword.toLowerCase();
     this.router.navigate(['/search', formattedSearch]);
-
   }
 
-  redirectToProfile(){
+  redirectToProfile() {
     const userCookie = this.cookieService.get('user');
 
     if (!userCookie) {
@@ -56,12 +53,16 @@ export class ToolbarComponent {
     }
   }
 
-  logOut(){
+  redirectToGroundStations() {
+    this.router.navigate(['/ground-stations']);
+  }
+
+  logOut() {
     this.cookieService.delete('user');
     this.cookieService.delete('role');
     this.cookieService.delete('Token');
     this.cookieService.delete('sessionId');
-    this.checkUserCookie()
+    this.checkUserCookie();
     this.router.navigate(['/home']);
   }
 
@@ -75,6 +76,4 @@ export class ToolbarComponent {
       this.logStringResult = 'Login';
     }
   }
-
-
 }
