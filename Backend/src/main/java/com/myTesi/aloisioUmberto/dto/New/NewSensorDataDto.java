@@ -11,8 +11,6 @@ import org.bson.types.ObjectId;
 public class NewSensorDataDto {
     private String userId;
     private String dataType;
-    private String data;
-    private long timestamp;
     private double latitude;
     private double longitude;
 

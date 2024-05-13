@@ -5,6 +5,8 @@ import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Date;
+
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -15,10 +17,8 @@ public class SensorData {
     private String userId; // ID dell'utente che ha inviato i dati
     private String dataType; // Tipo di dati (JSON, GeoJSON, Raster, Shapefile, ecc.)
     private String data; // I dati effettivi inviati dal sensore (può essere rappresentato come una stringa)
-    private long timestamp; // Timestamp dei dati inviati
+    private Date timestamp; // Timestamp dei dati inviati
     private double latitude; // Latitudine delle coordinate geografiche
     private double longitude; // Longitudine delle coordinate geografiche
-
-
 
 }

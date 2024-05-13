@@ -12,13 +12,13 @@ import java.util.Optional;
 public interface SensorDataRepository extends MongoRepository<SensorData, String> {
 
     default Optional<SensorData> findLatestByUserId(String id) {
-        List<SensorData> sensorDataList = findByUserIdOrderByDataDesc(id);
+        List<SensorData> sensorDataList = findByUserIdOrderByTimestampDesc(id);
         if (sensorDataList.isEmpty()) {
             return Optional.empty();
         } else {
-            return Optional.of(sensorDataList.get(0));
+            return Optional.of(sensorDataList.getFirst());
         }
     }
 
-    List<SensorData> findByUserIdOrderByDataDesc(String id);
+    List<SensorData> findByUserIdOrderByTimestampDesc(String id);
 }

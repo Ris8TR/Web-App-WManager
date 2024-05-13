@@ -67,6 +67,10 @@ export class MapComponent implements AfterViewInit {
   
   private initMap(): void {
     this.map = L.map('map').setView([41.8719, 12.5674], 6);
+    this.map.setMaxZoom(9); // Imposta il livello di zoom massimo a 9
+    this.map.setMinZoom(5); // Imposta il livello di zoom minimo a 5
+  
+    
     const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     });
@@ -91,14 +95,13 @@ export class MapComponent implements AfterViewInit {
           const latitude = sensorDto.latitude!;
           const longitude = sensorDto.longitude!;
           const key = `<span class="math-inline">\{latitude\},</span>{longitude}`; 
-
           const sensorCount = this.sensorCountPerMarker[key] || 1 
           this.sensorCountPerMarker[key] = 1; 
-
+          const popupContent = `Nome: ${sensorDto.firstName} <br>Lat: ${latitude} <br>Lon: ${longitude}`;
           const marker = L.marker([latitude, longitude], {
             icon: this.createGreenMarkerIcon(sensorCount) //crea icone
           })
-            .bindPopup(sensorDto.firstName || String(latitude) || String(longitude) || '');
+            .bindPopup(popupContent );
           markers.push(marker);
         });
 

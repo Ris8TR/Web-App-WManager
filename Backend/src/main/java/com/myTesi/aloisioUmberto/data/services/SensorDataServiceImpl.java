@@ -11,6 +11,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +33,8 @@ public class SensorDataServiceImpl implements SensorDataService {
     public SensorData save(NewSensorDataDto newSensorDataDTO) {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
         data.setUserId(newSensorDataDTO.getUserId());
+        data.setTimestamp(Date.from(Instant.now()));
+
         return sensorDataRepository.save(data);
     }
 
