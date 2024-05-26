@@ -20,7 +20,7 @@ export class ForecastComponent {
   }
 
   private initMap(): void {
-    this.map = L.map('map').setView([41.8719, 12.5674], 6);
+    this.map = L.map('map').setView([41.8719, 12.5674], 5);
     const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     });

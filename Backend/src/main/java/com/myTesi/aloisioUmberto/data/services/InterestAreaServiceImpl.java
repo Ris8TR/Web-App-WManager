@@ -7,9 +7,12 @@ import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.geotools.data.shapefile.shp.ShapefileReader;
 import org.springframework.stereotype.Service;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,11 +38,38 @@ public class InterestAreaServiceImpl implements InterestAreaService {
 
     @Override
     public List<InterestArea> getInterestAreasByUserId(ObjectId userId) {
-        return (List<InterestArea>) interestAreaRepository.findByUserId(userId.toString());
+        return interestAreaRepository.findAllByUserId(userId.toString());
     }
+
+
 
     @Override
     public void deleteInterestArea(ObjectId id) {
         interestAreaRepository.deleteById(id.toString());
     }
+
+
+/*
+    public byte[] readShapefileData(String pathToShapefile) throws IOException {
+        FileInputStream shapefileStream = new FileInputStream(pathToShapefile);
+        ShapefileReader shapefileReader = new ShapefileReader(shapefileStream);
+
+        List<byte[]> shapefileDataList = new ArrayList<>();
+
+        while (shapefileReader.hasNext()) {
+            byte[] record = shapefileReader.nextRecord();
+            shapefileDataList.add(record);
+        }
+
+        int totalSize = shapefileDataList.stream().mapToInt(arr -> arr.length).sum();
+        byte[] shapefileData = new byte[totalSize];
+        int currentIndex = 0;
+
+        for (byte[] record : shapefileDataList) {
+            System.arraycopy(record, 0, shapefileData, currentIndex, record.length);
+            currentIndex += record.length;
+        }
+
+        return shapefileData;
+    }*/
 }

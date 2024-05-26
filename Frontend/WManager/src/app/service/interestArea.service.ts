@@ -194,10 +194,10 @@ export class InterestAreaService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getInterestAreasByUserId(userId: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<Array<InterestArea>>;
-    public getInterestAreasByUserId(userId: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<InterestArea>>>;
-    public getInterestAreasByUserId(userId: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<InterestArea>>>;
-    public getInterestAreasByUserId(userId: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getInterestAreasByUserId(userId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<InterestArea>>;
+    public getInterestAreasByUserId(userId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<InterestArea>>>;
+    public getInterestAreasByUserId(userId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<InterestArea>>>;
+    public getInterestAreasByUserId(userId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (userId === null || userId === undefined) {
             throw new Error('Required parameter userId was null or undefined when calling getInterestAreasByUserId.');

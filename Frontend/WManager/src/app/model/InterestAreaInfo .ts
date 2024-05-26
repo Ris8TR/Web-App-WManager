@@ -11,9 +11,7 @@
  */
 import { ObjectId } from './objectId';
 
-export interface InterestArea { 
-    id?: string;
-    userId?: string;
-    name?: string;
-    geometry?: string;
+export interface NewInterestAreaDto { 
+    id: string;
+    name: string;
 }

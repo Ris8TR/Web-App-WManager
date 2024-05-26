@@ -2,9 +2,10 @@ import { AfterViewInit, Component } from '@angular/core';
 import * as L from 'leaflet';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ToolbarComponent } from '../../toolbar/toolbar.component';
-import { SensorDto } from '../../../model/sensorDto';
-import { UserService } from '../../../service/user.service';
+
 import 'leaflet.markercluster'; // Import the Leaflet.markercluster plugin
+import { SensorDto } from '../../../../model/sensorDto';
+import { UserService } from '../../../../service/user.service';
 
 @Component({
   selector: 'app-map',
@@ -66,7 +67,7 @@ export class MapComponent implements AfterViewInit {
 
   
   private initMap(): void {
-    this.map = L.map('map').setView([41.8719, 12.5674], 6);
+    this.map = L.map('map').setView([41.8719, 12.5674], 5);
     this.map.setMaxZoom(9); // Imposta il livello di zoom massimo a 9
     this.map.setMinZoom(5); // Imposta il livello di zoom minimo a 5
   

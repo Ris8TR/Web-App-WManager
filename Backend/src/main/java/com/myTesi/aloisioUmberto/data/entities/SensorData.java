@@ -1,4 +1,5 @@
 package com.myTesi.aloisioUmberto.data.entities;
+import com.myTesi.aloisioUmberto.dto.enumetation.Type;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,5 +21,4 @@ public class SensorData {
     private Date timestamp; // Timestamp dei dati inviati
     private double latitude; // Latitudine delle coordinate geografiche
     private double longitude; // Longitudine delle coordinate geografiche
-
 }

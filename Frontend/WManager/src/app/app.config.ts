@@ -6,8 +6,9 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from './service/auth.service';
 import { provideHttpClient } from '@angular/common/http';
 import { UserService } from './service/user.service';
+import { InterestAreaService } from './service/interestArea.service';
 
 //TODO QUI VANNO I SERVICES ORA
 export const appConfig: ApplicationConfig = {
-  providers: [provideAnimationsAsync(),provideRouter(routes),FormsModule,AuthService,UserService,provideHttpClient()]
+  providers: [provideAnimationsAsync(),provideRouter(routes),FormsModule,AuthService,UserService, InterestAreaService,provideHttpClient()]
 };

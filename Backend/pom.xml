@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -15,7 +16,10 @@
 	<description>oKY</description>
 	<properties>
 		<java.version>22</java.version>
+
 	</properties>
+
+
 
 	<dependencies>
 		<dependency>
@@ -47,6 +51,7 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version> 2.5.0</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
@@ -90,6 +95,11 @@
 			<version> 6.2.4</version>
 		</dependency>
 		<dependency>
+			<groupId>org.geotools</groupId>
+			<artifactId>gt-shapefile</artifactId>
+			<version>29-EOWS-p9</version>
+		</dependency>
+		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>1.18.32</version>
@@ -97,6 +107,12 @@
 		</dependency>
 
 	</dependencies>
+	<repositories>
+	<repository>
+		<id>geo-solutions</id>
+		<url>https://maven.geo-solutions.it/</url>
+	</repository>
+	</repositories>
 
 	<build>
 		<plugins>
@@ -140,4 +156,7 @@
 		</plugins>
 	</build>
 
+
 </project>
+
+

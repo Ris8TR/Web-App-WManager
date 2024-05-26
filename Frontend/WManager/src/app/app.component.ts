@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
-import { ToolbarComponent } from './components/toolbar/toolbar.component';
 import { HttpClientModule } from '@angular/common/http';
-import { MapComponent } from './components/map/observations/map.component';
 import { MatButton } from '@angular/material/button';
+import { ToolbarComponent } from './components/elements/toolbar/toolbar.component';
+import { MapComponent } from './components/elements/map/observations/map.component';
 
 
 @Component({

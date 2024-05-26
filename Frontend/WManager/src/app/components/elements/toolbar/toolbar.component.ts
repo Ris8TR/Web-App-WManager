@@ -9,6 +9,8 @@ import { CommonModule } from '@angular/common';
 import { MatButton } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';
+import { InterestAreaService } from '../../../service/interestArea.service';
+import { InterestArea } from '../../../model/interestArea';
 
 
 @Component({
@@ -24,10 +26,14 @@ export class ToolbarComponent {
   logStringResult: string = "Login";
   productDetails = [[] as any];
   showLoadButton = false;
+  interestAreaNames: InterestArea[] = [ ];
+
+  userId=""
   role: string = this.cookieService.get("role");
 
   constructor(private cookieService: CookieService,
     private router: Router,
+    private interestAreaService: InterestAreaService,
     iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
     iconRegistry.addSvgIconSet(
       domSanitizer.bypassSecurityTrustResourceUrl('./assets/mdi.svg')
@@ -38,14 +44,30 @@ export class ToolbarComponent {
     this.checkUserCookie();
   }
 
-  redirectToSearch(searchKeyword: string) {
-    const formattedSearch = searchKeyword.toLowerCase();
-    this.router.navigate(['/search', formattedSearch]);
+
+  loadInterestAreas(): void {
+    this.interestAreaService.getInterestAreasByUserId(this.userId).subscribe(
+      (interestAreas: InterestArea[]) => {
+        this.interestAreaNames = [];
+        
+        interestAreas.forEach((area: InterestArea) => {
+          if (area.id && area.name) {
+            this.interestAreaNames.push({ id: area.id, name: area.name });
+          }
+        });
+      },
+      (error: any) => {
+        console.error('Error loading interest area data:', error);
+      }
+    );
   }
+redirectToInterestArea(interestAreaName: string) {
+  this.router.navigate(['/interest-area', interestAreaName]);
+}
+
 
   redirectToProfile() {
     const userCookie = this.cookieService.get('user');
-
     if (!userCookie) {
       this.router.navigate(['/login']);
     } else {

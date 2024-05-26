@@ -36,7 +36,7 @@ public class User {
     private String lastName;
 
     @NotNull
-    @Indexed(unique = true) // Indica che l'email deve essere unica
+    @Indexed(unique = true) // Indica che l'email deve essere unica nel db
     @Field
     private String email;
 

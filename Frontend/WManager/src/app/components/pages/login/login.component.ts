@@ -9,10 +9,11 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {ElementRef, ViewChild } from '@angular/core';
-import { AuthService } from '../../service/auth.service';
-import { ToolbarComponent } from '../toolbar/toolbar.component';
-import { NewUserDto } from '../../model/models';
-import { LoginDto } from '../../model/loginDto';
+import { LoginDto } from '../../../model/loginDto';
+import { NewUserDto } from '../../../model/newUserDto';
+import { AuthService } from '../../../service/auth.service';
+import { ToolbarComponent } from '../../elements/toolbar/toolbar.component';
+
 
 @Component({
   selector: 'app-login',
