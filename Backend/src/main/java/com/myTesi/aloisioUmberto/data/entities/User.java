@@ -47,9 +47,7 @@ public class User {
     @NotNull
     @Field
     private String password;
-
-
-
+    
 
     //Altro
     private UserPreference userPreference; // Preferenze di visualizzazione dell'utente
