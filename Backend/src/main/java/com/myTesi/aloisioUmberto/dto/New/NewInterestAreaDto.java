@@ -9,7 +9,7 @@ import org.bson.types.ObjectId;
 @NoArgsConstructor
 @ToString
 public class NewInterestAreaDto {
-    private ObjectId userId; // ID dell'utente a cui appartiene l'area di interesse
+    private String userId; // ID dell'utente a cui appartiene l'area di interesse
     private String name; // Nome dell'area di interesse
     private String geometry; // Geometria dell'area
 }

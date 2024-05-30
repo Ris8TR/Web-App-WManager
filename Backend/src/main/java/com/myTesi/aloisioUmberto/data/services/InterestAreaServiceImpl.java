@@ -7,11 +7,19 @@ import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
+import org.geotools.data.FileDataStore;
+import org.geotools.data.FileDataStoreFinder;
+import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.shapefile.shp.ShapefileReader;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureIterator;
+import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +45,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
     @Override
-    public List<InterestArea> getInterestAreasByUserId(ObjectId userId) {
+    public List<InterestArea> getInterestAreasByUserId(String userId) {
         return interestAreaRepository.findAllByUserId(userId.toString());
     }
 
@@ -49,16 +57,29 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
 
-/*
+
+    //TODO Verificare che tutto funzioni
     public byte[] readShapefileData(String pathToShapefile) throws IOException {
-        FileInputStream shapefileStream = new FileInputStream(pathToShapefile);
-        ShapefileReader shapefileReader = new ShapefileReader(shapefileStream);
+        File file = new File(pathToShapefile);
+        FileDataStore store = FileDataStoreFinder.getDataStore(file);
+        if (!(store instanceof ShapefileDataStore shapefileDataStore)) {
+            throw new IOException("Not a valid shapefile");
+        }
+
+        shapefileDataStore.setCharset(StandardCharsets.UTF_8);
+        SimpleFeatureCollection featureCollection = shapefileDataStore.getFeatureSource().getFeatures();
 
         List<byte[]> shapefileDataList = new ArrayList<>();
 
-        while (shapefileReader.hasNext()) {
-            byte[] record = shapefileReader.nextRecord();
-            shapefileDataList.add(record);
+        try (SimpleFeatureIterator featureIterator = featureCollection.features()) {
+            while (featureIterator.hasNext()) {
+                SimpleFeature feature = featureIterator.next();
+                //TODO Scegliere come eseguire il parsing
+                // Convert feature to byte array or other representation as needed.
+                // For simplicity, let's assume you want to store the feature's WKT (Well-Known Text) representation
+                String wkt = feature.getDefaultGeometry().toString();
+                shapefileDataList.add(wkt.getBytes(StandardCharsets.UTF_8));
+            }
         }
 
         int totalSize = shapefileDataList.stream().mapToInt(arr -> arr.length).sum();
@@ -70,6 +91,8 @@ public class InterestAreaServiceImpl implements InterestAreaService {
             currentIndex += record.length;
         }
 
+        shapefileDataStore.dispose();
+
         return shapefileData;
-    }*/
+    }
 }

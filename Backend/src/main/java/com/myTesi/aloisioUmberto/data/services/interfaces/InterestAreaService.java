@@ -12,7 +12,7 @@ public interface InterestAreaService {
 
     InterestArea getInterestArea(ObjectId id);
 
-    List<InterestArea> getInterestAreasByUserId(ObjectId userId);
+    List<InterestArea> getInterestAreasByUserId(String userId);
 
     void deleteInterestArea(ObjectId id);
 }

@@ -22,7 +22,7 @@ public class InterestArea {
 
     @NotNull
     @Field
-    private ObjectId userId; // ID dell'utente a cui appartiene l'area di interesse
+    private String userId; // ID dell'utente a cui appartiene l'area di interesse
 
     @NotNull
     @Field

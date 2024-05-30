@@ -35,7 +35,7 @@ public class InterestAreaController {
     }
 
     @GetMapping("/interestarea")
-    public ResponseEntity<List<InterestArea>> getInterestAreasByUserId(@RequestParam ObjectId userId) {
+    public ResponseEntity<List<InterestArea>> getInterestAreasByUserId(@RequestParam String userId) {
         //TODO ADD TOKEN CHECK
         List<InterestArea> interestAreas = interestAreaService.getInterestAreasByUserId(userId);
         return ResponseEntity.ok(interestAreas);
