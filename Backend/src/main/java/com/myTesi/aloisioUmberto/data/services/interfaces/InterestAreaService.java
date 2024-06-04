@@ -1,6 +1,7 @@
 package com.myTesi.aloisioUmberto.data.services.interfaces;
 
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
+import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import org.bson.types.ObjectId;
 
@@ -8,11 +9,11 @@ import java.util.List;
 
 public interface InterestAreaService {
 
-    InterestArea save(NewInterestAreaDto newInterestAreaDto);
+    InterestAreaDto save(NewInterestAreaDto newInterestAreaDto);
 
     InterestArea getInterestArea(ObjectId id);
 
-    List<InterestArea> getInterestAreasByUserId(String userId);
+    List<InterestAreaDto> getInterestAreasByUserId(String userId);
 
     void deleteInterestArea(ObjectId id);
 }

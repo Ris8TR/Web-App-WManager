@@ -42,14 +42,16 @@ export class ToolbarComponent {
 
   ngOnInit(): void {
     this.checkUserCookie();
+    if (this.logStringResult != "Login")
+      this.loadInterestAreas();
   }
 
 
   loadInterestAreas(): void {
+    this.userId=this.cookieService.get("Token")
     this.interestAreaService.getInterestAreasByUserId(this.userId).subscribe(
       (interestAreas: InterestArea[]) => {
         this.interestAreaNames = [];
-        
         interestAreas.forEach((area: InterestArea) => {
           if (area.id && area.name) {
             this.interestAreaNames.push({ id: area.id, name: area.name });
@@ -96,6 +98,8 @@ redirectToInterestArea(interestAreaName: string) {
       this.logStringResult = userCookie;
     } else {
       this.logStringResult = 'Login';
+ 
     }
+   
   }
 }

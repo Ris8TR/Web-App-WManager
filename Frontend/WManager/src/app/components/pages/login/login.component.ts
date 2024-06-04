@@ -69,9 +69,9 @@ export class LoginComponent {
         this.cookieService.set('Token', data.token)
         this.cookieService.set('user', this.loginUser.email!)
         this.cookieService.set('role', "USER")
-        console.log("GG")
         this.snackBar.open("Autenticazione avvenuta con successo", 'OK',{ duration: 3000 });
         this.toolbar.checkUserCookie()
+        this.toolbar.loadInterestAreas()
         this.router.navigate(['/home']);
       },
       (error: any) => {

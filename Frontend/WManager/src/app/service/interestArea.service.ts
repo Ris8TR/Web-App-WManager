@@ -194,18 +194,18 @@ export class InterestAreaService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getInterestAreasByUserId(userId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<InterestArea>>;
-    public getInterestAreasByUserId(userId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<InterestArea>>>;
-    public getInterestAreasByUserId(userId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<InterestArea>>>;
-    public getInterestAreasByUserId(userId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getInterestAreasByUserId(token: string, observe?: 'body', reportProgress?: boolean): Observable<Array<InterestArea>>;
+    public getInterestAreasByUserId(token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<InterestArea>>>;
+    public getInterestAreasByUserId(token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<InterestArea>>>;
+    public getInterestAreasByUserId(token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
-        if (userId === null || userId === undefined) {
+        if (token === null || token === undefined) {
             throw new Error('Required parameter userId was null or undefined when calling getInterestAreasByUserId.');
         }
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-        if (userId !== undefined && userId !== null) {
-            queryParameters = queryParameters.set('userId', <any>userId);
+        if (token !== undefined && token !== null) {
+            queryParameters = queryParameters.set('token', <any>token);
         }
 
         let headers = this.defaultHeaders;
