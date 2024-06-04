@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -23,13 +25,19 @@ public class SensorDataController {
     @PostMapping("/SensorData")
     public ResponseEntity<SensorData> saveSensorData(@RequestBody NewSensorDataDto newSensorDataDTO) {
         //TODO ADD TOKEN CHECK
+        newSensorDataDTO.setDate(LocalDateTime.now());// Imposta la data e l'ora corrente
         return ResponseEntity.ok(sensorDataService.save(newSensorDataDTO));
     }
-
 
     @GetMapping("/SensorData/get-all")
     public ResponseEntity<List<SensorDataDto>> getAllSensorData() {
         return ResponseEntity.ok(sensorDataService.getAllSensorData());
+    }
+
+
+    @GetMapping("/SensorData/latest")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorBy10Min() {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBy10Min());
     }
 
     @GetMapping("/SensorData/{id}")

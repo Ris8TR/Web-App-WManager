@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 
@@ -28,7 +29,7 @@ public class SensorData {
     @Field
     private String dataType; // Tipo di dati (JSON, GeoJSON, Raster, Shapefile, ecc.)
 
-    private String data; // I dati effettivi inviati dal sensore (può essere rappresentato come una stringa)
+    private LocalDateTime date; // I dati effettivi inviati dal sensore (può essere rappresentato come una stringa)
 
     private Date timestamp; // Timestamp dei dati inviati
 

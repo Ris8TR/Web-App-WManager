@@ -13,8 +13,11 @@ public interface SensorDataService  {
     // Metodo per salvare un nuovo dato nel database
     SensorData save(NewSensorDataDto newSensorDataDTO);
 
-    // Metodo per ottenere tutti i dati nel database
+    // Metodo per ottenere tutti i dati dal database
     List<SensorDataDto> getAllSensorData();
+
+    // Metodo per ottenere gli ultimi dati dal database
+    List<SensorDataDto> getAllSensorDataBy10Min();
 
     // Metodo per ottenere un dato specifico per ID
     SensorDataDto getSensorDataById(Object id);

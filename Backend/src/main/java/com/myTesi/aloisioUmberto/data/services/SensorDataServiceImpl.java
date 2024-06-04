@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,23 @@ public class SensorDataServiceImpl implements SensorDataService {
         return sensorDataRepository.findAll().stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
     }
 
+
+    //TODO Serve?!
+    public List<SensorDataDto> getAllSensorDataByNow() {
+        return sensorDataRepository.findAll().stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
+    }
+
+    
+    public List<SensorDataDto> getAllSensorDataBy10Min() {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date tenMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
+    }
+
     @Override
     public SensorDataDto getSensorDataById(Object id) {
         Optional<SensorData> data = sensorDataRepository.findById(id.toString());
@@ -51,12 +69,12 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorData update(SensorData newSensorData) {
-        SensorData existingSensorData = sensorDataRepository.findById(newSensorData.getUserId().toString()).orElse(null);
+        SensorData existingSensorData = sensorDataRepository.findById(newSensorData.getUserId()).orElse(null);
         if (existingSensorData != null) {
             // Copia i campi dal nuovo oggetto a quello esistente
             existingSensorData.setUserId(newSensorData.getUserId());
             existingSensorData.setDataType(newSensorData.getDataType());
-            existingSensorData.setData(newSensorData.getData());
+            existingSensorData.setDate(newSensorData.getDate());
             existingSensorData.setTimestamp(newSensorData.getTimestamp());
             existingSensorData.setLatitude(newSensorData.getLatitude());
             existingSensorData.setLongitude(newSensorData.getLongitude());
