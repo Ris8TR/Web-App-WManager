@@ -1,4 +1,5 @@
 export * from './interestArea';
+export * from './interestAreaDto';
 export * from './newInterestAreaDto';
 export * from './newSensorDataDto';
 export * from './newUserDto';

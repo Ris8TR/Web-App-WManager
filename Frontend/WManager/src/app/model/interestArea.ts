@@ -12,8 +12,20 @@
 import { ObjectId } from './objectId';
 
 export interface InterestArea { 
-    id?: string;
-    userId?: string;
-    name?: string;
-    geometry?: string;
+    id?: ObjectId;
+    userId: string;
+    name: string;
+    geometry: string;
+    shapefileData?: Array<string>;
+    type?: InterestArea.TypeEnum;
+    sensorList?: Array<ObjectId>;
+}
+export namespace InterestArea {
+    export type TypeEnum = 'GEOJSON' | 'JSON' | 'PHOTO' | 'RUSTER';
+    export const TypeEnum = {
+        GEOJSON: 'GEOJSON' as TypeEnum,
+        JSON: 'JSON' as TypeEnum,
+        PHOTO: 'PHOTO' as TypeEnum,
+        RUSTER: 'RUSTER' as TypeEnum
+    };
 }

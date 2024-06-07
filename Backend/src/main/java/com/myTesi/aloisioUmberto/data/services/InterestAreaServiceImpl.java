@@ -3,10 +3,13 @@ package com.myTesi.aloisioUmberto.data.services;
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
+import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
+import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
+import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.geotools.data.FileDataStore;
@@ -21,8 +24,11 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +38,9 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     private final JwtTokenProvider jwtTokenProvider;
     private final ModelMapper modelMapper = new ModelMapper();
     private final InterestAreaRepository interestAreaRepository;
+    private final SensorDataRepository sensorDataRepository;
+    private final GeoService geoService;
+
 
     @Override
     public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto) {
@@ -75,6 +84,26 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
 
+    //TODO Verificare che tutto funzioni
+    public List<SensorDataDto> getLatestSensorDataInInterestArea(ObjectId interestAreaId) {
+        InterestArea interestArea = getInterestArea(interestAreaId);
+        List<SensorData> sensors = sensorDataRepository.findAllByType(interestArea.getType());
+
+        // Calcolare la data di 10 minuti fa
+        Date tenMinutesAgo = Date.from(Instant.now().minusSeconds(600));
+
+        List<SensorDataDto> sensorDataList = new ArrayList<>();
+        for (SensorData sensor : sensors) {
+            if (geoService.isSensorInInterestArea(sensor.getLatitude(), sensor.getLongitude(), interestArea.getGeometry())) {
+                Optional<SensorData> latestSensorData = sensorDataRepository.findTopByDataTypeAndTimestampAfterOrderByTimestampDesc(interestArea.getType(), tenMinutesAgo);
+                latestSensorData.ifPresent(sensorData -> sensorDataList.add(modelMapper.map(sensorData, SensorDataDto.class)));
+            }
+        }
+        return sensorDataList;
+    }
+
+
+
 
     //TODO Verificare che tutto funzioni
     public byte[] readShapefileData(String pathToShapefile) throws IOException {
@@ -92,9 +121,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         try (SimpleFeatureIterator featureIterator = featureCollection.features()) {
             while (featureIterator.hasNext()) {
                 SimpleFeature feature = featureIterator.next();
-                //TODO Scegliere come eseguire il parsing
-                // Convert feature to byte array or other representation as needed.
-                // For simplicity, let's assume you want to store the feature's WKT (Well-Known Text) representation
+                //TODO Scegliere come eseguire il parsing questo da qui in poi è per test
                 String wkt = feature.getDefaultGeometry().toString();
                 shapefileDataList.add(wkt.getBytes(StandardCharsets.UTF_8));
             }

@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 
 import { AuthService } from './api/auth.service';
 import { UserService } from './api/user.service';
+import { SensorDataService } from './service/sensorData.service';
 
 @NgModule({
   imports:      [],
@@ -12,6 +13,7 @@ import { UserService } from './api/user.service';
   exports:      [],
   providers: [
     AuthService,
+    SensorDataService,
     UserService ]
 })
 export class ApiModule {

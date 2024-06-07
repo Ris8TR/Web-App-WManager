@@ -35,7 +35,7 @@ public class InterestArea {
     @Field
     private byte[] shapefileData; // Dati del Shapefile
 
-    private Type type; //Tipo di dato
+    private String type; //Tipo di dato. Puo anche essere un enum volendo
 
     private List<ObjectId> SensorList;
 }

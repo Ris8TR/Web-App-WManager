@@ -18,13 +18,12 @@ import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 import { Observable }                                        from 'rxjs';
 
 import { NewUserDto } from '../model/newUserDto';
+import { SensorDto } from '../model/sensorDto';
 import { ServiceError } from '../model/serviceError';
-
+import { UserDto } from '../model/userDto';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
-import { UserDto } from '../model/userDto';
-import { SensorDto } from '../model/sensorDto';
 
 
 @Injectable()
@@ -218,6 +217,5 @@ export class UserService {
             }
         );
     }
-
 
 }

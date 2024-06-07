@@ -2,7 +2,9 @@ package com.myTesi.aloisioUmberto.data.services;
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
+import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
+import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
@@ -25,6 +27,7 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Autowired
     private SensorDataRepository sensorDataRepository;
+    private final UserRepository userDao;
     private final ModelMapper modelMapper = new ModelMapper();
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -33,10 +36,15 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Override
     public SensorData save(NewSensorDataDto newSensorDataDTO) {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
-        data.setUserId(newSensorDataDTO.getUserId());
-        data.setTimestamp(Date.from(Instant.now()));
-
-        return sensorDataRepository.save(data);
+        Optional<User> user = userDao.findById(data.getUserId());
+        if(user.isPresent()) {
+            data.setUserId(newSensorDataDTO.getUserId());
+            data.setTimestamp(Date.from(Instant.now()));
+            sensorDataRepository.save(data);
+            //TODO L'aggiornamento della posizione del sensore dovrebbe andare qui
+            return data;
+        }
+        return null;
     }
 
     @Override
@@ -50,7 +58,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         return sensorDataRepository.findAll().stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
     }
 
-    
+    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBy10Min() {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
@@ -71,7 +79,6 @@ public class SensorDataServiceImpl implements SensorDataService {
     public SensorData update(SensorData newSensorData) {
         SensorData existingSensorData = sensorDataRepository.findById(newSensorData.getUserId()).orElse(null);
         if (existingSensorData != null) {
-            // Copia i campi dal nuovo oggetto a quello esistente
             existingSensorData.setUserId(newSensorData.getUserId());
             existingSensorData.setDataType(newSensorData.getDataType());
             existingSensorData.setDate(newSensorData.getDate());
@@ -79,7 +86,6 @@ public class SensorDataServiceImpl implements SensorDataService {
             existingSensorData.setLatitude(newSensorData.getLatitude());
             existingSensorData.setLongitude(newSensorData.getLongitude());
 
-            // Salva l'oggetto aggiornato
             return sensorDataRepository.save(existingSensorData);
         }
         return null;

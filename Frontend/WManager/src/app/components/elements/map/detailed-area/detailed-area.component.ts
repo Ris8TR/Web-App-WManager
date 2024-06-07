@@ -1,5 +1,13 @@
-import { Component, Input, input } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, Input, OnInit, input } from '@angular/core';
 import L from 'leaflet';
+import { SensorDto } from '../../../../model/sensorDto';
+import { UserService } from '../../../../service/user.service';
+import { SensorDataService } from '../../../../service/sensorData.service';
+import { SensorDataDto } from '../../../../model/sensorDataDto';
+import { ActivatedRoute, ParamMap } from '@angular/router';
+import { InterestArea } from '../../../../model/interestArea';
+import { InterestAreaService } from '../../../../service/interestArea.service';
 
 @Component({
   selector: 'app-detailed-area',
@@ -8,16 +16,30 @@ import L from 'leaflet';
   templateUrl: './detailed-area.component.html',
   styleUrl: './detailed-area.component.css'
 })
-export class DetailedAreaComponent {
+export class DetailedAreaComponent implements OnInit {
   private map!: L.Map;
-  @Input() interestAreaId: any;
+  id: string | null = null;
+ 
 
+  constructor(private http: HttpClient,private route: ActivatedRoute, private sensorDataService: SensorDataService, private interestAreaService : InterestAreaService) {}
+
+ 
+  ngOnInit(): void {
+    this.route.paramMap.subscribe((params: ParamMap) => {
+      this.id = params.get('id');
+      if (this.id) {
+        this.loadData(this.id);
+        console.log(this.id);
+      }
+    });
+  }
   
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initMap();
   
     }, 10);
+   
   }
 
   private initMap(): void {
@@ -28,5 +50,20 @@ export class DetailedAreaComponent {
     tileLayer.addTo(this.map);
   }
 
-  
+  private loadData(id: string | undefined): void {
+    if (!id) {
+      console.error('ID is undefined or null.');
+      return;
+    }
+
+    this.sensorDataService.getSensorDataById(id).subscribe(
+      (data: SensorDataDto) => {
+        console.log('Sensor data loaded:', data);
+      },
+      (error: any) => {
+        console.error('Error loading sensor data:', error);
+      }
+    );
+  }
+
 }

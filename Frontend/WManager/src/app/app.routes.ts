@@ -7,6 +7,7 @@ import { BadComponent } from './components/pages/Errors/badRequest/bad.component
 import { NotAuthorizedComponent } from './components/pages/Errors/not-authorized/not-authorized.component';
 import { NotFoundComponent } from './components/pages/Errors/not-found/not-found.component';
 import { RefusedComponent } from './components/pages/Errors/refused/refused.component';
+import { DetailedAreaComponent } from './components/elements/map/detailed-area/detailed-area.component';
 
 
 
@@ -16,6 +17,7 @@ export const routes: Routes = [
     {path: 'ground-stations',title:"Graunded Stations", component: MapComponent},
     {path: 'login',title:"login", component: LoginComponent},
     {path: 'signin',title:"signin", component: SigninComponent},
+    { path: 'detail/:id', title: "Area Details", component: DetailedAreaComponent },
     //Errors:
     {path: 'bad-request',title:"Bad Request", component: BadComponent},
     {path: 'not-authorized',title:"Not Authorized", component: NotAuthorizedComponent },

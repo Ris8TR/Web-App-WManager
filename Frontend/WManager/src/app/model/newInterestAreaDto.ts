@@ -9,10 +9,9 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
-import { ObjectId } from './objectId';
 
 export interface NewInterestAreaDto { 
-    userId?: ObjectId;
+    userId?: string;
     name?: string;
     geometry?: string;
 }

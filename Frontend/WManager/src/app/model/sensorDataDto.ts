@@ -14,8 +14,8 @@ export interface SensorDataDto {
     id?: string;
     userId?: string;
     dataType?: string;
-    data?: string;
-    timestamp?: number;
+    date?: Date;
+    timestamp?: Date;
     latitude?: number;
     longitude?: number;
 }

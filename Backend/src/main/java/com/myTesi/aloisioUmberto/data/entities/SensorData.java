@@ -33,6 +33,9 @@ public class SensorData {
 
     private Date timestamp; // Timestamp dei dati inviati
 
+    //@NotNull
+    private String type;
+
     @NotNull
     @Field
     private double latitude; // Latitudine delle coordinate geografiche

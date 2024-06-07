@@ -10,10 +10,9 @@
  * Do not edit the class manually.
  */
 
-export interface NewSensorDataDto { 
+export interface InterestAreaDto { 
+    id?: string;
     userId?: string;
-    date?: Date;
-    dataType?: string;
-    latitude?: number;
-    longitude?: number;
+    name?: string;
+    geometry?: string;
 }

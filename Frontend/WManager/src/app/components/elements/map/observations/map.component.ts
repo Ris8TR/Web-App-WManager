@@ -70,7 +70,6 @@ export class MapComponent implements AfterViewInit {
     this.map = L.map('map').setView([41.8719, 12.5674], 5);
     this.map.setMaxZoom(9); // Imposta il livello di zoom massimo a 9
     this.map.setMinZoom(5); // Imposta il livello di zoom minimo a 5
-  
     
     const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'

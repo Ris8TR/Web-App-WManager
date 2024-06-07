@@ -10,7 +10,7 @@ import { MatButton } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import {MatButtonModule} from '@angular/material/button';
 import { InterestAreaService } from '../../../service/interestArea.service';
-import { InterestArea } from '../../../model/interestArea';
+import { InterestAreaDto } from '../../../model/interestAreaDto';
 
 
 @Component({
@@ -26,7 +26,7 @@ export class ToolbarComponent {
   logStringResult: string = "Login";
   productDetails = [[] as any];
   showLoadButton = false;
-  interestAreaNames: InterestArea[] = [ ];
+  interestAreaNames: InterestAreaDto[] = [ ];
 
   userId=""
   role: string = this.cookieService.get("role");
@@ -49,10 +49,10 @@ export class ToolbarComponent {
 
   loadInterestAreas(): void {
     this.userId=this.cookieService.get("Token")
-    this.interestAreaService.getInterestAreasByUserId(this.userId).subscribe(
-      (interestAreas: InterestArea[]) => {
+    this.interestAreaService.getInterestAreasByUser(this.userId).subscribe(
+      (interestAreas: InterestAreaDto[]) => {
         this.interestAreaNames = [];
-        interestAreas.forEach((area: InterestArea) => {
+        interestAreas.forEach((area: InterestAreaDto) => {
           if (area.id && area.name) {
             this.interestAreaNames.push({ id: area.id, name: area.name });
           }
@@ -63,8 +63,10 @@ export class ToolbarComponent {
       }
     );
   }
-redirectToInterestArea(interestAreaName: string) {
-  this.router.navigate(['/interest-area', interestAreaName]);
+
+  
+redirectToInterestArea(id: string) {
+  this.router.navigate(['/detail', id]);
 }
 
 

@@ -13,10 +13,11 @@ import { ObjectId } from './objectId';
 
 export interface SensorData { 
     id?: ObjectId;
-    userId?: ObjectId;
-    dataType?: string;
-    data?: string;
-    timestamp?: number;
-    latitude?: number;
-    longitude?: number;
+    userId: string;
+    dataType: string;
+    date?: Date;
+    timestamp?: Date;
+    type?: string;
+    latitude: number;
+    longitude: number;
 }

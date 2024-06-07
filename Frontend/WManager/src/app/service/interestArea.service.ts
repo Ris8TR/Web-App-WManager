@@ -20,10 +20,12 @@ import { Observable }                                        from 'rxjs';
 import { InterestArea } from '../model/interestArea';
 import { NewInterestAreaDto } from '../model/newInterestAreaDto';
 import { ObjectId } from '../model/objectId';
+import { SensorDataDto } from '../model/sensorDataDto';
 import { ServiceError } from '../model/serviceError';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
+import { InterestAreaDto } from '../model/interestAreaDto';
 
 
 @Injectable()
@@ -65,9 +67,9 @@ export class InterestAreaService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public createInterestArea(body: NewInterestAreaDto, observe?: 'body', reportProgress?: boolean): Observable<InterestArea>;
-    public createInterestArea(body: NewInterestAreaDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestArea>>;
-    public createInterestArea(body: NewInterestAreaDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestArea>>;
+    public createInterestArea(body: NewInterestAreaDto, observe?: 'body', reportProgress?: boolean): Observable<InterestAreaDto>;
+    public createInterestArea(body: NewInterestAreaDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestAreaDto>>;
+    public createInterestArea(body: NewInterestAreaDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestAreaDto>>;
     public createInterestArea(body: NewInterestAreaDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
@@ -94,7 +96,7 @@ export class InterestAreaService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
-        return this.httpClient.request<InterestArea>('post',`${this.basePath}/v1`,
+        return this.httpClient.request<InterestAreaDto>('post',`${this.basePath}/v1`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,
@@ -190,17 +192,17 @@ export class InterestAreaService {
     /**
      * 
      * 
-     * @param userId 
+     * @param token 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getInterestAreasByUserId(token: string, observe?: 'body', reportProgress?: boolean): Observable<Array<InterestArea>>;
-    public getInterestAreasByUserId(token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<InterestArea>>>;
-    public getInterestAreasByUserId(token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<InterestArea>>>;
-    public getInterestAreasByUserId(token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getInterestAreasByUser(token: string, observe?: 'body', reportProgress?: boolean): Observable<Array<InterestAreaDto>>;
+    public getInterestAreasByUser(token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<InterestAreaDto>>>;
+    public getInterestAreasByUser(token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<InterestAreaDto>>>;
+    public getInterestAreasByUser(token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (token === null || token === undefined) {
-            throw new Error('Required parameter userId was null or undefined when calling getInterestAreasByUserId.');
+            throw new Error('Required parameter token was null or undefined when calling getInterestAreasByUser.');
         }
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
@@ -223,7 +225,59 @@ export class InterestAreaService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Array<InterestArea>>('get',`${this.basePath}/v1/interestarea`,
+        return this.httpClient.request<Array<InterestAreaDto>>('get',`${this.basePath}/v1/interestarea`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     * 
+     * 
+     * @param interestAreaId 
+     * @param sensorType 
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, sensorType: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, sensorType: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, sensorType: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, sensorType: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (interestAreaId === null || interestAreaId === undefined) {
+            throw new Error('Required parameter interestAreaId was null or undefined when calling getLatestSensorDataInInterestArea.');
+        }
+
+        if (sensorType === null || sensorType === undefined) {
+            throw new Error('Required parameter sensorType was null or undefined when calling getLatestSensorDataInInterestArea.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (sensorType !== undefined && sensorType !== null) {
+            queryParameters = queryParameters.set('sensorType', <any>sensorType);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            '*/*'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/${encodeURIComponent(String(interestAreaId))}/latest-sensor-data`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,

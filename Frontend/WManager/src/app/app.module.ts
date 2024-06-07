@@ -5,9 +5,10 @@ import { FormsModule } from '@angular/forms'; // Import here
 import { AppComponent } from './app.component';
 import { AuthService } from './service/auth.service';
 import { UserService } from './service/api';
-import { LoginComponent } from './components/login/login.component';
-import { SigninComponent } from './components/signin/signin.component';
-import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import { ToolbarComponent } from './components/elements/toolbar/toolbar.component';
+import { LoginComponent } from './components/pages/login/login.component';
+import { SigninComponent } from './components/pages/signin/signin.component';
+
 
 @NgModule({
   declarations: [],
