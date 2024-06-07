@@ -56,8 +56,8 @@ export class DetailedAreaComponent implements OnInit {
       return;
     }
 
-    this.sensorDataService.getSensorDataById(id).subscribe(
-      (data: SensorDataDto) => {
+    this.interestAreaService.getLatestSensorDataInInterestArea(id).subscribe(
+      (data: SensorDataDto[]) => {
         console.log('Sensor data loaded:', data);
       },
       (error: any) => {

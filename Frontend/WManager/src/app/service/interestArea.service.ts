@@ -244,10 +244,10 @@ export class InterestAreaService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getLatestSensorDataInInterestArea(interestAreaId: String, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: String, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: String, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: String, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (interestAreaId === null || interestAreaId === undefined) {
             throw new Error('Required parameter interestAreaId was null or undefined when calling getLatestSensorDataInInterestArea.');
