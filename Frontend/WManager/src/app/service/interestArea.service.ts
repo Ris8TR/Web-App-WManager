@@ -244,23 +244,18 @@ export class InterestAreaService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, sensorType: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, sensorType: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, sensorType: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, sensorType: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+    public getLatestSensorDataInInterestArea(interestAreaId: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (interestAreaId === null || interestAreaId === undefined) {
             throw new Error('Required parameter interestAreaId was null or undefined when calling getLatestSensorDataInInterestArea.');
         }
 
-        if (sensorType === null || sensorType === undefined) {
-            throw new Error('Required parameter sensorType was null or undefined when calling getLatestSensorDataInInterestArea.');
-        }
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-        if (sensorType !== undefined && sensorType !== null) {
-            queryParameters = queryParameters.set('sensorType', <any>sensorType);
-        }
+       
 
         let headers = this.defaultHeaders;
 
