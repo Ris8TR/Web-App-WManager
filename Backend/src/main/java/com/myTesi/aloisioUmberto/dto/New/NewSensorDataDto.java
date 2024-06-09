@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.bson.types.ObjectId;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -17,5 +18,6 @@ public class NewSensorDataDto {
     private String dataType;
     private double latitude;
     private double longitude;
+    private Object  payload;
 
 }

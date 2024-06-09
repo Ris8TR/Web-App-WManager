@@ -1,6 +1,6 @@
 package com.myTesi.aloisioUmberto.dto.enumetation;
 
-public enum Type {
+public enum payloadType {
     GEOJSON,
     JSON,
     PHOTO,

@@ -5,6 +5,8 @@ import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
+import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.*;
+import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
@@ -13,6 +15,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Date;
@@ -29,22 +32,39 @@ public class SensorDataServiceImpl implements SensorDataService {
     private SensorDataRepository sensorDataRepository;
     private final UserRepository userDao;
     private final ModelMapper modelMapper = new ModelMapper();
+    @Autowired
     private final JwtTokenProvider jwtTokenProvider;
 
 
 
     @Override
-    public SensorData save(NewSensorDataDto newSensorDataDTO) {
+    public SensorData save(NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
         Optional<User> user = userDao.findById(data.getUserId());
-        if(user.isPresent()) {
+        if (user.isPresent()) {
             data.setUserId(newSensorDataDTO.getUserId());
             data.setTimestamp(Date.from(Instant.now()));
-            sensorDataRepository.save(data);
-            //TODO L'aggiornamento della posizione del sensore dovrebbe andare qui
-            return data;
+
+            SensorDataHandler handler = getHandlerForType(newSensorDataDTO.getDataType());
+            if (handler != null) {
+                handler.handle(data, newSensorDataDTO);
+                sensorDataRepository.save(data);
+                //TODO L'aggiornamento della posizione del sensore dovrebbe andare qui
+                return data;
+            }
         }
         return null;
+    }
+
+    private SensorDataHandler getHandlerForType(String dataType) {
+        return switch (dataType.toLowerCase()) {
+            case "json" -> new JsonSensorDataHandler();
+            case "geojson" -> new GeoJsonSensorDataHandler();
+            case "image" -> new ImageSensorDataHandler();
+            case "shapefile" -> new ShapefileSensorDataHandler();
+            case "raster" -> new RasterSensorDataHandler();
+            default -> null;
+        };
     }
 
     @Override

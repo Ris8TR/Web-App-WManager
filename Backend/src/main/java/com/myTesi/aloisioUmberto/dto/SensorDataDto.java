@@ -16,6 +16,7 @@ public class SensorDataDto {
     private String dataType;
     private LocalDateTime date;
     private Date timestamp;
+    private Object payload;
     private double latitude;
     private double longitude;
 

@@ -34,7 +34,7 @@ public class SensorData {
     private Date timestamp; // Timestamp dei dati inviati
 
     //@NotNull
-    private String type;
+    private Object payload;
 
     @NotNull
     @Field

@@ -42,6 +42,9 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     private final GeoService geoService;
 
 
+    //json, immagine, shapefile, raster
+
+
     @Override
     public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto) {
         InterestArea interestArea = modelMapper.map(newInterestAreaDto, InterestArea.class);
@@ -87,7 +90,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     //TODO Verificare che tutto funzioni
     public List<SensorDataDto> getLatestSensorDataInInterestArea(ObjectId interestAreaId) {
         InterestArea interestArea = getInterestArea(interestAreaId);
-        List<SensorData> sensors = sensorDataRepository.findAllByType(interestArea.getType());
+        List<SensorData> sensors = sensorDataRepository.findAllByDataType(interestArea.getType());
 
         // Calcolare la data di 10 minuti fa
         Date tenMinutesAgo = Date.from(Instant.now().minusSeconds(600));
