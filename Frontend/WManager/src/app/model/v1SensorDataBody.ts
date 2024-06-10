@@ -9,12 +9,9 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import { NewSensorDataDto } from './newSensorDataDto';
 
-export interface NewSensorDataDto { 
-    userId?: string;
-    date?: Date;
-    dataType?: string;
-    payload?: object;
-    latitude?: number;
-    longitude?: number;
+export interface V1SensorDataBody { 
+    file: Blob;
+    data: NewSensorDataDto;
 }

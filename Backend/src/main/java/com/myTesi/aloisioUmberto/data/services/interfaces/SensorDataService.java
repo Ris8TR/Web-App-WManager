@@ -4,6 +4,7 @@ package com.myTesi.aloisioUmberto.data.services.interfaces;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,7 +13,7 @@ public interface SensorDataService  {
 
 
     // Metodo per salvare un nuovo dato nel database
-    SensorData save(NewSensorDataDto newSensorDataDTO) throws IOException;
+    SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException;
 
     // Metodo per ottenere tutti i dati dal database
     List<SensorDataDto> getAllSensorData();

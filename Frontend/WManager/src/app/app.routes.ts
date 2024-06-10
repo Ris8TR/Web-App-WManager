@@ -8,16 +8,19 @@ import { NotAuthorizedComponent } from './components/pages/Errors/not-authorized
 import { NotFoundComponent } from './components/pages/Errors/not-found/not-found.component';
 import { RefusedComponent } from './components/pages/Errors/refused/refused.component';
 import { DetailedAreaComponent } from './components/elements/map/detailed-area/detailed-area.component';
+import { SensorDataUploadComponent } from './components/pages/sensor-data-upload/sensor-data-upload.component';
 
 
 
 export const routes: Routes = [
+    //Pages
     {path: '', redirectTo: "/home", pathMatch : "full"},
     {path: 'home',title:"Home", component: ForecastComponent},
     {path: 'ground-stations',title:"Graunded Stations", component: MapComponent},
     {path: 'login',title:"login", component: LoginComponent},
     {path: 'signin',title:"signin", component: SigninComponent},
-    { path: 'detail/:id', title: "Area Details", component: DetailedAreaComponent },
+    {path: 'detail/:id', title: "Area Details", component: DetailedAreaComponent },
+    {path: 'test/sensor', title: "Test upload sensori", component: SensorDataUploadComponent },
     //Errors:
     {path: 'bad-request',title:"Bad Request", component: BadComponent},
     {path: 'not-authorized',title:"Not Authorized", component: NotAuthorizedComponent },

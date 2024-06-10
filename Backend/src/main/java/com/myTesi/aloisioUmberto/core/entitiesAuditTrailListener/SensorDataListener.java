@@ -16,6 +16,7 @@ public class SensorDataListener extends AbstractMongoEventListener<SensorData> {
     public void onAfterLoad(AfterLoadEvent<SensorData> event) {
         super.onAfterLoad(event);
         Document document = event.getSource();
+        System.out.println(document);
         SensorData sensorData = new ModelMapper().map(document, SensorData.class);
         sensorData.setId(document.getObjectId("_id"));
         log.info("[SENSOR DATA AUDIT] sensor data loaded from database: " + sensorData.getId());

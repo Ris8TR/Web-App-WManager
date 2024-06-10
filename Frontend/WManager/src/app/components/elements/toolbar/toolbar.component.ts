@@ -71,11 +71,11 @@ redirectToInterestArea(id: string) {
 
 
   redirectToProfile() {
-    const userCookie = this.cookieService.get('user');
+    const userCookie = this.cookieService.get('Token');
     if (!userCookie) {
       this.router.navigate(['/login']);
     } else {
-      this.router.navigate(['/myprofile']);
+      this.router.navigate(['/test/sensor']);
     }
   }
 

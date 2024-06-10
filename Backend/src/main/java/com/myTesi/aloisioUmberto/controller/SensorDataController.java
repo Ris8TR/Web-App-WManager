@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -24,9 +25,10 @@ public class SensorDataController {
     private final SensorDataService sensorDataService;
 
     @PostMapping("/SensorData")
-    public ResponseEntity<SensorData> saveSensorData(@RequestBody NewSensorDataDto newSensorDataDTO) throws IOException {
+    public ResponseEntity<SensorData> saveSensorData( @RequestPart("data") NewSensorDataDto newSensorDataDTO,@RequestPart("file") MultipartFile file) throws IOException {
         //TODO ADD TOKEN CHECK
-        return ResponseEntity.ok(sensorDataService.save(newSensorDataDTO));
+        newSensorDataDTO.setDate(LocalDateTime.now());// Imposta la data e l'ora corrente
+        return ResponseEntity.ok(sensorDataService.save(file,newSensorDataDTO));
     }
 
     @GetMapping("/SensorData/get-all")

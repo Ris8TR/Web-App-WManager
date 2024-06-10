@@ -24,6 +24,7 @@ import { ServiceError } from '../model/serviceError';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
+import { V1SensorDataBody } from '../model/v1SensorDataBody';
 
 
 @Injectable()
@@ -211,53 +212,53 @@ export class SensorDataService {
             }
         );
     }
-
-    /**
+/**
      * 
      * 
      * @param body 
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public saveSensorData(body: NewSensorDataDto, observe?: 'body', reportProgress?: boolean): Observable<SensorData>;
-    public saveSensorData(body: NewSensorDataDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorData>>;
-    public saveSensorData(body: NewSensorDataDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorData>>;
-    public saveSensorData(body: NewSensorDataDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+public saveSensorData(data: NewSensorDataDto, file : File, observe?: 'body', reportProgress?: boolean): Observable<any>;
+public saveSensorData(data: NewSensorDataDto, file : File, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+public saveSensorData(data: NewSensorDataDto, file : File, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+public saveSensorData(data: NewSensorDataDto, file : File, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
-        if (body === null || body === undefined) {
-            throw new Error('Required parameter body was null or undefined when calling saveSensorData.');
-        }
+    const dataBlob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+    const formData = new FormData();
+    formData.append('data', dataBlob);
+    formData.append('file', file);
 
-        let headers = this.defaultHeaders;
+    let headers = this.defaultHeaders;
 
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            '*/*'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-            'application/json'
-        ];
-        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-        if (httpContentTypeSelected != undefined) {
-            headers = headers.set('Content-Type', httpContentTypeSelected);
-        }
-
-        return this.httpClient.request<SensorData>('post',`${this.basePath}/v1/SensorData`,
-            {
-                body: body,
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+        '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+        headers = headers.set('Accept', httpHeaderAcceptSelected);
     }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+    const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected != undefined) {
+        headers = headers.set('Content-Type', httpContentTypeSelected);
+    }
+
+    return this.httpClient.post<SensorData>(`${this.basePath}/v1/SensorData`,formData,
+
+        {
+            
+            withCredentials: this.configuration.withCredentials,
+            headers: headers,
+            observe: observe,
+            reportProgress: reportProgress
+        }
+    );
+}
 
     
 

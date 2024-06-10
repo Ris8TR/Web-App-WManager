@@ -16,12 +16,12 @@ import java.io.IOException;
 
 public class ImageSensorDataHandler implements SensorDataHandler {
 
-    private final String relativePathToUploads = "src/main/resources/image/";
+    private final String relativePathToUploads = "src/main/resources/images/";
 
     @Override
-    public void handle(SensorData data, NewSensorDataDto newSensorDataDTO) throws IOException {
+    public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException {
         data.setPayloadType("image");
-        data.setPayload(insertInsertionImage((MultipartFile) newSensorDataDTO.getPayload(),newSensorDataDTO.getUserId()));
+        data.setPayload(insertInsertionImage(file,newSensorDataDTO.getUserId()));
     }
 
     public String insertInsertionImage(MultipartFile img, String userId) throws IOException {
@@ -30,7 +30,7 @@ public class ImageSensorDataHandler implements SensorDataHandler {
         String realPathToUploads = System.getProperty("user.dir") + File.separator + relativePathToUploads + File.separator + userId;
 
         if (!new File(realPathToUploads).exists()) { //If the directory "image" is not existent
-            new File(realPathToUploads).mkdir();     //Create a directory
+            new File(realPathToUploads).mkdirs();     //Create a directory
         }
 
         String orgName = FileUtil.assignProgressiveName(img);

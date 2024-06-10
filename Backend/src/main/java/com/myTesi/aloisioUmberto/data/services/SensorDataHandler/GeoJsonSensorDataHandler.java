@@ -10,6 +10,7 @@ import org.geojson.Geometry;
 import org.geojson.LngLatAlt;
 import org.geojson.Point;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -19,7 +20,7 @@ public class GeoJsonSensorDataHandler implements SensorDataHandler  {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public void handle(SensorData data, NewSensorDataDto newSensorDataDTO) throws IOException {
+    public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException {
         data.setPayloadType("geojson");
         data.setLatitude(newSensorDataDTO.getLatitude());
         data.setLongitude(newSensorDataDTO.getLongitude());

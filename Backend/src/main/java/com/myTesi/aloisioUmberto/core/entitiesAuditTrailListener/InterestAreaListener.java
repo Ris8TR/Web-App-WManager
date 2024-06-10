@@ -16,6 +16,7 @@ public class InterestAreaListener extends AbstractMongoEventListener<InterestAre
     public void onAfterLoad(AfterLoadEvent<InterestArea> event) {
         super.onAfterLoad(event);
         Document document = event.getSource();
+        System.out.println(document);
         InterestArea interestArea = new ModelMapper().map(document, InterestArea.class);
         interestArea.setId(document.getObjectId("_id"));
         log.info("[INTEREST AREA AUDIT] interest area loaded from database: " + interestArea.getId());

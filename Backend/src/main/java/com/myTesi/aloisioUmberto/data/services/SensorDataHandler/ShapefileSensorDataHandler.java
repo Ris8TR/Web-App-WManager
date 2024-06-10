@@ -19,7 +19,7 @@ import java.util.List;
 
 public class ShapefileSensorDataHandler implements SensorDataHandler {
     @Override
-    public void handle(SensorData data, NewSensorDataDto newSensorDataDTO)  throws IOException {
+    public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file)  throws IOException {
         data.setPayloadType("shapefile");
         data.setPayload(readShapefileData((ShapefileDataStore) newSensorDataDTO.getPayload()));
         // Altre operazioni specifiche per shapefile

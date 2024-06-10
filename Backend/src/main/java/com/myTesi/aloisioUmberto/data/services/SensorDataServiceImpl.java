@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -38,18 +39,22 @@ public class SensorDataServiceImpl implements SensorDataService {
 
 
     @Override
-    public SensorData save(NewSensorDataDto newSensorDataDTO) throws IOException {
+    public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
-        Optional<User> user = userDao.findById(data.getUserId());
+        String userId = jwtTokenProvider.getUserIdFromUserToken(newSensorDataDTO.getUserId());
+        Optional<User> user = userDao.findById(userId);
         if (user.isPresent()) {
-            data.setUserId(newSensorDataDTO.getUserId());
+            data.setUserId(userId);
+            newSensorDataDTO.setUserId(userId);
             data.setTimestamp(Date.from(Instant.now()));
 
             SensorDataHandler handler = getHandlerForType(newSensorDataDTO.getDataType());
             if (handler != null) {
-                handler.handle(data, newSensorDataDTO);
+                handler.handle(data, newSensorDataDTO,file);
                 sensorDataRepository.save(data);
                 //TODO L'aggiornamento della posizione del sensore dovrebbe andare qui
+                System.out.println(data);
+
                 return data;
             }
         }
