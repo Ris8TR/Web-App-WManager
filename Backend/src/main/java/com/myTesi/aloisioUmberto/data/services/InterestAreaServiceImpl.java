@@ -90,7 +90,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     //TODO Verificare che tutto funzioni
     public List<SensorDataDto> getLatestSensorDataInInterestArea(ObjectId interestAreaId) {
         InterestArea interestArea = getInterestArea(interestAreaId);
-        List<SensorData> sensors = sensorDataRepository.findAllByDataType(interestArea.getType());
+        List<SensorData> sensors = sensorDataRepository.findAllByPayloadType(interestArea.getType());
 
         // Calcolare la data di 10 minuti fa
         Date tenMinutesAgo = Date.from(Instant.now().minusSeconds(600));
@@ -98,7 +98,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         List<SensorDataDto> sensorDataList = new ArrayList<>();
         for (SensorData sensor : sensors) {
             if (geoService.isSensorInInterestArea(sensor.getLatitude(), sensor.getLongitude(), interestArea.getGeometry())) {
-                Optional<SensorData> latestSensorData = sensorDataRepository.findTopByDataTypeAndTimestampAfterOrderByTimestampDesc(interestArea.getType(), tenMinutesAgo);
+                Optional<SensorData> latestSensorData = sensorDataRepository.findTopByPayloadTypeAndTimestampAfterOrderByTimestampDesc(interestArea.getType(), tenMinutesAgo);
                 latestSensorData.ifPresent(sensorData -> sensorDataList.add(modelMapper.map(sensorData, SensorDataDto.class)));
             }
         }
@@ -106,41 +106,4 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
 
-
-
-    //TODO Verificare che tutto funzioni
-    public byte[] readShapefileData(String pathToShapefile) throws IOException {
-        File file = new File(pathToShapefile);
-        FileDataStore store = FileDataStoreFinder.getDataStore(file);
-        if (!(store instanceof ShapefileDataStore shapefileDataStore)) {
-            throw new IOException("Not a valid shapefile");
-        }
-
-        shapefileDataStore.setCharset(StandardCharsets.UTF_8);
-        SimpleFeatureCollection featureCollection = shapefileDataStore.getFeatureSource().getFeatures();
-
-        List<byte[]> shapefileDataList = new ArrayList<>();
-
-        try (SimpleFeatureIterator featureIterator = featureCollection.features()) {
-            while (featureIterator.hasNext()) {
-                SimpleFeature feature = featureIterator.next();
-                //TODO Scegliere come eseguire il parsing questo da qui in poi è per test
-                String wkt = feature.getDefaultGeometry().toString();
-                shapefileDataList.add(wkt.getBytes(StandardCharsets.UTF_8));
-            }
-        }
-
-        int totalSize = shapefileDataList.stream().mapToInt(arr -> arr.length).sum();
-        byte[] shapefileData = new byte[totalSize];
-        int currentIndex = 0;
-
-        for (byte[] record : shapefileDataList) {
-            System.arraycopy(record, 0, shapefileData, currentIndex, record.length);
-            currentIndex += record.length;
-        }
-
-        shapefileDataStore.dispose();
-
-        return shapefileData;
-    }
 }

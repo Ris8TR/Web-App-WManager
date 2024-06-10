@@ -1,5 +1,4 @@
 package com.myTesi.aloisioUmberto.data.entities;
-import com.myTesi.aloisioUmberto.dto.enumetation.Type;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,7 +26,7 @@ public class SensorData {
 
     @NotNull
     @Field
-    private String dataType; // Tipo di dati (JSON, GeoJSON, Raster, Shapefile, ecc.)
+    private String payloadType; // Tipo di dati (JSON, GeoJSON, Raster, Shapefile, ecc.)
 
     private LocalDateTime date; // I dati effettivi inviati dal sensore (può essere rappresentato come una stringa)
 

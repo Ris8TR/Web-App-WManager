@@ -1,5 +1,4 @@
 package com.myTesi.aloisioUmberto.data.entities;
-import com.myTesi.aloisioUmberto.dto.enumetation.Type;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,7 +34,7 @@ public class InterestArea {
     @Field
     private byte[] shapefileData; // Dati del Shapefile
 
-    private String type; //Tipo di dato. Puo anche essere un enum volendo
+    private String Type; //Tipo di dato. Puo anche essere un enum volendo
 
     private List<ObjectId> SensorList;
 }

@@ -26,7 +26,6 @@ public class SensorDataController {
     @PostMapping("/SensorData")
     public ResponseEntity<SensorData> saveSensorData(@RequestBody NewSensorDataDto newSensorDataDTO) throws IOException {
         //TODO ADD TOKEN CHECK
-        newSensorDataDTO.setDate(LocalDateTime.now());// Imposta la data e l'ora corrente
         return ResponseEntity.ok(sensorDataService.save(newSensorDataDTO));
     }
 

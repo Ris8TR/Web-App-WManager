@@ -100,7 +100,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         SensorData existingSensorData = sensorDataRepository.findById(newSensorData.getUserId()).orElse(null);
         if (existingSensorData != null) {
             existingSensorData.setUserId(newSensorData.getUserId());
-            existingSensorData.setDataType(newSensorData.getDataType());
+            existingSensorData.setPayloadType(newSensorData.getPayloadType());
             existingSensorData.setDate(newSensorData.getDate());
             existingSensorData.setTimestamp(newSensorData.getTimestamp());
             existingSensorData.setLatitude(newSensorData.getLatitude());

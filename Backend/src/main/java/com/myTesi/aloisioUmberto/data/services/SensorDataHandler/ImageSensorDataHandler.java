@@ -20,7 +20,7 @@ public class ImageSensorDataHandler implements SensorDataHandler {
 
     @Override
     public void handle(SensorData data, NewSensorDataDto newSensorDataDTO) throws IOException {
-        data.setDataType("image");
+        data.setPayloadType("image");
         data.setPayload(insertInsertionImage((MultipartFile) newSensorDataDTO.getPayload(),newSensorDataDTO.getUserId()));
     }
 

@@ -9,7 +9,7 @@ import java.io.IOException;
 public class RasterSensorDataHandler implements SensorDataHandler {
     @Override
     public void handle(SensorData data, NewSensorDataDto newSensorDataDTO) throws IOException {
-        data.setDataType("raster");
+        data.setPayloadType("raster");
         // Altre operazioni specifiche per raster
     }
 }
