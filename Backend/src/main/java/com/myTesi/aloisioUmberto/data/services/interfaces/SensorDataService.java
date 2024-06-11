@@ -21,6 +21,9 @@ public interface SensorDataService  {
     // Metodo per ottenere gli ultimi dati dal database
     List<SensorDataDto> getAllSensorDataBy10Min();
 
+    // Metodo per ottenere gli ultimi dati dal database
+    List<SensorDataDto> getAllSensorDataBy10MinByType(String Type);
+
     // Metodo per ottenere un dato specifico per ID
     SensorDataDto getSensorDataById(Object id);
 

@@ -9,6 +9,7 @@ import { NotFoundComponent } from './components/pages/Errors/not-found/not-found
 import { RefusedComponent } from './components/pages/Errors/refused/refused.component';
 import { DetailedAreaComponent } from './components/elements/map/detailed-area/detailed-area.component';
 import { SensorDataUploadComponent } from './components/pages/sensor-data-upload/sensor-data-upload.component';
+import { WebcamComponent } from './components/elements/map/webcam/webcam.component';
 
 
 
@@ -21,6 +22,8 @@ export const routes: Routes = [
     {path: 'signin',title:"signin", component: SigninComponent},
     {path: 'detail/:id', title: "Area Details", component: DetailedAreaComponent },
     {path: 'test/sensor', title: "Test upload sensori", component: SensorDataUploadComponent },
+    {path: 'webcam', title: "Webcam 'LIVE' ", component: WebcamComponent },
+
     //Errors:
     {path: 'bad-request',title:"Bad Request", component: BadComponent},
     {path: 'not-authorized',title:"Not Authorized", component: NotAuthorizedComponent },

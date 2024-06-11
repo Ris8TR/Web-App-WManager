@@ -43,8 +43,6 @@ public class InterestAreaController {
     }
 
 
-
-
     @GetMapping("/interestarea/{id}")
     public ResponseEntity<InterestArea> getInterestArea(@PathVariable ObjectId id) {
         //TODO ADD TOKEN CHECK

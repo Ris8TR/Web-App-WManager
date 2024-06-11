@@ -83,6 +83,10 @@ redirectToInterestArea(id: string) {
     this.router.navigate(['/ground-stations']);
   }
 
+  redirectToWebcams() {
+    this.router.navigate(['/webcam']);
+  }
+
   logOut() {
     this.cookieService.delete('user');
     this.cookieService.delete('role');

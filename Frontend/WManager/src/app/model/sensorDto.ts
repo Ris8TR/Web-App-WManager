@@ -11,7 +11,12 @@
  */
 
 export interface SensorDto { 
-    firstName?: string;
+    id?: string;
+    userId?: string;
+    dataType?: string;
+    date?: Date;
+    timestamp?: Date;
+    payload?: any;
     latitude?: number;
     longitude?: number;
 }

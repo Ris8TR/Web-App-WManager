@@ -47,7 +47,6 @@ public class SensorDataServiceImpl implements SensorDataService {
             data.setUserId(userId);
             newSensorDataDTO.setUserId(userId);
             data.setTimestamp(Date.from(Instant.now()));
-
             SensorDataHandler handler = getHandlerForType(newSensorDataDTO.getDataType());
             if (handler != null) {
                 handler.handle(data, newSensorDataDTO,file);
@@ -65,7 +64,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         return switch (dataType.toLowerCase()) {
             case "json" -> new JsonSensorDataHandler();
             case "geojson" -> new GeoJsonSensorDataHandler();
-            case "image" -> new ImageSensorDataHandler();
+            case "image" -> new ImageSensorDataHandler(new ImageServiceImpl());
             case "shapefile" -> new ShapefileSensorDataHandler();
             case "raster" -> new RasterSensorDataHandler();
             default -> null;
@@ -92,6 +91,17 @@ public class SensorDataServiceImpl implements SensorDataService {
         Date tenMinutesAgo = calendar.getTime();
 
         return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
+    }
+
+    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
+    public List<SensorDataDto> getAllSensorDataBy10MinByType(String type) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date tenMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findByTimestampBetweenAndPayloadType(tenMinutesAgo, now,type).stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
     }
 
     @Override

@@ -36,10 +36,14 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllSensorData());
     }
 
-
     @GetMapping("/SensorData/latest")
     public ResponseEntity<List<SensorDataDto>> getAllSensorBy10Min() {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBy10Min());
+    }
+
+    @GetMapping("/SensorData/latest-by-type/{type}")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorBy10MinByType(@PathVariable String type) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBy10MinByType(type));
     }
 
     @GetMapping("/SensorData/{id}")

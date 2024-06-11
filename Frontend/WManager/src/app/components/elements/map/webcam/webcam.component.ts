@@ -1,21 +1,18 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import * as L from 'leaflet';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { ToolbarComponent } from '../../toolbar/toolbar.component';
-
-import 'leaflet.markercluster'; // Import the Leaflet.markercluster plugin
 import { SensorDto } from '../../../../model/sensorDto';
-import { UserService } from '../../../../service/user.service';
+import { HttpClient } from '@angular/common/http';
+import { SensorDataService } from '../../../../service/sensorData.service';
 
 @Component({
-  selector: 'app-map',
+  selector: 'app-webcam',
   standalone: true,
-  imports: [ToolbarComponent, HttpClientModule],
-  templateUrl: './map.component.html',
-  styleUrls: ['./map.component.css']
+  imports: [],
+  templateUrl: './webcam.component.html',
+  styleUrl: './webcam.component.css'
 })
-export class MapComponent implements AfterViewInit {
-  constructor(private http: HttpClient, private userService: UserService) {}
+export class WebcamComponent {
+  constructor(private http: HttpClient, private sensorDataService: SensorDataService) {}
 
   private map!: L.Map;
   private markerClusterGroup!: L.MarkerClusterGroup;
@@ -69,7 +66,7 @@ export class MapComponent implements AfterViewInit {
   private initMap(): void {
     this.map = L.map('map').setView([41.8719, 12.5674], 5);
     this.map.setMaxZoom(9); // Imposta il livello di zoom massimo a 9
-    this.map.setMinZoom(5); // Imposta il livello di zoom minimo a 5
+    //this.map.setMinZoom(5); // Imposta il livello di zoom minimo a 5
     
     const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
@@ -87,24 +84,36 @@ export class MapComponent implements AfterViewInit {
   }
 
   private loadSensorData(): void {
-    this.userService.getAllSensor().subscribe(
+    this.sensorDataService.getAllSensorBy10MinByType("image").subscribe(
       (sensorDtos: SensorDto[]) => {
         const markers: L.Marker[] = [];
-
+        console.log(sensorDtos);
+  
         sensorDtos.forEach((sensorDto: SensorDto) => {
           const latitude = sensorDto.latitude!;
           const longitude = sensorDto.longitude!;
-          const key = `<span class="math-inline">\{latitude\},</span>{longitude}`; 
-          const sensorCount = this.sensorCountPerMarker[key] || 1 
-          this.sensorCountPerMarker[key] = 1; 
-          const popupContent = `Nome: ${sensorDto.id} <br>Lat: ${latitude} <br>Lon: ${longitude}`;
+          const image = "http://localhost:8010/v1/images/"+ sensorDto.userId + "/" +sensorDto.payload;
+  
+          // Correcting the template string
+          const key = `<span class="math-inline">{${latitude}},${longitude}</span><img src="${image}">`;
+  
+          // Correcting the sensorCountPerMarker logic
+          const sensorCount = this.sensorCountPerMarker[key] || 0;
+          this.sensorCountPerMarker[key] = sensorCount + 1;
+  
+          const popupContent = `
+            Nome: ${sensorDto.id} <br>
+            Lat: ${latitude} <br>
+            Lon: ${longitude} <br>
+          <img src="${image}" style="max-width:80%;" onerror="this.style.display='none';">`;
+  
           const marker = L.marker([latitude, longitude], {
-            icon: this.createGreenMarkerIcon(sensorCount) //crea icone
-          })
-            .bindPopup(popupContent );
+            icon: this.createGreenMarkerIcon(sensorCount) // Create icon
+          }).bindPopup(popupContent);
+  
           markers.push(marker);
         });
-
+  
         this.markerClusterGroup.addLayers(markers);
       },
       (error: any) => {
@@ -112,6 +121,8 @@ export class MapComponent implements AfterViewInit {
       }
     );
   }
+  
+  
 
   private onZoomEnd = () => {
     if (this.markerClusterGroup) {
