@@ -22,13 +22,11 @@ public class SensorData {
 
     @NotNull
     @Field
-    private String userId; // ID dell'utente che ha inviato i dati
+    private String sensorId; // ID dell'utente che ha inviato i dati
 
     @NotNull
     @Field
     private String payloadType; // Tipo di dati (JSON, GeoJSON, Raster, Shapefile, ecc.)
-
-    private LocalDateTime date; // I dati effettivi inviati dal sensore (può essere rappresentato come una stringa)
 
     private Date timestamp; // Timestamp dei dati inviati
 

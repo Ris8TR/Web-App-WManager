@@ -15,5 +15,5 @@ public interface UserService {
     UserDto findByEmail(String email);
     List<UserDto> getAllUserDtoSortedByLastnameAscending();
     NewUserDto saveDto(NewUserDto newUserDto);
-    List<SensorDto> getAllSensor();
+
 }

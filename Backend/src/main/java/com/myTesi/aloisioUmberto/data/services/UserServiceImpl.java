@@ -61,7 +61,8 @@ public class UserServiceImpl implements UserService {
     public NewUserDto saveDto(NewUserDto newUserDto) {
         User user = modelMapper.map(newUserDto, User.class);
         user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
-        user.setRole(Role.valueOf("SENSOR"));
+        //TODO Tramite link di invito creare degli utenti admin
+        user.setRole(Role.valueOf("USER"));
         try {
             userDao.save(user);
             return modelMapper.map(user, NewUserDto.class);
@@ -71,27 +72,6 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    //TODO QUESTA PARTE ANDRA' OTTIMIZZATA NON SI POSSONO PRENDERE TUTTI I DATI OGNI VOLTA PER TROVARE L'ULTIMA POSIZIONE NOTA
-    //SAREBBE MEGLIO O CREARE UN ENTITA' A PARTE PER I SENSORI E/O CREARE 2 CAMPI (DENTRO USER) DOVE OGNI CARICAMENTO DI DATO
-    //VIENE AGGIORNATA LAT E LON
 
-    @Override
-    public List<SensorDto> getAllSensor() {
-        List<User> users = userDao.findAllByRole(Role.SENSOR);
-        List<SensorDto> sensorDtoList = new ArrayList<>();
-        for (User user : users) {
-            Optional<SensorData> sensorDataOptional = sensorDataRepository.findLatestByUserId(user.getId().toString());
-            if (sensorDataOptional.isPresent()) {
-                SensorData sensorData = sensorDataOptional.get();
-                SensorDto sensorDto = new SensorDto();
-                sensorDto.setFirstName(user.getFirstName());
-                sensorDto.setLatitude(sensorData.getLatitude());
-                sensorDto.setLongitude(sensorData.getLongitude());
-                sensorDtoList.add(sensorDto);
-            }
-        }
-
-        return sensorDtoList;
-    }
 
 }

@@ -53,10 +53,6 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUserDtoSortedByLastnameAscending());
     }
 
-    @GetMapping("/users/all-sensors")
-    public ResponseEntity<List<SensorDto>> getAllSensor() {
-        return ResponseEntity.ok(userService.getAllSensor());
-    }
 
 
 

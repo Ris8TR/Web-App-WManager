@@ -2,7 +2,9 @@ package com.myTesi.aloisioUmberto.data.services;
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
+import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
+import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.*;
@@ -31,6 +33,7 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Autowired
     private SensorDataRepository sensorDataRepository;
+    private SensorRepository sensorRepository;
     private final UserRepository userDao;
     private final ModelMapper modelMapper = new ModelMapper();
     @Autowired
@@ -41,11 +44,11 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
-        String userId = jwtTokenProvider.getUserIdFromUserToken(newSensorDataDTO.getUserId());
-        Optional<User> user = userDao.findById(userId);
-        if (user.isPresent()) {
-            data.setUserId(userId);
-            newSensorDataDTO.setUserId(userId);
+        String sensorId = jwtTokenProvider.getUserIdFromUserToken(newSensorDataDTO.getUserId());
+        Optional<Sensor> sensor = sensorRepository.findById(sensorId);
+        if (sensor.isPresent()) {
+            data.setSensorId(sensorId);
+            newSensorDataDTO.setUserId(sensorId);
             data.setTimestamp(Date.from(Instant.now()));
             SensorDataHandler handler = getHandlerForType(newSensorDataDTO.getDataType());
             if (handler != null) {
@@ -112,11 +115,10 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorData update(SensorData newSensorData) {
-        SensorData existingSensorData = sensorDataRepository.findById(newSensorData.getUserId()).orElse(null);
+        SensorData existingSensorData = sensorDataRepository.findById(newSensorData.getSensorId()).orElse(null);
         if (existingSensorData != null) {
-            existingSensorData.setUserId(newSensorData.getUserId());
+            existingSensorData.setSensorId(newSensorData.getSensorId());
             existingSensorData.setPayloadType(newSensorData.getPayloadType());
-            existingSensorData.setDate(newSensorData.getDate());
             existingSensorData.setTimestamp(newSensorData.getTimestamp());
             existingSensorData.setLatitude(newSensorData.getLatitude());
             existingSensorData.setLongitude(newSensorData.getLongitude());
