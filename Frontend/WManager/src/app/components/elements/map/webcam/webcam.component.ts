@@ -98,7 +98,7 @@ export class WebcamComponent {
           const key = `<span class="math-inline">{${latitude}},${longitude}</span><img src="${image}">`;
   
           // Correcting the sensorCountPerMarker logic
-          const sensorCount = this.sensorCountPerMarker[key] || 0;
+          const sensorCount = this.sensorCountPerMarker[key] || 1;
           this.sensorCountPerMarker[key] = sensorCount + 1;
   
           const popupContent = `

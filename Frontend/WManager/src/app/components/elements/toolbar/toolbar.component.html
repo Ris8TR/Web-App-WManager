@@ -28,13 +28,13 @@
     <div class="spacer"></div>
     <div class="container">
         <a *ngIf="logStringResult == 'Login'" routerLink="/login" class="toolbar-link">
-            <span style="margin-right: 10px;">{{ logStringResult }}</span>
+            <button mat-button style="margin-right: 10px;">{{ logStringResult }}</button>
         </a>
         <a *ngIf="logStringResult !== 'Login'" class="toolbar-link">
-            <span (click)="redirectToProfile()">{{ logStringResult }}</span>
+            <button mat-button (click)="redirectToProfile()">{{ logStringResult }}</button>
         </a>
         <a *ngIf="logStringResult == 'Login'" class="toolbar-link">
-            <span routerLink="/signin">Registrati</span>
+            <button mat-button routerLink="/signin">Registrati</button>
         </a>
         <mat-icon style="margin-left: 15px;" *ngIf="logStringResult !== 'Login'" fontSet="material-symbols-outlined" class="toolbar-icon" (click)="logOut()">logOut</mat-icon>
     </div>
