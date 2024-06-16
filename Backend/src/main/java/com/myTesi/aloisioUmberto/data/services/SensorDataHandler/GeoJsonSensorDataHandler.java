@@ -6,7 +6,6 @@ import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.geojson.Feature;
 import org.geojson.FeatureCollection;
-import org.geojson.Geometry;
 import org.geojson.LngLatAlt;
 import org.geojson.Point;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,5 +36,6 @@ public class GeoJsonSensorDataHandler implements SensorDataHandler  {
         String geoJsonString = objectMapper.writeValueAsString(featureCollection);
         data.setPayload(geoJsonString);
     }
+
 
 }

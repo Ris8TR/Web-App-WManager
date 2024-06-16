@@ -8,4 +8,5 @@ import java.io.IOException;
 
 public interface SensorDataHandler {
     void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException;
+
 }

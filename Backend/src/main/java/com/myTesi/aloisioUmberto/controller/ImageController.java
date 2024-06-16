@@ -1,6 +1,5 @@
 package com.myTesi.aloisioUmberto.controller;
 
-import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.ImageSensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.ImageService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.core.io.Resource;

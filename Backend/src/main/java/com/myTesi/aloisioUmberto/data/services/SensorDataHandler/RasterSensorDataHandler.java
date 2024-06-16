@@ -13,4 +13,6 @@ public class RasterSensorDataHandler implements SensorDataHandler {
         data.setPayloadType("raster");
         // Altre operazioni specifiche per raster
     }
+
+
 }

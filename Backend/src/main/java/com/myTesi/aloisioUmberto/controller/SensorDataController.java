@@ -3,6 +3,7 @@ import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,11 +25,16 @@ public class SensorDataController {
 
     private final SensorDataService sensorDataService;
 
-    @PostMapping("/SensorData")
-    public ResponseEntity<SensorData> saveSensorData( @RequestPart("data") NewSensorDataDto newSensorDataDTO,@RequestPart("file") MultipartFile file) throws IOException {
+    @Operation(summary = "Save sensor data", description = "Save new sensor data with optional file")
+    @PostMapping(value = "/SensorData", consumes = {"multipart/form-data"})
+    public ResponseEntity<SensorData> saveSensorData(@RequestPart("data") NewSensorDataDto newSensorDataDTO,@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
         //TODO ADD TOKEN CHECK
         newSensorDataDTO.setDate(LocalDateTime.now());// Imposta la data e l'ora corrente
-        return ResponseEntity.ok(sensorDataService.save(file,newSensorDataDTO));
+        // Gestisci il caso in cui il file sia nullo
+        if (file != null && !file.isEmpty()) {
+            return ResponseEntity.ok(sensorDataService.save(file, newSensorDataDTO));
+        }
+        return null;
     }
 
     @GetMapping("/SensorData/get-all")
