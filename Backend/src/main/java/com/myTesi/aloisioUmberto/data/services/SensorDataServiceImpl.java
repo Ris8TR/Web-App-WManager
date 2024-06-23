@@ -43,11 +43,12 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
-        String sensorId = jwtTokenProvider.getUserIdFromUserToken(newSensorDataDTO.getUserId());
-        Optional<Sensor> sensor = sensorRepository.findById(sensorId);
-        if (sensor.isPresent()) {
+        String sensorId = newSensorDataDTO.getSensorId();
+        //String sensorId = jwtTokenProvider.getUserIdFromUserToken(newSensorDataDTO.getSensorId());
+        //Optional<Sensor> sensor = sensorRepository.findById(sensorId);
+        //if (sensor.isPresent()) {
             data.setSensorId(sensorId);
-            newSensorDataDTO.setUserId(sensorId);
+            newSensorDataDTO.setSensorId(sensorId);
             data.setTimestamp(Date.from(Instant.now()));
             SensorDataHandler handler = getHandlerForType(newSensorDataDTO.getDataType());
             if (handler != null) {
@@ -58,7 +59,7 @@ public class SensorDataServiceImpl implements SensorDataService {
 
                 return data;
             }
-        }
+        //}
         return null;
     }
 

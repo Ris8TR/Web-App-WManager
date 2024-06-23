@@ -30,7 +30,7 @@ export class WebcamComponent {
     markerIconDiv.style.color = 'white';
     markerIconDiv.style.fontSize = '14px';
     markerIconDiv.innerText = sensorCount.toString();
-  
+
     return L.divIcon({
       className: 'custom-marker-icon', // Classe opzionale per lo styling vediamo se serve e funziona (per ora no)
       html: markerIconDiv
@@ -42,7 +42,7 @@ export class WebcamComponent {
     const size = childCount < 10 ? 'small' : childCount < 100 ? 'medium' : 'large';
     const iconSize = size === 'small' ? '30px' : size === 'medium' ? '40px' : '50px';
     const fontSize = size === 'small' ? '14px' : size === 'medium' ? '18px' : '22px';
-  
+
     const markerIconDiv = document.createElement('div');
     markerIconDiv.style.width = iconSize;
     markerIconDiv.style.height = iconSize;
@@ -54,20 +54,20 @@ export class WebcamComponent {
     markerIconDiv.style.color = 'white';
     markerIconDiv.style.fontSize = fontSize;
     markerIconDiv.innerText = childCount.toString();
-  
+
     return L.divIcon({
       className: 'custom-cluster-icon', // Classe opzionale per lo styling vediamo se serve e funziona (per ora no)
       html: markerIconDiv
     });
   }
-  
 
-  
+
+
   private initMap(): void {
     this.map = L.map('map').setView([41.8719, 12.5674], 5);
     this.map.setMaxZoom(9); // Imposta il livello di zoom massimo a 9
     //this.map.setMinZoom(5); // Imposta il livello di zoom minimo a 5
-    
+
     const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     });
@@ -88,32 +88,32 @@ export class WebcamComponent {
       (sensorDtos: SensorDto[]) => {
         const markers: L.Marker[] = [];
         console.log(sensorDtos);
-  
+
         sensorDtos.forEach((sensorDto: SensorDto) => {
           const latitude = sensorDto.latitude!;
           const longitude = sensorDto.longitude!;
           const image = "http://localhost:8010/v1/images/"+ sensorDto.userId + "/" +sensorDto.payload;
-  
+
           // Correcting the template string
           const key = `<span class="math-inline">{${latitude}},${longitude}</span><img src="${image}">`;
-  
+
           // Correcting the sensorCountPerMarker logic
           const sensorCount = this.sensorCountPerMarker[key] || 1;
           this.sensorCountPerMarker[key] = sensorCount + 1;
-  
+
           const popupContent = `
             Nome: ${sensorDto.id} <br>
             Lat: ${latitude} <br>
             Lon: ${longitude} <br>
           <img src="${image}" style="max-width:80%;" onerror="this.style.display='none';">`;
-  
+
           const marker = L.marker([latitude, longitude], {
             icon: this.createGreenMarkerIcon(sensorCount) // Create icon
           }).bindPopup(popupContent);
-  
+
           markers.push(marker);
         });
-  
+
         this.markerClusterGroup.addLayers(markers);
       },
       (error: any) => {
@@ -121,8 +121,8 @@ export class WebcamComponent {
       }
     );
   }
-  
-  
+
+
 
   private onZoomEnd = () => {
     if (this.markerClusterGroup) {

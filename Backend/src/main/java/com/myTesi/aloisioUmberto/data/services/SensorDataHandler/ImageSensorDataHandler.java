@@ -19,7 +19,8 @@ public class ImageSensorDataHandler implements SensorDataHandler {
     @Override
     public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException {
         data.setPayloadType("image");
-        data.setPayload(imageService.insertInsertionImage(file,newSensorDataDTO.getUserId()));
+        System.out.println("dsdsw");
+        data.setPayload(imageService.insertInsertionImage(file,newSensorDataDTO.getSensorId()));
     }
 
 

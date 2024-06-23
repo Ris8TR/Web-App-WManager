@@ -30,7 +30,6 @@ public class SensorDataController {
     public ResponseEntity<SensorData> saveSensorData(@RequestPart("data") NewSensorDataDto newSensorDataDTO,@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
         //TODO ADD TOKEN CHECK
         newSensorDataDTO.setDate(LocalDateTime.now());// Imposta la data e l'ora corrente
-        // Gestisci il caso in cui il file sia nullo
         if (file != null && !file.isEmpty()) {
             return ResponseEntity.ok(sensorDataService.save(file, newSensorDataDTO));
         }

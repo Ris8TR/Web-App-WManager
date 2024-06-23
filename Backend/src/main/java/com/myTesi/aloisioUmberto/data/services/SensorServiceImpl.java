@@ -35,12 +35,14 @@ public class SensorServiceImpl implements SensorService {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public NewSensorDto saveDto(NewSensorDto newSensorDto) {
+    public SensorDto saveDto(NewSensorDto newSensorDto) {
         Sensor sensor = modelMapper.map(newSensorDto, Sensor.class);
         sensor.setPassword(BCrypt.hashpw(sensor.getPassword(), BCrypt.gensalt(10)));
         try {
             sensorRepository.save(sensor);
-            return modelMapper.map(sensor, NewSensorDto.class);
+            SensorDto sensorDto = modelMapper.map(sensor, SensorDto.class);
+            sensorDto.setId(sensor.getId().toString());
+            return sensorDto;
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
         }

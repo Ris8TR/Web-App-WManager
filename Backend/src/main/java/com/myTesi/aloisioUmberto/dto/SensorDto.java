@@ -12,4 +12,5 @@ public class SensorDto {
     private String SensorId;
     private double latitude;
     private double longitude;
+    private String id;
 }

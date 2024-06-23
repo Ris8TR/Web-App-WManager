@@ -11,7 +11,7 @@ public interface SensorService {
 
     Optional<SensorDto> findById(String id);
     List<SensorDto> findByCompanyName(String companyName);
-    NewSensorDto saveDto(NewSensorDto newUserDto);
+    SensorDto saveDto(NewSensorDto newUserDto);
     List<SensorDto> getAllSensor();
 
 

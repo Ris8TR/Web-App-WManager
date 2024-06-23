@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString
 public class NewSensorDataDto {
-    private String userId;
+    private String sensorId;
     private LocalDateTime date;
     private String dataType;
     private double latitude;

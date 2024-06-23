@@ -1,1 +1,14 @@
+
 <div id="map" style="height: 500px; margin: 1%; min-height: 50%;"></div>
+<div>
+  <mat-form-field>
+    <mat-label for="sensorType">Select Sensor Type:</mat-label>
+    <mat-select id="sensorType" [(ngModel)]="sensorType" (ngModelChange)="onSensorTypeChange()">
+      <mat-option value="Temperatura">Temperatura</mat-option>
+      <mat-option value="CO2">CO2</mat-option>
+      <mat-option value="Pioggia">Pioggia</mat-option>
+      <mat-option value="Vento">Vento</mat-option>
+      <mat-option value="Incendi">Incendi</mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>

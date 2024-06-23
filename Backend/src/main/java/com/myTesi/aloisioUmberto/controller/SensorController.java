@@ -31,7 +31,7 @@ public class SensorController {
     }
 
     @PostMapping("/sensors")
-    public ResponseEntity<NewSensorDto> addSensor(@RequestBody @Valid NewSensorDto newSensorDto) {
+    public ResponseEntity<SensorDto> addSensor(@RequestBody @Valid NewSensorDto newSensorDto) {
         return ResponseEntity.ok(sensorService.saveDto(newSensorDto));
     }
 
