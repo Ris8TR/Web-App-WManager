@@ -1,90 +1,86 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as L from 'leaflet';
-import {SensorDataService} from "../../../../service/sensorData.service";
-import {SensorDataDto} from "../../../../model/sensorDataDto";
-import {FormsModule} from "@angular/forms";
-import {Layer} from "leaflet";
+import { SensorDataService } from '../../../../service/sensorData.service';
+import { SensorDataDto } from '../../../../model/sensorDataDto';
+import { FormsModule } from '@angular/forms';
 import 'leaflet.heat';
-import {MatSelectModule} from "@angular/material/select";
-import {MatFormFieldModule} from "@angular/material/form-field";
-
-
+import { MatSelectModule } from '@angular/material/select';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-forecast',
   standalone: true,
-  imports: [FormsModule,MatFormFieldModule,MatSelectModule],
+  imports: [FormsModule, MatFormFieldModule, MatSelectModule],
   templateUrl: './forecast.component.html',
-  styleUrl: './forecast.component.css'
+  styleUrls: ['./forecast.component.css']
 })
-export class ForecastComponent {
-
+export class ForecastComponent implements OnInit {
 
   private map: L.Map | undefined;
-  public sensorType: string = 'json'; // Default sensor type
+  public sensorType: string = 'CO2'; // Default sensor type
   private layerGroup: L.LayerGroup | undefined;
 
-  constructor(private sensorDataService: SensorDataService) {
-  }
+  constructor(private sensorDataService: SensorDataService) {}
 
   ngOnInit(): void {
+    this.initializeMap();
+    this.layerGroup = L.layerGroup().addTo(this.map!);
+    this.loadSensorData();
+    setInterval(() => this.loadSensorData(), 600000); // Update every 10 minutes
+  }
+
+  private initializeMap(): void {
     this.map = L.map('map').setView([45.0, 7.0], 6); // Set your default coordinates and zoom level
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
-
-    this.layerGroup = L.layerGroup().addTo(this.map);
-    this.loadSensorData();
-    setInterval(() => this.loadSensorData(), 600000); // Aggiorna ogni 10 minuti
   }
 
   onSensorTypeChange(): void {
-    console.log("Sensor type changed to: ", this.sensorType);
+    console.log('Sensor type changed to: ', this.sensorType);
     this.loadSensorData();
   }
 
   private loadSensorData(): void {
     if (this.layerGroup) {
-      this.layerGroup.clearLayers();
+      this.layerGroup.clearLayers(); // Remove existing layers if present
     }
-    console.log("dsd")
     this.sensorDataService
-      .getAllSensorBy10MinByType(this.sensorType)
+      .getAllSensorBy10MinByType('json')
       .subscribe((data: SensorDataDto[]) => {
         const heatData = data.map((d) => {
-          console.log(data)
           const value = this.getSensorValue(d);
-          console.log(value)
           return [d.latitude, d.longitude, value] as [number, number, number];
         });
-        let heatLayer: Layer;
-        heatLayer = L.heatLayer(heatData, {
+
+        const heatLayer = (L as any).heatLayer(heatData, {
           radius: 25,
           blur: 15,
-          gradient: {0.4: 'blue', 0.65: 'lime', 1: 'red'},
+          gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' },
+          willReadFrequently: true // Optimization attribute
         });
-        this.layerGroup?.addLayer(heatLayer);
+
+        this.layerGroup?.addLayer(heatLayer); // Add heat layer to the map
       });
   }
 
-
   private getSensorValue(sensorData: SensorDataDto): number {
     if (sensorData.payload) {
+      const payload: { [key: string]: any } = sensorData.payload;
+
       switch (this.sensorType) {
         case 'CO2':
-          return sensorData.payload['CO2'] ?? 0; // CO2 value
+          return payload['CO2'] ?? 0;
         case 'Temperatura':
-          return sensorData.payload['temperature'] ?? 0; // Temperature value
+          return payload['temperature'] ?? 0;
         case 'Pressione':
-          return sensorData.payload['ap'] ?? 0; // Pressure value (assuming 'ap' is the correct property name)
+          return payload['ap'] ?? 0;
         case 'Umidita':
-          return sensorData.payload['humidity'] ?? 0; // Humidity value (assuming 'humidity' is the correct property name)
+          return payload['humidity'] ?? 0;
         default:
-          return 0; // Default value for unknown sensor type
+          return 0;
       }
     }
-    return 0; // Default value if payload is undefined or null
+    return 0;
   }
-
 }
-
