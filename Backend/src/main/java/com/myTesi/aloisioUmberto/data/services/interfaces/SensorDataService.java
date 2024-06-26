@@ -30,6 +30,7 @@ public interface SensorDataService  {
     // Metodo per aggiornare un dato esistente nel database
     SensorData update(SensorData newSensorData);
 
+    public String getProcessedSensorData(String type);
     // Metodo per eliminare un dato dal database
     void delete(Object id);
 

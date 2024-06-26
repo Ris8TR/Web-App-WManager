@@ -68,4 +68,10 @@ public class SensorDataController {
         sensorDataService.delete(id);
         return HttpStatus.OK;
     }
+
+    @GetMapping("/SensorData/processed/{type}")
+    public ResponseEntity<String> getProcessedSensorData(@PathVariable String type) {
+        String geoJson = sensorDataService.getProcessedSensorData(type);
+        return ResponseEntity.ok(geoJson);
+    }
 }

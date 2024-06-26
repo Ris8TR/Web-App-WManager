@@ -1,5 +1,10 @@
 package com.myTesi.aloisioUmberto.data.services;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
@@ -19,10 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Instant;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -55,7 +57,7 @@ public class SensorDataServiceImpl implements SensorDataService {
                 handler.handle(data, newSensorDataDTO,file);
                 sensorDataRepository.save(data);
                 //TODO L'aggiornamento della posizione del sensore dovrebbe andare qui
-                System.out.println(data);
+
 
                 return data;
             }
@@ -132,6 +134,87 @@ public class SensorDataServiceImpl implements SensorDataService {
     public void delete(Object id) {
         sensorDataRepository.deleteById(id.toString());
     }
+
+    @Override
+    public String getProcessedSensorData(String type) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date tenMinutesAgo = calendar.getTime();
+
+        List<SensorData> sensorDataList = sensorDataRepository.findByTimestampBetweenAndPayloadType(tenMinutesAgo, now, "json");
+        // Creare il GeoJSON
+        String geoJson = createGeoJson(sensorDataList, type);
+
+        return geoJson;
+    }
+
+    private String createGeoJson(List<SensorData> sensorDataList, String type) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        // Creare la struttura GeoJSON
+        ObjectNode geoJson = mapper.createObjectNode();
+        geoJson.put("type", "FeatureCollection");
+
+        ArrayNode features = geoJson.putArray("features");
+
+        for (SensorData data : sensorDataList) {
+            ObjectNode feature = mapper.createObjectNode();
+            feature.put("type", "Feature");
+
+            ObjectNode geometry = mapper.createObjectNode();
+            geometry.put("type", "Point");
+            ArrayNode coordinates = geometry.putArray("coordinates");
+            coordinates.add(data.getLongitude());
+            coordinates.add(data.getLatitude());
+
+            ObjectNode properties = mapper.createObjectNode();
+            properties.put("value", getSensorValue(data, type));
+
+            feature.set("geometry", geometry);
+            feature.set("properties", properties);
+
+            features.add(feature);
+        }
+
+        try {
+            return mapper.writeValueAsString(geoJson);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "{}";
+        }
+    }
+
+
+    private double getSensorValue(SensorData data, String type) {
+        if (data.getPayload() != null) {
+            try {
+                // Deserializza la stringa JSON nel payload in una Map
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Object> payload = mapper.readValue(data.getPayload().toString(), Map.class);
+
+                Object value = switch (type.toLowerCase()) {
+                    case "co2" -> payload.get("CO2");
+                    case "temperatura" -> payload.get("temperature");
+                    case "pressione" -> payload.get("ap");
+                    case "umidita" -> payload.get("humidity");
+                    default -> 0.0;
+                };
+
+                if (value instanceof Number) {
+                    return ((Number) value).doubleValue();
+                } else {
+                    return 0.0;
+                }
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        return 0.0;
+    }
+
+
 
 
 }

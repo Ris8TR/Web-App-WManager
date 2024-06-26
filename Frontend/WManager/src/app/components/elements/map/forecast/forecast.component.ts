@@ -41,6 +41,7 @@ export class ForecastComponent implements OnInit {
     this.loadSensorData();
   }
 
+  /*
   private loadSensorData(): void {
     if (this.layerGroup) {
       this.layerGroup.clearLayers(); // Remove existing layers if present
@@ -51,6 +52,31 @@ export class ForecastComponent implements OnInit {
         const heatData = data.map((d) => {
           const value = this.getSensorValue(d);
           return [d.latitude, d.longitude, value] as [number, number, number];
+        });
+
+        const heatLayer = (L as any).heatLayer(heatData, {
+          radius: 25,
+          blur: 15,
+          gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' },
+          willReadFrequently: true // Optimization attribute
+        });
+
+        this.layerGroup?.addLayer(heatLayer); // Add heat layer to the map
+      });
+  }
+
+   */
+  private loadSensorData(): void {
+    if (this.layerGroup) {
+      this.layerGroup.clearLayers(); // Remove existing layers if present
+    }
+    this.sensorDataService
+      .getProcessedSensorData(this.sensorType)
+      .subscribe((geoJson: any) => {
+        const heatData = geoJson.features.map((feature: any) => {
+          const coordinates = feature.geometry.coordinates;
+          const value = feature.properties.value;
+          return [coordinates[1], coordinates[0], value] as [number, number, number];
         });
 
         const heatLayer = (L as any).heatLayer(heatData, {
