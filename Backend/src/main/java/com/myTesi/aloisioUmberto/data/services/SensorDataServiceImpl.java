@@ -46,6 +46,7 @@ public class SensorDataServiceImpl implements SensorDataService {
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
         String sensorId = newSensorDataDTO.getSensorId();
+        //TODO
         //String sensorId = jwtTokenProvider.getUserIdFromUserToken(newSensorDataDTO.getSensorId());
         //Optional<Sensor> sensor = sensorRepository.findById(sensorId);
         //if (sensor.isPresent()) {
@@ -70,8 +71,8 @@ public class SensorDataServiceImpl implements SensorDataService {
             case "json" -> new JsonSensorDataHandler();
             case "geojson" -> new GeoJsonSensorDataHandler();
             case "image" -> new ImageSensorDataHandler(new ImageServiceImpl());
-            case "shapefile" -> new ShapefileSensorDataHandler();
-            case "raster" -> new RasterSensorDataHandler();
+            case "shapefile" -> new ShapefileSensorDataHandler(); //Probably not serve
+            case "raster" -> new RasterSensorDataHandler(); //TODO
             default -> null;
         };
     }
