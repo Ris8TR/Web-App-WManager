@@ -5,12 +5,13 @@ import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import org.bson.types.ObjectId;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface InterestAreaService {
 
-    InterestAreaDto save(NewInterestAreaDto newInterestAreaDto);
+    InterestAreaDto save(NewInterestAreaDto newInterestAreaDto, MultipartFile file);
 
     InterestArea getInterestArea(ObjectId id);
 

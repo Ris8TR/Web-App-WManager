@@ -6,7 +6,7 @@
         </button>
         <button *ngIf="logStringResult !== 'Login'" mat-button [matMenuTriggerFor]="interestAreasMenu" class="toolbar-button" style="width: auto; margin-top: 2px; margin-left: 20px; text-size-adjust: 5px; justify-content: flex-end; background-color: whitesmoke;">
             <span class="toolbar-button-text" style="font-size: 1rem;">Interest Areas</span>
-          </button>  
+          </button>
     </div>
 
     <mat-menu #observationsMenu="matMenu">
@@ -19,9 +19,12 @@
           <button mat-menu-item *ngFor="let interestArea of interestAreaNames" (click)="redirectToInterestArea(interestArea.id!)">
             {{ interestArea.name }}
           </button>
+          <button mat-menu-item (click)="redirectToCreateArea()">Crea area</button>
+
+
         </ng-container>
         <ng-template #noInterests>
-          <button mat-menu-item disabled>No Interest Areas</button>
+          <button mat-menu-item (click)="redirectToCreateArea()">Crea area</button>
         </ng-template>
       </mat-menu>
 

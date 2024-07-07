@@ -19,9 +19,9 @@ import { SensorDataService } from '../../../service/sensorData.service';
 export class SensorDataUploadComponent {
   file!: File;
   data: NewSensorDataDto = {
-    dataType: "", 
-    userId: this.cookieService.get("Token"), 
-    latitude: 0, 
+    dataType: "",
+    userId: this.cookieService.get("Token"),
+    latitude: 0,
     longitude: 0,
     payload: {}
   };
@@ -41,7 +41,7 @@ export class SensorDataUploadComponent {
 
   controllo() {
     if (!this.data) {
-      this.snackBar.open("Devi inserire un titolo all' inserzione", 'OK');
+      this.snackBar.open("Devi inserire un titolo", 'OK');
       return false;
     }
     return true;

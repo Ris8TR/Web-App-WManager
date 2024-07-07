@@ -20,6 +20,7 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.modelmapper.ModelMapper;
 import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 @Service
 @AllArgsConstructor
 public class InterestAreaServiceImpl implements InterestAreaService {
@@ -41,19 +41,49 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     private final SensorDataRepository sensorDataRepository;
     private final GeoService geoService;
 
-
-    //json, immagine, shapefile, raster
-
-
     @Override
-    public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto) {
+    public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto, MultipartFile file ) {
         InterestArea interestArea = modelMapper.map(newInterestAreaDto, InterestArea.class);
+        interestArea.setUserId(jwtTokenProvider.getUserIdFromUserToken(newInterestAreaDto.getUserId()));
+        // Process shapefile and extract geometry
+        if (newInterestAreaDto.getFile() != null) {
+            //String geometry = extractGeometryFromShapefile((File) file);
+            interestArea.setGeometry("geometry");
+        }
+
         interestAreaRepository.save(interestArea);
         System.out.println(interestArea);
         InterestAreaDto interestAreaDto = modelMapper.map(interestArea, InterestAreaDto.class);
         interestAreaDto.setId(interestArea.getId().toString());
         return interestAreaDto;
     }
+
+    private String extractGeometryFromShapefile(File shapefile) throws IOException {
+        FileDataStore store = FileDataStoreFinder.getDataStore(shapefile);
+        if (store == null) {
+            throw new IOException("Unable to find shapefile at the given path.");
+        }
+
+        ShapefileDataStore shapefileDataStore = (ShapefileDataStore) store;
+        try {
+            shapefileDataStore.setCharset(StandardCharsets.UTF_8);
+            SimpleFeatureCollection featureCollection = shapefileDataStore.getFeatureSource().getFeatures();
+
+            StringBuilder wktBuilder = new StringBuilder();
+            try (SimpleFeatureIterator featureIterator = featureCollection.features()) {
+                while (featureIterator.hasNext()) {
+                    SimpleFeature feature = featureIterator.next();
+                    String wkt = feature.getDefaultGeometry().toString();
+                    wktBuilder.append(wkt).append(";");
+                }
+            }
+
+            return wktBuilder.toString();
+        } finally {
+            shapefileDataStore.dispose();
+        }
+    }
+
 
     @Override
     public InterestArea getInterestArea(ObjectId id) {
@@ -76,23 +106,19 @@ public class InterestAreaServiceImpl implements InterestAreaService {
 
     private String isValidToken(String token) {
         if( jwtTokenProvider.validateToken(token))
-               return jwtTokenProvider.getUserIdFromUserToken(token);
+            return jwtTokenProvider.getUserIdFromUserToken(token);
         return null;
     }
-
 
     @Override
     public void deleteInterestArea(ObjectId id) {
         interestAreaRepository.deleteById(id.toString());
     }
 
-
-    //TODO Verificare che tutto funzioni
     public List<SensorDataDto> getLatestSensorDataInInterestArea(ObjectId interestAreaId) {
         InterestArea interestArea = getInterestArea(interestAreaId);
         List<SensorData> sensors = sensorDataRepository.findAllByPayloadType(interestArea.getType());
 
-        // Calcolare la data di 10 minuti fa
         Date tenMinutesAgo = Date.from(Instant.now().minusSeconds(600));
 
         List<SensorDataDto> sensorDataList = new ArrayList<>();
@@ -105,5 +131,31 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         return sensorDataList;
     }
 
+    public byte[] readShapefileData(ShapefileDataStore shapefileDataStore) throws IOException {
+        shapefileDataStore.setCharset(StandardCharsets.UTF_8);
+        SimpleFeatureCollection featureCollection = shapefileDataStore.getFeatureSource().getFeatures();
 
+        List<byte[]> shapefileDataList = new ArrayList<>();
+
+        try (SimpleFeatureIterator featureIterator = featureCollection.features()) {
+            while (featureIterator.hasNext()) {
+                SimpleFeature feature = featureIterator.next();
+                String wkt = feature.getDefaultGeometry().toString();
+                shapefileDataList.add(wkt.getBytes(StandardCharsets.UTF_8));
+            }
+        }
+
+        int totalSize = shapefileDataList.stream().mapToInt(arr -> arr.length).sum();
+        byte[] shapefileData = new byte[totalSize];
+        int currentIndex = 0;
+
+        for (byte[] record : shapefileDataList) {
+            System.arraycopy(record, 0, shapefileData, currentIndex, record.length);
+            currentIndex += record.length;
+        }
+
+        shapefileDataStore.dispose();
+
+        return shapefileData;
+    }
 }

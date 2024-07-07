@@ -64,9 +64,13 @@ export class ToolbarComponent {
     );
   }
 
-  
+
 redirectToInterestArea(id: string) {
   this.router.navigate(['/detail', id]);
+}
+
+  redirectToCreateArea() {
+  this.router.navigate(['/create-area']);
 }
 
 
@@ -104,8 +108,8 @@ redirectToInterestArea(id: string) {
       this.logStringResult = userCookie;
     } else {
       this.logStringResult = 'Login';
- 
+
     }
-   
+
   }
 }

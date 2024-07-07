@@ -1,0 +1,28 @@
+<div class="mainContainer">
+  <div class="container">
+    <div class="form-container">
+      <h2>Load Data</h2>
+
+      <form (ngSubmit)="loadData()">
+
+        <div class="form-group">
+          <label for="dataType">Nome area di interesse*:</label>
+          <input type="text" id="dataType" name="dataType" [(ngModel)]="data.name">
+        </div>
+
+        <div class="form-group">
+          <label for="file">Carica shapefile:</label>
+          <input type="file" id="file" name="file"  (change)="caricaFile($event)">
+        </div>
+
+
+
+        <div style="display: flex">
+
+          <button type="submit" style="margin-top: 10%" [disabled]="!formValido()">Carica dato</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
