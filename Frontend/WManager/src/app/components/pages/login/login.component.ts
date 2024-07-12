@@ -30,13 +30,13 @@ export class LoginComponent {
 
   constructor(
     private authService: AuthService,
-    private cookieService: CookieService, 
-    private router: Router, 
+    private cookieService: CookieService,
+    private router: Router,
     private toolbar:ToolbarComponent,
     private snackBar: MatSnackBar,
     private dialog: MatDialog ) {}
 
-  
+
   showResetPasswordModal: boolean = false;
   loginUser: LoginDto = {
     email: '',
@@ -60,7 +60,7 @@ export class LoginComponent {
     }
   }
 
-  
+
 
   logInUser() {
     this.authService.loginUser(this.loginUser.email!, this.loginUser.password!, 'body').subscribe(
@@ -69,13 +69,13 @@ export class LoginComponent {
         this.cookieService.set('Token', data.token)
         this.cookieService.set('user', this.loginUser.email!)
         this.cookieService.set('role', "USER")
-        this.snackBar.open("Autenticazione avvenuta con successo", 'OK',{ duration: 3000 });
+        this.snackBar.open("User logged in", 'OK',{ duration: 3000 });
         this.toolbar.checkUserCookie()
         this.toolbar.loadInterestAreas()
         this.router.navigate(['/home']);
       },
       (error: any) => {
-        this.snackBar.open("Email o Passworderrati", 'RIPROVARE', { duration: 3000 });
+        this.snackBar.open("Incorrect Email or Password", 'Try Again', { duration: 3000 });
         console.error('Error logging in:', error);
       }
     );
@@ -90,7 +90,7 @@ export class LoginComponent {
   closeModal(event: any) {
     if (event.target.classList.contains('reset-password-modal')) {
       this.openResetPasswordModal()
-  
+
 
     }
   }
@@ -99,12 +99,12 @@ export class LoginComponent {
     event.stopPropagation();
   }
 
-  
+
   resetPass(): void {
     this.authService.resetPass(this.resetPasswordEmail, 'body').subscribe(
       (data: any) => {
         console.log("GG")
-        this.snackBar.open("Email inviata con successo", 'OK');
+        this.snackBar.open("Email sent successfully", 'OK');
         this.showResetPasswordModal=false
         this.router.navigate(['/login']);
       },

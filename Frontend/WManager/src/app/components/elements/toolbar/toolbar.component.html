@@ -19,12 +19,12 @@
           <button mat-menu-item *ngFor="let interestArea of interestAreaNames" (click)="redirectToInterestArea(interestArea.id!)">
             {{ interestArea.name }}
           </button>
-          <button mat-menu-item (click)="redirectToCreateArea()">Crea area</button>
+          <button mat-menu-item (click)="redirectToCreateArea()">Create new area</button>
 
 
         </ng-container>
         <ng-template #noInterests>
-          <button mat-menu-item (click)="redirectToCreateArea()">Crea area</button>
+          <button mat-menu-item (click)="redirectToCreateArea()">Create new area</button>
         </ng-template>
       </mat-menu>
 
@@ -37,9 +37,9 @@
             <button mat-button (click)="redirectToProfile()">{{ logStringResult }}</button>
         </a>
         <a *ngIf="logStringResult == 'Login'" class="toolbar-link">
-            <button mat-button routerLink="/signin">Registrati</button>
+            <button mat-button routerLink="/signin">Register</button>
         </a>
-        <mat-icon style="margin-left: 15px;" *ngIf="logStringResult !== 'Login'" fontSet="material-symbols-outlined" class="toolbar-icon" (click)="logOut()">logOut</mat-icon>
+        <mat-icon style="margin-left: 15px;" *ngIf="logStringResult !== 'Login'" fontSet="material-symbols-outlined" class="toolbar-icon" (click)="logOut()">log out</mat-icon>
     </div>
 </mat-toolbar>
 <router-outlet></router-outlet>

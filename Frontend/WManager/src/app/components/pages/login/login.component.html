@@ -2,7 +2,7 @@
   <div class="loginCardContainer" style="width: 45%;">
       <div class="front" style="display: flex; flex-direction: column; align-items: center; max-width: 40%;">
           <div id="firstColumn">
-              <h2 style="color: white; margin-left: 2%;">ACCEDI</h2>
+              <h2 style="color: white; margin-left: 2%;">log in</h2>
               <form (ngSubmit)="logInUser()" style="margin: 2%;">
                   <mat-form-field style="width: 300px;">
                       <mat-label>Email</mat-label>
@@ -13,7 +13,7 @@
                       <mat-label>Password</mat-label>
                       <input matInput type="password" placeholder="**********" [(ngModel)]="loginUser.password" name="loginPassword" maxlength="30" autocomplete="current-password">
                   </mat-form-field>
-                  <button mat-flat-button type="submit" style="align-items: center;margin-left: 18%; margin-bottom: 0.5%; color: rgb(0, 0, 0);">Accedi</button>
+                  <button mat-flat-button type="submit" style="align-items: center;margin-left: 18%; margin-bottom: 0.5%; color: rgb(0, 0, 0);">login</button>
               </form>
           </div>
       </div>
@@ -23,7 +23,7 @@
 
   <div (click)="$event.stopPropagation()">
       <div (click)="$event.stopPropagation()">
-          <button mat-flat-button style="margin-bottom:15%; width: 100%" (click)="openResetPasswordModal()">Password dimenticata?</button>
+          <button mat-flat-button style="margin-bottom:15%; width: 100%" (click)="openResetPasswordModal()">Forgot password?</button>
       </div>
 
       <div *ngIf="showResetPasswordModal" class="reset-password-modal" (click)="handleClickOutside($event)" (click)="$event.stopPropagation()">
