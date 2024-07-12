@@ -97,11 +97,11 @@ export class ForecastComponent implements OnInit {
       switch (this.sensorType) {
         case 'CO2':
           return payload['CO2'] ?? 0;
-        case 'Temperatura':
+        case 'temperature':
           return payload['temperature'] ?? 0;
-        case 'Pressione':
+        case 'Pression':
           return payload['ap'] ?? 0;
-        case 'Umidita':
+        case 'humidity':
           return payload['humidity'] ?? 0;
         default:
           return 0;

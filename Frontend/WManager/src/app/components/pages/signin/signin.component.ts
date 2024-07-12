@@ -53,25 +53,25 @@ export class SigninComponent {
     ) {
       return true;
     } else {
-      this.snackBar.open('Compila tutti i campi e assicurati che le password coincidano', 'Chiudi', { duration: 3000 });
+      this.snackBar.open("Fill in all the fields and make sure the passwords match", 'OK', { duration: 3000 });
       return false;
     }
   }
- 
-  
+
+
   userSignIn() {
     if (this.validateUser()) {
       this.userService.addUser(this.newUser, 'body').subscribe(
         (data) => {
-          this.snackBar.open('Account utente creato con successo', 'OK');
+          this.snackBar.open('User account successfully created', 'OK');
           this.router.navigate(['/login']);
         },
         (error) => {
           if (error.status === 409) { // Verifica il nuovo codice di stato 409
             this.userIsPresent = true;
             this.snackBar.open(
-              'L\'indirizzo email è già stato utilizzato. Si consiglia di eseguire il Log In',
-              'Chiudi',
+              'The email address has already been used. It is recommended to Log In',
+              'OK',
               { duration: 3000 }
             );
           }
@@ -79,5 +79,5 @@ export class SigninComponent {
       );
     }
   }
-  
+
 }
