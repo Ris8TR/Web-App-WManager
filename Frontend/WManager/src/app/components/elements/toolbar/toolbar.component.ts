@@ -48,7 +48,7 @@ export class ToolbarComponent {
 
 
   loadInterestAreas(): void {
-    this.userId=this.cookieService.get("Token")
+    this.userId=this.cookieService.get("token")
     this.interestAreaService.getInterestAreasByUser(this.userId).subscribe(
       (interestAreas: InterestAreaDto[]) => {
         this.interestAreaNames = [];
@@ -75,7 +75,7 @@ redirectToInterestArea(id: string) {
 
 
   redirectToProfile() {
-    const userCookie = this.cookieService.get('Token');
+    const userCookie = this.cookieService.get('token');
     if (!userCookie) {
       this.router.navigate(['/login']);
     } else {
@@ -94,7 +94,7 @@ redirectToInterestArea(id: string) {
   logOut() {
     this.cookieService.delete('user');
     this.cookieService.delete('role');
-    this.cookieService.delete('Token');
+    this.cookieService.delete('token');
     this.cookieService.delete('sessionId');
     this.checkUserCookie();
     this.router.navigate(['/home']);

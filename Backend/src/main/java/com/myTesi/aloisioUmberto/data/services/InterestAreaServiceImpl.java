@@ -4,12 +4,15 @@ package com.myTesi.aloisioUmberto.data.services;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
+import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
+import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.geotools.data.FileDataStore;
@@ -23,13 +26,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
@@ -40,22 +41,47 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     private final InterestAreaRepository interestAreaRepository;
     private final SensorDataRepository sensorDataRepository;
     private final GeoService geoService;
+    private final UserRepository userRepository;
 
-    @Override
-    public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto, MultipartFile file ) {
-        InterestArea interestArea = modelMapper.map(newInterestAreaDto, InterestArea.class);
-        interestArea.setUserId(jwtTokenProvider.getUserIdFromUserToken(newInterestAreaDto.getUserId()));
-        // Process shapefile and extract geometry
-        if (newInterestAreaDto.getFile() != null) {
-            //String geometry = extractGeometryFromShapefile((File) file);
-            interestArea.setGeometry("geometry");
+
+    public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto, MultipartFile file) throws IOException {
+
+        Optional<User> user = userRepository.findById(jwtTokenProvider.getUserIdFromUserToken(newInterestAreaDto.getToken()));
+        if (user.isPresent()) {
+            InterestArea interestArea = modelMapper.map(newInterestAreaDto, InterestArea.class);
+            interestArea.setUserId(String.valueOf(user.get().getId())); // Set user ID from token
+
+            // Process shapefile and extract geometry if file is provided
+            if (file!= null) {
+                File convertedFile = convertMultipartFileToFile(file);
+                interestArea.setGeometry(extractGeometryFromShapefile(convertedFile));
+                convertedFile.delete(); // Clean up the temporary file
+            }
+
+            interestAreaRepository.save(interestArea);
+
+            InterestAreaDto interestAreaDto = modelMapper.map(interestArea, InterestAreaDto.class);
+            interestAreaDto.setId(interestArea.getId().toString());
+            return interestAreaDto;
         }
 
-        interestAreaRepository.save(interestArea);
-        System.out.println(interestArea);
-        InterestAreaDto interestAreaDto = modelMapper.map(interestArea, InterestAreaDto.class);
-        interestAreaDto.setId(interestArea.getId().toString());
-        return interestAreaDto;
+        return null;
+    }
+
+
+    private File convertMultipartFileToFile(MultipartFile file) throws IOException {
+        String originalFilename = Objects.requireNonNull(file.getOriginalFilename());
+
+        // Check if the file has a .shp extension
+        if (!originalFilename.toLowerCase().endsWith(".shp")) {
+            throw new IOException("The provided file is not a shapefile (.shp). Filename: " + originalFilename);
+        }
+
+        File convFile = new File(originalFilename);
+        try (FileOutputStream fos = new FileOutputStream(convFile)) {
+            fos.write(file.getBytes());
+        }
+        return convFile;
     }
 
     private String extractGeometryFromShapefile(File shapefile) throws IOException {

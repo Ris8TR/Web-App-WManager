@@ -11,6 +11,7 @@ import {F} from "@angular/cdk/keycodes";
 import {InterestAreaService} from "../../../service/interestArea.service";
 import {InterestArea} from "../../../model/interestArea";
 import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {resetParseTemplateAsSourceFileForTest} from "@angular/compiler-cli/src/ngtsc/typecheck/diagnostics";
 
 @Component({
   selector: 'app-interest-area-creation',
@@ -25,7 +26,7 @@ import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
 export class InterestAreaCreationComponent {
 
   file!: File;
-  data: NewInterestAreaDto = {name: "",     userId: this.cookieService.get("Token")};
+  data: NewInterestAreaDto = {name: "",     token: this.cookieService.get("token")};
 
   constructor(
     private interestAreaService: InterestAreaService,

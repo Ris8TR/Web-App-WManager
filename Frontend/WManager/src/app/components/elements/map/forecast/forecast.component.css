@@ -1,1 +1,16 @@
 @import url("https://unpkg.com/leaflet@1.9.3/dist/leaflet.css");
+.container {
+  margin-top: 2%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sensor-select {
+  margin-bottom: 8px; /* Adjust the distance from the component above */
+}
+
+.map {
+  height: 800px;
+  min-height: 90%;
+  margin-top: -3%; /* Slightly overlap with the form field */
+}

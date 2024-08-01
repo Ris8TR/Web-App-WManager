@@ -14,4 +14,5 @@ public class NewInterestAreaDto {
     private String type;
     private Object file;
     private String geometry; // Geometria dell'area
+    private String token;
 }

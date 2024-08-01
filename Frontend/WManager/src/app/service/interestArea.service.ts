@@ -26,6 +26,7 @@ import { ServiceError } from '../model/serviceError';
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { InterestAreaDto } from '../model/interestAreaDto';
+import {CookieService} from "ngx-cookie-service";
 
 
 @Injectable()
@@ -35,7 +36,7 @@ export class InterestAreaService {
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
+    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration, private CookiesService: CookieService,) {
         if (basePath) {
             this.basePath = basePath;
         }
@@ -61,7 +62,6 @@ export class InterestAreaService {
   public createInterestAreaForm(data?: NewInterestAreaDto, file?: Blob, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
 
-
     let headers = this.defaultHeaders;
 
     // to determine the Accept header
@@ -78,36 +78,18 @@ export class InterestAreaService {
       'multipart/form-data'
     ];
 
-    const canConsumeForm = this.canConsumeForm(consumes);
+    console.log('Authorization Header:', headers.get('Authorization'));
+    console.log('Accept Header:', headers.get('Accept'));
+    const formData = new FormData();
+    formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' })); // Assuming data is JSON
+    formData.append('file', file!); // Assuming file is a Blob or File object
 
-    let formParams: { append(param: string, value: any): void; };
-    let useForm = false;
-    let convertFormParamsToString = false;
-    // use FormData to transmit files using content-type "multipart/form-data"
-    // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
-    useForm = canConsumeForm;
-    if (useForm) {
-      formParams = new FormData();
-    } else {
-      formParams = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-    }
-
-    if (data !== undefined) {
-      formParams = formParams.append('data', <any>data) as any || formParams;
-    }
-    if (file !== undefined) {
-      formParams = formParams.append('file', <any>file) as any || formParams;
-    }
-
-    return this.httpClient.request<InterestAreaDto>('post',`${this.basePath}/v1/interestarea`,
-      {
-        body: convertFormParamsToString ? formParams.toString() : formParams,
-        withCredentials: this.configuration.withCredentials,
-        headers: headers,
-        observe: observe,
-        reportProgress: reportProgress
-      }
-    );
+    return this.httpClient.post<InterestAreaDto>(`${this.basePath}/v1/interestarea`, formData, {
+      withCredentials: this.configuration.withCredentials,
+      headers: headers, // headers should not include Content-Type
+      observe: observe,
+      reportProgress: reportProgress
+    });
   }
 
 

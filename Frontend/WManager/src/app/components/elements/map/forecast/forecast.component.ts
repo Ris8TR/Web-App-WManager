@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import * as L from 'leaflet';
 import { SensorDataService } from '../../../../service/sensorData.service';
 import { SensorDataDto } from '../../../../model/sensorDataDto';
@@ -14,7 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   templateUrl: './forecast.component.html',
   styleUrls: ['./forecast.component.css']
 })
-export class ForecastComponent implements OnInit {
+export class ForecastComponent implements AfterViewInit, OnDestroy {
 
   private map: L.Map | undefined;
   public sensorType: string = 'CO2'; // Default sensor type
@@ -22,15 +22,18 @@ export class ForecastComponent implements OnInit {
 
   constructor(private sensorDataService: SensorDataService) {}
 
-  ngOnInit(): void {
-    this.initializeMap();
-    this.layerGroup = L.layerGroup().addTo(this.map!);
-    this.loadSensorData();
-    setInterval(() => this.loadSensorData(), 600000); // Update every 10 minutes
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.initializeMap();
+      this.layerGroup = L.layerGroup().addTo(this.map!);
+      this.loadSensorData();
+      setInterval(() => this.loadSensorData(), 600000); // Update every 10 minutes
+    }, 10);
+
   }
 
   private initializeMap(): void {
-    this.map = L.map('map').setView([45.0, 7.0], 6); // Set your default coordinates and zoom level
+    this.map = L.map('map').setView([45.0, 7.0], 5); // Set your default coordinates and zoom level
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
@@ -86,7 +89,7 @@ export class ForecastComponent implements OnInit {
           willReadFrequently: true // Optimization attribute
         });
 
-        this.layerGroup?.addLayer(heatLayer); // Add heat layer to the map
+        this.layerGroup?.addLayer(heatLayer); // Add color layer to the map
       });
   }
 
@@ -109,4 +112,11 @@ export class ForecastComponent implements OnInit {
     }
     return 0;
   }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove()
+    }
+  }
+
 }

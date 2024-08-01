@@ -9,9 +9,10 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import {Observable} from "rxjs";
 
 export interface NewInterestAreaDto {
-    userId?: string;
+    token?: string;
     name?: string;
-    file?: File;
+    file?: Object;
 }

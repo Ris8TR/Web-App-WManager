@@ -66,7 +66,7 @@ export class LoginComponent {
     this.authService.loginUser(this.loginUser.email!, this.loginUser.password!, 'body').subscribe(
       (data: { token: string; }) => {
         const token = data.token;
-        this.cookieService.set('Token', data.token)
+        this.cookieService.set('token', data.token)
         this.cookieService.set('user', this.loginUser.email!)
         this.cookieService.set('role', "USER")
         this.snackBar.open("User logged in", 'OK',{ duration: 3000 });
