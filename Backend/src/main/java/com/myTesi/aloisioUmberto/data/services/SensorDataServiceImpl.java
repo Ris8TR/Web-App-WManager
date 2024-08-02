@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
@@ -34,37 +35,76 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Autowired
     private SensorDataRepository sensorDataRepository;
+    @Autowired
     private SensorRepository sensorRepository;
     private final UserRepository userDao;
     private final ModelMapper modelMapper = new ModelMapper();
     @Autowired
     private final JwtTokenProvider jwtTokenProvider;
-
-
-
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
         String sensorId = newSensorDataDTO.getSensorId();
-        //TODO
-        //String sensorId = jwtTokenProvider.getUserIdFromUserToken(newSensorDataDTO.getSensorId());
-        //Optional<Sensor> sensor = sensorRepository.findById(sensorId);
-        //if (sensor.isPresent()) {
-            data.setSensorId(sensorId);
-            newSensorDataDTO.setSensorId(sensorId);
-            data.setTimestamp(Date.from(Instant.now()));
-            SensorDataHandler handler = getHandlerForType(newSensorDataDTO.getDataType());
+        Optional<Sensor> sensor = sensorRepository.findBySensorId(sensorId);
+
+        if (sensor.isEmpty()) {
+            Sensor newSensor = new Sensor();
+            newSensor.setCompanyName("TEST");
+            newSensor.setSensorId(sensorId);
+            sensorRepository.save(newSensor);
+            data.setSensorId(newSensor.getId().toString());
+        } else {
+            data.setSensorId(sensor.get().getId().toString());
+        }
+
+        data.setTimestamp(Date.from(Instant.now()));
+
+        if (file != null && !file.isEmpty()) {
+            SensorDataHandler handler = getHandlerForType(newSensorDataDTO.getPayloadType());
             if (handler != null) {
-                handler.handle(data, newSensorDataDTO,file);
-                sensorDataRepository.save(data);
-                //TODO L'aggiornamento della posizione del sensore dovrebbe andare qui
-
-
-                return data;
+                handler.handle(data, newSensorDataDTO, file);
             }
-        //}
-        return null;
+        } else {
+            HashMap<String, Object> payload = new HashMap<>();
+
+            // Rimuovi le parentesi graffe
+            String payloadString = newSensorDataDTO.getPayload().toString().replaceAll("[{}]", "");
+
+            // Assumendo che newSensorDataDTO.getPayload() restituisca una stringa del tipo "CO2=377, temperature=17.11, humidity=58, ap=965.54"
+            String[] entries = payloadString.split(", ");
+            for (String entry : entries) {
+                String[] keyValue = entry.split("=");
+                String key = keyValue[0].trim();
+                Object value = parseValue(keyValue[1].trim()); // Metodo per interpretare il valore come numero o stringa
+                payload.put(key, value);
+            }
+
+            // Convert payload map to JSON string if necessary
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonPayload = objectMapper.writeValueAsString(payload);
+
+            data.setPayload(jsonPayload); // Assicurati che SensorData abbia un campo payload di tipo String o Map<String, Object>
+        }
+
+        sensorDataRepository.save(data);
+        // TODO: Aggiornamento della posizione del sensore dovrebbe andare qui
+        System.out.println(data);
+        return data;
     }
+
+    // Metodo di utilità per interpretare i valori come numeri o stringhe
+    private Object parseValue(String value) {
+        try {
+            if (value.contains(".")) {
+                return Double.parseDouble(value);
+            } else {
+                return Integer.parseInt(value);
+            }
+        } catch (NumberFormatException e) {
+            return value;
+        }
+    }
+
 
     private SensorDataHandler getHandlerForType(String dataType) {
         return switch (dataType.toLowerCase()) {

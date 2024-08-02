@@ -97,7 +97,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     this.userService.getAllSensor().subscribe(
       (sensorDtos: SensorDto[]) => {
         const markers: L.Marker[] = [];
-
+        console.log(sensorDtos)
         if (sensorDtos) {
           sensorDtos.forEach((sensorDto: SensorDto) => {
             const latitude = sensorDto.latitude!;

@@ -90,18 +90,31 @@ public class SensorServiceImpl implements SensorService {
         calendar.setTime(now);
         calendar.add(Calendar.MINUTE, -10);
         Date tenMinutesAgo = calendar.getTime();
+
+        // Log per debugging
+        System.out.println("Current Time: " + now);
+        System.out.println("Ten Minutes Ago: " + tenMinutesAgo);
+
         for (Sensor sensor : sensors) {
-            Optional<SensorData> sensorDataOptional = sensorDataRepository.findTopByTimestampBetweenAndSensorId(tenMinutesAgo, now,sensor.getId().toString());
+            Optional<SensorData> sensorDataOptional = sensorDataRepository.findTopByTimestampBetweenAndSensorId(tenMinutesAgo, now, sensor.getId().toString());
+
+            // Log per debugging
+            System.out.println("Sensor ID: " + sensor.getId());
             if (sensorDataOptional.isPresent()) {
+                System.out.println("SensorData found for Sensor ID: " + sensor.getId());
                 SensorData sensorData = sensorDataOptional.get();
                 SensorDto sensorDto = new SensorDto();
                 sensorDto.setCompanyName(sensor.getCompanyName());
                 sensorDto.setLatitude(sensorData.getLatitude());
                 sensorDto.setLongitude(sensorData.getLongitude());
                 sensorDtoList.add(sensorDto);
+            } else {
+                System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
             }
         }
 
+        System.out.println(sensorDtoList);
         return sensorDtoList;
     }
+
 }

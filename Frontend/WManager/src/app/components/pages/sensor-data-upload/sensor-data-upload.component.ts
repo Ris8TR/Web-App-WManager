@@ -19,7 +19,7 @@ import { SensorDataService } from '../../../service/sensorData.service';
 export class SensorDataUploadComponent {
   file!: File;
   data: NewSensorDataDto = {
-    dataType: "",
+    payloadType: "",
     userId: this.cookieService.get("Token"),
     latitude: 0,
     longitude: 0,

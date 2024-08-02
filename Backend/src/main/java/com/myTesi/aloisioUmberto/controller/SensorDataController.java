@@ -27,14 +27,14 @@ public class SensorDataController {
 
     @Operation(summary = "Save sensor data", description = "Save new sensor data with optional file")
     @PostMapping(value = "/SensorData", consumes = {"multipart/form-data"})
-    public ResponseEntity<SensorData> saveSensorData(@RequestPart("data") NewSensorDataDto newSensorDataDTO,@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-        //TODO ADD TOKEN CHECK
-        newSensorDataDTO.setDate(LocalDateTime.now());// Imposta la data e l'ora corrente
-        if (file != null && !file.isEmpty()) {
-            return ResponseEntity.ok(sensorDataService.save(file, newSensorDataDTO));
-        }
-        return null;
+    public ResponseEntity<SensorData> saveSensorData(
+            @RequestPart("data") NewSensorDataDto newSensorDataDTO,
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+
+        return ResponseEntity.ok(sensorDataService.save(file, newSensorDataDTO));
+
     }
+
 
     @GetMapping("/SensorData/get-all")
     public ResponseEntity<List<SensorDataDto>> getAllSensorData() {
