@@ -19,7 +19,8 @@ import java.util.concurrent.TimeUnit;
 
 public class SensorDataSimulator {
 
-    private static final int NUM_SENSORS = 1000;
+
+    private static final int NUM_SENSORS = 1000;   //Cambiare questo valore per aumentare o diminumtire i sensori che inivano dati
     private static final String URL = "http://localhost:8010/v1/SensorData";
 
     public static void main(String[] args) {
@@ -107,10 +108,5 @@ public class SensorDataSimulator {
         return bd.doubleValue();
     }
 
-    private static Double roundToTwoDecimalPlaces(double value) {
-        BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
-        return bd.doubleValue();
-    }
 
 }
