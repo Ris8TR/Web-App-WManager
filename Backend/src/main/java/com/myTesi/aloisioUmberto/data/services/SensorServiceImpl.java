@@ -1,6 +1,7 @@
 package com.myTesi.aloisioUmberto.data.services;
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
+import com.myTesi.aloisioUmberto.core.modelMapper.SensorMapper;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
@@ -31,34 +32,31 @@ public class SensorServiceImpl implements SensorService {
     @Autowired
     private final SensorRepository sensorRepository;
     private final SensorDataRepository sensorDataRepository;
-    private final ModelMapper modelMapper = new ModelMapper();
     private final JwtTokenProvider jwtTokenProvider;
+    private final SensorMapper sensorMapper = SensorMapper.INSTANCE;
 
     @Override
     public SensorDto saveDto(NewSensorDto newSensorDto) {
-        Sensor sensor = modelMapper.map(newSensorDto, Sensor.class);
+        Sensor sensor = sensorMapper.newSensorDtoToSensor(newSensorDto);
         sensor.setPassword(BCrypt.hashpw(sensor.getPassword(), BCrypt.gensalt(10)));
         try {
             sensorRepository.save(sensor);
-            SensorDto sensorDto = modelMapper.map(sensor, SensorDto.class);
+            SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor);
             sensorDto.setId(sensor.getId().toString());
             return sensorDto;
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
         }
-
     }
 
     @Override
     public Optional<SensorDto> findById(String id) {
         Optional<Sensor> sensor = sensorRepository.findById(id);
         if (sensor.isPresent()) {
-            SensorDto sensorDto = modelMapper.map(sensor.get(), SensorDto.class);
+            SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor.get());
             return Optional.ofNullable(sensorDto);
         }
-
         return Optional.empty();
-
     }
 
     @Override
@@ -69,17 +67,10 @@ public class SensorServiceImpl implements SensorService {
             return Collections.emptyList();
         }
 
-        List<SensorDto> sensorDtos = sensors.stream()
-                .map(sensor -> modelMapper.map(sensor, SensorDto.class))
+        return sensors.stream()
+                .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());
-        return sensorDtos;
     }
-
-
-
-    //TODO QUESTA PARTE ANDRA' OTTIMIZZATA NON SI POSSONO PRENDERE TUTTI I DATI OGNI VOLTA PER TROVARE L'ULTIMA POSIZIONE NOTA
-    //SAREBBE MEGLIO O CREARE UN ENTITA' A PARTE PER I SENSORI E/O CREARE 2 CAMPI (DENTRO USER) DOVE OGNI CARICAMENTO DI DATO
-    //VIENE AGGIORNATA LAT E LON
 
     @Override
     public List<SensorDto> getAllSensor() {
@@ -116,5 +107,4 @@ public class SensorServiceImpl implements SensorService {
         System.out.println(sensorDtoList);
         return sensorDtoList;
     }
-
 }

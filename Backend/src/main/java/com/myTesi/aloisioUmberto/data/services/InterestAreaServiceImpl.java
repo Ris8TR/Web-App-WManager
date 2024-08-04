@@ -2,6 +2,8 @@ package com.myTesi.aloisioUmberto.data.services;
 
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
+import com.myTesi.aloisioUmberto.core.modelMapper.InterestAreaMapper;
+import com.myTesi.aloisioUmberto.core.modelMapper.SensorDataMapper;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
@@ -32,27 +34,28 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 public class InterestAreaServiceImpl implements InterestAreaService {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final ModelMapper modelMapper = new ModelMapper();
     private final InterestAreaRepository interestAreaRepository;
     private final SensorDataRepository sensorDataRepository;
     private final GeoService geoService;
     private final UserRepository userRepository;
-
+    private final InterestAreaMapper interestAreaMapper = InterestAreaMapper.INSTANCE;
+    private final SensorDataMapper sensorDataMapper = SensorDataMapper.INSTANCE;
 
     public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto, MultipartFile file) throws IOException {
 
         Optional<User> user = userRepository.findById(jwtTokenProvider.getUserIdFromUserToken(newInterestAreaDto.getToken()));
         if (user.isPresent()) {
-            InterestArea interestArea = modelMapper.map(newInterestAreaDto, InterestArea.class);
+            InterestArea interestArea = interestAreaMapper.newInterestAreaDtoToInterestArea(newInterestAreaDto);
             interestArea.setUserId(String.valueOf(user.get().getId())); // Set user ID from token
 
             // Process shapefile and extract geometry if file is provided
-            if (file!= null) {
+            if (file != null) {
                 File convertedFile = convertMultipartFileToFile(file);
                 interestArea.setGeometry(extractGeometryFromShapefile(convertedFile));
                 convertedFile.delete(); // Clean up the temporary file
@@ -60,14 +63,13 @@ public class InterestAreaServiceImpl implements InterestAreaService {
 
             interestAreaRepository.save(interestArea);
 
-            InterestAreaDto interestAreaDto = modelMapper.map(interestArea, InterestAreaDto.class);
+            InterestAreaDto interestAreaDto = interestAreaMapper.interestAreaToInterestAreaDto(interestArea);
             interestAreaDto.setId(interestArea.getId().toString());
             return interestAreaDto;
         }
 
         return null;
     }
-
 
     private File convertMultipartFileToFile(MultipartFile file) throws IOException {
         String originalFilename = Objects.requireNonNull(file.getOriginalFilename());
@@ -110,7 +112,6 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         }
     }
 
-
     @Override
     public InterestArea getInterestArea(ObjectId id) {
         return interestAreaRepository.findById(id.toString())
@@ -124,14 +125,14 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         List<InterestArea> interestAreas = interestAreaRepository.findAllByUserId(userId);
 
         return interestAreas.stream().map(interestArea -> {
-            InterestAreaDto interestAreaDto = modelMapper.map(interestArea, InterestAreaDto.class);
+            InterestAreaDto interestAreaDto = interestAreaMapper.interestAreaToInterestAreaDto(interestArea);
             interestAreaDto.setId(interestArea.getId().toString());
             return interestAreaDto;
         }).collect(Collectors.toList());
     }
 
     private String isValidToken(String token) {
-        if( jwtTokenProvider.validateToken(token))
+        if (jwtTokenProvider.validateToken(token))
             return jwtTokenProvider.getUserIdFromUserToken(token);
         return null;
     }
@@ -151,7 +152,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         for (SensorData sensor : sensors) {
             if (geoService.isSensorInInterestArea(sensor.getLatitude(), sensor.getLongitude(), interestArea.getGeometry())) {
                 Optional<SensorData> latestSensorData = sensorDataRepository.findTopByPayloadTypeAndTimestampAfterOrderByTimestampDesc(interestArea.getType(), tenMinutesAgo);
-                latestSensorData.ifPresent(sensorData -> sensorDataList.add(modelMapper.map(sensorData, SensorDataDto.class)));
+                latestSensorData.ifPresent(sensorData -> sensorDataList.add(sensorDataMapper.sensorDataToSensorDataDto(sensorData)));
             }
         }
         return sensorDataList;

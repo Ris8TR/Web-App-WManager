@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
-import java.time.LocalDateTime;
 import java.util.Date;
 
-
+@CompoundIndex(def = "{'timestamp': 1, 'payloadType': 1}")
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "SensorData")

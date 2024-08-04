@@ -14,6 +14,6 @@ public interface UserService {
     void save(User user);
     UserDto findByEmail(String email);
     List<UserDto> getAllUserDtoSortedByLastnameAscending();
-    NewUserDto saveDto(NewUserDto newUserDto);
+    UserDto saveDto(NewUserDto newUserDto);
 
 }

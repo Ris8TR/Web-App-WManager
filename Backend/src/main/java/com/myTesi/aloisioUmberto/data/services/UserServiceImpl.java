@@ -2,6 +2,7 @@ package com.myTesi.aloisioUmberto.data.services;
 
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
+import com.myTesi.aloisioUmberto.core.modelMapper.UserMapper;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
@@ -27,51 +28,44 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-
     private final UserRepository userDao;
     private final SensorDataRepository sensorDataRepository;
-    private final ModelMapper modelMapper = new ModelMapper();
     private final JwtTokenProvider jwtTokenProvider;
-
-
+    private final UserMapper userMapper = UserMapper.INSTANCE;
 
     @Override
     public void save(User user) {
         userDao.save(user);
     }
 
-
     @Override
     public UserDto findByEmail(String email) {
-        Optional<User> user  = userDao.findUserByEmail(email);
-        return modelMapper.map(user, UserDto.class);
+        Optional<User> user = userDao.findUserByEmail(email);
+        return user.map(userMapper::userToUserDto).orElse(null);
     }
 
     @Override
     public List<UserDto> getAllUserDtoSortedByLastnameAscending() {
-        return userDao.findAll( Sort.by("lastName").ascending()).stream().map(s -> modelMapper.map(s, UserDto.class)).collect(Collectors.toList());
+        return userDao.findAll(Sort.by("lastName").ascending())
+                .stream()
+                .map(userMapper::userToUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public NewUserDto saveDto(NewUserDto newUserDto) {
-        User user = modelMapper.map(newUserDto, User.class);
+    public UserDto saveDto(NewUserDto newUserDto) {
+        User user = userMapper.newUserDtoToUser(newUserDto);
         user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
-        //TODO Tramite link di invito creare degli utenti admin
-        user.setRole(Role.valueOf("USER"));
+        user.setRole(Role.USER);
         try {
             userDao.save(user);
-            return modelMapper.map(user, NewUserDto.class);
+            return userMapper.userToUserDto(user);
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "L'indirizzo email è già stato utilizzato.", e);
         }
-
     }
-
-
-
 }

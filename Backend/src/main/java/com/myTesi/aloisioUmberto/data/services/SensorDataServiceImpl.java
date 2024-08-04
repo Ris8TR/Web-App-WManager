@@ -1,11 +1,11 @@
 package com.myTesi.aloisioUmberto.data.services;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
+import com.myTesi.aloisioUmberto.core.modelMapper.SensorDataMapper;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
@@ -17,15 +17,15 @@ import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -38,12 +38,23 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Autowired
     private SensorRepository sensorRepository;
     private final UserRepository userDao;
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final SensorDataMapper sensorDataMapper = SensorDataMapper.INSTANCE;
     @Autowired
     private final JwtTokenProvider jwtTokenProvider;
+
+
+    private RedisTemplate<String, Object> redisTemplate;
+
+    @Autowired
+    public void SensorDataService(RedisTemplate<String, Object> redisTemplate,
+                                  SensorDataRepository sensorDataRepository) {
+        this.redisTemplate = redisTemplate;
+        this.sensorDataRepository = sensorDataRepository;
+    }
+
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
-        SensorData data = modelMapper.map(newSensorDataDTO, SensorData.class);
+        SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
         String sensorId = newSensorDataDTO.getSensorId();
         Optional<Sensor> sensor = sensorRepository.findBySensorId(sensorId);
 
@@ -105,7 +116,6 @@ public class SensorDataServiceImpl implements SensorDataService {
         }
     }
 
-
     private SensorDataHandler getHandlerForType(String dataType) {
         return switch (dataType.toLowerCase()) {
             case "json" -> new JsonSensorDataHandler();
@@ -119,13 +129,16 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public List<SensorDataDto> getAllSensorData() {
-        return sensorDataRepository.findAll().stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
+        return sensorDataRepository.findAll().stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
     }
-
 
     //TODO Serve?!
     public List<SensorDataDto> getAllSensorDataByNow() {
-        return sensorDataRepository.findAll().stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
+        return sensorDataRepository.findAll().stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
     }
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
@@ -136,24 +149,37 @@ public class SensorDataServiceImpl implements SensorDataService {
         calendar.add(Calendar.MINUTE, -10);
         Date tenMinutesAgo = calendar.getTime();
 
-        return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
+        return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
     }
 
-    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBy10MinByType(String type) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -10);
-        Date tenMinutesAgo = calendar.getTime();
+        String cacheKey = "SensorData:" + type;
+        List<SensorDataDto> sensorDataList = (List<SensorDataDto>) redisTemplate.opsForValue().get(cacheKey);
 
-        return sensorDataRepository.findByTimestampBetweenAndPayloadType(tenMinutesAgo, now,type).stream().map(s -> modelMapper.map(s, SensorDataDto.class)).collect(Collectors.toList());
+        if (sensorDataList == null) {
+            Date now = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(now);
+            calendar.add(Calendar.MINUTE, -10);
+            Date tenMinutesAgo = calendar.getTime();
+
+            sensorDataList = sensorDataRepository.findByTimestampBetweenAndPayloadType(tenMinutesAgo, now, type).stream()
+                    .map(sensorDataMapper::sensorDataToSensorDataDto)
+                    .collect(Collectors.toList());
+
+            redisTemplate.opsForValue().set(cacheKey, sensorDataList, 5, TimeUnit.MINUTES); // Cache for 5 minutes
+        }
+
+        return sensorDataList;
     }
+
 
     @Override
     public SensorDataDto getSensorDataById(Object id) {
         Optional<SensorData> data = sensorDataRepository.findById(id.toString());
-        return modelMapper.map(data, SensorDataDto.class);
+        return data.map(sensorDataMapper::sensorDataToSensorDataDto).orElse(null);
     }
 
     @Override
@@ -192,7 +218,6 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     private String createGeoJson(List<SensorData> sensorDataList, String type) {
-
         ObjectMapper mapper = new ObjectMapper();
         // Creare la struttura GeoJSON
         ObjectNode geoJson = mapper.createObjectNode();
@@ -227,7 +252,6 @@ public class SensorDataServiceImpl implements SensorDataService {
         }
     }
 
-
     private double getSensorValue(SensorData data, String type) {
         if (data.getPayload() != null) {
             try {
@@ -254,9 +278,4 @@ public class SensorDataServiceImpl implements SensorDataService {
         }
         return 0.0;
     }
-
-
-
-
 }
-
