@@ -25,14 +25,12 @@ public class SensorDataController {
 
     private final SensorDataService sensorDataService;
 
-    @Operation(summary = "Save sensor data", description = "Save new sensor data with optional file")
-    @PostMapping(value = "/SensorData", consumes = {"multipart/form-data"})
-    public ResponseEntity<SensorData> saveSensorData(
-            @RequestPart("data") NewSensorDataDto newSensorDataDTO,
-            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
 
-        return ResponseEntity.ok(sensorDataService.save(file, newSensorDataDTO));
-
+    @Operation(summary = "Receive sensor data", description = "Receive and save sensor data from micro-service")
+    @PostMapping("/sensordata")
+    public ResponseEntity<SensorData> receiveSensorData(@RequestBody SensorData sensorData) {
+        SensorData savedData = sensorDataService.saveSensorData(sensorData);
+        return ResponseEntity.ok(savedData);
     }
 
 

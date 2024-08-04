@@ -52,6 +52,10 @@ public class SensorDataServiceImpl implements SensorDataService {
         this.sensorDataRepository = sensorDataRepository;
     }
 
+    public SensorData saveSensorData(SensorData sensorData) {
+        return sensorDataRepository.save(sensorData);
+    }
+
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);

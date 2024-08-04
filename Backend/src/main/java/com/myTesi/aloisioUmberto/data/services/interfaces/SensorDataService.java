@@ -34,4 +34,5 @@ public interface SensorDataService  {
     // Metodo per eliminare un dato dal database
     void delete(Object id);
 
+    public SensorData saveSensorData(SensorData sensorData);
 }
