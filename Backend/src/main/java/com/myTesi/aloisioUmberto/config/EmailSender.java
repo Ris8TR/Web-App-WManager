@@ -30,7 +30,7 @@ public class EmailSender {
         mailSender.send(message);
 
 
-        System.out.println("Mail Sent");
+        System.out.println("Reset password e-mail sent to "+ toEmail);
     }
 
 }

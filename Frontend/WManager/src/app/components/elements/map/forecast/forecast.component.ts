@@ -73,48 +73,27 @@ export class ForecastComponent implements AfterViewInit, OnDestroy {
     }
     const heatData = this.cachedData.get(this.sensorType);
     if (heatData) {
-      this.createGrid(heatData);
+      this.addPointsToMap(heatData);
     }
   }
 
-  private createGrid(heatData: [number, number, number][]): void {
-    const bounds = this.map!.getBounds();
-    const cellSize = 0.5; // Increased cell size to reduce the number of cells
-    const colorScale = this.getColorScale();
-
-    for (let lat = bounds.getSouth(); lat < bounds.getNorth(); lat += cellSize) {
-      for (let lng = bounds.getWest(); lng < bounds.getEast(); lng += cellSize) {
-        const cellValue = this.getAverageValueInCell(lat, lng, cellSize, heatData);
-        const color = colorScale(cellValue);
-
-        const rectangle = L.rectangle(
-          [[lat, lng], [lat + cellSize, lng + cellSize]],
-          { color: color, weight: 0, fillOpacity: 0.7 }
-        );
-        this.layerGroup!.addLayer(rectangle);
-      }
-    }
-  }
-
-  private getAverageValueInCell(lat: number, lng: number, cellSize: number, heatData: [number, number, number][]): number {
-    let totalValue = 0;
-    let count = 0;
-
+  private addPointsToMap(heatData: [number, number, number][]): void {
     heatData.forEach(dataPoint => {
-      const [pointLat, pointLng, value] = dataPoint;
-      if (pointLat >= lat && pointLat < lat + cellSize && pointLng >= lng && pointLng < lng + cellSize) {
-        totalValue += value;
-        count++;
-      }
+      const [lat, lng, value] = dataPoint;
+      const marker = L.circleMarker([lat, lng], {
+        radius: 8,
+        fillColor: this.getColorScale()(value),
+        color: '#000',
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+      }).addTo(this.layerGroup!);
+      marker.bindPopup(`Value: ${value}`);
     });
-
-    return count > 0 ? totalValue / count : 0;
   }
 
   private getColorScale() {
     return (value: number) => {
-      // Implement a color scale based on the value, e.g., using d3-scale
-      // For simplicity, here is a simple linear color scale from blue to red
       const min = 0, max = 100; // Adjust these values based on your data range
       const ratio = (value - min) / (max - min);
       const r = Math.round(255 * ratio);

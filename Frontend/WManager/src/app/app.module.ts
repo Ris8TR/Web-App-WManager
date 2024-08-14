@@ -8,11 +8,12 @@ import { UserService } from './service/api';
 import { ToolbarComponent } from './components/elements/toolbar/toolbar.component';
 import { LoginComponent } from './components/pages/login/login.component';
 import { SigninComponent } from './components/pages/signin/signin.component';
+import {ResetComponent} from "./components/pages/reset/reset.component";
 
 
 @NgModule({
   declarations: [],
-  imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent ], 
+  imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent, ResetComponent ],
   providers: [AuthService,UserService],
   bootstrap: []
 })
