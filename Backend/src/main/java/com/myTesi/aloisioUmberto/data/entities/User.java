@@ -47,6 +47,10 @@ public class User {
     @NotNull
     @Field
     private String password;
+
+    @NotNull
+    @Field
+    private String sensorPassword;
     
 
     //Altro

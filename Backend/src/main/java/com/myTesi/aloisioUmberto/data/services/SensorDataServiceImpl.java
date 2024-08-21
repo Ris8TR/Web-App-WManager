@@ -59,13 +59,13 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
-        String sensorId = newSensorDataDTO.getSensorId();
-        Optional<Sensor> sensor = sensorRepository.findBySensorId(sensorId);
+        String UserId = newSensorDataDTO.getSensorId();
+        Optional<Sensor> sensor = sensorRepository.findByUserId(UserId);
 
         if (sensor.isEmpty()) {
             Sensor newSensor = new Sensor();
             newSensor.setCompanyName("TEST");
-            newSensor.setSensorId(sensorId);
+            newSensor.setUserId(newSensorDataDTO.getUserId());
             sensorRepository.save(newSensor);
             data.setSensorId(newSensor.getId().toString());
         } else {

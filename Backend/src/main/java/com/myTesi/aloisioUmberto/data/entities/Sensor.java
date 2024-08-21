@@ -19,20 +19,16 @@ public class Sensor {
 
         @Id
         private ObjectId id;
-
         //@Size(min=10)
         @NotNull
         @Field
-        private String CompanyName;
-
-        private String sensorId;
-
+        private String companyName;
+        private String userId;
+        private String description;
         @NotNull
         @Field
         private String password;
-
-
-        private List<InterestArea> interestAreas; // Aree di interesse dell'utente
+        private String interestAreaID; // Area di interesse dell'utente
 
 
 }

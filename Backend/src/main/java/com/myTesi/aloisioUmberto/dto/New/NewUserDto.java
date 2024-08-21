@@ -26,5 +26,8 @@ public class NewUserDto {
     @NonNull
     @NotBlank
     private String password;
+    @NonNull
+    @NotBlank
+    private String sensorPassword;
 
 }

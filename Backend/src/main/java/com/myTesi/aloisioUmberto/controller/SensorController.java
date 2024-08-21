@@ -1,17 +1,22 @@
 package com.myTesi.aloisioUmberto.controller;
 
+import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.SensorServiceImpl;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorService;
+import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDto;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +39,13 @@ public class SensorController {
     public ResponseEntity<SensorDto> addSensor(@RequestBody @Valid NewSensorDto newSensorDto) {
         return ResponseEntity.ok(sensorService.saveDto(newSensorDto));
     }
+
+    @Operation(summary = "Save sensor ", description = "Save sensor with file")
+    @PostMapping(value="/new-sensors",  consumes = {"multipart/form-data"})
+    public ResponseEntity<SensorDto> newSensor( @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        return ResponseEntity.ok(sensorService.save(file));
+    }
+
 
 
     @GetMapping("/sensors/{companyName}")

@@ -1,12 +1,17 @@
 package com.myTesi.aloisioUmberto.data.services;
 
+import com.fasterxml.jackson.core.exc.StreamReadException;
+import com.fasterxml.jackson.databind.DatabindException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorMapper;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
+import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
+import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorService;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDto;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
@@ -20,8 +25,11 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -33,7 +41,10 @@ public class SensorServiceImpl implements SensorService {
     private final SensorRepository sensorRepository;
     private final SensorDataRepository sensorDataRepository;
     private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userDao;
     private final SensorMapper sensorMapper = SensorMapper.INSTANCE;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public SensorDto saveDto(NewSensorDto newSensorDto) {
@@ -96,8 +107,8 @@ public class SensorServiceImpl implements SensorService {
                 SensorData sensorData = sensorDataOptional.get();
                 SensorDto sensorDto = new SensorDto();
                 sensorDto.setCompanyName(sensor.getCompanyName());
-                sensorDto.setLatitude(sensorData.getLatitude());
-                sensorDto.setLongitude(sensorData.getLongitude());
+                sensorDto.setLatitude(Collections.singletonList(sensorData.getLatitude()));
+                sensorDto.setLongitude(Collections.singletonList(sensorData.getLongitude()));
                 sensorDtoList.add(sensorDto);
             } else {
                 System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
@@ -107,4 +118,55 @@ public class SensorServiceImpl implements SensorService {
         System.out.println(sensorDtoList);
         return sensorDtoList;
     }
+
+    @Override
+    public SensorDto save(MultipartFile file) throws IOException {
+
+        if (file != null && !file.isEmpty()) {
+            try {
+                // Parse the JSON file
+                ObjectMapper objectMapper = new ObjectMapper();
+                Map data = objectMapper.readValue(file.getInputStream(), Map.class);
+
+                String companyName = data.get("companyName").toString();
+                String userId = data.get("userId").toString();
+                String password = data.get("password").toString();
+                String interestAreaId = data.get("interestAreaId").toString();
+                String description = data.get("description").toString();
+
+                Optional<User> user = userDao.findById(userId);
+                if (user.isPresent() && BCrypt.checkpw(password, user.get().getSensorPassword())) {
+
+                    boolean exists = sensorRepository.existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(
+                            companyName, userId, interestAreaId, description);
+
+                    if (exists) {
+                        throw new RuntimeException("A sensor with this data already exists");
+                    }
+
+                    Sensor newSensor = new Sensor();
+                    newSensor.setCompanyName(companyName);
+                    newSensor.setUserId(userId);
+                    newSensor.setPassword(BCrypt.hashpw(password, BCrypt.gensalt(10)));
+                    newSensor.setInterestAreaID(interestAreaId);
+                    newSensor.setDescription(description);
+
+                    sensorRepository.save(newSensor);
+
+                    SensorDto sensorDto = modelMapper.map(newSensor, SensorDto.class);
+                    sensorDto.setId(newSensor.getId().toString());
+                    return sensorDto;
+
+                } else {
+                    throw new RuntimeException("Invalid user credentials");
+                }
+
+            } catch (Exception e) {
+                throw new RuntimeException("Error during JSON file parsing", e);
+            }
+        } else {
+            throw new RuntimeException("The uploaded file is empty");
+        }
+    }
 }
+

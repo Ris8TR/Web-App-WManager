@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface SensorRepository extends MongoRepository<Sensor, String> {
     List<Sensor> findAllByCompanyName(String companyName);
+    boolean existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(String companyName, String userId, String interestAreaID , String description);
 
-    Optional<Sensor> findBySensorId(String s);
+    Optional<Sensor> findByUserId(String s);
 }
