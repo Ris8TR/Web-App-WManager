@@ -27,3 +27,22 @@ Risorse:
     https://v17.angular.io/start
     https://material.angular.io/
     https://www.codemotion.com/magazine/it/frontend-it/angular-control-flow-la-guida-completa/
+
+
+TODO:
+
+- certificati HTTPS
+- visualizzazione degli shapefile
+- cambiare sensorID in userID all'interno dell'oggetto Sensor
+- Aggiungere nell'interfaccia grafica all'interno delle specifiche dell'utente lo userID per inviare i dati
+- associare la user password non al sensore ma direttamente all'utente
+- Quando l'utente invia i dato deve inserire la user password e l'area d'interesse
+- aggiungere area d'interesse all'interno di sensor data
+- Aggiungere all'interno del Sensor un tipo Descrizione
+- Il Sensor può essere registrato nel sistema tramite:
+- l'interfaccia grafica
+- una richiesta di registrazione tramite json
+
+- Sezione Admin
+- 
+
