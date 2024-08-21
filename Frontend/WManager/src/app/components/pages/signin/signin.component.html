@@ -24,6 +24,10 @@
                   <mat-label>Repeat Password:</mat-label>
                   <input matInput type="password" placeholder="*********" value="*********" [(ngModel)]="passwordCheckUser" name="registerConfirmPassword" maxlength="30">
               </mat-form-field>
+            <mat-form-field style="width: 300px; margin-bottom: 20px;" >
+              <mat-label>Select a Sensor only Password:</mat-label>
+              <input matInput type="password" placeholder="This password is requred to register new sensors" value="*********" [(ngModel)]="newUser.sensorPassword" name="registerConfirmPassword" maxlength="30">
+            </mat-form-field>
           </div>
       </form>
       <div style="display: flex; justify-content: center;">

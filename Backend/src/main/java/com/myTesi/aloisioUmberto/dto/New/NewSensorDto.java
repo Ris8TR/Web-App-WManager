@@ -17,6 +17,7 @@ public class NewSensorDto{
     private String SensorId;
     private String description;
     private String userId;
+    private String interestAreaId;
 
 
 }

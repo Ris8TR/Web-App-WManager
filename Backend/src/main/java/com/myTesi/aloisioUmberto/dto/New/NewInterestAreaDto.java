@@ -11,7 +11,8 @@ import org.bson.types.ObjectId;
 public class NewInterestAreaDto {
     private String userId; // ID dell'utente a cui appartiene l'area di interesse
     private String name; // Nome dell'area di interesse
-    private String type;
+    private String description; // Nome dell'area di interesse
+    private String type; // Nome dell'area di interesse
     private Object file;
     private String geometry; // Geometria dell'area
     private String token;

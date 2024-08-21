@@ -13,6 +13,9 @@ public class InterestAreaDto {
         private String userId; // ID dell'utente a cui appartiene l'area di interesse
         private String name; // Nome dell'area di interesse
         private String geometry; // Geometria dell'area
+        private String Type; // tipo dell'area
+        private String description; // descrizione dell'area
+
     }
 
 

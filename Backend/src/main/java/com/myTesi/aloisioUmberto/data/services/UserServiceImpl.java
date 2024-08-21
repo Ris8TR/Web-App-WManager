@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.newUserDtoToUser(newUserDto);
         user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
         user.setRole(Role.USER);
+        user.setSensorPassword(BCrypt.hashpw(newUserDto.getSensorPassword(), BCrypt.gensalt(10)));
         try {
             userDao.save(user);
             return userMapper.userToUserDto(user);

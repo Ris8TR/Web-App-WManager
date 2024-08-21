@@ -46,18 +46,41 @@ public class SensorServiceImpl implements SensorService {
     @Autowired
     private ModelMapper modelMapper;
 
+
+
+    private String isValidToken(String token) {
+        if (jwtTokenProvider.validateToken(token))
+            return jwtTokenProvider.getUserIdFromUserToken(token);
+        return null;
+    }
+
     @Override
     public SensorDto saveDto(NewSensorDto newSensorDto) {
         Sensor sensor = sensorMapper.newSensorDtoToSensor(newSensorDto);
-        sensor.setPassword(BCrypt.hashpw(sensor.getPassword(), BCrypt.gensalt(10)));
-        try {
-            sensorRepository.save(sensor);
-            SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor);
-            sensorDto.setId(sensor.getId().toString());
-            return sensorDto;
-        } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
+        String userId = isValidToken(newSensorDto.getUserId());
+        assert userId != null;
+        Optional<User> user = userDao.findById(userId);
+
+
+        if (BCrypt.checkpw(newSensorDto.getPassword(), user.get().getSensorPassword())) {
+            sensor.setPassword(BCrypt.hashpw(sensor.getPassword(), BCrypt.gensalt(10)));
+            sensor.setDescription(newSensorDto.getDescription());
+            sensor.setUserId(String.valueOf(user.get().getId()));
+            sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
+            try {
+                sensorRepository.save(sensor);
+                SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor);
+                sensorDto.setId(sensor.getId().toString());
+                sensorDto.setDescription(sensor.getDescription());
+                sensorDto.setUserId(String.valueOf(user.get().getId()));
+                sensorDto.setInterestAreaID(sensor.getInterestAreaID());
+                return sensorDto;
+            } catch (DataIntegrityViolationException e) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
+            }
         }
+        throw new RuntimeException("Invalid credentials");
+
     }
 
     @Override

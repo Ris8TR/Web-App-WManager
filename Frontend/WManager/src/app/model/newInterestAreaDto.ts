@@ -14,5 +14,7 @@ import {Observable} from "rxjs";
 export interface NewInterestAreaDto {
     token?: string;
     name?: string;
+    type?: string;
+    description?: string;
     file?: Object;
 }

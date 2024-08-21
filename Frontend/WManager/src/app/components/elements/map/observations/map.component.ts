@@ -109,7 +109,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
             const sensorCount = this.sensorCountPerMarker[key];
 
             const popupContent = `Nome: ${sensorDto.id} <br>Lat: ${latitude} <br>Lon: ${longitude}`;
-            const marker = L.marker([latitude, longitude], {
+            const marker = L.marker([latitude[0], longitude[0]], {
               icon: this.createGreenMarkerIcon(sensorCount) // Crea icone in base al conteggio
             })
               .bindPopup(popupContent);

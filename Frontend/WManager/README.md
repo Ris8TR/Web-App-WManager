@@ -34,9 +34,7 @@ TODO:
 - certificati HTTPS
   - visualizzazione degli shapefile
   - Aggiungere nell'interfaccia grafica all'interno delle specifiche dell'utente lo userID per inviare i dati
-  - Quando l'utente invia i dato deve inserire la user password e l'area d'interesse
-  - aggiungere area d'interesse all'interno di sensor data
-  - Aggiungere all'interno del Sensor un tipo Descrizione
+  - Quando l'utente invia i dato deve inserire la user password e l'area d'interesse  //Verificare se funziona
   
   - Sezione Admin
 
@@ -44,9 +42,11 @@ TODO:
 FATTO:
   - cambiare sensorID in userID all'interno dell'oggetto Sensor
   - associare la user password non al sensore ma direttamente all'utente
+  - Aggiungere all'interno del Sensor un tipo Descrizione
+  - aggiungere area d'interesse all'interno di sensor data  //verificare se va bene in sensorDataService - save (72)
 
   - Il Sensor può essere registrato nel sistema tramite:
-    - l'interfaccia grafica
+    - l'interfaccia grafica (manca solo il tasto. Il componente sta a /create-sensor)
     - una richiesta di registrazione tramite json
 
 

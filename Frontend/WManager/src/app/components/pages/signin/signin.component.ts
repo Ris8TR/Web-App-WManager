@@ -37,6 +37,7 @@ export class SigninComponent {
 
 
   newUser: NewUserDto = {
+    sensorPassword: "",
     email: '',
     firstName: '',
     lastName: '',
@@ -49,7 +50,8 @@ export class SigninComponent {
       this.newUser.lastName &&
       this.newUser.password &&
       this.passwordCheckUser &&
-      this.newUser.password === this.passwordCheckUser
+      this.newUser.password === this.passwordCheckUser &&
+      this.newUser.sensorPassword
     ) {
       return true;
     } else {

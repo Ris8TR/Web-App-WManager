@@ -1,0 +1,25 @@
+/* Applica questo stile al body per riempire la pagina e centrare il contenuto */
+body, html {
+  height: 100%;
+  margin: 0;
+}
+
+/* Contenitore principale del form */
+.centered-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centra orizzontalmente */
+  justify-content: center; /* Centra verticalmente */
+  height: 100vh; /* Imposta l'altezza del form per occupare l'intera altezza della finestra */
+}
+
+.full-width {
+  width: 100%;
+  max-width: 400px; /* Limita la larghezza del form per evitare che sia troppo largo */
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}

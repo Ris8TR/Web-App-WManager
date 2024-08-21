@@ -31,6 +31,11 @@ public class InterestArea {
     @Field
     private String geometry; // Geometria dell'area
 
+    @NotNull
+    @Field
+    private String description; // Descrizione dell'area
+
+
     @Field
     private byte[] shapefileData; // Dati del Shapefile
 

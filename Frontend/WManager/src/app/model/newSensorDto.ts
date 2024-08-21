@@ -10,13 +10,11 @@
  * Do not edit the class manually.
  */
 
-export interface NewSensorDataDto {
-  sensorId?: string;
-  timestamp?: Date;
-  payloadType?: string;
-  latitude?: number;
-  longitude?: number;
-  payload?: any;
-  userId?: string;
-  interestAreaId?: string
+export interface NewSensorDto {
+    companyName?: string;
+    password?: string;
+    description?: string;
+    userId?: string;
+    sensorId?: string;
+    interestAreaId?: string;
 }

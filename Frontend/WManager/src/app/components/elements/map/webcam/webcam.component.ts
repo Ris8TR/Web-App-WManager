@@ -3,6 +3,7 @@ import * as L from 'leaflet';
 import { SensorDto } from '../../../../model/sensorDto';
 import { HttpClient } from '@angular/common/http';
 import { SensorDataService } from '../../../../service/sensorData.service';
+import {SensorDataDto} from "../../../../model/sensorDataDto";
 
 @Component({
   selector: 'app-webcam',
@@ -85,11 +86,11 @@ export class WebcamComponent {
 
   private loadSensorData(): void {
     this.sensorDataService.getAllSensorBy10MinByType("image").subscribe(
-      (sensorDtos: SensorDto[]) => {
+      (sensorDataDtos: SensorDataDto[]) => {
         const markers: L.Marker[] = [];
-        console.log(sensorDtos);
+        console.log(sensorDataDtos);
 
-        sensorDtos.forEach((sensorDto: SensorDto) => {
+        sensorDataDtos.forEach((sensorDto: SensorDataDto) => {
           const latitude = sensorDto.latitude!;
           const longitude = sensorDto.longitude!;
           const image = "http://localhost:8010/v1/images/"+ sensorDto.userId + "/" +sensorDto.payload;

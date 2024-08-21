@@ -53,8 +53,8 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         if (user.isPresent()) {
             InterestArea interestArea = interestAreaMapper.newInterestAreaDtoToInterestArea(newInterestAreaDto);
             interestArea.setUserId(String.valueOf(user.get().getId())); // Set user ID from token
-
-            // Process shapefile and extract geometry if file is provided
+            interestArea.setDescription(newInterestAreaDto.getDescription());
+            interestArea.setType(newInterestAreaDto.getType());
             if (file != null) {
                 File convertedFile = convertMultipartFileToFile(file);
                 interestArea.setGeometry(extractGeometryFromShapefile(convertedFile));
@@ -65,6 +65,8 @@ public class InterestAreaServiceImpl implements InterestAreaService {
 
             InterestAreaDto interestAreaDto = interestAreaMapper.interestAreaToInterestAreaDto(interestArea);
             interestAreaDto.setId(interestArea.getId().toString());
+            interestAreaDto.setDescription(interestArea.getDescription());
+            interestAreaDto.setType(interestArea.getType());
             return interestAreaDto;
         }
 

@@ -9,12 +9,13 @@ import { ToolbarComponent } from './components/elements/toolbar/toolbar.componen
 import { LoginComponent } from './components/pages/login/login.component';
 import { SigninComponent } from './components/pages/signin/signin.component';
 import {ResetComponent} from "./components/pages/reset/reset.component";
+import {SensorService} from "./service/sensor.service";
 
 
 @NgModule({
   declarations: [],
   imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent, ResetComponent ],
-  providers: [AuthService,UserService],
+  providers: [AuthService,UserService,SensorService],
   bootstrap: []
 })
 export class AppModule { }

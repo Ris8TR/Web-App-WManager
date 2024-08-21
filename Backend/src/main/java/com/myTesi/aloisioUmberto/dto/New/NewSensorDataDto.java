@@ -20,4 +20,5 @@ public class NewSensorDataDto {
     private double longitude;
     private Object payload;
     private String userId;
+    private String interestAreaId;
 }

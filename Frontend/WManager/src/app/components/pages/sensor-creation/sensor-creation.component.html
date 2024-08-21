@@ -1,0 +1,29 @@
+<form (ngSubmit)="loadData()" class="example-form centered-form">
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Company Name*</mat-label>
+    <input matInput type="text" id="company" name="company" [(ngModel)]="data.companyName" required>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Description*</mat-label>
+    <input matInput type="text" id="description" name="description" [(ngModel)]="data.description" required>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Password*</mat-label>
+    <input matInput type="password" id="dataType" name="dataType" [(ngModel)]="data.password" required>
+  </mat-form-field>
+
+  <div class="full-width">
+    <label>Seleziona Area di Interesse*</label>
+    <mat-radio-group  [(ngModel)]="data.interestAreaId" name="interestArea" required>
+      <mat-radio-button  *ngFor="let area of interestAreaNames" [value]="area.id" class="white-text">
+        <div style="color: white">{{ area.name }}</div>
+      </mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  <div class="button-container">
+    <button mat-raised-button color="primary" type="submit" [disabled]="!controllo()">Carica dato</button>
+  </div>
+</form>

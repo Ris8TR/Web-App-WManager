@@ -8,8 +8,9 @@ import { provideHttpClient } from '@angular/common/http';
 import { UserService } from './service/user.service';
 import { InterestAreaService } from './service/interestArea.service';
 import { SensorDataService } from './service/sensorData.service';
+import {SensorService} from "./service/sensor.service";
 
 //TODO QUI VANNO I SERVICES ORA
 export const appConfig: ApplicationConfig = {
-  providers: [provideAnimationsAsync(),provideRouter(routes),FormsModule,AuthService,UserService, InterestAreaService,SensorDataService,provideHttpClient()]
+  providers: [provideAnimationsAsync(),provideRouter(routes),FormsModule,AuthService,UserService, InterestAreaService,SensorDataService, SensorService,provideHttpClient()]
 };

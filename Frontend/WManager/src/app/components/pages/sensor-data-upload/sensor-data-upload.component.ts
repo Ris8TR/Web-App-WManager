@@ -16,6 +16,8 @@ import { SensorDataService } from '../../../service/sensorData.service';
   templateUrl: './sensor-data-upload.component.html',
   styleUrl: './sensor-data-upload.component.css'
 })
+
+
 export class SensorDataUploadComponent {
   file!: File;
   data: NewSensorDataDto = {
@@ -25,6 +27,9 @@ export class SensorDataUploadComponent {
     longitude: 0,
     payload: {}
   };
+
+  interestAreas?: string[]
+
 
   constructor(
     private sensorDataService: SensorDataService,
@@ -41,7 +46,7 @@ export class SensorDataUploadComponent {
 
   controllo() {
     if (!this.data) {
-      this.snackBar.open("Devi inserire un titolo", 'OK');
+      this.snackBar.open("Devi compilare tutti i campi!", 'OK');
       return false;
     }
     return true;

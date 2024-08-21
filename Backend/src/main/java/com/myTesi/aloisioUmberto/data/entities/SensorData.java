@@ -33,6 +33,8 @@ public class SensorData {
     //@NotNull
     private Object payload;
 
+    private String interestAreaID;
+
     @NotNull
     @Field
     private double latitude; // Latitudine delle coordinate geografiche

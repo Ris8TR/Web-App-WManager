@@ -10,7 +10,6 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {ElementRef, ViewChild } from '@angular/core';
 import { LoginDto } from '../../../model/loginDto';
-import { NewUserDto } from '../../../model/newUserDto';
 import { AuthService } from '../../../service/auth.service';
 import { ToolbarComponent } from '../../elements/toolbar/toolbar.component';
 
@@ -43,14 +42,6 @@ export class LoginComponent {
     password: ''
   };
 
-
-  newUser: NewUserDto = {
-    email: '',
-    firstName: '',
-    lastName: '',
-    password:''
-
-  };
 
 
   handleClickOutside(event: Event) {

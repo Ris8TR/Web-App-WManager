@@ -62,12 +62,14 @@ public class SensorDataServiceImpl implements SensorDataService {
         String UserId = newSensorDataDTO.getSensorId();
         Optional<Sensor> sensor = sensorRepository.findByUserId(UserId);
 
+        //TODO Rimuovere questo
         if (sensor.isEmpty()) {
             Sensor newSensor = new Sensor();
             newSensor.setCompanyName("TEST");
             newSensor.setUserId(newSensorDataDTO.getUserId());
             sensorRepository.save(newSensor);
             data.setSensorId(newSensor.getId().toString());
+            data.setInterestAreaID(newSensor.getInterestAreaID());
         } else {
             data.setSensorId(sensor.get().getId().toString());
         }
