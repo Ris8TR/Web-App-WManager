@@ -13,6 +13,7 @@ import { WebcamComponent } from './components/elements/map/webcam/webcam.compone
 import {
   InterestAreaCreationComponent
 } from "./components/pages/interest-area-creation/interest-area-creation.component";
+import {ResetComponent} from "./components/pages/reset/reset.component";
 
 
 
@@ -27,6 +28,7 @@ export const routes: Routes = [
     {path: 'test/sensor', title: "Test upload sensori", component: SensorDataUploadComponent },
     {path: 'webcam', title: "Webcam 'LIVE' ", component: WebcamComponent },
     {path: 'create-area', title: "Create new area' ", component: InterestAreaCreationComponent },
+    {path: 'reset/:token', title: "Password reset", component: ResetComponent },
 
     //Errors:
     {path: 'bad-request',title:"Bad Request", component: BadComponent},

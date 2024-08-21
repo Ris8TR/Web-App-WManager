@@ -64,8 +64,8 @@ public class AuthServiceImpl implements AuthService {
         if (type!=null) {
             String token = jwtTokenProvider.generateResetPassToken(email,type);
             CompletableFuture.runAsync(() -> {
-                emailSender.sendSimpleEmail(email, "Reset Password", "Ciao, sembra che tu abbia dimenticato la tua password. Clicca qui per cambiarla: " +
-                        "http://localhost:4200/pswreset/:" + token);
+                emailSender.sendSimpleEmail(email, "Reset Password", "Ciao, sembra che tu abbia dimenticato la tua password. \n" +
+                        "Clicca qui per cambiarla: " + "http://localhost:4200/reset/:" + token);
             });
             return ResponseEntity.ok(token);
         }

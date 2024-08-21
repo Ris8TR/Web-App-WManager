@@ -28,4 +28,5 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.save(file, newSensorDataDTO));
 
     }
+
 }

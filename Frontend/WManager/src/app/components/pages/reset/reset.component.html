@@ -1,0 +1,22 @@
+<div style="display: flex; min-height:86vh; justify-content: center;">
+
+  <div class="back" style="padding: 20px; width: 50%;">
+    <h2 style="margin-left: 5%;">Inserisci la nuova la password:</h2>
+    <form id="registrationUser" style="display: flex; flex-direction: column; align-items: center;">
+      <div id="secondColumn" style="width: 50%;">
+        <label style="margin: 20px 0 5px 0; display: block;">Password:</label>
+        <mat-form-field style="width: 100%;">
+          <input matInput type="password" style="width: 100%;" [(ngModel)]="password" name="registerPassword" maxlength="15">
+        </mat-form-field>
+
+        <label style="margin: 20px 0 5px 0; display: block;">Conferma password:</label>
+        <mat-form-field style="width: 100%;">
+          <input matInput type="password" style="width: 100%;" [(ngModel)]="passwordCheck" name="registerConfirmPassword" maxlength="15">
+        </mat-form-field>
+      </div>
+    </form>
+    <div style="display: flex; justify-content: center;">
+      <button mat-flat-button style="margin-top: 20px;" (click)="reset()">Reset</button>
+    </div>
+  </div>
+</div>
