@@ -72,6 +72,8 @@ public class SensorDataServiceImpl implements SensorDataService {
             data.setInterestAreaID(newSensor.getInterestAreaID());
         } else {
             data.setSensorId(sensor.get().getId().toString());
+            sensor.get().setInterestAreaID(data.getInterestAreaID());
+            sensorRepository.save(sensor.get());
         }
 
         data.setTimestamp(Date.from(Instant.now()));

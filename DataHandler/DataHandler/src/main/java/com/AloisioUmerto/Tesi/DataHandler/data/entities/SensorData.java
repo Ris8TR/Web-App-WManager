@@ -21,25 +21,28 @@ import java.util.Date;
 @Data
 public class SensorData {
     @Id
-    private ObjectId id;
+    private ObjectId id; // Identificatore univoco del documento nel database
 
     @NotNull
     @Field
-    private String sensorId;
+    private String sensorId; // ID dell'utente che ha inviato i dati
 
     @NotNull
     @Field
-    private String payloadType;
+    private String payloadType; // Tipo di dati (JSON, GeoJSON, Raster, Shapefile, ecc.)
 
-    private Date timestamp;
+    private Date timestamp; // Timestamp dei dati inviati
 
+    //@NotNull
     private Object payload;
 
-    @NotNull
-    @Field
-    private double latitude;
+    private String interestAreaID;
 
     @NotNull
     @Field
-    private double longitude;
+    private double latitude; // Latitudine delle coordinate geografiche
+
+    @NotNull
+    @Field
+    private double longitude; // Longitudine delle coordinate geografiche
 }

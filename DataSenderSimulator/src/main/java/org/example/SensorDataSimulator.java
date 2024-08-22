@@ -20,8 +20,8 @@ import java.util.concurrent.TimeUnit;
 public class SensorDataSimulator {
 
 
-    private static final int NUM_SENSORS = 1000;   //Cambiare questo valore per aumentare o diminumtire i sensori che inivano dati
-    private static final String URL = "http://localhost:8010/v1/SaveSensorData";
+    private static final int NUM_SENSORS = 2;   //Cambiare questo valore per aumentare o diminumtire i sensori che inivano dati
+    private static final String URL = "http://localhost:8080/v1/SaveSensorData";
 
     public static void main(String[] args) {
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(NUM_SENSORS);
@@ -62,12 +62,13 @@ public class SensorDataSimulator {
         }
     }
 
-    private static String generateSensorDataJson(int sensorId, Random random) {
+    private static String generateSensorDataJson(int userId, Random random) {
         String timestamp = Instant.now().toString();
         int CO2 = 350 + random.nextInt(100);
         double ap = 950 + (random.nextDouble() * 20);
         double temperature = 15 + (random.nextDouble() * 15);
         int humidity = 20 + random.nextInt(60);
+        int interestAreaId = userId+ 1000+  random.nextInt(60);
 
 
 
@@ -78,11 +79,12 @@ public class SensorDataSimulator {
         return String.format(
                 """
                         {\
-                        "sensorId": "%s",
+                        "userId": "%s",
                         "timestamp": "%s",
                         "payloadType": "json",
                         "latitude": %s,
                         "longitude": %s,
+                        "interestAreaId": "%s",
                         "payload": {
                             "CO2": %d,
                             "ap": %s,
@@ -90,7 +92,7 @@ public class SensorDataSimulator {
                             "humidity": %d
                           }\
                         }""",
-                sensorId, timestamp, getRandomLatitude(random), getRandomLongitude(random), CO2, apFormatted, temperatureFormatted, humidity);
+                userId, timestamp, getRandomLatitude(random), getRandomLongitude(random), interestAreaId , CO2, apFormatted, temperatureFormatted, humidity);
     }
 
 

@@ -10,9 +10,14 @@ import lombok.ToString;
 @ToString
 public class NewSensorDto {
 
-    private String CompanyName;
+
+    private String companyName;
     private String password;
     private String SensorId;
+    private String description;
+    private String userId;
+    private String interestAreaId;
+
 
 
 }
