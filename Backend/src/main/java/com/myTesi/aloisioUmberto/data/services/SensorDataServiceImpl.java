@@ -58,17 +58,21 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
+        //TODO aggiungere tutti i controlli
         SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
         String UserId = newSensorDataDTO.getSensorId();
         Optional<Sensor> sensor = sensorRepository.findByUserId(UserId);
+        //TODO verificare che la password sia di corretta
 
-        //TODO Rimuovere questo
+        //TODO Rimuovere questo dopo
         if (sensor.isEmpty()) {
             Sensor newSensor = new Sensor();
             newSensor.setCompanyName("TEST");
             newSensor.setUserId(newSensorDataDTO.getUserId());
             sensorRepository.save(newSensor);
+            //TODO verificare che il sensore sia di proprietà dell'utente
             data.setSensorId(newSensor.getId().toString());
+            //TODO verificare che l'area di interesse sia di proprietà dell'utente
             data.setInterestAreaID(newSensor.getInterestAreaID());
         } else {
             data.setSensorId(sensor.get().getId().toString());
@@ -89,7 +93,7 @@ public class SensorDataServiceImpl implements SensorDataService {
             // Rimuovi le parentesi graffe
             String payloadString = newSensorDataDTO.getPayload().toString().replaceAll("[{}]", "");
 
-            // Assumendo che newSensorDataDTO.getPayload() restituisca una stringa del tipo "CO2=377, temperature=17.11, humidity=58, ap=965.54"
+            //parsing del json
             String[] entries = payloadString.split(", ");
             for (String entry : entries) {
                 String[] keyValue = entry.split("=");
@@ -98,11 +102,11 @@ public class SensorDataServiceImpl implements SensorDataService {
                 payload.put(key, value);
             }
 
-            // Convert payload map to JSON string if necessary
+            // Conversione finale
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonPayload = objectMapper.writeValueAsString(payload);
 
-            data.setPayload(jsonPayload); // Assicurati che SensorData abbia un campo payload di tipo String o Map<String, Object>
+            data.setPayload(jsonPayload);
         }
 
         sensorDataRepository.save(data);

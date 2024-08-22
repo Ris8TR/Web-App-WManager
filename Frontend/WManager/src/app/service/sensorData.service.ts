@@ -295,7 +295,7 @@ public saveSensorData(data: NewSensorDataDto, file : File, observe: any = 'body'
         headers = headers.set('Content-Type', httpContentTypeSelected);
     }
 
-    return this.httpClient.post<SensorData>(`${this.basePath}/v1/SensorData`,formData,
+    return this.httpClient.post<SensorData>(`${this.basePath}/v1/SaveSensorData`,formData,
 
         {
 
