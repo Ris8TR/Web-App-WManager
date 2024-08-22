@@ -4,7 +4,6 @@ import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
-import jakarta.servlet.http.HttpServletRequest;
 import org.bson.types.ObjectId;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,9 +14,9 @@ public interface InterestAreaService {
 
     InterestAreaDto save(NewInterestAreaDto newInterestAreaDto,MultipartFile file) throws IOException;
 
-    InterestArea getInterestArea(ObjectId id);
+    InterestArea getInterestArea(String id);
 
-    List<SensorDataDto> getLatestSensorDataInInterestArea(ObjectId interestAreaId);
+    List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId);
 
     List<InterestAreaDto> getInterestAreasByUserId(String userId);
 

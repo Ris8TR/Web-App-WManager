@@ -14,7 +14,6 @@ import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.bson.types.ObjectId;
 import org.geotools.data.FileDataStore;
@@ -22,7 +21,6 @@ import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
-import org.modelmapper.ModelMapper;
 import org.opengis.feature.simple.SimpleFeature;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -115,7 +113,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
     @Override
-    public InterestArea getInterestArea(ObjectId id) {
+    public InterestArea getInterestArea(String id) {
         return interestAreaRepository.findById(id.toString())
                 .orElseThrow(() -> new RuntimeException("Interest Area not found. id: " + id));
     }
@@ -144,7 +142,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         interestAreaRepository.deleteById(id.toString());
     }
 
-    public List<SensorDataDto> getLatestSensorDataInInterestArea(ObjectId interestAreaId) {
+    public List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId) {
         InterestArea interestArea = getInterestArea(interestAreaId);
         List<SensorData> sensors = sensorDataRepository.findAllByPayloadType(interestArea.getType());
 
