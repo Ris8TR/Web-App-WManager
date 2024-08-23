@@ -19,7 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://192.168.15.34:4200")
 @Tag(name = "User") //Name displayed on swagger
 
 public class UserController {

@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/v1")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://192.168.15.34:4200")
 @Tag(name = "Auth") //Name displayed on swagger
 public class AuthController {
 
