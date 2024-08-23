@@ -1,13 +1,17 @@
-<div class="container">
-  <mat-form-field class="sensor-select" style="width: 22%">
-    <mat-label for="sensorType">Select Sensor Type:</mat-label>
-    <mat-select id="sensorType" [(ngModel)]="sensorType" (ngModelChange)="onSensorTypeChange()">
-      <mat-option value="Temperature">Temperature</mat-option>
-      <mat-option value="CO2">CO2</mat-option>
-      <mat-option value="Rain">Rain</mat-option>
-      <mat-option value="Wind">Wind</mat-option>
-      <mat-option value="Fire">Fire</mat-option>
-    </mat-select>
-  </mat-form-field>
-  <div id="map" style="height: 600px; min-height: 80%;"></div>
+<div class="row">
+  <div class="col-2 justify-content-md-center">
+    <mat-form-field class="sensor-select">
+      <mat-label for="sensorType">Select Sensor Type:</mat-label>
+      <mat-select id="sensorType" [(ngModel)]="sensorType" (ngModelChange)="onSensorTypeChange()">
+        <mat-option value="Temperature">Temperature</mat-option>
+        <mat-option value="CO2">CO2</mat-option>
+        <mat-option value="Rain">Rain</mat-option>
+        <mat-option value="Wind">Wind</mat-option>
+        <mat-option value="Fire">Fire</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="col-lg justify-content-md-center">
+    <div id="map" style="height: 600px; min-height: 80%;"></div>
+  </div>
 </div>

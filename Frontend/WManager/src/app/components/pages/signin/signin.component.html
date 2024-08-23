@@ -1,37 +1,121 @@
-<div style="display: flex; justify-content: center; align-items: center; min-height: 86vh;">
-  <div class="back">
-      <h2 style="margin-left: 5%;">User Registration</h2>
-      <form id="registrationUser">
-          <div style="display: flex; flex-direction: column; align-items: center;">
-              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
-                  <mat-label>Name:</mat-label>
-                  <input matInput type="text" placeholder="Mario" value="Mario" [(ngModel)]="newUser.firstName" name="registerFirstName" maxlength="12">
-              </mat-form-field>
-              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
-                  <mat-label>Last Name:</mat-label>
-                  <input matInput type="text" placeholder="Rossi" value="Rossi" [(ngModel)]="newUser.lastName" name="registerLastName" maxlength="12">
-              </mat-form-field>
-              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
-                  <mat-label>Email:</mat-label>
-                  <p style="color: red; margin: 0 25%; margin-top: 1%; margin-bottom: 1%;" *ngIf="userIsPresent">This email is already in use!</p>
-                  <input matInput type="email" placeholder="me@example.com" value="email@example.com" [(ngModel)]="newUser.email" name="registerMail" maxlength="25">
-              </mat-form-field>
-              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
-                  <mat-label>Password:</mat-label>
-                  <input matInput type="password" placeholder="*********" value="*********" [(ngModel)]="newUser.password" name="registerPassword" maxlength="30">
-              </mat-form-field>
-              <mat-form-field style="width: 300px; margin-bottom: 20px;" >
-                  <mat-label>Repeat Password:</mat-label>
-                  <input matInput type="password" placeholder="*********" value="*********" [(ngModel)]="passwordCheckUser" name="registerConfirmPassword" maxlength="30">
-              </mat-form-field>
-            <mat-form-field style="width: 300px; margin-bottom: 20px;" >
-              <mat-label>Select a Sensor only Password:</mat-label>
-              <input matInput type="password" placeholder="This password is requred to register new sensors" value="*********" [(ngModel)]="newUser.sensorPassword" name="registerConfirmPassword" maxlength="30">
-            </mat-form-field>
+<!--<div style="display: flex; justify-content: center; align-items: center; min-height: 86vh;">-->
+<!--  <div class="back">-->
+<!--      <h2 style="margin-left: 5%;">User Registration</h2>-->
+<!--      <form id="registrationUser">-->
+<!--          <div style="display: flex; flex-direction: column; align-items: center;">-->
+<!--              <mat-form-field style="width: 300px; margin-bottom: 20px;" >-->
+<!--                  <mat-label>Name:</mat-label>-->
+<!--                  <input matInput type="text" placeholder="Mario" value="Mario" [(ngModel)]="newUser.firstName" name="registerFirstName" maxlength="12">-->
+<!--              </mat-form-field>-->
+<!--              <mat-form-field style="width: 300px; margin-bottom: 20px;" >-->
+<!--                  <mat-label>Last Name:</mat-label>-->
+<!--                  <input matInput type="text" placeholder="Rossi" value="Rossi" [(ngModel)]="newUser.lastName" name="registerLastName" maxlength="12">-->
+<!--              </mat-form-field>-->
+<!--              <mat-form-field style="width: 300px; margin-bottom: 20px;" >-->
+<!--                  <mat-label>Email:</mat-label>-->
+<!--                  <p style="color: red; margin: 0 25%; margin-top: 1%; margin-bottom: 1%;" *ngIf="userIsPresent">This email is already in use!</p>-->
+<!--                  <input matInput type="email" placeholder="me@example.com" value="email@example.com" [(ngModel)]="newUser.email" name="registerMail" maxlength="25">-->
+<!--              </mat-form-field>-->
+<!--              <mat-form-field style="width: 300px; margin-bottom: 20px;" >-->
+<!--                  <mat-label>Password:</mat-label>-->
+<!--                  <input matInput type="password" placeholder="*********" value="*********" [(ngModel)]="newUser.password" name="registerPassword" maxlength="30">-->
+<!--              </mat-form-field>-->
+<!--              <mat-form-field style="width: 300px; margin-bottom: 20px;" >-->
+<!--                  <mat-label>Repeat Password:</mat-label>-->
+<!--                  <input matInput type="password" placeholder="*********" value="*********" [(ngModel)]="passwordCheckUser" name="registerConfirmPassword" maxlength="30">-->
+<!--              </mat-form-field>-->
+<!--            <mat-form-field style="width: 300px; margin-bottom: 20px;" >-->
+<!--              <mat-label>Select a Sensor only Password:</mat-label>-->
+<!--              <input matInput type="password" placeholder="This password is requred to register new sensors" value="*********" [(ngModel)]="newUser.sensorPassword" name="registerConfirmPassword" maxlength="30">-->
+<!--            </mat-form-field>-->
+<!--          </div>-->
+<!--      </form>-->
+<!--      <div style="display: flex; justify-content: center;">-->
+<!--          <button mat-flat-button style="margin-top: 20px;" (click)="userSignIn()">sign in</button>-->
+<!--      </div>-->
+<!--  </div>-->
+<!--</div>-->
+
+
+<section class="vh-80">
+  <div class="container-fluid h-custom" styles="offset">
+    <div class="row d-flex justify-content-center align-items-center">
+
+      <div class="col-md-8 col-lg-6 col-xl-3" style="margin-top: 6rem; margin-bottom: 6rem" >
+        <form id="registrationUser">
+          <!-- Email input -->
+          <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="formName" style="color: black">Name:</label>
+            <input type="email" id="formName" class="form-control form-control-lg"
+                   placeholder="Name:" [(ngModel)]="newUser.firstName" name="registerFirstName" />
           </div>
-      </form>
-      <div style="display: flex; justify-content: center;">
-          <button mat-flat-button style="margin-top: 20px;" (click)="userSignIn()">sign in</button>
+
+          <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="formLastName" style="color: black">Last Name:</label>
+            <input id="formLastName" class="form-control form-control-lg"
+                   placeholder="Last Name:" [(ngModel)]="newUser.lastName" name="registerLastName" />
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="formEmail" style="color: black">Email:</label>
+
+            <input type="email" id="formEmail" class="form-control form-control-lg"
+                   placeholder="Email:" [(ngModel)]="newUser.email" name="registerMail" />
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-3">
+            <label class="form-label" for="formPassword"  style="color: black">Password</label>
+
+            <input type="password" id="formPassword" class="form-control form-control-lg"
+                   placeholder="Password:" [(ngModel)]="newUser.password" name="registerPassword" />
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-3">
+            <label class="form-label" for="formPassword2"  style="color: black">Repeat Password:</label>
+
+            <input type="password" id="formPassword2" class="form-control form-control-lg"
+                   placeholder="Repeat password" [(ngModel)]="passwordCheckUser" name="registerConfirmPassword" />
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="formSensorPassword" style="color: black">Sensor Password:</label>
+
+            <input type="email" id="formSensorPassword" class="form-control form-control-lg"
+                   placeholder="Select a Sensor only Password:" [(ngModel)]="newUser.sensorPassword" name="registerConfirmPassword" name="registerFirstName" />
+          </div>
+
+          <div class="text-center text-lg-start mt-4 pt-2">
+            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
+                     style="padding-left: 2.5rem; padding-right: 2.5rem;" (click)="userSignIn()" >Sign In</button>
+          </div>
+
+        </form>
       </div>
+    </div>
   </div>
-</div>
+  <div
+    class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
+    <!-- Copyright -->
+    <div class="text-white mb-3 mb-md-0">
+      Copyright © 2020. All rights reserved.
+    </div>
+    <!-- Copyright -->
+
+    <!-- Right -->
+    <div>
+      <a href="#!" class="text-white me-4">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+      <a href="#!" class="text-white me-4">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a href="#!" class="text-white me-4">
+        <i class="fab fa-google"></i>
+      </a>
+      <a href="#!" class="text-white">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </div>
+    <!-- Right -->
+  </div>
+</section>

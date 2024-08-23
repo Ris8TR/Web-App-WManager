@@ -45,10 +45,16 @@ FATTO:
   - Aggiungere nell'interfaccia grafica all'interno delle specifiche dell'utente lo userID per inviare i dati (manca il tasto per accedere ma sta in test/sensor)
     e l'id lo prende autonomamente (ma dovrebbe mandare il token di accesso piuttosto che l'id)
 
-
-
   - Il Sensor può essere registrato nel sistema tramite:
     - l'interfaccia grafica (manca solo il tasto. Il componente sta a /create-sensor)
     - una richiesta di registrazione tramite json
+
+TODO UI:
+
+  - Pagina Utente
+  - Pagina dell'aree di interesse dell'utente
+  - Pagine Area d'interesse 
+
+
 
 

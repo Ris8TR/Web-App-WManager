@@ -1,39 +1,108 @@
-<div class="mainContainer" style="background-color: black; min-height: 50.3vh; display: flex; justify-content: space-around; align-items: center;">
-  <div class="loginCardContainer" style="width: 45%;">
-      <div class="front" style="display: flex; flex-direction: column; align-items: center; max-width: 40%;">
-          <div id="firstColumn">
-              <h2 style="color: white; margin-left: 2%;">log in</h2>
-              <form (ngSubmit)="logInUser()" style="margin: 2%;">
-                  <mat-form-field style="width: 300px;">
-                      <mat-label>Email</mat-label>
-                      <input matInput type="email" placeholder="me@example.com" [(ngModel)]="loginUser.email" name="loginMail" maxlength="25" autocomplete="email">
-                  </mat-form-field>
+<!--<div class="mainContainer" style="background-color: black; min-height: 50.3vh; display: flex; justify-content: space-around; align-items: center;">-->
+<!--  <div class="loginCardContainer" style="width: 45%;">-->
+<!--      <div class="front" style="display: flex; flex-direction: column; align-items: center; max-width: 40%;">-->
+<!--          <div id="firstColumn">-->
+<!--              <h2 style="color: white; margin-left: 2%;">log in</h2>-->
+<!--              <form (ngSubmit)="logInUser()" style="margin: 2%;">-->
+<!--                  <mat-form-field style="width: 300px;">-->
+<!--                      <mat-label>Email</mat-label>-->
+<!--                      <input matInput type="email" placeholder="me@example.com" [(ngModel)]="loginUser.email" name="loginMail" maxlength="25" autocomplete="email">-->
+<!--                  </mat-form-field>-->
 
-                  <mat-form-field style="width: 300px;">
-                      <mat-label>Password</mat-label>
-                      <input matInput type="password" placeholder="**********" [(ngModel)]="loginUser.password" name="loginPassword" maxlength="30" autocomplete="current-password">
-                  </mat-form-field>
-                  <button mat-flat-button type="submit" style="align-items: center;margin-left: 18%; margin-bottom: 0.5%; color: rgb(0, 0, 0);">login</button>
-              </form>
+<!--                  <mat-form-field style="width: 300px;">-->
+<!--                      <mat-label>Password</mat-label>-->
+<!--                      <input matInput type="password" placeholder="**********" [(ngModel)]="loginUser.password" name="loginPassword" maxlength="30" autocomplete="current-password">-->
+<!--                  </mat-form-field>-->
+<!--                  <button mat-flat-button type="submit" style="align-items: center;margin-left: 18%; margin-bottom: 0.5%; color: rgb(0, 0, 0);">login</button>-->
+<!--              </form>-->
+<!--          </div>-->
+<!--      </div>-->
+<!--  </div>-->
+
+<!--  <div class="divisore" style="border: 1px solid white; height: 300px;"></div>-->
+
+<!--  <div (click)="$event.stopPropagation()">-->
+<!--      <div (click)="$event.stopPropagation()">-->
+<!--          <button mat-flat-button style="margin-bottom:15%; width: 100%" (click)="openResetPasswordModal()">Forgot password?</button>-->
+<!--      </div>-->
+
+<!--      <div *ngIf="showResetPasswordModal" class="reset-password-modal" (click)="handleClickOutside($event)" (click)="$event.stopPropagation()">-->
+<!--          <div style="display: flex; align-items: center;" (click)="$event.stopPropagation()">-->
+<!--              <mat-form-field style="margin-left: 2%; width: 320px;" (click)="$event.stopPropagation()">-->
+<!--                  <mat-label>Email</mat-label>-->
+<!--                  <input matInput placeholder="me@example.com" [(ngModel)]="resetPasswordEmail" name="loginMail" (click)="$event.stopPropagation()" autocomplete="email">-->
+<!--              </mat-form-field>-->
+<!--          </div>-->
+<!--          <button style="align-items: center;margin-left: 42%;" mat-flat-button (click)="resetPass()" (click)="$event.stopPropagation()">Reset</button>-->
+<!--      </div>-->
+<!--  </div>-->
+<!--</div>-->
+
+<section class="vh-80">
+  <div class="container-fluid h-custom" styles="offset">
+    <div class="row d-flex justify-content-center align-items-center">
+
+      <div class="col-md-8 col-lg-6 col-xl-3" style="margin-top: 6rem; margin-bottom: 6rem" >
+        <form (ngSubmit)="logInUser()">
+          <!-- Email input -->
+          <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" for="form3Example3" style="color: black">Email address</label>
+            <input type="email" id="form3Example3" class="form-control form-control-lg"
+                   placeholder="Enter a valid email address" [(ngModel)]="loginUser.email" name="loginMail"/>
           </div>
-      </div>
-  </div>
 
-  <div class="divisore" style="border: 1px solid white; height: 300px;"></div>
-
-  <div (click)="$event.stopPropagation()">
-      <div (click)="$event.stopPropagation()">
-          <button mat-flat-button style="margin-bottom:15%; width: 100%" (click)="openResetPasswordModal()">Forgot password?</button>
-      </div>
-
-      <div *ngIf="showResetPasswordModal" class="reset-password-modal" (click)="handleClickOutside($event)" (click)="$event.stopPropagation()">
-          <div style="display: flex; align-items: center;" (click)="$event.stopPropagation()">
-              <mat-form-field style="margin-left: 2%; width: 320px;" (click)="$event.stopPropagation()">
-                  <mat-label>Email</mat-label>
-                  <input matInput placeholder="me@example.com" [(ngModel)]="resetPasswordEmail" name="loginMail" (click)="$event.stopPropagation()" autocomplete="email">
-              </mat-form-field>
+          <!-- Password input -->
+          <div data-mdb-input-init class="form-outline mb-3">
+            <label class="form-label" for="form3Example4"  style="color: black">Password</label>
+            <input type="password" id="form3Example4" class="form-control form-control-lg"
+                   placeholder="Enter password" [(ngModel)]="loginUser.password" name="loginPassword" />
           </div>
-          <button style="align-items: center;margin-left: 42%;" mat-flat-button (click)="resetPass()" (click)="$event.stopPropagation()">Reset</button>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <!-- Checkbox -->
+            <div class="form-check mb-0">
+              <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3" />
+              <label class="form-check-label" for="form2Example3">
+                Remember me
+              </label>
+            </div>
+            <a href="#!" class="text-body" (click)="openResetPasswordModal()">Forgot password?</a>
+          </div>
+
+          <div class="text-center text-lg-start mt-4 pt-2">
+            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
+                     style="padding-left: 2.5rem; padding-right: 2.5rem;" type="submit">Login</button>
+            <p class="small fw-bold mt-2 pt-1 mb-0 color: text-black">Don't have an account? <a href="signin" class="link-danger">Register</a></p>
+          </div>
+
+        </form>
       </div>
+    </div>
   </div>
-</div>
+  <div
+    class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
+    <!-- Copyright -->
+    <div class="text-white mb-3 mb-md-0">
+      Copyright © 2020. All rights reserved.
+    </div>
+    <!-- Copyright -->
+
+    <!-- Right -->
+    <div>
+      <a href="#!" class="text-white me-4">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+      <a href="#!" class="text-white me-4">
+        <i class="fab fa-twitter"></i>
+      </a>
+      <a href="#!" class="text-white me-4">
+        <i class="fab fa-google"></i>
+      </a>
+      <a href="#!" class="text-white">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    </div>
+    <!-- Right -->
+  </div>
+</section>
+

@@ -1,45 +1,94 @@
-<mat-toolbar>
-    <span routerLink="/home" class="toolbar-link">WManager</span>
+<!--        <button *ngIf="logStringResult !== 'Login'" mat-button [matMenuTriggerFor]="observationsMenu" class="toolbar-button" style="width: auto;margin-top: 2px; margin-left: 20px; text-size-adjust: 5px; justify-content: flex-end; background-color: whitesmoke;">-->
+<!--            <span class="toolbar-button-text" style="font-size: 1rem; ">Observations</span>-->
+<!--        </button>-->
+<!--        <button *ngIf="logStringResult !== 'Login'" mat-button class="toolbar-button" style="width: auto; margin-top: 2px; margin-left: 20px; text-size-adjust: 5px; justify-content: flex-end; background-color: whitesmoke;">-->
+<!--          <span class="toolbar-button-text" style="font-size: 1rem;">Forecast</span>-->
+<!--        </button>-->
+<!--        <button *ngIf="logStringResult !== 'Login'" mat-button [matMenuTriggerFor]="interestAreasMenu" class="toolbar-button" style="width: auto; margin-top: 2px; margin-left: 20px; text-size-adjust: 5px; justify-content: flex-end; background-color: whitesmoke;">-->
+<!--            <span class="toolbar-button-text" style="font-size: 1rem;">Interest Areas</span>-->
+<!--        </button>-->
+<div class="container-fluid">
+  <!-- Navigation-->
+  <nav class="navbar navbar-expand-lg bg-secondary text-uppercase" id="mainNav">
     <div class="container">
-        <button mat-button [matMenuTriggerFor]="observationsMenu" class="toolbar-button" style="width: auto;margin-top: 2px; margin-left: 20px; text-size-adjust: 5px; justify-content: flex-end; background-color: whitesmoke;">
-            <span class="toolbar-button-text" style="font-size: 1rem; ">Observations</span>
-        </button>
-        <button *ngIf="logStringResult !== 'Login'" mat-button [matMenuTriggerFor]="interestAreasMenu" class="toolbar-button" style="width: auto; margin-top: 2px; margin-left: 20px; text-size-adjust: 5px; justify-content: flex-end; background-color: whitesmoke;">
-            <span class="toolbar-button-text" style="font-size: 1rem;">Interest Areas</span>
-          </button>
+      <a class="navbar-brand" href="home"> <img src="assets/img/logo-tech4you.png" style="height: 3rem"> </a>
+      <button class="navbar-toggler text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        Menu
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav mr-auto">
+<!--          <li  class="nav-item mx-0 mx-lg-1 dropdown ">-->
+<!--            <a class="nav-link py-3 px-0 px-lg-3 rounded dropdown-toogle" href="#" id="NavbarObs" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+<!--              Observations-->
+<!--            </a>-->
+<!--            <div class="dropdown-menu" aria-labelledby="NavbarObs">-->
+<!--              <a class="dropdown-item" (click)="redirectToGroundStations()">Ground Stations</a>-->
+<!--              <a class="dropdown-item" (click)="redirectToWebcams()">Webcams</a>-->
+<!--            </div>-->
+<!--          </li>-->
+
+          <li class="nav-item mx-0 mx-lg-1 dropdown">
+            <a class="nav-link py-3 px-0 px-lg-3  dropdown-toggle" id="NavbarObs" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Observations
+            </a>
+            <div class="dropdown-menu" aria-labelledby="NavbarObs">
+              <a class="dropdown-item" (click)="redirectToGroundStations()">Ground Stations</a>
+              <a class="dropdown-item" (click)="redirectToWebcams()">Webcams</a>
+            </div>
+          </li>
+          <li  class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="">Forecast</a></li>
+          <li  class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="">Interest Areas</a></li>
+        </ul>
+        <ul class="navbar-nav ms-auto">
+          <button *ngIf="logStringResult !== 'Login'" type="button" class="btn btn-light " style="margin-right: 10px;">{{ logStringResult }}</button>
+          <li *ngIf="logStringResult !== 'Login'" class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="logOut()" >Log out</a></li>
+          <li *ngIf="logStringResult == 'Login'" class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" routerLink="/login"  >Log in</a></li>
+          <!--          <li><mat-icon style="margin-left: 15px;"  fontSet="material-symbols-outlined" class="toolbar-icon" (click)="logOut()">log out</mat-icon></li>-->
+        </ul>
+      </div>
     </div>
-
-    <mat-menu #observationsMenu="matMenu">
-        <button mat-menu-item (click)="redirectToGroundStations()">Ground Stations</button>
-        <button mat-menu-item (click)="redirectToWebcams()">Webcams</button>
-    </mat-menu>
-
-    <mat-menu #interestAreasMenu="matMenu" >
-        <ng-container *ngIf="interestAreaNames.length > 0; else noInterests">
-          <button mat-menu-item *ngFor="let interestArea of interestAreaNames" (click)="redirectToInterestArea(interestArea.id!)">
-            {{ interestArea.name }}
-          </button>
-          <button mat-menu-item (click)="redirectToCreateArea()">Create new area</button>
+  </nav>
 
 
-        </ng-container>
-        <ng-template #noInterests>
-          <button mat-menu-item (click)="redirectToCreateArea()">Create new area</button>
-        </ng-template>
-      </mat-menu>
 
-    <div class="spacer"></div>
-    <div class="container">
-        <a *ngIf="logStringResult == 'Login'" routerLink="/login" class="toolbar-link">
-            <button mat-button style="margin-right: 10px;">{{ logStringResult }}</button>
-        </a>
-        <a *ngIf="logStringResult !== 'Login'" class="toolbar-link">
-            <button mat-button (click)="redirectToProfile()">{{ logStringResult }}</button>
-        </a>
-        <a *ngIf="logStringResult == 'Login'" class="toolbar-link">
-            <button mat-button routerLink="/signin">Register</button>
-        </a>
-        <mat-icon style="margin-left: 15px;" *ngIf="logStringResult !== 'Login'" fontSet="material-symbols-outlined" class="toolbar-icon" (click)="logOut()">log out</mat-icon>
-    </div>
-</mat-toolbar>
-<router-outlet></router-outlet>
+<!--    <mat-menu #observationsMenu="matMenu">-->
+<!--        <button mat-menu-item (click)="redirectToGroundStations()">Ground Stations</button>-->
+<!--        <button mat-menu-item (click)="redirectToWebcams()">Webcams</button>-->
+<!--    </mat-menu>-->
+
+<!--    <mat-menu #interestAreasMenu="matMenu" >-->
+<!--        <ng-container *ngIf="interestAreaNames.length > 0; else noInterests">-->
+<!--          <button mat-menu-item *ngFor="let interestArea of interestAreaNames" (click)="redirectToInterestArea(interestArea.id!)">-->
+<!--            {{ interestArea.name }}-->
+<!--          </button>-->
+<!--          <button mat-menu-item (click)="redirectToCreateArea()">Create new area</button>-->
+
+
+<!--        </ng-container>-->
+<!--        <ng-template #noInterests>-->
+<!--          <button mat-menu-item (click)="redirectToCreateArea()">Create new area</button>-->
+<!--        </ng-template>-->
+<!--      </mat-menu>-->
+
+<!--    <div class="spacer"></div>-->
+<!--    <div class="container">-->
+<!--        <a *ngIf="logStringResult == 'Login'" routerLink="/login" class="toolbar-link">-->
+<!--            <button mat-button style="margin-right: 10px;">{{ logStringResult }}</button>-->
+<!--        </a>-->
+<!--        <a *ngIf="logStringResult !== 'Login'" class="toolbar-link">-->
+<!--            <button mat-button (click)="redirectToProfile()">{{ logStringResult }}</button>-->
+<!--        </a>-->
+<!--        <a *ngIf="logStringResult == 'Login'" class="toolbar-link">-->
+<!--            <button mat-button routerLink="/signin">Register</button>-->
+<!--        </a>-->
+<!--        <mat-icon style="margin-left: 15px;"  fontSet="material-symbols-outlined" class="toolbar-icon" (click)="logOut()">log out</mat-icon>-->
+<!--      <button mat-button *ngIf="logStringResult !== 'Login'" (click)="logOut()" style="width: auto; text-size-adjust: 5px; justify-content: flex-end; background-color: whitesmoke;">  <span  class="material-symbols-outlined" > logout </span> </button>-->
+<!--    </div>-->
+
+
+
+<div class="row justify-content-md-center">
+  <router-outlet></router-outlet>
+</div>
+</div>

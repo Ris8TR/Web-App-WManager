@@ -93,7 +93,7 @@ export class WebcamComponent {
         sensorDataDtos.forEach((sensorDto: SensorDataDto) => {
           const latitude = sensorDto.latitude!;
           const longitude = sensorDto.longitude!;
-          const image = "http://localhost:8010/v1/images/"+ sensorDto.userId + "/" +sensorDto.payload;
+          const image = "http://192.168.15.34:8010/v1/images/"+ sensorDto.userId + "/" +sensorDto.payload;
 
           // Correcting the template string
           const key = `<span class="math-inline">{${latitude}},${longitude}</span><img src="${image}">`;
