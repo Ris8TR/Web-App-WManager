@@ -14,4 +14,5 @@ public interface AuthService {
     Object resetPass(String email);
     Boolean savePassword(Map<String, String> requestBody);
 
+    Boolean checkToken(String token);
 }

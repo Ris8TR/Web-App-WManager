@@ -89,6 +89,13 @@ public class AuthServiceImpl implements AuthService {
         return false;
     }
 
+    @Override
+    public Boolean checkToken(String token) {
+        if (jwtTokenProvider.validateToken(token))
+            return true;
+        return false;
+    }
+
     private Authentication createAuthentication(String email, String password) {
         return new UsernamePasswordAuthenticationToken(email, password, Collections.emptyList());
     }
