@@ -25,7 +25,8 @@ export class SensorDataUploadComponent {
     userId: this.cookieService.get("Token"),
     latitude: 0,
     longitude: 0,
-    payload: {}
+    payload: {},
+    sensorPassword: ""
   };
 
   interestAreas?: string[]

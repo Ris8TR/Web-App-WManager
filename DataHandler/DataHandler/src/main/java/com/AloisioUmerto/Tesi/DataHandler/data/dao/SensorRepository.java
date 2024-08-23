@@ -8,5 +8,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface SensorRepository extends MongoRepository<Sensor, ObjectId> {
-    Optional<Sensor> findBySensorId(String sensorId);
+    Optional<Sensor> findByUserId(String sensorId);
 }

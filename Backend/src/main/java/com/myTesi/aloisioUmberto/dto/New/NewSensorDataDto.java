@@ -21,4 +21,6 @@ public class NewSensorDataDto {
     private Object payload;
     private String userId;
     private String interestAreaId;
+    private String sensorPassword;
+
 }

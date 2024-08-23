@@ -19,5 +19,6 @@ public class SensorDataDto {
     private Object payload;
     private double latitude;
     private double longitude;
+    private String interestAreaId;
 
 }

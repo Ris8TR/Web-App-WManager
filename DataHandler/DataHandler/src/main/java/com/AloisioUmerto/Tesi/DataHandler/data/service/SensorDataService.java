@@ -30,17 +30,19 @@ private final MainServerClient mainServerClient;
 
 public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
     SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
-    String sensorId = newSensorDataDTO.getSensorId();
-    Optional<Sensor> sensor = sensorRepository.findBySensorId(sensorId);
+    String userId = newSensorDataDTO.getUserId();
+    Optional<Sensor> sensor = sensorRepository.findByUserId(userId);
 
     if (sensor.isEmpty()) {
         Sensor newSensor = new Sensor();
         newSensor.setCompanyName("TEST");
-        newSensor.setSensorId(sensorId);
+        newSensor.setUserId(newSensorDataDTO.getUserId());
         sensorRepository.save(newSensor);
         data.setSensorId(newSensor.getId().toString());
     } else {
         data.setSensorId(sensor.get().getId().toString());
+        sensor.get().setInterestAreaID(data.getInterestAreaID());
+        sensorRepository.save(sensor.get());
     }
 
     data.setTimestamp(Date.from(Instant.now()));

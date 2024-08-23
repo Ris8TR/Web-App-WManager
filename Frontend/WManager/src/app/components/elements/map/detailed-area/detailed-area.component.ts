@@ -1,13 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Input, OnInit, input } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import L from 'leaflet';
-import { SensorDto } from '../../../../model/sensorDto';
-import { UserService } from '../../../../service/user.service';
-import { SensorDataService } from '../../../../service/sensorData.service';
-import { SensorDataDto } from '../../../../model/sensorDataDto';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { InterestArea } from '../../../../model/interestArea';
 import { InterestAreaService } from '../../../../service/interestArea.service';
+import { InterestArea } from '../../../../model/interestArea';
 
 @Component({
   selector: 'app-detailed-area',
@@ -19,27 +15,23 @@ import { InterestAreaService } from '../../../../service/interestArea.service';
 export class DetailedAreaComponent implements OnInit {
   private map!: L.Map;
   id: string | null = null;
- 
 
-  constructor(private http: HttpClient,private route: ActivatedRoute, private sensorDataService: SensorDataService, private interestAreaService : InterestAreaService) {}
+  constructor(private route: ActivatedRoute, private interestAreaService: InterestAreaService) {}
 
- 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params: ParamMap) => {
       this.id = params.get('id');
       if (this.id) {
-        this.loadData(this.id);
+        this.loadAreaGeometry(this.id);
         console.log(this.id);
       }
     });
   }
-  
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initMap();
-  
     }, 10);
-   
   }
 
   private initMap(): void {
@@ -50,20 +42,44 @@ export class DetailedAreaComponent implements OnInit {
     tileLayer.addTo(this.map);
   }
 
-  private loadData(id: string | undefined): void {
+  private loadAreaGeometry(id: string | undefined): void {
     if (!id) {
       console.error('ID is undefined or null.');
       return;
     }
 
-    this.interestAreaService.getLatestSensorDataInInterestArea(id).subscribe(
-      (data: SensorDataDto[]) => {
-        console.log('Sensor data loaded:', data);
+    this.interestAreaService.getInterestArea(id).subscribe(
+      (area: InterestArea) => {
+        console.log('Interest Area loaded:', area);
+        this.drawInterestArea(area.geometry);
       },
       (error: any) => {
-        console.error('Error loading sensor data:', error);
+        console.error('Error loading interest area:', error);
       }
     );
   }
 
+  private drawInterestArea(geometry: string): void {
+    // Converti la geometria da WKT o GeoJSON in coordinate utilizzabili da Leaflet
+    const parsedGeometry = this.parseGeometry(geometry);
+
+    // Disegna il poligono o polilinea in rosso
+    if (parsedGeometry) {
+      L.polygon(parsedGeometry, { color: 'red' }).addTo(this.map);
+    } else {
+      console.error('Invalid geometry format');
+    }
+  }
+
+  private parseGeometry(geometry: string): L.LatLngExpression[] | null {
+    try {
+      const geoJson = JSON.parse(geometry);
+      const coordinates = geoJson.coordinates[0];
+
+      return coordinates.map((coord: number[]) => [coord[1], coord[0]]);
+    } catch (error) {
+      console.error('Failed to parse geometry:', error);
+      return null;
+    }
+  }
 }
