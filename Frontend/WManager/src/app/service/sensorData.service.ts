@@ -30,7 +30,7 @@ import { V1SensorDataBody } from '../model/v1SensorDataBody';
 @Injectable()
 export class SensorDataService {
 
-    protected basePath = 'http://localhost:8010';
+    protected basePath = 'http://192.168.15.34:8010';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 

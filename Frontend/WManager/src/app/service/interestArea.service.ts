@@ -32,7 +32,7 @@ import {CookieService} from "ngx-cookie-service";
 @Injectable()
 export class InterestAreaService {
 
-    protected basePath = 'http://localhost:8010';
+    protected basePath = 'http://192.168.15.34:8010';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 
