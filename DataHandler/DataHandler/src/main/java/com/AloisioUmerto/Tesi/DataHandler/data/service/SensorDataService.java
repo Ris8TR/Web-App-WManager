@@ -30,6 +30,8 @@ private final SensorDataMapper sensorDataMapper = SensorDataMapper.INSTANCE;
 private final MainServerClient mainServerClient;
 
 public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
+
+    //TODO AGGIUNGERE CONTROLLO TOKEN E UTENTE?
     SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
     String userId = newSensorDataDTO.getUserId();
     Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDTO.getSensorId(),userId);
