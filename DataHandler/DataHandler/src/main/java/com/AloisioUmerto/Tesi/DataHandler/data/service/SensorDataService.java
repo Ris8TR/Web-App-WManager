@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,21 +30,16 @@ private final SensorDataMapper sensorDataMapper = SensorDataMapper.INSTANCE;
 private final MainServerClient mainServerClient;
 
 public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
+
+    //TODO AGGIUNGERE CONTROLLO TOKEN E UTENTE?
     SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
     String userId = newSensorDataDTO.getUserId();
-    Optional<Sensor> sensor = sensorRepository.findByUserId(userId);
+    Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDTO.getSensorId(),userId);
 
-    if (sensor.isEmpty()) {
-        Sensor newSensor = new Sensor();
-        newSensor.setCompanyName("TEST");
-        newSensor.setUserId(newSensorDataDTO.getUserId());
-        sensorRepository.save(newSensor);
-        data.setSensorId(newSensor.getId().toString());
-    } else {
-        data.setSensorId(sensor.get().getId().toString());
-        sensor.get().setInterestAreaID(data.getInterestAreaID());
-        sensorRepository.save(sensor.get());
-    }
+    data.setSensorId(sensor.get().getId().toString());
+    sensor.get().setInterestAreaID(data.getInterestAreaID());
+    sensorRepository.save(sensor.get());
+
 
     data.setTimestamp(Date.from(Instant.now()));
 

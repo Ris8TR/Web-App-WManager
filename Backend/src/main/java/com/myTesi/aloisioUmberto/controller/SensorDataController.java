@@ -38,6 +38,7 @@ public class SensorDataController {
     public ResponseEntity<SensorData> saveSensorData(
             @RequestPart("data") NewSensorDataDto newSensorDataDTO,
             @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+        System.out.println(newSensorDataDTO);
         return ResponseEntity.ok(sensorDataService.save(file, newSensorDataDTO));
 
     }

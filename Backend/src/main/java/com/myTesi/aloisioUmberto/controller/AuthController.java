@@ -45,6 +45,13 @@ public class AuthController {
     }
 
 
+    @PostMapping("/auth/token")
+    public ResponseEntity<Boolean> checkToken(@RequestBody String token) {
+        return ResponseEntity.ok(authService.checkToken(token));
+    }
+
+
+
 
 
 

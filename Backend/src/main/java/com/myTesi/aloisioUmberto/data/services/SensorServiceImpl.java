@@ -1,5 +1,6 @@
 package com.myTesi.aloisioUmberto.data.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -56,16 +57,17 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public SensorDto saveDto(NewSensorDto newSensorDto) {
-        Sensor sensor = sensorMapper.newSensorDtoToSensor(newSensorDto);
+        Sensor sensor = new Sensor();
         String userId = isValidToken(newSensorDto.getUserId());
-        assert userId != null;
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
         Optional<User> user = userDao.findById(userId);
-
-
         if (BCrypt.checkpw(newSensorDto.getPassword(), user.get().getSensorPassword())) {
-            sensor.setPassword(BCrypt.hashpw(sensor.getPassword(), BCrypt.gensalt(10)));
+            sensor.setPassword(BCrypt.hashpw(newSensorDto.getPassword(), BCrypt.gensalt(10)));
             sensor.setDescription(newSensorDto.getDescription());
             sensor.setUserId(String.valueOf(user.get().getId()));
+            sensor.setCompanyName(newSensorDto.getCompanyName());
             sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
             try {
                 sensorRepository.save(sensor);
@@ -144,18 +146,17 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public SensorDto save(MultipartFile file) throws IOException {
-
         if (file != null && !file.isEmpty()) {
             try {
-                // Parse the JSON file
+                // Parse del file JSON
                 ObjectMapper objectMapper = new ObjectMapper();
-                Map data = objectMapper.readValue(file.getInputStream(), Map.class);
+                Map<String, Object> data = objectMapper.readValue(file.getInputStream(), Map.class);
 
-                String companyName = data.get("companyName").toString();
-                String userId = data.get("userId").toString();
-                String password = data.get("password").toString();
-                String interestAreaId = data.get("interestAreaId").toString();
-                String description = data.get("description").toString();
+                String companyName = Objects.requireNonNull(data.get("companyName")).toString();
+                String userId = Objects.requireNonNull(data.get("userId")).toString();
+                String password = Objects.requireNonNull(data.get("password")).toString();
+                String interestAreaId = Objects.requireNonNull(data.get("interestAreaId")).toString();
+                String description = Objects.requireNonNull(data.get("description")).toString();
 
                 Optional<User> user = userDao.findById(userId);
                 if (user.isPresent() && BCrypt.checkpw(password, user.get().getSensorPassword())) {
@@ -184,12 +185,15 @@ public class SensorServiceImpl implements SensorService {
                     throw new RuntimeException("Invalid user credentials");
                 }
 
-            } catch (Exception e) {
+            } catch (JsonProcessingException e) {
                 throw new RuntimeException("Error during JSON file parsing", e);
+            } catch (IOException e) {
+                throw new RuntimeException("Error during file reading", e);
             }
         } else {
             throw new RuntimeException("The uploaded file is empty");
         }
     }
+
 }
 

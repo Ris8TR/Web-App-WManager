@@ -11,6 +11,7 @@ import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
+import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.*;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
@@ -18,9 +19,13 @@ import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.time.Instant;
@@ -58,26 +63,22 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
-        //TODO aggiungere tutti i controlli
         SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
-        String UserId = newSensorDataDTO.getSensorId();
-        Optional<Sensor> sensor = sensorRepository.findByUserId(UserId);
-        //TODO verificare che la password sia di corretta
-
-        //TODO Rimuovere questo dopo
-        if (sensor.isEmpty()) {
-            Sensor newSensor = new Sensor();
-            newSensor.setCompanyName("TEST");
-            newSensor.setUserId(newSensorDataDTO.getUserId());
-            sensorRepository.save(newSensor);
-            //TODO verificare che il sensore sia di proprietà dell'utente
-            data.setSensorId(newSensor.getId().toString());
-            //TODO verificare che l'area di interesse sia di proprietà dell'utente
-            data.setInterestAreaID(newSensor.getInterestAreaID());
-        } else {
+        String userId = isValidToken(newSensorDataDTO.getUserId());
+        assert userId != null;
+        Optional<User> user = userDao.findById(userId);
+        Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDTO.getSensorId(), userId);
+        if (BCrypt.checkpw(newSensorDataDTO.getSensorPassword(), user.get().getSensorPassword())) {
+            try {
             data.setSensorId(sensor.get().getId().toString());
+            //TODO Aggiungere verifica area di interesse
             sensor.get().setInterestAreaID(data.getInterestAreaID());
             sensorRepository.save(sensor.get());
+            } catch (DataIntegrityViolationException e) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
+            }
+        }else {
+            throw new RuntimeException("Invalid credentials");
         }
 
         data.setTimestamp(Date.from(Instant.now()));
@@ -90,7 +91,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         } else {
             HashMap<String, Object> payload = new HashMap<>();
 
-            // Rimuovi le parentesi graffe
+            // Rimuove le parentesi graffe
             String payloadString = newSensorDataDTO.getPayload().toString().replaceAll("[{}]", "");
 
             //parsing del json
@@ -126,6 +127,13 @@ public class SensorDataServiceImpl implements SensorDataService {
         } catch (NumberFormatException e) {
             return value;
         }
+    }
+
+
+    private String isValidToken(String token) {
+        if (jwtTokenProvider.validateToken(token))
+            return jwtTokenProvider.getUserIdFromUserToken(token);
+        return null;
     }
 
     private SensorDataHandler getHandlerForType(String dataType) {
