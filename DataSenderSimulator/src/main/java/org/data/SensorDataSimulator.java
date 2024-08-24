@@ -1,6 +1,7 @@
 package org.data;
 
 
+import org.data.dto.InterestAreaDto;
 import org.data.dto.NewSensorDto;
 import org.data.dto.NewUserDto;
 import org.data.service.SensorService;
@@ -16,8 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 public class SensorDataSimulator {
 
-    private static final int NUM_SENSORS_PER_USER = 10;
-    private static final int NUM_USERS = 2;
+    private static final int NUM_SENSORS_PER_USER = 15;
+    private static final int NUM_USERS = 5;
     private static final Map<String, List<NewSensorDto>> userSensorsMap = new HashMap<>();
 
     public static void main(String[] args) {
@@ -39,11 +40,18 @@ public class SensorDataSimulator {
                 }
 
                 if (!token.isEmpty()) {
-                    sensorService.createSensorsForUser(userId, newUser, token, random, NUM_SENSORS_PER_USER);
+                    // Crea le aree di interesse per l'utente
+                    List<InterestAreaDto> interestAreas = userService.createInterestAreasForUser(userId, token, random);
+                    for (int j = 0; j < interestAreas.size(); j++) {
+                        System.out.println( "Interest area: " + interestAreas.get(j).toString());
+                    }
+
+                    // Ora passa le aree di interesse come parametro
+                    sensorService.createSensorsForUser(userId, newUser, token, random, NUM_SENSORS_PER_USER, interestAreas);
                 }
 
                 int finalI = i;
-                scheduler.scheduleAtFixedRate(() -> sensorService.sendSensorDataForUser(String.valueOf(finalI), userId, random), 0, 1, TimeUnit.SECONDS);
+                scheduler.scheduleAtFixedRate(() -> sensorService.sendSensorDataForUser(String.valueOf(finalI), token, random), 0, 1, TimeUnit.SECONDS);
             } else {
                 System.err.println("Failed to create user: " + newUser.getEmail());
             }
@@ -60,6 +68,7 @@ public class SensorDataSimulator {
             }
         }));
     }
+
 
     public static Map<String, List<NewSensorDto>> getUserSensorsMap() {
         return userSensorsMap;

@@ -1,17 +1,25 @@
 package org.data.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+import org.data.dto.InterestAreaDto;
 import org.data.dto.NewInterestAreaDto;
+import org.data.dto.NewSensorDto;
 import org.data.dto.NewUserDto;
 import org.json.JSONObject;
 
-import java.util.Random;
+import java.net.URL;
+import java.time.Instant;
+import java.util.*;
 
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -25,12 +33,11 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import java.io.File;
 import java.util.Random;
-
 public class UserService {
 
     private static final String USER_CREATION_URL = "http://192.168.15.34:8010/v1/users";
     private static final String LOGIN_URL = "http://192.168.15.34:8010/v1/login/user";
-    private static final String INTEREST_AREA_CREATION_URL = "http://192.168.15.34:8010/v1/interestarea";
+    private static final String INTEREST_AREA_URL = "http://192.168.15.34:8010/v1/interestarea";
 
     public NewUserDto createDummyUser(int userId, Random random) {
         NewUserDto newUser = new NewUserDto();
@@ -48,6 +55,7 @@ public class UserService {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(USER_CREATION_URL);
             post.setHeader("Content-Type", "application/json");
+            post.setHeader("Accept", "application/json");
 
             String userJson = String.format(
                     """
@@ -68,11 +76,12 @@ public class UserService {
             try (CloseableHttpResponse response = client.execute(post)) {
                 String responseBody = EntityUtils.toString(response.getEntity());
                 if (response.getStatusLine().getStatusCode() == 200) {
+                    System.out.println("User created successfully: " + newUser.getEmail());
                     JSONObject jsonResponse = new JSONObject(responseBody);
                     userId = jsonResponse.getString("id");
-                    System.out.println("User created successfully: " + newUser.getEmail());
                 } else {
                     System.err.println("Failed to create user: " + response.getStatusLine().getStatusCode());
+                    System.err.println("Response: " + responseBody);
                 }
             }
         } catch (Exception e) {
@@ -86,6 +95,7 @@ public class UserService {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(LOGIN_URL);
             post.setHeader("Content-Type", "application/json");
+            post.setHeader("Accept", "application/json");
 
             String loginJson = String.format(
                     """
@@ -102,10 +112,11 @@ public class UserService {
             try (CloseableHttpResponse response = client.execute(post)) {
                 String responseBody = EntityUtils.toString(response.getEntity());
                 if (response.getStatusLine().getStatusCode() == 200) {
-                    token = new JSONObject(responseBody).getString("token");
+                    token = parseTokenFromResponse(responseBody);
                     System.out.println("Login successful for user: " + newUser.getEmail());
                 } else {
                     System.err.println("Failed to login: " + response.getStatusLine().getStatusCode());
+                    System.err.println("Response: " + responseBody);
                 }
             }
         } catch (Exception e) {
@@ -114,55 +125,91 @@ public class UserService {
         return token;
     }
 
-    public void createInterestAreasForUser(String userId, NewUserDto newUser, String token, Random random) {
-        File directory = new File("Resource/shape");
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        File[] files = directory.listFiles();
-        if (files == null || files.length == 0) {
-            System.err.println("No shape files found in Resource/shape.");
-            return;
-        }
-
-        for (int i = 0; i < 3; i++) {
-            NewInterestAreaDto newArea = createDummyInterestArea(userId, i);
-            File file = files[random.nextInt(files.length)];
-            sendNewInterestArea(newArea, file, token);
-        }
+    private String parseTokenFromResponse(String responseBody) {
+        return new JSONObject(responseBody).getString("token");
     }
 
-    private NewInterestAreaDto createDummyInterestArea(String userId, int areaIndex) {
-        NewInterestAreaDto newArea = new NewInterestAreaDto();
-        newArea.setUserId(userId);
-        newArea.setName("Interest Area " + areaIndex);
-        newArea.setGeometry("Random Geometry " + areaIndex); // Replace with actual geometry if needed
-        newArea.setType("Polygon");
-        newArea.setDescription("Description for Interest Area " + areaIndex);
-        return newArea;
-    }
+    public List<InterestAreaDto> createInterestAreasForUser(String userId, String token, Random random) {
+        List<InterestAreaDto> interestAreas = new ArrayList<>();
 
-    private void sendNewInterestArea(NewInterestAreaDto newArea, File file, String token) {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(INTEREST_AREA_CREATION_URL);
-            post.setHeader("Authorization", "Bearer " + token);
+            for (int i = 0; i < 1; i++) {
+                NewInterestAreaDto interestAreaDto = new NewInterestAreaDto();
+                interestAreaDto.setUserId(userId);
+                interestAreaDto.setName("Interest Area " + i);
+                interestAreaDto.setDescription("Description for interest area " + i);
+                interestAreaDto.setToken(token);
 
-            MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.addTextBody("data", new JSONObject(newArea).toString(), ContentType.APPLICATION_JSON);
-            builder.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, file.getName());
+                // Costruisci l'entity multipart
+                MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
 
-            post.setEntity(builder.build());
+                // Aggiungi i dati JSON
+                entityBuilder.addTextBody("data", new ObjectMapper().writeValueAsString(interestAreaDto), ContentType.APPLICATION_JSON);
 
-            try (CloseableHttpResponse response = client.execute(post)) {
-                if (response.getStatusLine().getStatusCode() == 200) {
-                    System.out.println("Interest area created successfully for user: " + newArea.getUserId());
+                // Verifica se ci sono file disponibili prima di selezionarne uno
+                ClassLoader classLoader = getClass().getClassLoader();
+                URL resourceUrl = classLoader.getResource("shape");
+
+                if (resourceUrl != null) {
+                    File directory = new File(resourceUrl.getFile());
+                    File[] shapeFiles = directory.listFiles();
+                    if (shapeFiles != null && shapeFiles.length > 0) {
+                        // Prendi un file casuale dalla directory
+                        File file = shapeFiles[random.nextInt(shapeFiles.length)];
+                        // Aggiungi il file con il nome corretto e il tipo di contenuto specificato
+                        entityBuilder.addPart("file", new FileBody(file));
+                    } else {
+                        System.err.println("No files found in resources/shape.");
+                    }
                 } else {
-                    System.err.println("Failed to create interest area: " + response.getStatusLine().getStatusCode());
+                    System.err.println("Directory 'shape' not found in resources.");
+                }
+
+                HttpEntity entity = entityBuilder.build();
+
+                // Crea la richiesta POST
+                HttpPost post = new HttpPost(INTEREST_AREA_URL);
+                post.setEntity(entity);
+
+                // Esegui la richiesta e gestisci la risposta
+                try (CloseableHttpResponse response = client.execute(post)) {
+                    String responseBody = EntityUtils.toString(response.getEntity());
+
+                    if (response.getStatusLine().getStatusCode() == 200) {
+                        InterestAreaDto createdInterestArea = new ObjectMapper().readValue(responseBody, InterestAreaDto.class);
+                        interestAreas.add(createdInterestArea);
+                        System.out.println(createdInterestArea.getGeometry());
+                        System.out.println("Interest area created successfully: " + createdInterestArea.getName());
+                    } else {
+                        System.err.println("Failed to create interest area: " + response.getStatusLine().getStatusCode());
+                        System.err.println("Response: " + responseBody);
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return interestAreas;
+    }
+
+
+
+
+
+
+    private String generateSensorDataJson( NewInterestAreaDto newInterestAreaDto, String token) {
+
+
+        return String.format(
+                """
+                {
+                    "userId": "%s",
+                    "name": "%s",
+                    "description": "%s",
+                    "token": "%s"
+                }""",
+                newInterestAreaDto.getUserId(), newInterestAreaDto.getName(), newInterestAreaDto.getDescription(), token
+        );
     }
 }

@@ -57,16 +57,17 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public SensorDto saveDto(NewSensorDto newSensorDto) {
-        Sensor sensor = sensorMapper.newSensorDtoToSensor(newSensorDto);
+        Sensor sensor = new Sensor();
         String userId = isValidToken(newSensorDto.getUserId());
-        assert userId != null;
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
         Optional<User> user = userDao.findById(userId);
-
-
         if (BCrypt.checkpw(newSensorDto.getPassword(), user.get().getSensorPassword())) {
-            sensor.setPassword(BCrypt.hashpw(sensor.getPassword(), BCrypt.gensalt(10)));
+            sensor.setPassword(BCrypt.hashpw(newSensorDto.getPassword(), BCrypt.gensalt(10)));
             sensor.setDescription(newSensorDto.getDescription());
             sensor.setUserId(String.valueOf(user.get().getId()));
+            sensor.setCompanyName(newSensorDto.getCompanyName());
             sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
             try {
                 sensorRepository.save(sensor);

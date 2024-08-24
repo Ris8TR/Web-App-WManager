@@ -10,28 +10,33 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.data.SensorDataSimulator;
+import org.data.dto.InterestAreaDto;
 import org.data.dto.NewSensorDto;
 import org.data.dto.NewUserDto;
 import org.json.JSONObject;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.*;
 
 public class SensorService {
 
     private static final String NEW_SENSOR_URL = "http://192.168.15.34:8010/v1/sensors";
-    private static final String SENSOR_DATA_URL = "http://localhost:8080/v1/SensorData";
+    private static final String SENSOR_DATA_URL = "http://localhost:8010/v1/SaveSensorData";
+    Map<String, InterestAreaDto> interestAreasForSensor = new HashMap<>();
 
-    public void createSensorsForUser(String userId, NewUserDto newUser, String token, Random random, int numSensors) {
+    public void createSensorsForUser(String userId, NewUserDto newUser, String token, Random random, int numSensors, List<InterestAreaDto> interestAreas) {
         List<NewSensorDto> sensors = new ArrayList<>();
+
         for (int j = 0; j < numSensors; j++) {
-            NewSensorDto newSensor = createDummySensor(userId, newUser, j, random);
+            // Prendi un'area di interesse casuale
+            InterestAreaDto interestArea = interestAreas.get(random.nextInt(interestAreas.size()));
+            NewSensorDto newSensor = createDummySensor(userId, newUser, j, random, interestArea.getId());
             String sensorId = sendNewSensor(newSensor, token);
 
             if (sensorId != null) {
                 newSensor.setSensorId(sensorId);
                 sensors.add(newSensor);
+                interestAreasForSensor.put(sensorId, interestArea);
             } else {
                 System.err.println("Failed to create sensor for user: " + newUser.getEmail());
             }
@@ -39,14 +44,73 @@ public class SensorService {
         SensorDataSimulator.getUserSensorsMap().put(newUser.getEmail(), sensors);
     }
 
-    public void sendSensorDataForUser(String LocaluserId, String userId, Random random) {
+    private NewSensorDto createDummySensor(String userId, NewUserDto user, int sensorId, Random random, String interestAreaId) {
+        NewSensorDto newSensor = new NewSensorDto();
+        newSensor.setCompanyName("Company" + sensorId);
+        newSensor.setPassword(user.getSensorPassword());
+        newSensor.setDescription("Sensor description for sensor " + sensorId);
+        newSensor.setUserId(userId);
+        newSensor.setInterestAreaId(interestAreaId);
+        return newSensor;
+    }
+
+    private String sendNewSensor(NewSensorDto newSensor, String token) {
+        String sensorId = null;
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost post = new HttpPost(NEW_SENSOR_URL);
+            post.setHeader("Content-Type", "application/json");
+            post.setHeader("Accept", "application/json");
+
+            String sensorJson = String.format(
+                    """
+                    {
+                      "companyName": "%s",
+                      "password": "%s",
+                      "description": "%s",
+                      "userId": "%s",
+                      "interestAreaId": "%s"
+                    }""",
+                    newSensor.getCompanyName(), newSensor.getPassword(),
+                    newSensor.getDescription(), token,
+                    newSensor.getInterestAreaId()
+            );
+
+            System.out.println(sensorJson);
+
+            StringEntity entity = new StringEntity(sensorJson, ContentType.APPLICATION_JSON);
+            post.setEntity(entity);
+
+            try (CloseableHttpResponse response = client.execute(post)) {
+                String responseBody = EntityUtils.toString(response.getEntity());
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    JSONObject jsonResponse = new JSONObject(responseBody);
+                    sensorId = jsonResponse.getString("id");
+                    newSensor.setSensorId(sensorId);
+
+                    System.out.println("Sensor created successfully: " + newSensor);
+
+                } else {
+                    System.err.println("Failed to create sensor: " + response.getStatusLine().getStatusCode());
+                    System.err.println("Response: " + responseBody);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sensorId;
+    }
+
+    public void sendSensorDataForUser(String localUserId, String token, Random random) {
         try {
-            String userEmail = "user" + LocaluserId + "@example.com";
+            String userEmail = "user" + localUserId + "@example.com";
             List<NewSensorDto> sensors = SensorDataSimulator.getUserSensorsMap().get(userEmail);
 
             if (sensors != null && !sensors.isEmpty()) {
                 NewSensorDto sensor = sensors.get(random.nextInt(sensors.size()));
-                String sensorDataJson = generateSensorDataJson(userId, sensor, "sensorPassword" + LocaluserId, random);
+
+                // Simula la latitudine e longitudine dall'area di interesse associata al sensore
+                InterestAreaDto interestArea = interestAreasForSensor.get(sensor.getSensorId());
+                String sensorDataJson = generateSensorDataJson(token, sensor, "sensorPassword" + localUserId, random, interestArea.getGeometry(), interestArea.getId());
 
                 CloseableHttpClient client = HttpClients.createDefault();
                 HttpPost post = new HttpPost(SENSOR_DATA_URL);
@@ -74,68 +138,20 @@ public class SensorService {
         }
     }
 
-    private NewSensorDto createDummySensor(String userId, NewUserDto user, int sensorId, Random random) {
-        NewSensorDto newSensor = new NewSensorDto();
-        newSensor.setCompanyName("Company" + sensorId);
-        newSensor.setPassword(user.getSensorPassword());
-        newSensor.setDescription("Sensor description for sensor " + sensorId);
-        newSensor.setUserId(userId);
-        newSensor.setInterestAreaId(String.valueOf(1000 + random.nextInt(60)));
-        return newSensor;
-    }
-
-    private String sendNewSensor(NewSensorDto newSensor, String token) {
-        String sensorId = null;
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            HttpPost post = new HttpPost(NEW_SENSOR_URL);
-            post.setHeader("Content-Type", "application/json");
-            post.setHeader("Accept", "application/json");
-
-            String sensorJson = String.format(
-                    """
-                    {
-                      "companyName": "%s",
-                      "password": "%s",
-                      "description": "%s",
-                      "userId": "%s",
-                      "interestAreaId": "%s"
-                    }""",
-                    newSensor.getCompanyName(), newSensor.getPassword(),
-                    newSensor.getDescription(), token,
-                    newSensor.getInterestAreaId()
-            );
-
-            StringEntity entity = new StringEntity(sensorJson, ContentType.APPLICATION_JSON);
-            post.setEntity(entity);
-
-            try (CloseableHttpResponse response = client.execute(post)) {
-                String responseBody = EntityUtils.toString(response.getEntity());
-                if (response.getStatusLine().getStatusCode() == 200) {
-                    JSONObject jsonResponse = new JSONObject(responseBody);
-                    sensorId = jsonResponse.getString("id");
-                    newSensor.setSensorId(sensorId);
-                    System.out.println("Sensor created successfully: " + newSensor);
-
-                } else {
-                    System.err.println("Failed to create sensor: " + response.getStatusLine().getStatusCode());
-                    System.err.println("Response: " + responseBody);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return sensorId;
-    }
-
-    private String generateSensorDataJson(String userId, NewSensorDto sensor, String userPass, Random random) {
+    private String generateSensorDataJson(String token, NewSensorDto sensor, String userPass, Random random, String geometry, String interestAreaId) {
         String timestamp = Instant.now().toString();
         int CO2 = 350 + random.nextInt(100);
         double ap = 950 + (random.nextDouble() * 20);
         double temperature = 15 + (random.nextDouble() * 15);
         int humidity = 20 + random.nextInt(60);
 
+
         String apFormatted = String.format(Locale.US, "%.2f", ap);
         String temperatureFormatted = String.format(Locale.US, "%.2f", temperature);
+
+        // Estrai una latitudine e longitudine dalla geometria dell'area di interesse
+        double latitude = getRandomLatitudeFromGeometry(geometry, random);
+        double longitude = getRandomLongitudeFromGeometry(geometry, random);
 
         return String.format(
                 """
@@ -155,22 +171,36 @@ public class SensorService {
                         "humidity": %d
                     }
                 }""",
-                userId, sensor.getSensorId(), timestamp, getRandomLatitude(random), getRandomLongitude(random),
-                sensor.getInterestAreaId(), userPass, CO2, apFormatted, temperatureFormatted, humidity
+                token, sensor.getSensorId(), timestamp, latitude, longitude,
+                interestAreaId, userPass, CO2, apFormatted, temperatureFormatted, humidity
         );
     }
 
-    private Double getRandomLatitude(Random random) {
-        return roundToSixDecimalPlaces(-90 + (random.nextDouble() * 180));
+    private double getRandomLatitudeFromGeometry(String geometry, Random random) {
+        return extractCoordinateFromGeometry(geometry, random, true);
     }
 
-    private Double getRandomLongitude(Random random) {
-        return roundToSixDecimalPlaces(-180 + (random.nextDouble() * 360));
+    private double getRandomLongitudeFromGeometry(String geometry, Random random) {
+        return extractCoordinateFromGeometry(geometry, random, false);
     }
 
-    private Double roundToSixDecimalPlaces(double value) {
-        BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(6, BigDecimal.ROUND_HALF_UP);
-        return bd.doubleValue();
+    private double extractCoordinateFromGeometry(String geometry, Random random, boolean isLatitude) {
+        String[] parts = geometry.replace("MULTILINESTRING", "")
+                .replace("(", "")
+                .replace(")", "")
+                .split(",");
+
+        // Seleziona una coordinata casuale
+        String[] coordinates = parts[random.nextInt(parts.length)].trim().split(" ");
+
+        // Rimuovi eventuali caratteri non numerici (come il punto e virgola) e converti in double
+        String coordinateString = isLatitude ? coordinates[1] : coordinates[0];
+
+        // Pulizia della coordinata
+        coordinateString = coordinateString.replaceAll("[^0-9.\\-]", "");  // Mantieni solo numeri, punto e trattino
+
+        // Converte la stringa in double
+        return Double.parseDouble(coordinateString);
     }
+
 }
