@@ -41,7 +41,7 @@
           <li  class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="">Interest Areas</a></li>
         </ul>
         <ul class="navbar-nav ms-auto">
-          <button *ngIf="logStringResult !== 'Login'" type="button" class="btn btn-light " style="margin-right: 10px;">{{ logStringResult }}</button>
+          <button *ngIf="logStringResult !== 'Login'" type="button" class="btn btn-light " style="margin-right: 10px;"  (click)="redirectToUser()">{{ logStringResult }}</button>
           <li *ngIf="logStringResult !== 'Login'" class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="logOut()" >Log out</a></li>
           <li *ngIf="logStringResult == 'Login'" class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" routerLink="/login"  >Log in</a></li>
           <!--          <li><mat-icon style="margin-left: 15px;"  fontSet="material-symbols-outlined" class="toolbar-icon" (click)="logOut()">log out</mat-icon></li>-->
@@ -88,7 +88,7 @@
 
 
 
-<div class="row justify-content-md-center">
+<!--<div class="row justify-content-md-center">-->
   <router-outlet></router-outlet>
-</div>
+<!--</div>-->
 </div>

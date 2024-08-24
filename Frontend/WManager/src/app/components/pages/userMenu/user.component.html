@@ -1,0 +1,53 @@
+<!--<div class="row">-->
+  <div class="col-sm-2" >
+    <div class="d-flex flex-column flex-shrink-0 p-3 sidebar">
+      <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none sidebar-brand">
+        <span class="fs-4">Menu</span>
+      </a>
+      <hr>
+      <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+          <a (click)="redirectToUserData()" class="nav-link text-white text-center text-md-start">
+            <i class="fas fa-home"></i>
+            <span class="ms-2 d-none d-md-inline">Home</span>
+          </a>
+        </li>
+        <li>
+          <a (click)="redirectToUserModify()" class="nav-link text-white text-center text-md-start">
+            <i class="bi bi-wrench"></i>
+            <span class="ms-2 d-none d-md-inline">Modify Data</span>
+          </a>
+        </li>
+        <li>
+          <a (click)="redirectToUserSendData()" class="nav-link text-white text-center text-md-start">
+            <i class="bi bi-send"></i>
+            <span class="ms-2 d-none d-md-inline">Send data</span>
+          </a>
+        </li>
+        <li>
+          <a (click)="redirectToUserCreateSensor()" class="nav-link text-white text-center text-md-start">
+            <i class="bi bi-diagram-2"></i>
+            <span class="ms-2 d-none d-md-inline">Create Sensor</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-link text-white text-center text-md-start">
+            <i class="bi bi-view-stacked"></i>
+            <span class="ms-2 d-none d-md-inline">Show My Sensors</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-link text-white text-center text-md-start">
+            <i class="bi bi-view-stacked"></i>
+            <span class="ms-2 d-none d-md-inline">Show Interest Area</span>
+          </a>
+        </li>
+      </ul>
+
+
+    </div>
+  </div>
+  <router-outlet></router-outlet>
+
+<!--</div>-->
+

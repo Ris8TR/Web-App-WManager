@@ -15,6 +15,7 @@ import {SensorService} from "../../../service/sensor.service";
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {style} from "@angular/animations";
+import {UserComponent} from "../userMenu/user.component";
 
 
 @Component({
@@ -29,7 +30,8 @@ import {style} from "@angular/animations";
     MatButtonModule,
     CommonModule,
     MatRadioGroup,
-    MatRadioButton
+    MatRadioButton,
+    UserComponent
   ],
   templateUrl: './sensor-creation.component.html',
   styleUrl: './sensor-creation.component.css'

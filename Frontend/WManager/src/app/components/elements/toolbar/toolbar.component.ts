@@ -91,6 +91,10 @@ redirectToInterestArea(id: string) {
     this.router.navigate(['/webcam']);
   }
 
+  redirectToUser() {
+    this.router.navigate(['/user']);
+  }
+
   logOut() {
     this.cookieService.delete('user');
     this.cookieService.delete('role');

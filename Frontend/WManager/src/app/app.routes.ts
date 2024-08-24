@@ -14,7 +14,12 @@ import {
   InterestAreaCreationComponent
 } from "./components/pages/interest-area-creation/interest-area-creation.component";
 import {ResetComponent} from "./components/pages/reset/reset.component";
-import {SensorCreationComponent} from "./components/pages/sensor-creation/sensor-creation.component";
+import {SensorCreationComponent} from "./components/pages/user-sensor-creation/sensor-creation.component";
+
+import {UserComponent} from "./components/pages/userMenu/user.component";
+import {UserdataComponent} from "./components/pages/userdata/userdata.component";
+import {UsermodifyComponent} from "./components/pages/usermodify/usermodify.component";
+import {UserSendDataComponent} from "./components/pages/user-send-data/user-send-data.component";
 
 
 
@@ -25,13 +30,17 @@ export const routes: Routes = [
     {path: 'ground-stations',title:"Graunded Stations", component: MapComponent},
     {path: 'login',title:"login", component: LoginComponent},
     {path: 'signin',title:"signin", component: SigninComponent},
+    {path: 'user',title:"user", component: UserComponent},
+    {path: 'userData',title:"user", component: UserdataComponent},
+    {path: 'userModify',title:"user", component: UsermodifyComponent},
+    {path: 'userSendData',title:"user", component: UserSendDataComponent},
     {path: 'detail/:id', title: "Area Details", component: DetailedAreaComponent },
-    {path: 'test/sensor', title: "Test upload sensori", component: SensorDataUploadComponent },
+    {path: 'sensorDataUpload', title: "Test upload sensori", component: SensorDataUploadComponent },
     {path: 'webcam', title: "Webcam 'LIVE' ", component: WebcamComponent },
     {path: 'create-area', title: "Create new area' ", component: InterestAreaCreationComponent },
-    {path: 'create-sensor', title: "Create new sensor' ", component: SensorCreationComponent },
+    {path: 'userCreateSensor', title: "Create new sensor' ", component: SensorCreationComponent },
 
-  {path: 'reset/:token', title: "Password reset", component: ResetComponent },
+    {path: 'reset/:token', title: "Password reset", component: ResetComponent },
 
     //Errors:
     {path: 'bad-request',title:"Bad Request", component: BadComponent},
