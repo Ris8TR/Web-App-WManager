@@ -19,4 +19,6 @@ export interface SensorDto {
   interestAreaID?: string;
   longitude?: Array<number>;
   latitude?: Array<number>;
+  token?: string;
+
 }

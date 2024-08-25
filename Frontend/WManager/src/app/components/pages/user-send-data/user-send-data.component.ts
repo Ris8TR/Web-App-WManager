@@ -21,7 +21,7 @@ export class UserSendDataComponent {
   file!: File;
   data: NewSensorDataDto = {
     payloadType: "",
-    userId: this.cookieService.get("Token"),
+    token: this.cookieService.get("Token"),
     latitude: 0,
     longitude: 0,
     payload: {},

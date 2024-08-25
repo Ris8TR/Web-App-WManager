@@ -14,6 +14,7 @@ public class SensorDto {
     private String userId;
     private String id;
     private String password;
+    private String token;
     private String description;
     private String interestAreaID;
     private List<Double> Latitude;

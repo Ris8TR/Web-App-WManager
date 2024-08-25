@@ -17,4 +17,6 @@ export interface NewSensorDto {
     userId?: string;
     sensorId?: string;
     interestAreaId?: string;
+    token?: string;
+
 }

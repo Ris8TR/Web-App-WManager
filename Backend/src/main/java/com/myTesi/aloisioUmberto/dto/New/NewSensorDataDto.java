@@ -22,5 +22,6 @@ public class NewSensorDataDto {
     private String userId;
     private String interestAreaId;
     private String sensorPassword;
-
+    //TODO verificare questo
+    private String token;
 }

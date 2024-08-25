@@ -18,6 +18,7 @@ export interface NewSensorDataDto {
   longitude?: number;
   payload?: any;
   userId?: string;
+  token?: string;
   interestAreaId?: string;
   sensorPassword: string;
 }

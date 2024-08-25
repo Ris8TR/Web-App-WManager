@@ -13,4 +13,5 @@ public class NewUserPreferenceDto {
     private ObjectId userId;
     private String[] dataTypesToShow;
     private boolean overlayLayers;
+    private String token;
 }

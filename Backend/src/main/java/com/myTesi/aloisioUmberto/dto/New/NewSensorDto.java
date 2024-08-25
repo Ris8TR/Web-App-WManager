@@ -16,6 +16,7 @@ public class NewSensorDto{
     private String password;
     private String description;
     private String userId;
+    private String token;
     private String interestAreaId;
 
 

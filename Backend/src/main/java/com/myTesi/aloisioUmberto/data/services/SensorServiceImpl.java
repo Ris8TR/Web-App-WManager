@@ -108,6 +108,7 @@ public class SensorServiceImpl implements SensorService {
                 .collect(Collectors.toList());
     }
 
+
     @Override
     public List<SensorDto> getAllSensor() {
         List<Sensor> sensors = sensorRepository.findAll();
@@ -153,14 +154,16 @@ public class SensorServiceImpl implements SensorService {
                 Map<String, Object> data = objectMapper.readValue(file.getInputStream(), Map.class);
 
                 String companyName = Objects.requireNonNull(data.get("companyName")).toString();
-                String userId = Objects.requireNonNull(data.get("userId")).toString();
+                String token = Objects.requireNonNull(data.get("token")).toString();
                 String password = Objects.requireNonNull(data.get("password")).toString();
                 String interestAreaId = Objects.requireNonNull(data.get("interestAreaId")).toString();
                 String description = Objects.requireNonNull(data.get("description")).toString();
-
+                String userId = isValidToken(token);
+                if (userId == null) {
+                    throw new IllegalArgumentException("Invalid user ID");
+                }
                 Optional<User> user = userDao.findById(userId);
                 if (user.isPresent() && BCrypt.checkpw(password, user.get().getSensorPassword())) {
-
                     boolean exists = sensorRepository.existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(
                             companyName, userId, interestAreaId, description);
 
