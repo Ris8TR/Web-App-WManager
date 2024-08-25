@@ -12,11 +12,11 @@ import java.util.Optional;
 
 public interface SensorService {
 
-    Optional<SensorDto> findById(String id);
-    List<SensorDto> findByCompanyName(String companyName);
+    Optional<SensorDto> findById(String id, String token);
+    List<SensorDto> findByCompanyName(String companyName, String token);
     SensorDto saveDto(NewSensorDto newUserDto);
     List<SensorDto> getAllSensor();
     SensorDto save(MultipartFile file) throws IOException;
 
-
+    List<SensorDto> findByUserId(String token);
 }

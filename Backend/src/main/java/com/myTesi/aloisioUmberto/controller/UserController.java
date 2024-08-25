@@ -46,6 +46,8 @@ public class UserController {
                     )
             }
     )
+
+    //TODO Admin
     @GetMapping("/users/all-users")
     public ResponseEntity<List<UserDto>> getAll() {
         return ResponseEntity.ok(userService.getAllUserDtoSortedByLastnameAscending());
@@ -53,7 +55,7 @@ public class UserController {
 
 
 
-
+    //TODO Admin
     @GetMapping("/users/{email}")
     public ResponseEntity <UserDto> findByEmail(@PathVariable @Valid String email) {
         return ResponseEntity.ok(userService.findByEmail(email));

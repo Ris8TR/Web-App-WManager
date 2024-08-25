@@ -27,10 +27,9 @@ public class SensorDataController {
 
 
     @Operation(summary = "Receive sensor data", description = "Receive and save sensor data from micro-service")
-    @PostMapping("/sensordata")
-    public ResponseEntity<SensorData> receiveSensorData(@RequestBody SensorData sensorData) {
-        SensorData savedData = sensorDataService.saveSensorData(sensorData);
-        return ResponseEntity.ok(savedData);
+    @PostMapping("/sensorData")
+    public ResponseEntity<SensorData> receiveSensorData(@RequestBody NewSensorDataDto newSensorDataDto) {
+        return ResponseEntity.ok(sensorDataService.saveSensorData(newSensorDataDto));
     }
 
     @Operation(summary = "Save sensor data", description = "Save new sensor data with optional file")
@@ -64,15 +63,13 @@ public class SensorDataController {
     }
 
     @PutMapping("/SensorData/{id}")
-    public ResponseEntity<SensorData> updateSensorData(@RequestBody SensorData newSensorData) {
-        //TODO ADD TOKEN CHECK
-        return ResponseEntity.ok(sensorDataService.update(newSensorData));
+    public ResponseEntity<SensorData> updateSensorData(@RequestBody NewSensorDataDto newSensorDataDto) {
+        return ResponseEntity.ok(sensorDataService.update(newSensorDataDto));
     }
 
-    @DeleteMapping("/SensorData/{id}")
-    public HttpStatus deleteSensorData(@PathVariable String id) {
-        //TODO ADD TOKEN CHECK
-        sensorDataService.delete(id);
+    @DeleteMapping("/SensorData/{id}/{token}")
+    public HttpStatus deleteSensorData(@PathVariable String id, @PathVariable String token) {
+        sensorDataService.delete(token,id);
         return HttpStatus.OK;
     }
 

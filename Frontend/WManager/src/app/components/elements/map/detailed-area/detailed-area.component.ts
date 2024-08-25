@@ -4,6 +4,7 @@ import L from 'leaflet';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { InterestAreaService } from '../../../../service/interestArea.service';
 import { InterestArea } from '../../../../model/interestArea';
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
   selector: 'app-detailed-area',
@@ -15,8 +16,9 @@ import { InterestArea } from '../../../../model/interestArea';
 export class DetailedAreaComponent implements OnInit {
   private map!: L.Map;
   id: string | null = null;
+  token = this.cookieService.get("token")
 
-  constructor(private route: ActivatedRoute, private interestAreaService: InterestAreaService) {}
+  constructor(private route: ActivatedRoute, private interestAreaService: InterestAreaService, private cookieService: CookieService) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params: ParamMap) => {
@@ -48,7 +50,7 @@ export class DetailedAreaComponent implements OnInit {
       return;
     }
 
-    this.interestAreaService.getInterestArea(id).subscribe(
+    this.interestAreaService.getInterestArea(id, this.token).subscribe(
       (area: InterestArea) => {
         console.log('Interest Area loaded:', area);
         this.drawInterestArea(area.geometry);

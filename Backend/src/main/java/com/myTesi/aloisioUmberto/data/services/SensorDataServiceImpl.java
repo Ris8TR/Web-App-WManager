@@ -6,15 +6,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorDataMapper;
+import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
+import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.*;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
+import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +52,8 @@ public class SensorDataServiceImpl implements SensorDataService {
 
 
     private RedisTemplate<String, Object> redisTemplate;
+    @Autowired
+    private InterestAreaRepository interestAreaRepository;
 
     @Autowired
     public void SensorDataService(RedisTemplate<String, Object> redisTemplate,
@@ -57,14 +62,33 @@ public class SensorDataServiceImpl implements SensorDataService {
         this.sensorDataRepository = sensorDataRepository;
     }
 
-    public SensorData saveSensorData(SensorData sensorData) {
+    public SensorData saveSensorData(NewSensorDataDto newSensorDataDto) {
+        SensorData sensorData = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDto);
+        String userId = isValidToken(newSensorDataDto.getToken());
+        assert userId != null;
+        Optional<User> user = userDao.findById(userId);
+        Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDto.getSensorId(), userId);
+        if (BCrypt.checkpw(newSensorDataDto.getSensorPassword(), user.get().getSensorPassword())) {
+            try {
+                sensorData.setSensorId(sensor.get().getId().toString());
+                //TODO Aggiungere verifica area di interesse
+                sensor.get().setInterestAreaID(sensorData.getInterestAreaID());
+                sensorRepository.save(sensor.get());
+            } catch (DataIntegrityViolationException e) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
+            }
+        }else {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        sensorData.setTimestamp(Date.from(Instant.now()));
         return sensorDataRepository.save(sensorData);
     }
 
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
-        String userId = isValidToken(newSensorDataDTO.getUserId());
+        String userId = isValidToken(newSensorDataDTO.getToken());
         assert userId != null;
         Optional<User> user = userDao.findById(userId);
         Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDTO.getSensorId(), userId);
@@ -174,6 +198,7 @@ public class SensorDataServiceImpl implements SensorDataService {
                 .collect(Collectors.toList());
     }
 
+    /*
     public List<SensorDataDto> getAllSensorDataBy10MinByType(String type) {
         String cacheKey = "SensorData:" + type;
         List<SensorDataDto> sensorDataList = (List<SensorDataDto>) redisTemplate.opsForValue().get(cacheKey);
@@ -195,6 +220,22 @@ public class SensorDataServiceImpl implements SensorDataService {
         return sensorDataList;
     }
 
+     */
+
+    public List<SensorDataDto> getAllSensorDataBy10MinByType(String type) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date tenMinutesAgo = calendar.getTime();
+
+        List<SensorDataDto> sensorDataList = sensorDataRepository.findByTimestampBetweenAndPayloadType(tenMinutesAgo, now, type).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+
+        return sensorDataList;
+    }
+
 
     @Override
     public SensorDataDto getSensorDataById(Object id) {
@@ -203,23 +244,40 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     @Override
-    public SensorData update(SensorData newSensorData) {
-        SensorData existingSensorData = sensorDataRepository.findById(newSensorData.getSensorId()).orElse(null);
-        if (existingSensorData != null) {
-            existingSensorData.setSensorId(newSensorData.getSensorId());
-            existingSensorData.setPayloadType(newSensorData.getPayloadType());
-            existingSensorData.setTimestamp(newSensorData.getTimestamp());
-            existingSensorData.setLatitude(newSensorData.getLatitude());
-            existingSensorData.setLongitude(newSensorData.getLongitude());
-
-            return sensorDataRepository.save(existingSensorData);
+    public SensorData update(NewSensorDataDto newSensorDataDto) {
+        String userId = isValidToken(newSensorDataDto.getToken());
+        assert userId != null;
+        SensorData existingSensorData = sensorDataRepository.findById(newSensorDataDto.getId()).orElse(null);
+        assert existingSensorData != null;
+        if (newSensorDataDto.getSensorId() != existingSensorData.getSensorId()) {
+            throw new RuntimeException("Invalid credentials");
         }
-        return null;
+        Sensor sensor = sensorRepository.findByIdAndUserId(newSensorDataDto.getSensorId(), userId).orElse(null);
+        assert sensor != null;
+        existingSensorData.setSensorId(newSensorDataDto.getSensorId());
+        existingSensorData.setPayloadType(newSensorDataDto.getPayloadType());
+        existingSensorData.setLatitude(newSensorDataDto.getLatitude());
+        existingSensorData.setLongitude(newSensorDataDto.getLongitude());
+        existingSensorData.setTimestamp(Date.from(Instant.now()));
+
+
+        return sensorDataRepository.save(existingSensorData);
     }
 
     @Override
-    public void delete(Object id) {
-        sensorDataRepository.deleteById(id.toString());
+    public void delete(String token, String id) {
+        String userId = isValidToken(token);
+        assert userId != null;
+        Optional<SensorData> sensorDataDto = sensorDataRepository.findById(id);
+        assert sensorDataDto.isPresent();
+        Optional<Sensor> sensor = sensorRepository.findById(sensorDataDto.get().getSensorId());
+        assert sensor.isPresent();
+        List<Sensor> sensorList = sensorRepository.findAllByIdAndUserId(sensor.get().getId(),userId);
+        if (sensorList != null && !sensorList.isEmpty()) {
+            sensorDataRepository.deleteById(id);
+        }else {
+            throw new RuntimeException("Sensor not found");
+        }
     }
 
     @Override

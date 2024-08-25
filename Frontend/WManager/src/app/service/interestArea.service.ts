@@ -116,89 +116,91 @@ export class InterestAreaService {
 
 
 
-
   /**
-     *
-     *
-     * @param id
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public deleteInterestArea(id: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<any>;
-    public deleteInterestArea(id: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-    public deleteInterestArea(id: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-    public deleteInterestArea(id: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+   *
+   *
+   * @param id
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public deleteInterestArea(id: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<any>;
+  public deleteInterestArea(id: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+  public deleteInterestArea(id: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+  public deleteInterestArea(id: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling deleteInterestArea.');
-        }
-
-        let headers = this.defaultHeaders;
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            '*/*'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        return this.httpClient.request<any>('delete',`${this.basePath}/v1/interestarea/${encodeURIComponent(String(id))}`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
+    if (id === null || id === undefined) {
+      throw new Error('Required parameter id was null or undefined when calling deleteInterestArea.');
     }
 
-    /**
-     *
-     *
-     * @param id
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public getInterestArea(id: String, observe?: 'body', reportProgress?: boolean): Observable<InterestArea>;
-    public getInterestArea(id: String, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestArea>>;
-    public getInterestArea(id: String, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestArea>>;
-    public getInterestArea(id: String, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    let headers = this.defaultHeaders;
 
-        if (id === null || id === undefined) {
-            throw new Error('Required parameter id was null or undefined when calling getInterestArea.');
-        }
-
-        let headers = this.defaultHeaders;
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            '*/*'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        return this.httpClient.request<InterestArea>('get',`${this.basePath}/v1/interestarea/${encodeURIComponent(String(id))}`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
     }
 
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<any>('delete',`${this.basePath}/v1/interestarea/${encodeURIComponent(String(id))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+  /**
+   *
+   *
+   * @param id
+   * @param token
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getInterestArea(id: string, token: string, observe?: 'body', reportProgress?: boolean): Observable<InterestArea>;
+  public getInterestArea(id: string, token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestArea>>;
+  public getInterestArea(id: string, token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestArea>>;
+  public getInterestArea(id: string, token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (id === null || id === undefined) {
+      throw new Error('Required parameter id was null or undefined when calling getInterestArea.');
+    }
+
+    if (token === null || token === undefined) {
+      throw new Error('Required parameter token was null or undefined when calling getInterestArea.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<InterestArea>('get',`${this.basePath}/v1/interestarea/${encodeURIComponent(String(id))}/${encodeURIComponent(String(token))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
     /**
      *
      *
@@ -246,51 +248,50 @@ export class InterestAreaService {
         );
     }
 
-    /**
-     *
-     *
-     * @param interestAreaId
-     * @param sensorType
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public getLatestSensorDataInInterestArea(interestAreaId: String, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: String, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: String, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
-    public getLatestSensorDataInInterestArea(interestAreaId: String, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+  /**
+   *
+   *
+   * @param interestAreaId
+   * @param token
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getLatestSensorDataInInterestArea(interestAreaId: string, token: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getLatestSensorDataInInterestArea(interestAreaId: string, token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getLatestSensorDataInInterestArea(interestAreaId: string, token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getLatestSensorDataInInterestArea(interestAreaId: string, token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
-        if (interestAreaId === null || interestAreaId === undefined) {
-            throw new Error('Required parameter interestAreaId was null or undefined when calling getLatestSensorDataInInterestArea.');
-        }
-
-
-        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-
-
-        let headers = this.defaultHeaders;
-
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            '*/*'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/${encodeURIComponent(String(interestAreaId))}/latest-sensor-data`,
-            {
-                params: queryParameters,
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
+    if (interestAreaId === null || interestAreaId === undefined) {
+      throw new Error('Required parameter interestAreaId was null or undefined when calling getLatestSensorDataInInterestArea.');
     }
+
+    if (token === null || token === undefined) {
+      throw new Error('Required parameter token was null or undefined when calling getLatestSensorDataInInterestArea.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/${encodeURIComponent(String(interestAreaId))}/latest-sensor-data/${encodeURIComponent(String(token))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
 
 }

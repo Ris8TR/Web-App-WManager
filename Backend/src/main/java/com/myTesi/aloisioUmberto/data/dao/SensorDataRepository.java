@@ -24,6 +24,9 @@ public interface SensorDataRepository extends MongoRepository<SensorData, String
 
     List<SensorData> findByTimestampBetweenAndPayloadType(Date from, Date to,String dataType);
 
+    List<SensorData> findAllBySensorId(String sensorId);
+
+    Optional<SensorData> findByIdAndSensorId( String id, String sensorId);
 
     Optional<SensorData> findTopByTimestampBetweenAndSensorId(Date date, Date date2, @NotNull String sensorId);
 }

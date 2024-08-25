@@ -58,7 +58,7 @@ export class SensorDataUploadComponent {
   }
 
   loadData() {
-    if (this.controllo()) {
+    //if (this.controllo()) {
       this.sensorDataService.saveSensorData(this.data , this.file).subscribe(
         response => {
           this.snackBar.open("Dato caricato e accettato!", 'OK');
@@ -71,6 +71,6 @@ export class SensorDataUploadComponent {
         }
       );
     }
-  }
+  //}
 
 }

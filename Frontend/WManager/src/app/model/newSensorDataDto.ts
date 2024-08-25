@@ -12,6 +12,7 @@
 
 export interface NewSensorDataDto {
   sensorId?: string;
+  Id?: string;
   timestamp?: Date;
   payloadType?: string;
   latitude?: number;
