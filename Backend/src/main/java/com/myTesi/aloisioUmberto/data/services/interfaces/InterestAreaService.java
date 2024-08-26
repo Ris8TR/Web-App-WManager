@@ -14,9 +14,9 @@ public interface InterestAreaService {
 
     InterestAreaDto save(NewInterestAreaDto newInterestAreaDto,MultipartFile file) throws IOException;
 
-    InterestArea getInterestArea(String id);
+    InterestArea getInterestArea(String id, String token);
 
-    List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId);
+    List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId, String token);
 
     List<InterestAreaDto> getInterestAreasByUserId(String userId);
 

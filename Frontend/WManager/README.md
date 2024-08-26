@@ -35,6 +35,7 @@ TODO:
   - visualizzazione degli shapefile
   - Sezione Admin
   - Quando l'utente invia i dati bisogna inserire i controlli del caso dentro sensorDataService
+  - aggiungere i controlli sul file di "sensor data". (cotrollare estensione e settare automaticamente il tipo di payload) + la dimensione masssima
 
 FATTO:
   - cambiare sensorID in userID all'interno dell'oggetto Sensor

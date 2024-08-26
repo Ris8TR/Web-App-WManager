@@ -58,7 +58,7 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public SensorDto saveDto(NewSensorDto newSensorDto) {
         Sensor sensor = new Sensor();
-        String userId = isValidToken(newSensorDto.getUserId());
+        String userId = isValidToken(newSensorDto.getToken());
         if (userId == null) {
             throw new IllegalArgumentException("Invalid user ID");
         }
@@ -86,9 +86,15 @@ public class SensorServiceImpl implements SensorService {
     }
 
     @Override
-    public Optional<SensorDto> findById(String id) {
+    public Optional<SensorDto> findById(String id, String token) {
+        String userId = isValidToken(token);
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+        Optional<User> user = userDao.findById(userId);
+        assert user.isPresent();
         Optional<Sensor> sensor = sensorRepository.findById(id);
-        if (sensor.isPresent()) {
+        if (sensor.isPresent() && sensor.get().getUserId().equals(userId)) {
             SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor.get());
             return Optional.ofNullable(sensorDto);
         }
@@ -96,8 +102,14 @@ public class SensorServiceImpl implements SensorService {
     }
 
     @Override
-    public List<SensorDto> findByCompanyName(String companyName) {
-        List<Sensor> sensors = sensorRepository.findAllByCompanyName(companyName);
+    public List<SensorDto> findByCompanyName(String companyName, String token) {
+        String userId = isValidToken(token);
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+        Optional<User> user = userDao.findById(userId);
+        assert user.isPresent();
+        List<Sensor> sensors = sensorRepository.findAllByCompanyNameAndUserId(companyName, userId);
 
         if (sensors == null || sensors.isEmpty()) {
             return Collections.emptyList();
@@ -107,6 +119,7 @@ public class SensorServiceImpl implements SensorService {
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());
     }
+
 
     @Override
     public List<SensorDto> getAllSensor() {
@@ -153,14 +166,16 @@ public class SensorServiceImpl implements SensorService {
                 Map<String, Object> data = objectMapper.readValue(file.getInputStream(), Map.class);
 
                 String companyName = Objects.requireNonNull(data.get("companyName")).toString();
-                String userId = Objects.requireNonNull(data.get("userId")).toString();
+                String token = Objects.requireNonNull(data.get("token")).toString();
                 String password = Objects.requireNonNull(data.get("password")).toString();
                 String interestAreaId = Objects.requireNonNull(data.get("interestAreaId")).toString();
                 String description = Objects.requireNonNull(data.get("description")).toString();
-
+                String userId = isValidToken(token);
+                if (userId == null) {
+                    throw new IllegalArgumentException("Invalid user ID");
+                }
                 Optional<User> user = userDao.findById(userId);
                 if (user.isPresent() && BCrypt.checkpw(password, user.get().getSensorPassword())) {
-
                     boolean exists = sensorRepository.existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(
                             companyName, userId, interestAreaId, description);
 
@@ -193,6 +208,41 @@ public class SensorServiceImpl implements SensorService {
         } else {
             throw new RuntimeException("The uploaded file is empty");
         }
+    }
+
+    @Override
+    public List<SensorDto> findByUserId(String token) {
+        String userId = isValidToken(token);
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+        System.out.println(userId);
+        List<Sensor> sensors = sensorRepository.findAllByUserId(userId);
+        if (sensors == null || sensors.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return sensors.stream()
+                .map(sensorMapper::sensorToSensorDto)
+                .collect(Collectors.toList());    }
+
+    @Override
+    public List<SensorDto> findByInterestAreaId(String interestAreaId, String token) {
+        String userId = isValidToken(token);
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+        Optional<User> user = userDao.findById(userId);
+        assert user.isPresent();
+        List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
+
+        if (sensors == null || sensors.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return sensors.stream()
+                .map(sensorMapper::sensorToSensorDto)
+                .collect(Collectors.toList());
     }
 
 }

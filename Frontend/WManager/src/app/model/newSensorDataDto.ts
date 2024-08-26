@@ -12,12 +12,14 @@
 
 export interface NewSensorDataDto {
   sensorId?: string;
+  Id?: string;
   timestamp?: Date;
   payloadType?: string;
   latitude?: number;
   longitude?: number;
   payload?: any;
   userId?: string;
+  token?: string;
   interestAreaId?: string;
   sensorPassword: string;
 }

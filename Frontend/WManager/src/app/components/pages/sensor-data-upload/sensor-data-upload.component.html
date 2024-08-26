@@ -35,7 +35,7 @@
 
           <div style="display: flex">
 
-          <button type="submit" style="margin-top: 10%" [disabled]="!formValido()">Carica dato</button>
+          <button type="submit" style="margin-top: 10%" (click)="loadData()" [disabled]="!formValido()">Carica dato</button>
           </div>
         </form>
 

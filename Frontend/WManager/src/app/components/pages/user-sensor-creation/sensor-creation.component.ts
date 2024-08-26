@@ -42,7 +42,7 @@ export class SensorCreationComponent implements  OnInit{
     companyName: "",
     password: "",
     description: "",
-    userId: this.cookieService.get("token"),
+    token: this.cookieService.get("token"),
     interestAreaId: "",
   };
 

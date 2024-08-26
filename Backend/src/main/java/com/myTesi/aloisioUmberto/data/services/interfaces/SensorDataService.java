@@ -28,11 +28,11 @@ public interface SensorDataService  {
     SensorDataDto getSensorDataById(Object id);
 
     // Metodo per aggiornare un dato esistente nel database
-    SensorData update(SensorData newSensorData);
+    SensorData update(NewSensorDataDto newSensorData);
 
     public String getProcessedSensorData(String type);
     // Metodo per eliminare un dato dal database
-    void delete(Object id);
+    void delete(String token, String id);
 
-    public SensorData saveSensorData(SensorData sensorData);
+    public SensorData saveSensorData(NewSensorDataDto newSensorDataDto);
 }

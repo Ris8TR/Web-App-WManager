@@ -21,7 +21,7 @@ export class UserSendDataComponent {
   file!: File;
   data: NewSensorDataDto = {
     payloadType: "",
-    userId: this.cookieService.get("Token"),
+    token: this.cookieService.get("token"),
     latitude: 0,
     longitude: 0,
     payload: {},
@@ -64,7 +64,7 @@ export class UserSendDataComponent {
   }
 
   loadData() {
-    if (this.controllo()) {
+    //if (this.controllo()) {
       this.sensorDataService.saveSensorData(this.data, this.file).subscribe(
         response => {
           this.snackBar.open("Dato caricato e accettato!", 'OK');
@@ -77,5 +77,5 @@ export class UserSendDataComponent {
         }
       );
     }
-  }
+  //}
 }

@@ -113,8 +113,10 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
     @Override
-    public InterestArea getInterestArea(String id) {
-        return interestAreaRepository.findById(id.toString())
+    public InterestArea getInterestArea(String id, String token) {
+        String userId = isValidToken(token);
+        assert userId != null;
+        return interestAreaRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new RuntimeException("Interest Area not found. id: " + id));
     }
 
@@ -142,8 +144,8 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         interestAreaRepository.deleteById(id.toString());
     }
 
-    public List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId) {
-        InterestArea interestArea = getInterestArea(interestAreaId);
+    public List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId, String token) {
+        InterestArea interestArea = getInterestArea(interestAreaId, token);
         List<SensorData> sensors = sensorDataRepository.findAllByPayloadType(interestArea.getType());
 
         Date tenMinutesAgo = Date.from(Instant.now().minusSeconds(600));
@@ -159,6 +161,10 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
     public byte[] readShapefileData(ShapefileDataStore shapefileDataStore) throws IOException {
+        return getBytes(shapefileDataStore);
+    }
+
+    public static byte[] getBytes(ShapefileDataStore shapefileDataStore) throws IOException {
         shapefileDataStore.setCharset(StandardCharsets.UTF_8);
         SimpleFeatureCollection featureCollection = shapefileDataStore.getFeatureSource().getFeatures();
 

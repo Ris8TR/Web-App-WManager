@@ -36,9 +36,9 @@ public class InterestAreaController {
     }
 
 
-    @GetMapping("/{interestAreaId}/latest-sensor-data")
-    public ResponseEntity<List<SensorDataDto>> getLatestSensorDataInInterestArea(@PathVariable String interestAreaId) {
-        List<SensorDataDto> sensorDataList = interestAreaService.getLatestSensorDataInInterestArea(interestAreaId);
+    @GetMapping("/{interestAreaId}/latest-sensor-data/{token}")
+    public ResponseEntity<List<SensorDataDto>> getLatestSensorDataInInterestArea(@PathVariable String interestAreaId, @PathVariable String token) {
+        List<SensorDataDto> sensorDataList = interestAreaService.getLatestSensorDataInInterestArea(interestAreaId, token);
         if (sensorDataList != null && !sensorDataList.isEmpty()) {
             return ResponseEntity.ok(sensorDataList);
         } else {
@@ -47,10 +47,10 @@ public class InterestAreaController {
     }
 
 
-    @GetMapping("/interestarea/{id}")
-    public ResponseEntity<InterestArea> getInterestArea(@PathVariable String id) {
+    @GetMapping("/interestarea/{id}/{token}")
+    public ResponseEntity<InterestArea> getInterestArea(@PathVariable String id, @PathVariable String token) {
         //TODO ADD TOKEN CHECK
-        return ResponseEntity.ok(interestAreaService.getInterestArea(id));
+        return ResponseEntity.ok(interestAreaService.getInterestArea(id, token));
     }
 
     @GetMapping("/interestarea")
