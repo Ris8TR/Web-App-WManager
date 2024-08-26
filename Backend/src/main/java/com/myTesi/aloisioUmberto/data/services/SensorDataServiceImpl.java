@@ -21,6 +21,7 @@ import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -54,6 +55,8 @@ public class SensorDataServiceImpl implements SensorDataService {
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
     private InterestAreaRepository interestAreaRepository;
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Autowired
     public void SensorDataService(RedisTemplate<String, Object> redisTemplate,
@@ -229,12 +232,17 @@ public class SensorDataServiceImpl implements SensorDataService {
         calendar.add(Calendar.MINUTE, -10);
         Date tenMinutesAgo = calendar.getTime();
 
-        List<SensorDataDto> sensorDataList = sensorDataRepository.findByTimestampBetweenAndPayloadType(tenMinutesAgo, now, type).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
+        List<SensorDataDto> sensorDataList = sensorDataRepository
+                .findByTimestampBetweenAndPayloadType(tenMinutesAgo, now, type)
+                .stream()
+                .map(sensorData -> modelMapper.map(sensorData, SensorDataDto.class)) // Correzione qui
                 .collect(Collectors.toList());
+
+        System.out.println(sensorDataList);
 
         return sensorDataList;
     }
+
 
 
     @Override

@@ -91,9 +91,11 @@ export class WebcamComponent {
         console.log(sensorDataDtos);
 
         sensorDataDtos.forEach((sensorDto: SensorDataDto) => {
+          console.log(sensorDataDtos)
           const latitude = sensorDto.latitude!;
           const longitude = sensorDto.longitude!;
-          const image = "http://192.168.15.34:8010/v1/images/"+ sensorDto.userId + "/" +sensorDto.payload;
+          const image = "http://192.168.15.34:8010/v1/images/"+ sensorDto.sensorId + "/" +sensorDto.payload;
+          console.log("http://192.168.15.34:8010/v1/images/"+ sensorDto.sensorId + "/" +sensorDto.payload)
 
           // Correcting the template string
           const key = `<span class="math-inline">{${latitude}},${longitude}</span><img src="${image}">`;

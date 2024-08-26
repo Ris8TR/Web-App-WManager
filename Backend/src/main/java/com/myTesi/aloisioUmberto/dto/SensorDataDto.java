@@ -13,6 +13,7 @@ import java.util.Date;
 public class SensorDataDto {
     private String id;
     private String userId;
+    private String sensorId;
     private String dataType;
     private LocalDateTime date;
     private Date timestamp;
