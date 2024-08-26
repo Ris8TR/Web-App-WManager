@@ -48,10 +48,13 @@ FATTO:
   - Il Sensor può essere registrato nel sistema tramite:
     - l'interfaccia grafica (manca solo il tasto. Il componente sta a /create-sensor)
     - una richiesta di registrazione tramite json
+  - Pagina Utente
+  
 
 TODO UI:
-
-  - Pagina Utente
+  - ColorBar associato all'oggetto Sensor
+  - ColorBar colore in #00000 con un minimo e massimo -  (key) range(min,max) --> (value) colore
+  
   - Pagina dell'aree di interesse dell'utente
   - Pagine Area d'interesse 
 
