@@ -226,5 +226,24 @@ public class SensorServiceImpl implements SensorService {
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());    }
 
+    @Override
+    public List<SensorDto> findByInterestAreaId(String interestAreaId, String token) {
+        String userId = isValidToken(token);
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+        Optional<User> user = userDao.findById(userId);
+        assert user.isPresent();
+        List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
+
+        if (sensors == null || sensors.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return sensors.stream()
+                .map(sensorMapper::sensorToSensorDto)
+                .collect(Collectors.toList());
+    }
+
 }
 

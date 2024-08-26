@@ -19,4 +19,6 @@ public interface SensorService {
     SensorDto save(MultipartFile file) throws IOException;
 
     List<SensorDto> findByUserId(String token);
+
+    List<SensorDto> findByInterestAreaId(String interestAreaId, String token);
 }
