@@ -28,7 +28,8 @@ public class Sensor {
         @NotNull
         @Field
         private String password;
-        private String interestAreaID; // Area di interesse dell'utente
+        private String interestAreaID;
+        private String colorBarId;
 
 
 }

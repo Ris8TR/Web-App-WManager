@@ -6,9 +6,12 @@ import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorMapper;
+import com.myTesi.aloisioUmberto.data.dao.ColorBarRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
+import com.myTesi.aloisioUmberto.data.entities.Bar.ColorBar;
+import com.myTesi.aloisioUmberto.data.entities.Bar.ColorRange;
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
@@ -40,6 +43,7 @@ public class SensorServiceImpl implements SensorService {
 
     @Autowired
     private final SensorRepository sensorRepository;
+    private final ColorBarRepository colorBarRepository;
     private final SensorDataRepository sensorDataRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userDao;
@@ -69,8 +73,25 @@ public class SensorServiceImpl implements SensorService {
             sensor.setUserId(String.valueOf(user.get().getId()));
             sensor.setCompanyName(newSensorDto.getCompanyName());
             sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
+            ColorBar colorBar = new ColorBar();
+            colorBar.setUserId(newSensorDto.getUserId());
+            colorBar.setName("ColorBar"+newSensorDto.getUserId());
+
+            //TODO TEST
+            List<ColorRange> ranges = new ArrayList<>();
+            ranges.add(new ColorRange(0, 10, "#FF0000"));
+            ranges.add(new ColorRange(11, 20, "#00FF00"));
+            ranges.add(new ColorRange(21, 30, "#0000FF"));
+
+            colorBar.setColorRanges(ranges);
+            //colorBar.setColorRanges(newSensorDto.getRanges());
+            colorBarRepository.save(colorBar);
+
             try {
+                sensor.setColorBarId(String.valueOf(colorBar.getId()));
                 sensorRepository.save(sensor);
+                colorBar.addSensor(String.valueOf(sensor.getId()));
+                colorBarRepository.save(colorBar);
                 SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor);
                 sensorDto.setId(sensor.getId().toString());
                 sensorDto.setDescription(sensor.getDescription());
