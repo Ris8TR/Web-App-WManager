@@ -29,7 +29,7 @@ export const routes: Routes = [
     {path: 'home',title:"Home", component: ForecastComponent},
     {path: 'ground-stations',title:"Graunded Stations", component: MapComponent},
     {path: 'login',title:"login", component: LoginComponent},
-    {path: 'signin',title:"signin", component: SigninComponent},
+    {path: 'signing',title:"signing", component: SigninComponent},
     {path: 'user',title:"user", component: UserComponent},
     {path: 'userData',title:"user", component: UserdataComponent},
     {path: 'userModify',title:"user", component: UsermodifyComponent},
