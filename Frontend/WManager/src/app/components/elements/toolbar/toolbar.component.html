@@ -38,7 +38,7 @@
             </div>
           </li>
           <li  class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="">Forecast</a></li>
-          <li  class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" href="">Interest Areas</a></li>
+          <li  class="nav-item mx-0 mx-lg-1"><a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="redirectToInterestAreaViewer()">Interest Areas</a></li>
         </ul>
         <ul class="navbar-nav ms-auto">
           <button *ngIf="logStringResult !== 'Login'" type="button" class="btn btn-light " style="margin-right: 10px;"  (click)="redirectToUser()">{{ logStringResult }}</button>

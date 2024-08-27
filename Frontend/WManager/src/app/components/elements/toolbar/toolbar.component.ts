@@ -116,4 +116,8 @@ redirectToInterestArea(id: string) {
     }
 
   }
+
+  redirectToInterestAreaViewer() {
+    this.router.navigate(["/interestAreaViewer"]);
+  }
 }
