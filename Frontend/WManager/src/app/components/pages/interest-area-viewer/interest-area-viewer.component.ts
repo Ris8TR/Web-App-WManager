@@ -1,29 +1,38 @@
 import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import * as L from 'leaflet';
 import {SensorDataService} from "../../../service/sensorData.service";
+import {NgIf} from "@angular/common";
+import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+
 
 @Component({
   selector: 'app-interest-area-viewer',
   standalone: true,
-  imports: [],
+  imports: [
+    NgIf,
+    ToolbarComponent
+  ],
   templateUrl: './interest-area-viewer.component.html',
   styleUrl: './interest-area-viewer.component.css'
 })
 export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
 
   private map: L.Map | undefined;
+
   public sensorType: string = 'CO2'; // Default sensor type
   private layerGroup: L.LayerGroup | undefined;
+  logStringResult: string = "Login";
   private cachedData: Map<string, any> = new Map(); // Cache for sensor data
 
-  constructor(private sensorDataService: SensorDataService) {}
+  constructor(private sensorDataService: SensorDataService,
+              public toolbarComponent: ToolbarComponent) {}
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initializeMap();
       this.layerGroup = L.layerGroup().addTo(this.map!);
       this.loadSensorData();
-
+      this.logStringResult = this.toolbarComponent.logStringResult
     }, 10);
   }
 

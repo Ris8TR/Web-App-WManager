@@ -8,7 +8,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { CommonModule } from '@angular/common';
 import { MatButton } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
-import {MatButtonModule} from '@angular/material/button';
+import { MatButtonModule} from '@angular/material/button';
 import { InterestAreaService } from '../../../service/interestArea.service';
 import { InterestAreaDto } from '../../../model/interestAreaDto';
 

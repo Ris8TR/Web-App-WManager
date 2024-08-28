@@ -20,6 +20,7 @@ import {UserComponent} from "./components/pages/userMenu/user.component";
 import {UserdataComponent} from "./components/pages/userdata/userdata.component";
 import {UsermodifyComponent} from "./components/pages/usermodify/usermodify.component";
 import {UserSendDataComponent} from "./components/pages/user-send-data/user-send-data.component";
+import {InterestAreaViewerComponent} from "./components/pages/interest-area-viewer/interest-area-viewer.component";
 
 
 
@@ -39,6 +40,7 @@ export const routes: Routes = [
     {path: 'webcam', title: "Webcam 'LIVE' ", component: WebcamComponent },
     {path: 'create-area', title: "Create new area' ", component: InterestAreaCreationComponent },
     {path: 'userCreateSensor', title: "Create new sensor' ", component: SensorCreationComponent },
+    {path: 'interestAreaViewer', title: "", component: InterestAreaViewerComponent },
 
     {path: 'reset/:token', title: "Password reset", component: ResetComponent },
 
