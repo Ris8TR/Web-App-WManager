@@ -1,0 +1,12 @@
+
+
+
+server:
+
+  ssl:
+    #Si occupa di mettere HTTPS
+    key-alias: wm
+    key-store: classpath:keystore.jks
+    key-store-type: JKS
+    key-password: DeRango
+    key-store-password: DeRango

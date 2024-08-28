@@ -37,6 +37,7 @@
 }
 
 label {
+  color: black;
   display: block;
   margin-bottom: 5px;
 }
@@ -46,7 +47,7 @@ input[type="number"],
 textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid ;
   border-radius: 3px;
 }
 
@@ -58,7 +59,6 @@ textarea.fixed-height-textarea {
 
 button[type="submit"] {
   background-color: darkred;
-  color: #fff;
   border: none;
   padding: 10px 20px;
   border-radius: 3px;
