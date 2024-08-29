@@ -57,6 +57,11 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBy10MinByType(type));
     }
 
+    @GetMapping("/SensorData/last5m-by-id/{sensorId}")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBy5MinAndType(@PathVariable String sensorId) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBy5Min(sensorId));
+    }
+
     @GetMapping("/SensorData/{id}")
     public ResponseEntity<SensorDataDto> getSensorDataById(@PathVariable String id) {
         return ResponseEntity.ok(sensorDataService.getSensorDataById(id));

@@ -201,6 +201,19 @@ public class SensorDataServiceImpl implements SensorDataService {
                 .collect(Collectors.toList());
     }
 
+    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
+    public List<SensorDataDto> getAllSensorDataBy5Min(String sensorId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -5);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
     /*
     public List<SensorDataDto> getAllSensorDataBy10MinByType(String type) {
         String cacheKey = "SensorData:" + type;

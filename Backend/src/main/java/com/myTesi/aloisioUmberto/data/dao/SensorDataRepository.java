@@ -14,9 +14,9 @@ import java.util.Optional;
 @Repository
 public interface SensorDataRepository extends MongoRepository<SensorData, String> {
 
-
-
     List<SensorData> findAllByPayloadType(String type);
+
+    List<SensorData> findAllBySensorIdAndTimestampBetween(String sensorId, Date from, Date to);
 
     Optional<SensorData> findTopByPayloadTypeAndTimestampAfterOrderByTimestampDesc(String dataType, Date timestamp);
 

@@ -67,6 +67,8 @@ public class SensorServiceImpl implements SensorService {
             throw new IllegalArgumentException("Invalid user ID");
         }
         Optional<User> user = userDao.findById(userId);
+        System.out.println(newSensorDto);
+        System.out.println(user);
         if (BCrypt.checkpw(newSensorDto.getPassword(), user.get().getSensorPassword())) {
             sensor.setPassword(BCrypt.hashpw(newSensorDto.getPassword(), BCrypt.gensalt(10)));
             sensor.setDescription(newSensorDto.getDescription());
