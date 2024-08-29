@@ -25,6 +25,7 @@ import { ServiceError } from '../model/serviceError';
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
 import { V1SensorDataBody } from '../model/v1SensorDataBody';
+import {DateDto} from "../model/dateDto";
 
 
 @Injectable()
@@ -104,10 +105,46 @@ export class SensorDataService {
     );
   }
 
-  getProcessedSensorData(type: string): Observable<any> {
-    return this.httpClient.get<any>(`${this.basePath}/v1/SensorData/processed/${type}`);
-  }
+  /**
+   *
+   *
+   * @param type
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getProcessedSensorData(type: string, observe?: 'body', reportProgress?: boolean): Observable<string>;
+  public getProcessedSensorData(type: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<string>>;
+  public getProcessedSensorData(type: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<string>>;
+  public getProcessedSensorData(type: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
+    if (type === null || type === undefined) {
+      throw new Error('Required parameter type was null or undefined when calling getProcessedSensorData.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<string>('get',`${this.basePath}/v1/SensorData/processed/${encodeURIComponent(String(type))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
 
   /**
    *
@@ -357,6 +394,179 @@ export class SensorDataService {
     return this.httpClient.request<SensorData>('post', `${this.basePath}/v1/SaveSensorData`,
       {
         body: convertFormParamsToString ? formParams.toString() : formParams,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+
+
+
+  /**
+   *
+   *
+   * @param sensorId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataBySensor10Min(sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataBySensor10Min(sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensor10Min(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensor10Min(sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (sensorId === null || sensorId === undefined) {
+      throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensor10Min.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last10m-by-sensorId/${encodeURIComponent(String(sensorId))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param sensorId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataBySensor15Min(sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataBySensor15Min(sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensor15Min(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensor15Min(sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (sensorId === null || sensorId === undefined) {
+      throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensor15Min.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last15m-by-sensorId/${encodeURIComponent(String(sensorId))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param sensorId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataBySensor5Min(sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataBySensor5Min(sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensor5Min(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensor5Min(sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (sensorId === null || sensorId === undefined) {
+      throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensor5Min.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last5m-by-sensorId/${encodeURIComponent(String(sensorId))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param date
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataBySensorBetweenDate(date: DateDto, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataBySensorBetweenDate(date: DateDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensorBetweenDate(date: DateDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensorBetweenDate(date: DateDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (date === null || date === undefined) {
+      throw new Error('Required parameter date was null or undefined when calling getAllSensorDataBySensorBetweenDate.');
+    }
+
+    let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+    if (date !== undefined && date !== null) {
+      queryParameters = queryParameters.set('date', <any>date);
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/date`,
+      {
+        params: queryParameters,
         withCredentials: this.configuration.withCredentials,
         headers: headers,
         observe: observe,

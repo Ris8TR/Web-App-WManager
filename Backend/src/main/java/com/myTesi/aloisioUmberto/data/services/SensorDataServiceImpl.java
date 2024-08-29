@@ -17,6 +17,7 @@ import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.*;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
+import com.myTesi.aloisioUmberto.dto.DateDto;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
@@ -143,6 +144,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         return data;
     }
 
+
     // Metodo di utilità per interpretare i valori come numeri o stringhe
     private Object parseValue(String value) {
         try {
@@ -174,12 +176,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         };
     }
 
-    @Override
-    public List<SensorDataDto> getAllSensorData() {
-        return sensorDataRepository.findAll().stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
+
 
     //TODO Serve?!
     public List<SensorDataDto> getAllSensorDataByNow() {
@@ -189,11 +186,12 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
-    public List<SensorDataDto> getAllSensorDataBy10Min() {
+    public List<SensorDataDto> getAllSensorDataIn5Min() {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
+
         calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -10);
+        calendar.add(Calendar.MINUTE, -5);
         Date tenMinutesAgo = calendar.getTime();
 
         return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
@@ -202,11 +200,35 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
-    public List<SensorDataDto> getAllSensorDataBy5Min(String sensorId) {
+    public List<SensorDataDto> getAllSensorDataBySensorId5Min(String sensorId) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);
         calendar.add(Calendar.MINUTE, -5);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<SensorDataDto> getAllSensorDataBySensorId10Min(String sensorId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<SensorDataDto> getAllSensorDataBySensorId15Min(String sensorId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -15);
         Date fiveMinutesAgo = calendar.getTime();
 
         return sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now).stream()
@@ -238,22 +260,11 @@ public class SensorDataServiceImpl implements SensorDataService {
 
      */
 
-    public List<SensorDataDto> getAllSensorDataBy10MinByType(String type) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -10);
-        Date tenMinutesAgo = calendar.getTime();
-
-        List<SensorDataDto> sensorDataList = sensorDataRepository
-                .findByTimestampBetweenAndPayloadType(tenMinutesAgo, now, type)
-                .stream()
-                .map(sensorData -> modelMapper.map(sensorData, SensorDataDto.class)) // Correzione qui
+    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
+    public List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
+        return sensorDataRepository.findAllBySensorIdAndTimestampBetween(dateDto.getSensorId(), dateDto.getForm(), dateDto.getTo()).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
                 .collect(Collectors.toList());
-
-        System.out.println(sensorDataList);
-
-        return sensorDataList;
     }
 
 

@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface SensorRepository extends MongoRepository<Sensor, String> {
     List<Sensor> findAllByCompanyNameAndUserId(@NotNull String companyName, String userId);
     List<Sensor> findAllByUserId(String userId);
+    List<Sensor> findAllByUserIdAndType(String userId, String type);
     List<Sensor> findAllByInterestAreaIDAndUserId(String InterestAreaId, String userId);
     boolean existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(String companyName, String userId, String interestAreaID , String description);
     List<Sensor> findAllByIdAndUserId(ObjectId id, String userId);

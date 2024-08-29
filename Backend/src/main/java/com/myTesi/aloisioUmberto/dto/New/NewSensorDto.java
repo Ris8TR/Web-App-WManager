@@ -19,6 +19,7 @@ public class NewSensorDto{
     private String description;
     private String userId;
     private String token;
+    private String type;
     private String interestAreaId;
     List<ColorRange> ranges;
 

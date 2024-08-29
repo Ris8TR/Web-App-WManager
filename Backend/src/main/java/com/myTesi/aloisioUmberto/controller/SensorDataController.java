@@ -1,6 +1,7 @@
 package com.myTesi.aloisioUmberto.controller;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
+import com.myTesi.aloisioUmberto.dto.DateDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,24 +43,29 @@ public class SensorDataController {
 
     }
 
-    @GetMapping("/SensorData/get-all")
+    @GetMapping("/SensorData/get-latest")
     public ResponseEntity<List<SensorDataDto>> getAllSensorData() {
-        return ResponseEntity.ok(sensorDataService.getAllSensorData());
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn5Min());
     }
 
-    @GetMapping("/SensorData/latest")
-    public ResponseEntity<List<SensorDataDto>> getAllSensorBy10Min() {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataBy10Min());
+    @GetMapping("/SensorData/last5m-by-sensorId/{sensorId}")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensor5Min(@PathVariable String sensorId) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId5Min(sensorId));
     }
 
-    @GetMapping("/SensorData/latest-by-type/{type}")
-    public ResponseEntity<List<SensorDataDto>> getAllSensorBy10MinByType(@PathVariable String type) {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataBy10MinByType(type));
+    @GetMapping("/SensorData/last10m-by-sensorId/{sensorId}")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensor10Min(@PathVariable String sensorId) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId10Min(sensorId));
     }
 
-    @GetMapping("/SensorData/last5m-by-id/{sensorId}")
-    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBy5MinAndType(@PathVariable String sensorId) {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataBy5Min(sensorId));
+    @GetMapping("/SensorData/last15m-by-sensorId/{sensorId}")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensor15Min(@PathVariable String sensorId) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId15Min(sensorId));
+    }
+
+    @GetMapping("/SensorData/date")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensorBetweenDate(@RequestBody DateDto date) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorBetweenDate(date));
     }
 
     @GetMapping("/SensorData/{id}")

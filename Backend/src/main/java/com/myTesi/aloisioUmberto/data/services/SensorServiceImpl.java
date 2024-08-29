@@ -250,6 +250,23 @@ public class SensorServiceImpl implements SensorService {
                 .collect(Collectors.toList());    }
 
     @Override
+    public List<SensorDto> findByTypeAndUser(String type, String token) {
+        String userId = isValidToken(token);
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+        System.out.println(userId);
+        List<Sensor> sensors = sensorRepository.findAllByUserIdAndType(userId, type);
+        if (sensors == null || sensors.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return sensors.stream()
+                .map(sensorMapper::sensorToSensorDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<SensorDto> findByInterestAreaId(String interestAreaId, String token) {
         String userId = isValidToken(token);
         if (userId == null) {

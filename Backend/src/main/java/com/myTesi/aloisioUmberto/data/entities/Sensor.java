@@ -25,6 +25,7 @@ public class Sensor {
         private String companyName;
         private String userId;
         private String description;
+        private String type;
         @NotNull
         @Field
         private String password;

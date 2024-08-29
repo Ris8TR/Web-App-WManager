@@ -20,5 +20,7 @@ public interface SensorService {
 
     List<SensorDto> findByUserId(String token);
 
+    List<SensorDto> findByTypeAndUser(String type, String token);
+
     List<SensorDto> findByInterestAreaId(String interestAreaId, String token);
 }

@@ -47,7 +47,6 @@ public class SensorController {
     }
 
 
-
     @GetMapping("/sensors/company/{companyName}/{token}")
     public ResponseEntity <List<SensorDto>> findByCompanyName(@PathVariable @Valid String companyName,  @PathVariable @Valid String token) {
         return ResponseEntity.ok(sensorService.findByCompanyName(companyName, token));
@@ -62,6 +61,11 @@ public class SensorController {
     @GetMapping("/sensors/{id}")
     public ResponseEntity <Optional<SensorDto>> findById(@PathVariable @Valid String id,  @PathVariable @Valid String token) {
         return ResponseEntity.ok(sensorService.findById(id, token));
+    }
+
+    @GetMapping("/sensors/type/{type}/{token}")
+    public ResponseEntity <List<SensorDto>> findByTypeAndUserId(@PathVariable String type, String token) {
+        return ResponseEntity.ok(sensorService.findByTypeAndUser(type, token));
     }
 
     @GetMapping("/sensors/user/{token}")
