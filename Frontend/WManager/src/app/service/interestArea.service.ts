@@ -164,7 +164,7 @@ export class InterestAreaService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
-  public getInterestArea(id: string, token: string, observe?: 'body', reportProgress?: boolean): Observable<InterestArea>;
+  public getInterestArea(id: string | undefined, token: string, observe?: 'body', reportProgress?: boolean): Observable<InterestArea>;
   public getInterestArea(id: string, token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestArea>>;
   public getInterestArea(id: string, token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestArea>>;
   public getInterestArea(id: string, token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {

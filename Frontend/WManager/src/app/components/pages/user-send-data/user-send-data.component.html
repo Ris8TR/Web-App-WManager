@@ -18,14 +18,22 @@
               </div>
               <div data-mdb-input-init class="form-outline mb-4">
                 <label class="form-label"  style="color: black">DataType*:</label>
-                <input type="email" id="dataType" class="form-control form-control-lg"
-                       placeholder="Name:" name="dataType" [(ngModel)]="data.payloadType" />
+<!--                <select class="form-select" aria-label="Data Type">-->
+<!--                  <option>Json</option>-->
+<!--                </select>-->
+                <input type="text" id="dataType" class="form-control form-control-lg"
+                       placeholder="json" name="dataType" [(ngModel)]="data.payloadType" />
               </div>
+
+
 
               <div data-mdb-input-init class="form-outline mb-4">
                 <label class="form-label"  style="color: black">Sensor Id*:</label>
-                <input type="email" id="sensorId" class="form-control form-control-lg"
-                       placeholder="Name:" name="dataType" [(ngModel)]="data.sensorId" />
+                <select name="selectedId" [(ngModel)]="selectedId" class="form-select" aria-label="Select Endpoint" (change)="onSelected(selectedId)">
+                  <option  *ngFor="let area of endPointsInfo" [value]="area.id" >{{area.description}} - {{area.companyName}}</option>
+                </select>
+<!--                <input type="email" id="sensorId" class="form-control form-control-lg"-->
+<!--                       placeholder="Name:" name="dataType" [(ngModel)]="data.sensorId" />-->
               </div>
 
               <div data-mdb-input-init class="form-outline mb-4">

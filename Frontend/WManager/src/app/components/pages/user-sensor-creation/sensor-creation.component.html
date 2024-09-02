@@ -23,15 +23,15 @@
           </div>
 
           <div class="full-width">
-            <label>Seleziona Area di Interesse*</label>
+            <label style="color: black">Seleziona Area di Interesse*</label>
             <mat-radio-group  [(ngModel)]="data.interestAreaId" name="interestArea" required>
               <mat-radio-button  *ngFor="let area of interestAreaNames" [value]="area.id" class="white-text">
-                <div style="color: white">{{ area.name }}</div>
+                <div>{{ area.name }}</div>
               </mat-radio-button>
             </mat-radio-group>
           </div>
           <button type="submit" type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
-                  style="padding-left: 2.5rem; padding-right: 2.5rem;" [disabled]="!controllo()">Carica dato</button>
+                  style="padding-left: 2.5rem; padding-right: 2.5rem;" [disabled]="!controllo()" (click)="loadData()">Carica dato</button>
         </form>
       </div>
     </div>
