@@ -13,6 +13,7 @@ import {SensorDto} from "../../../model/sensorDto";
 import {InterestArea} from "../../../model/interestArea";
 import {MatRadioButton} from "@angular/material/radio";
 import {NgForOf} from "@angular/common";
+import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
 
 
 @Component({
@@ -55,8 +56,10 @@ export class UserSendDataComponent implements  OnInit{
     private interestedAreaService: InterestAreaService,
     private snackBar: MatSnackBar,
     private cookieService: CookieService,
+    private toolbar: ToolbarComponent,
     private router: Router
   ) {
+    this.toolbar.refreshToken()
     if (!this.cookieService.get("token")) {
       //console.log("no log in ", this.cookieService.get("token"));
       this.router.navigate(['/']);

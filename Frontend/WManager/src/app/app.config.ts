@@ -9,8 +9,9 @@ import { UserService } from './service/user.service';
 import { InterestAreaService } from './service/interestArea.service';
 import { SensorDataService } from './service/sensorData.service';
 import {SensorService} from "./service/sensor.service";
+import {ToolbarComponent} from "./components/elements/toolbar/toolbar.component";
 
 //TODO QUI VANNO I SERVICES ORA
 export const appConfig: ApplicationConfig = {
-  providers: [provideAnimationsAsync(),provideRouter(routes),FormsModule,AuthService,UserService, InterestAreaService,SensorDataService, SensorService,provideHttpClient()]
+  providers: [provideAnimationsAsync(),provideRouter(routes),FormsModule,AuthService,UserService, InterestAreaService,SensorDataService, ToolbarComponent, SensorService,provideHttpClient()]
 };

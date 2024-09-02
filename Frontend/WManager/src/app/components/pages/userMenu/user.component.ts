@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
 
 @Component({
   selector: 'app-user',
@@ -8,10 +9,16 @@ import { Router, RouterLink, RouterOutlet } from '@angular/router';
   templateUrl: './user.component.html',
   styleUrl: './user.component.css'
 })
-export class UserComponent {
-  constructor(private router: Router) {
+export class UserComponent implements OnInit{
+  constructor(private router: Router,     private toolbar: ToolbarComponent) {
 
   }
+
+
+  ngOnInit(): void {
+    this.toolbar.refreshToken()
+  }
+
 
   toggleSidebar() {
     document.getElementById('wrapper')?.classList.toggle('toggled');

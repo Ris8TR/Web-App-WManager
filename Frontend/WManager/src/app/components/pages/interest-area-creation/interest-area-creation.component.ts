@@ -26,7 +26,7 @@ import {resetParseTemplateAsSourceFileForTest} from "@angular/compiler-cli/src/n
 export class InterestAreaCreationComponent {
 
   file!: File;
-  data: NewInterestAreaDto = {name: "",  description:"", type:"",   token: this.cookieService.get("token")};
+  data: NewInterestAreaDto = {name: "",  description:"", type:"",   };
 
   constructor(
     private interestAreaService: InterestAreaService,
@@ -56,7 +56,7 @@ export class InterestAreaCreationComponent {
 
   loadData() {
     if (this.controllo()) {
-      console.log(this.data)
+      this.toolbar.refreshToken().then(r => this.data.token = this.cookieService.get("token"))
       this.interestAreaService.createInterestAreaForm(this.data, this.file).subscribe(
         response => {
           this.snackBar.open("Area caricata e accettata!", 'OK');

@@ -11,6 +11,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatButtonModule} from '@angular/material/button';
 import { InterestAreaService } from '../../../service/interestArea.service';
 import { InterestAreaDto } from '../../../model/interestAreaDto';
+import {AuthService} from "../../../service/auth.service";
+import * as jwt_decode from 'jwt-decode';
+import {jwtDecode} from "jwt-decode";
+
 
 
 @Component({
@@ -34,7 +38,9 @@ export class ToolbarComponent {
   constructor(private cookieService: CookieService,
     private router: Router,
     private interestAreaService: InterestAreaService,
-    iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
+              private authService: AuthService,
+
+              iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
     iconRegistry.addSvgIconSet(
       domSanitizer.bypassSecurityTrustResourceUrl('./assets/mdi.svg')
     );
@@ -44,6 +50,36 @@ export class ToolbarComponent {
     this.checkUserCookie();
     if (this.logStringResult != "Login")
       this.loadInterestAreas();
+  }
+
+  async refreshToken(): Promise<void> {
+    const refreshToken = this.cookieService.get("refreshToken");
+    const token = this.cookieService.get("token");
+
+    if (token && !this.isTokenExpired(token)) {
+      // Il token non è scaduto, non è necessario rinfrescarlo
+      return;
+    }
+
+    try {
+      const tokenDto = await this.authService.refreshToken(refreshToken).toPromise();
+      this.cookieService.set("token", tokenDto?.token!);
+      this.cookieService.set("refreshToken", tokenDto?.refreshToken!);
+    } catch (error) {
+      throw new Error("Error refreshing token");
+    }
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decodedToken: any = jwtDecode(token);
+      const currentTime = Math.floor(Date.now() / 1000); // Ottieni il tempo attuale in secondi
+
+      return decodedToken.exp < currentTime;
+    } catch (error) {
+      // Se c'è un errore nel decodificare il token, presupponiamo che sia scaduto
+      return true;
+    }
   }
 
 
@@ -99,6 +135,7 @@ redirectToInterestArea(id: string) {
     this.cookieService.delete('user');
     this.cookieService.delete('role');
     this.cookieService.delete('token');
+    this.cookieService.delete('refreshToken');
     this.cookieService.delete('sessionId');
     this.checkUserCookie();
     this.router.navigate(['/home']);

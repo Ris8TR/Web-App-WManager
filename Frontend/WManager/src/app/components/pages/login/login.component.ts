@@ -54,10 +54,10 @@ export class LoginComponent {
 
 
   logInUser() {
-    this.authService.loginUser(this.loginUser.email!, this.loginUser.password!, 'body').subscribe(
-      (data: { token: string; }) => {
-        const token = data.token;
-        this.cookieService.set('token', data.token)
+    this.authService.loginUser(this.loginUser).subscribe(
+      (token  ) => {
+        this.cookieService.set('token', token.token!)
+        this.cookieService.set('refreshToken', token.refreshToken!)
         this.cookieService.set('user', this.loginUser.email!)
         this.cookieService.set('role', "USER")
         this.snackBar.open("User logged in", 'OK',{ duration: 3000 });

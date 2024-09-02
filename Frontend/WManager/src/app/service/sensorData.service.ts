@@ -26,6 +26,7 @@ import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables'
 import { Configuration }                                     from '../configuration';
 import { V1SensorDataBody } from '../model/v1SensorDataBody';
 import {DateDto} from "../model/dateDto";
+import {ToolbarComponent} from "../components/elements/toolbar/toolbar.component";
 
 
 @Injectable()
@@ -35,7 +36,7 @@ export class SensorDataService {
   public defaultHeaders = new HttpHeaders();
   public configuration = new Configuration();
 
-  constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
+  constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string,    @Optional() configuration: Configuration) {
     if (basePath) {
       this.basePath = basePath;
     }
@@ -72,6 +73,7 @@ export class SensorDataService {
   public deleteSensorData(id: string, token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<string>>;
   public deleteSensorData(id: string, token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<string>>;
   public deleteSensorData(id: string, token: string, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+
 
     if (id === null || id === undefined) {
       throw new Error('Required parameter id was null or undefined when calling deleteSensorData.');
@@ -116,6 +118,7 @@ export class SensorDataService {
   public getProcessedSensorData(type: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<string>>;
   public getProcessedSensorData(type: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<string>>;
   public getProcessedSensorData(type: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
 
     if (type === null || type === undefined) {
       throw new Error('Required parameter type was null or undefined when calling getProcessedSensorData.');
@@ -191,6 +194,7 @@ export class SensorDataService {
   public getAllSensorBy10MinByType(type: String, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
   public getAllSensorBy10MinByType(type: String, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
   public getAllSensorBy10MinByType(type: String, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+
 
     let headers = this.defaultHeaders;
 
@@ -309,6 +313,7 @@ export class SensorDataService {
       throw new Error('Required parameter body was null or undefined when calling receiveSensorData.');
     }
 
+
     let headers = this.defaultHeaders;
 
     // to determine the Accept header
@@ -417,6 +422,8 @@ export class SensorDataService {
   public getAllSensorDataBySensor10Min(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
   public getAllSensorDataBySensor10Min(sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
+
+
     if (sensorId === null || sensorId === undefined) {
       throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensor10Min.');
     }
@@ -458,6 +465,8 @@ export class SensorDataService {
   public getAllSensorDataBySensor15Min(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
   public getAllSensorDataBySensor15Min(sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
+
+
     if (sensorId === null || sensorId === undefined) {
       throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensor15Min.');
     }
@@ -498,6 +507,8 @@ export class SensorDataService {
   public getAllSensorDataBySensor5Min(sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
   public getAllSensorDataBySensor5Min(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
   public getAllSensorDataBySensor5Min(sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+
 
     if (sensorId === null || sensorId === undefined) {
       throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensor5Min.');
@@ -544,6 +555,7 @@ export class SensorDataService {
       throw new Error('Required parameter date was null or undefined when calling getAllSensorDataBySensorBetweenDate.');
     }
 
+
     let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
     if (date !== undefined && date !== null) {
       queryParameters = queryParameters.set('date', <any>date);
@@ -587,6 +599,7 @@ export class SensorDataService {
   public saveSensorData(data: NewSensorDataDto, file: File, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
   public saveSensorData(data: NewSensorDataDto, file: File, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
   public saveSensorData(data: NewSensorDataDto, file: File, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+
 
     const dataBlob = new Blob([JSON.stringify(data)], {type: 'application/json'});
     const formData = new FormData();
@@ -634,6 +647,8 @@ export class SensorDataService {
   public updateSensorData(body: NewSensorDataDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorData>>;
   public updateSensorData(body: NewSensorDataDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorData>>;
   public updateSensorData(body: NewSensorDataDto, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+
+
 
     if (body === null || body === undefined) {
       throw new Error('Required parameter body was null or undefined when calling updateSensorData.');

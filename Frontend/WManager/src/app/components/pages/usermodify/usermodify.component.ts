@@ -1,8 +1,14 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {UserComponent} from "../userMenu/user.component";
 import {FormsModule} from "@angular/forms";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {NgForOf} from "@angular/common";
+import {SensorService} from "../../../service/sensor.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {CookieService} from "ngx-cookie-service";
+import {Router} from "@angular/router";
+import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {InterestAreaService} from "../../../service/interestArea.service";
 
 @Component({
   selector: 'app-usermodify',
@@ -17,6 +23,15 @@ import {NgForOf} from "@angular/common";
   templateUrl: './usermodify.component.html',
   styleUrl: './usermodify.component.css'
 })
-export class UsermodifyComponent {
+export class UsermodifyComponent implements  OnInit{
+
+  constructor(
+    private toolbar: ToolbarComponent,
+  ) { }
+
+
+  ngOnInit(): void {
+    this.toolbar.refreshToken()
+  }
 
 }

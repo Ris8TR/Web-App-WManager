@@ -16,6 +16,7 @@ import {error} from "@angular/compiler-cli/src/transformers/util";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {style} from "@angular/animations";
 import {UserComponent} from "../userMenu/user.component";
+import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
 
 
 @Component({
@@ -42,7 +43,6 @@ export class SensorCreationComponent implements  OnInit{
     companyName: "",
     password: "",
     description: "",
-    token: this.cookieService.get("token"),
     interestAreaId: "",
   };
 
@@ -53,10 +53,13 @@ export class SensorCreationComponent implements  OnInit{
     private snackBar: MatSnackBar,
     private cookieService: CookieService,
     private router: Router,
+    private toolbar: ToolbarComponent,
     private interestAreaService: InterestAreaService
   ) { }
 
   loadData() {
+    this.toolbar.refreshToken().then(r =>
+      this.data.token = this.cookieService.get("token"))
     this.sensorService.addSensor(this.data).subscribe(
       response => {
         this.snackBar.open("Sensore caricato e accettato!", 'OK');

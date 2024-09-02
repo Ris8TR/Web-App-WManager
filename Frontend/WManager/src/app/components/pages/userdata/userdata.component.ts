@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {UserComponent} from "../userMenu/user.component";
-import {RouterOutlet} from "@angular/router";
+import {Router, RouterOutlet} from "@angular/router";
 import {FormsModule} from "@angular/forms";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {NgForOf} from "@angular/common";
+import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
 
 @Component({
   selector: 'app-userdata',
@@ -19,6 +20,16 @@ import {NgForOf} from "@angular/common";
   templateUrl: './userdata.component.html',
   styleUrl: './userdata.component.css'
 })
-export class UserdataComponent {
+export class UserdataComponent implements OnInit{
+
+  constructor(    private toolbar: ToolbarComponent) {
+
+  }
+
+
+  ngOnInit(): void {
+    this.toolbar.refreshToken()
+  }
+
 
 }

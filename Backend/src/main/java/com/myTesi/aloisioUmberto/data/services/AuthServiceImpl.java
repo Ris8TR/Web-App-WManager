@@ -6,7 +6,8 @@ import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.interfaces.AuthService;
-import jakarta.servlet.http.Cookie;
+import com.myTesi.aloisioUmberto.dto.LoginDto;
+import com.myTesi.aloisioUmberto.dto.TokenDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -20,7 +21,6 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -37,18 +37,21 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public Object loginUser(HttpServletRequest req, HttpServletResponse resp, Map<String, String> requestBody) {
-        String email = requestBody.get("email");
-        String password = requestBody.get("password");
+    public ResponseEntity<TokenDto> loginUser(HttpServletRequest req, HttpServletResponse resp, LoginDto loginDto) {
+        String email = loginDto.getEmail();
+        String password = loginDto.getPassword();
         Optional<User> user = userDao.findUserByEmail(email);
         if (user.isPresent() && BCrypt.checkpw(password, user.get().getPassword())) {
             SecurityContextHolder.getContext().setAuthentication(createAuthentication(email, password));
             String token = jwtTokenProvider.generateUserToken(user);
-            Map<String, Object> response = new HashMap<>();
-            response.put("token", token);
+            String refreshToken = jwtTokenProvider.generateRefreshToken(user);
             HttpSession session = req.getSession();
-            resp.addCookie(new Cookie("sessionId", session.getId()));
-            return ResponseEntity.ok(response);
+            TokenDto tokenDto = new TokenDto();
+            tokenDto.setToken(token);
+            tokenDto.setRefreshToken(refreshToken);
+            tokenDto.setSession(session.getId());
+            System.out.println(tokenDto);
+            return ResponseEntity.ok(tokenDto);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -100,6 +103,23 @@ public class AuthServiceImpl implements AuthService {
         return new UsernamePasswordAuthenticationToken(email, password, Collections.emptyList());
     }
 
+
+    @Override
+    public ResponseEntity<TokenDto> refreshToken(String token) {
+            if (jwtTokenProvider.validateRefreshToken(token)) {
+                Optional<User> user = userDao.findUserByEmail(jwtTokenProvider.getEmailFromRefreshToken(token));
+                if (user.isPresent()) {
+                    String newToken = jwtTokenProvider.generateUserToken(user);
+                    String refreshToken = jwtTokenProvider.generateRefreshToken(user);
+                    TokenDto tokenDto = new TokenDto();
+                    tokenDto.setToken(newToken);
+                    tokenDto.setRefreshToken(refreshToken);
+                    return ResponseEntity.ok(tokenDto);
+                }
+
+        } return ResponseEntity.notFound().build();
+
+    }
 
 
 }

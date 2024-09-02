@@ -22,6 +22,7 @@ import { SensorDto } from '../model/sensorDto';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
+import {ToolbarComponent} from "../components/elements/toolbar/toolbar.component";
 
 
 @Injectable()
@@ -31,7 +32,7 @@ export class SensorService {
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
+    constructor(protected httpClient: HttpClient,    @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
         if (basePath) {
             this.basePath = basePath;
         }
@@ -71,7 +72,6 @@ export class SensorService {
         if (body === null || body === undefined) {
             throw new Error('Required parameter body was null or undefined when calling addSensor.');
         }
-
         let headers = this.defaultHeaders;
 
         // to determine the Accept header
@@ -119,7 +119,6 @@ export class SensorService {
     if (companyName === null || companyName === undefined) {
       throw new Error('Required parameter companyName was null or undefined when calling findByCompanyName.');
     }
-
     if (token === null || token === undefined) {
       throw new Error('Required parameter token was null or undefined when calling findByCompanyName.');
     }
@@ -171,7 +170,6 @@ export class SensorService {
     if (id === null || id === undefined) {
       throw new Error('Required parameter id was null or undefined when calling findById.');
     }
-
     if (token === null || token === undefined) {
       throw new Error('Required parameter token was null or undefined when calling findById.');
     }
@@ -223,7 +221,6 @@ export class SensorService {
     if (type === null || type === undefined) {
       throw new Error('Required parameter type was null or undefined when calling findByTypeAndUserId.');
     }
-
     if (token === null || token === undefined) {
       throw new Error('Required parameter token was null or undefined when calling findByTypeAndUserId.');
     }

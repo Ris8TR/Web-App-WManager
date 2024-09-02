@@ -3,6 +3,8 @@ package com.myTesi.aloisioUmberto.controller;
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.services.interfaces.AuthService;
+import com.myTesi.aloisioUmberto.dto.LoginDto;
+import com.myTesi.aloisioUmberto.dto.TokenDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -28,10 +30,9 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-    @PostMapping("/login/user")
-    public Object loginUser(HttpServletRequest req, HttpServletResponse resp, @RequestBody Map<String, String> requestBody) {
-        return authService.loginUser(req, resp, requestBody);
-
+    @PostMapping("/auth/user")
+    public ResponseEntity<TokenDto> loginUser(HttpServletRequest req, HttpServletResponse resp, @RequestBody LoginDto loginDto) {
+        return authService.loginUser(req, resp, loginDto);
     }
 
     @PostMapping("/login/resetpsw/{email}")
@@ -44,11 +45,16 @@ public class AuthController {
         return ResponseEntity.ok(authService.savePassword(requestBody));
     }
 
-
     @PostMapping("/auth/token")
     public ResponseEntity<Boolean> checkToken(@RequestBody String token) {
         return ResponseEntity.ok(authService.checkToken(token));
     }
+
+    @PostMapping("/auth/refresh")
+    public ResponseEntity<TokenDto> refreshToken(@RequestBody String token) {
+        return ResponseEntity.ok(authService.refreshToken(token).getBody());
+    }
+
 
 
 

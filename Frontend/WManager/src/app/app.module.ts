@@ -14,8 +14,8 @@ import {SensorService} from "./service/sensor.service";
 
 @NgModule({
   declarations: [],
-  imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent, ResetComponent ],
-  providers: [AuthService,UserService,SensorService],
+  imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent, ResetComponent, ToolbarComponent ],
+  providers: [AuthService,UserService,SensorService, ToolbarComponent],
   bootstrap: []
 })
 export class AppModule { }

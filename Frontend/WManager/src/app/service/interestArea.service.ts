@@ -27,6 +27,7 @@ import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables'
 import { Configuration }                                     from '../configuration';
 import { InterestAreaDto } from '../model/interestAreaDto';
 import {CookieService} from "ngx-cookie-service";
+import {ToolbarComponent} from "../components/elements/toolbar/toolbar.component";
 
 
 @Injectable()
@@ -36,7 +37,8 @@ export class InterestAreaService {
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration, private CookiesService: CookieService,) {
+    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration, private CookiesService: CookieService,
+    ) {
         if (basePath) {
             this.basePath = basePath;
         }
@@ -60,7 +62,6 @@ export class InterestAreaService {
   public createInterestAreaForm(data?: NewInterestAreaDto, file?: Blob, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestAreaDto>>;
   public createInterestAreaForm(data?: NewInterestAreaDto, file?: Blob, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestAreaDto>>;
   public createInterestAreaForm(data?: NewInterestAreaDto, file?: Blob, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
 
     let headers = this.defaultHeaders;
 
@@ -133,7 +134,6 @@ export class InterestAreaService {
     }
 
     let headers = this.defaultHeaders;
-
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [
       '*/*'
@@ -260,7 +260,6 @@ export class InterestAreaService {
   public getLatestSensorDataInInterestArea(interestAreaId: string, token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
   public getLatestSensorDataInInterestArea(interestAreaId: string, token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
   public getLatestSensorDataInInterestArea(interestAreaId: string, token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
     if (interestAreaId === null || interestAreaId === undefined) {
       throw new Error('Required parameter interestAreaId was null or undefined when calling getLatestSensorDataInInterestArea.');
     }

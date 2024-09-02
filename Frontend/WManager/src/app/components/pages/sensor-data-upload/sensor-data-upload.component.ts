@@ -8,6 +8,7 @@ import { Token } from '@angular/compiler';
 import { NewSensorDataDto } from '../../../model/newSensorDataDto';
 import { FormsModule } from '@angular/forms';
 import { SensorDataService } from '../../../service/sensorData.service';
+import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
 
 @Component({
   selector: 'app-sensor-data-upload',
@@ -22,7 +23,6 @@ export class SensorDataUploadComponent {
   file!: File;
   data: NewSensorDataDto = {
     payloadType: "",
-    userId: this.cookieService.get("Token"),
     latitude: 0,
     longitude: 0,
     payload: {},
@@ -35,6 +35,7 @@ export class SensorDataUploadComponent {
   constructor(
     private sensorDataService: SensorDataService,
     private snackBar: MatSnackBar,
+    private toolbar: ToolbarComponent,
     private cookieService: CookieService,
     private router: Router
   ) { }
@@ -59,6 +60,7 @@ export class SensorDataUploadComponent {
 
   loadData() {
     //if (this.controllo()) {
+      this.toolbar.refreshToken().then(r => this.data.userId = this.cookieService.get("token") )
       this.sensorDataService.saveSensorData(this.data , this.file).subscribe(
         response => {
           this.snackBar.open("Dato caricato e accettato!", 'OK');
@@ -70,7 +72,7 @@ export class SensorDataUploadComponent {
           console.log(error);
         }
       );
-    }
+     }
   //}
 
 }

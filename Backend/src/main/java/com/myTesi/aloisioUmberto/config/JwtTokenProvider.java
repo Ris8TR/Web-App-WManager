@@ -73,6 +73,15 @@ public class JwtTokenProvider {
         return (String) claims.get("email");
     }
 
+    public String getEmailFromRefreshToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody();
+
+        return (String) claims.getSubject();
+    }
+
     public String getUserIdFromUserToken(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(secret)

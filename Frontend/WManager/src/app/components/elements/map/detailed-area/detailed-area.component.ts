@@ -5,6 +5,7 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { InterestAreaService } from '../../../../service/interestArea.service';
 import { InterestArea } from '../../../../model/interestArea';
 import {CookieService} from "ngx-cookie-service";
+import {ToolbarComponent} from "../../toolbar/toolbar.component";
 
 @Component({
   selector: 'app-detailed-area',
@@ -16,9 +17,9 @@ import {CookieService} from "ngx-cookie-service";
 export class DetailedAreaComponent implements OnInit {
   private map!: L.Map;
   id: string | null = null;
-  token = this.cookieService.get("token")
 
-  constructor(private route: ActivatedRoute, private interestAreaService: InterestAreaService, private cookieService: CookieService) {}
+
+  constructor(private route: ActivatedRoute, private interestAreaService: InterestAreaService, private toolbar: ToolbarComponent, private cookieService: CookieService) {}
 
   ngOnInit(): void {
     this.route.paramMap.subscribe((params: ParamMap) => {
@@ -49,8 +50,9 @@ export class DetailedAreaComponent implements OnInit {
       console.error('ID is undefined or null.');
       return;
     }
-
-    this.interestAreaService.getInterestArea(id, this.token).subscribe(
+    let token
+    this.toolbar.refreshToken().then(r => token = this.cookieService.get("token"))
+    this.interestAreaService.getInterestArea(id, token!).subscribe(
       (area: InterestArea) => {
         console.log('Interest Area loaded:', area);
         this.drawInterestArea(area.geometry);
