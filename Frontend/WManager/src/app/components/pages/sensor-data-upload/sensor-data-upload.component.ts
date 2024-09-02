@@ -26,7 +26,8 @@ export class SensorDataUploadComponent {
     latitude: 0,
     longitude: 0,
     payload: {},
-    sensorPassword: ""
+    sensorPassword: "",
+    sensorId: ""
   };
 
   interestAreas?: string[]

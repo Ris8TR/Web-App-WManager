@@ -2,6 +2,7 @@ package com.myTesi.aloisioUmberto.data.services.interfaces;
 
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDto;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
+import com.myTesi.aloisioUmberto.dto.SensorAndAreas;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,6 +20,8 @@ public interface SensorService {
     SensorDto save(MultipartFile file) throws IOException;
 
     List<SensorDto> findByUserId(String token);
+
+    SensorAndAreas findAndAreaByUserId(String token);
 
     List<SensorDto> findByTypeAndUser(String type, String token);
 

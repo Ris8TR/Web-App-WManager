@@ -13,6 +13,7 @@ import org.mapstruct.factory.Mappers;
 public interface InterestAreaMapper {
     InterestAreaMapper INSTANCE = Mappers.getMapper(InterestAreaMapper.class);
 
+    @Mapping(target = "id", ignore = true)
     InterestAreaDto interestAreaToInterestAreaDto(InterestArea interestArea);
 
     @Mapping(target = "id", ignore = true)

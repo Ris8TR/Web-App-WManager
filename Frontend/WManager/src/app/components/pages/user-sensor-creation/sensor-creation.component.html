@@ -1,12 +1,12 @@
 <div class="row">
   <app-user class="col-sm-2"></app-user>
-  <div class="col" >
+  <div class="col">
     <div id="page-content-wrapper">
       <div class="container-fluid">
         <form (ngSubmit)="loadData()" class="example-form centered-form">
           <div data-mdb-input-init class="form-outline mb-4">
             <label class="form-label" style="color: black">Company Name*:</label>
-            <input type="email" class="form-control form-control-lg"
+            <input type="text" class="form-control form-control-lg"
                    placeholder="Name:" id="company" name="company" [(ngModel)]="data.companyName" required />
           </div>
 
@@ -17,25 +17,34 @@
           </div>
 
           <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" style="color: black">Type*:</label>
+            <select class="form-control form-control-lg"
+                    id="type"
+                    name="type"
+                    [(ngModel)]="data.type"
+                    required>
+              <option *ngFor="let type of fileTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-4">
             <label class="form-label" style="color: black">Password*:</label>
             <input class="form-control form-control-lg"
-                   placeholder="Password:" type="password" id="dataType" name="dataType" [(ngModel)]="data.password" required/>
+                   placeholder="Password:" type="password" id="password" name="password" [(ngModel)]="data.password" required/>
           </div>
 
           <div class="full-width">
             <label style="color: black">Seleziona Area di Interesse*</label>
-            <mat-radio-group  [(ngModel)]="data.interestAreaId" name="interestArea" required>
-              <mat-radio-button  *ngFor="let area of interestAreaNames" [value]="area.id" class="white-text">
-                <div>{{ area.name }}</div>
+            <mat-radio-group [(ngModel)]="data.interestAreaId" name="interestArea" required>
+              <mat-radio-button *ngFor="let area of interestAreaNames" [value]="area.id" class="white-text">
+                {{ area.name }}
               </mat-radio-button>
             </mat-radio-group>
           </div>
-          <button type="submit" type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
-                  style="padding-left: 2.5rem; padding-right: 2.5rem;" [disabled]="!controllo()" (click)="loadData()">Carica dato</button>
+          <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
+                  style="padding-left: 2.5rem; padding-right: 2.5rem;" [disabled]="!controllo()">Carica dato</button>
         </form>
       </div>
     </div>
   </div>
 </div>
-
-

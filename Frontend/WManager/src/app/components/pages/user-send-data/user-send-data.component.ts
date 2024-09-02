@@ -14,6 +14,7 @@ import {InterestArea} from "../../../model/interestArea";
 import {MatRadioButton} from "@angular/material/radio";
 import {NgForOf} from "@angular/common";
 import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {SensorAndAreas} from "../../../model/sensorAndAreas";
 
 
 @Component({
@@ -37,16 +38,19 @@ export class UserSendDataComponent implements  OnInit{
     latitude: 0,
     longitude: 0,
     payload: {},
-    sensorPassword: ""
+    sensorPassword: "",
+    sensorId: ""
   };
 
   selectedId!: string;
 
   interestAreas?: string[]
-  endPointsInfo: { id: string | undefined;
-                   description: string | undefined;
-                   companyName: string | undefined;
-                   interestAreaID: string | undefined;}[] = [];
+  endPointsInfo: {
+    companyName: string | undefined;
+    description: string | undefined;
+    id: string | undefined;
+    interestAreaID: string | undefined
+  }[] | undefined = [];
   interestAreaInfo: { name: string | undefined;} = {name:""};
 
 
@@ -93,23 +97,30 @@ export class UserSendDataComponent implements  OnInit{
 
   loadEndPointsByUser(): void {
     const userId = this.cookieService.get("token");
-    this.sensorService.findByUserId(userId).subscribe(
-      (endPoints: SensorDto[]) => {
-        this.endPointsInfo = endPoints.map(sensor => ({
+    this.sensorService.findAndAreaByUserId(userId).subscribe(
+      (sensorAndAreas: SensorAndAreas) => {
+        console.log(sensorAndAreas)
+        // Mappiamo i dati dei sensori
+        this.endPointsInfo = sensorAndAreas.sensorDtoList?.map(sensor => ({
           id: sensor.id,
           description: sensor.description,
           companyName: sensor.companyName,
-          interestAreaID: sensor.interestAreaID}));
-      },
-      error => {
-        console.error('Errore nel caricamento delle aree di interesse:', error);
-      }
-    );
+          interestAreaID: sensor.interestAreaID
+        }));
 
-    const interestedAreaId = this.endPointsInfo[1].interestAreaID
-    this.interestedAreaService.getInterestArea(interestedAreaId, userId).subscribe(
-      (iad: InterestArea) => {
-        this.interestAreaInfo = {name: iad.name}
+        const interestAreaInfoMap = new Map<string, string>();
+        sensorAndAreas.areaDtoList?.forEach(area => {
+          if (area.id != null && area.name != null ) {
+              interestAreaInfoMap.set(area.id, area.name);
+
+          }
+        });
+
+        // @ts-ignore
+        const interestedAreaId = this.endPointsInfo[1].interestAreaID;
+        if (interestedAreaId && interestAreaInfoMap.has(interestedAreaId)) {
+          this.interestAreaInfo = { name: interestAreaInfoMap.get(interestedAreaId) };
+        }
       },
       error => {
         console.error('Errore nel caricamento delle aree di interesse:', error);
@@ -119,8 +130,10 @@ export class UserSendDataComponent implements  OnInit{
 
 
 
+
   loadData() {
     //if (this.controllo()) {
+    this.toolbar.refreshToken().then(r => this.cookieService.get("token") )
       console.log(this.data.sensorId);
       this.sensorDataService.saveSensorData(this.data, this.file).subscribe(
         response => {

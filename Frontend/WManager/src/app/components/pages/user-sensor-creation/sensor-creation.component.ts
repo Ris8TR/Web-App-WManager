@@ -17,6 +17,7 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {style} from "@angular/animations";
 import {UserComponent} from "../userMenu/user.component";
 import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {FileType} from "../../../model/enum/FileType";
 
 
 @Component({
@@ -39,6 +40,7 @@ import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
 })
 export class SensorCreationComponent implements  OnInit{
 
+  fileTypes = Object.values(FileType);
   data: NewSensorDto = {
     companyName: "",
     password: "",
@@ -58,6 +60,7 @@ export class SensorCreationComponent implements  OnInit{
   ) { }
 
   loadData() {
+    console.log("Selected Interest Area ID:", this.data.interestAreaId); // Add this log for debugging
     this.toolbar.refreshToken().then(r =>
       this.data.token = this.cookieService.get("token"))
     this.sensorService.addSensor(this.data).subscribe(

@@ -5,20 +5,21 @@ import com.fasterxml.jackson.core.exc.StreamReadException;
 import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
+import com.myTesi.aloisioUmberto.core.modelMapper.InterestAreaMapper;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorMapper;
-import com.myTesi.aloisioUmberto.data.dao.ColorBarRepository;
-import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
-import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
-import com.myTesi.aloisioUmberto.data.dao.UserRepository;
+import com.myTesi.aloisioUmberto.data.dao.*;
 import com.myTesi.aloisioUmberto.data.entities.Bar.ColorBar;
 import com.myTesi.aloisioUmberto.data.entities.Bar.ColorRange;
+import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorService;
+import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDto;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
+import com.myTesi.aloisioUmberto.dto.SensorAndAreas;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
 import com.myTesi.aloisioUmberto.dto.enumetation.Role;
@@ -48,9 +49,12 @@ public class SensorServiceImpl implements SensorService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userDao;
     private final SensorMapper sensorMapper = SensorMapper.INSTANCE;
+    private final InterestAreaMapper interestAreaMapper = InterestAreaMapper.INSTANCE;
+
     @Autowired
     private ModelMapper modelMapper;
-
+    @Autowired
+    private InterestAreaRepository interestAreaRepository;
 
 
     private String isValidToken(String token) {
@@ -62,16 +66,15 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public SensorDto saveDto(NewSensorDto newSensorDto) {
         Sensor sensor = new Sensor();
-        String userId = isValidToken(newSensorDto.getToken());
-        if (userId == null) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        Optional<User> user = userDao.findById(userId);
+        String email = jwtTokenProvider.getEmailFromUserToken(newSensorDto.getToken());
+        Optional<User> user = userDao.findUserByEmail(email);
+        assert user.isPresent();
         System.out.println(newSensorDto);
         System.out.println(user);
         if (BCrypt.checkpw(newSensorDto.getPassword(), user.get().getSensorPassword())) {
             sensor.setPassword(BCrypt.hashpw(newSensorDto.getPassword(), BCrypt.gensalt(10)));
             sensor.setDescription(newSensorDto.getDescription());
+            sensor.setType(newSensorDto.getType());
             sensor.setUserId(String.valueOf(user.get().getId()));
             sensor.setCompanyName(newSensorDto.getCompanyName());
             sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
@@ -88,12 +91,12 @@ public class SensorServiceImpl implements SensorService {
             colorBar.setColorRanges(ranges);
             //colorBar.setColorRanges(newSensorDto.getRanges());
             colorBarRepository.save(colorBar);
-
             try {
                 sensor.setColorBarId(String.valueOf(colorBar.getId()));
-                sensorRepository.save(sensor);
                 colorBar.addSensor(String.valueOf(sensor.getId()));
+                sensorRepository.save(sensor);  // Salva una sola volta dopo aver completato le modifiche necessarie
                 colorBarRepository.save(colorBar);
+
                 SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor);
                 sensorDto.setId(sensor.getId().toString());
                 sensorDto.setDescription(sensor.getDescription());
@@ -103,6 +106,7 @@ public class SensorServiceImpl implements SensorService {
             } catch (DataIntegrityViolationException e) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
             }
+
         }
         throw new RuntimeException("Invalid credentials");
 
@@ -248,6 +252,36 @@ public class SensorServiceImpl implements SensorService {
         return sensors.stream()
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());    }
+
+    @Override
+    public SensorAndAreas findAndAreaByUserId(String token) {
+        String userId = isValidToken(token);
+        if (userId == null) {
+            throw new IllegalArgumentException("Invalid user ID");
+        }
+
+        Optional<User> userOpt = userDao.findById(userId);
+        if (!userOpt.isPresent()) {
+            throw new IllegalArgumentException("User not found");
+        }
+
+        List<Sensor> sensors = sensorRepository.findAllByUserId(userId);
+        if (sensors.isEmpty()) {
+            throw new IllegalArgumentException("No sensors found for the user");
+        }
+
+        List<SensorDto> sensorDtos = sensorMapper.sensorsToSensorDtos(sensors);
+        List<InterestAreaDto> interestAreaDtos = interestAreaRepository.findAllByUserId(userId)
+                .stream()
+                .map(interestAreaMapper::interestAreaToInterestAreaDto)
+                .collect(Collectors.toList());
+
+        SensorAndAreas sensorAndAreas = new SensorAndAreas();
+        sensorAndAreas.setSensorDtoList(sensorDtos);
+        sensorAndAreas.setAreaDtoList(interestAreaDtos);
+        return sensorAndAreas;
+    }
+
 
     @Override
     public List<SensorDto> findByTypeAndUser(String type, String token) {

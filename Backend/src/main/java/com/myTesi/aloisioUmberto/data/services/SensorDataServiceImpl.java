@@ -91,13 +91,16 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
+        System.out.println(newSensorDataDTO);
         SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
         String userId = isValidToken(newSensorDataDTO.getToken());
         assert userId != null;
         Optional<User> user = userDao.findById(userId);
         Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDTO.getSensorId(), userId);
+        assert  sensor.isPresent();
         if (BCrypt.checkpw(newSensorDataDTO.getSensorPassword(), user.get().getSensorPassword())) {
             try {
+                System.out.println(sensor.get().getId().toString());
             data.setSensorId(sensor.get().getId().toString());
             //TODO Aggiungere verifica area di interesse
             sensor.get().setInterestAreaID(data.getInterestAreaID());
@@ -112,7 +115,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         data.setTimestamp(Date.from(Instant.now()));
 
         if (file != null && !file.isEmpty()) {
-            SensorDataHandler handler = getHandlerForType(newSensorDataDTO.getPayloadType());
+            SensorDataHandler handler = getHandlerForType(sensor.get().getType());
             if (handler != null) {
                 handler.handle(data, newSensorDataDTO, file);
             }

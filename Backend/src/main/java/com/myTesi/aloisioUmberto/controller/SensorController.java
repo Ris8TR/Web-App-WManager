@@ -6,6 +6,7 @@ import com.myTesi.aloisioUmberto.data.services.interfaces.SensorService;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDto;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
+import com.myTesi.aloisioUmberto.dto.SensorAndAreas;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -71,6 +72,11 @@ public class SensorController {
     @GetMapping("/sensors/user/{token}")
     public ResponseEntity <List<SensorDto>> findByUserId(@PathVariable String token) {
         return ResponseEntity.ok(sensorService.findByUserId(token));
+    }
+
+    @GetMapping("/sensors/area/user/{token}")
+    public ResponseEntity <SensorAndAreas> findAndAreaByUserId(@PathVariable String token) {
+        return ResponseEntity.ok(sensorService.findAndAreaByUserId(token));
     }
 
 

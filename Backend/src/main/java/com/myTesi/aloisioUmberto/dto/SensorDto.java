@@ -1,5 +1,6 @@
 package com.myTesi.aloisioUmberto.dto;
 
+import com.myTesi.aloisioUmberto.dto.enumetation.PayloadType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -15,7 +16,7 @@ public class SensorDto {
     private String id;
     private String password;
     private String token;
-    private String type;
+    private PayloadType type;
     private String description;
     private String interestAreaID;
     private List<Double> Latitude;

@@ -8,13 +8,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.factory.Mappers;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Mapper
 public interface SensorMapper {
     SensorMapper INSTANCE = Mappers.getMapper(SensorMapper.class);
 
     SensorDto sensorToSensorDto(Sensor sensor);
 
-    @Mapping(target = "id", ignore = true)
     Sensor newSensorDtoToSensor(NewSensorDto newSensorDto);
 
     default String map(ObjectId value) {
@@ -23,5 +26,14 @@ public interface SensorMapper {
 
     default ObjectId map(String value) {
         return value != null ? new ObjectId(value) : null;
+    }
+
+    default List<SensorDto> sensorsToSensorDtos(List<Sensor> sensors) {
+        if (sensors == null || sensors.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return sensors.stream()
+                .map(this::sensorToSensorDto)
+                .collect(Collectors.toList());
     }
 }
