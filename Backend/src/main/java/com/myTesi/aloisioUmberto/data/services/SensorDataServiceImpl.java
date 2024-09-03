@@ -33,7 +33,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -85,7 +90,8 @@ public class SensorDataServiceImpl implements SensorDataService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        sensorData.setTimestamp(Date.from(Instant.now()));
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);  // Ottieni l'ora corrente in UTC
+        sensorData.setTimestamp(Date.from(now.toInstant()));
         return sensorDataRepository.save(sensorData);
     }
 
@@ -112,7 +118,8 @@ public class SensorDataServiceImpl implements SensorDataService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        data.setTimestamp(Date.from(Instant.now()));
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);  // Ottieni l'ora corrente in UTC
+        data.setTimestamp(Date.from(now.toInstant()));
 
         if (file != null && !file.isEmpty()) {
             SensorDataHandler handler = getHandlerForType(sensor.get().getType());
@@ -202,6 +209,34 @@ public class SensorDataServiceImpl implements SensorDataService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<SensorDataDto> getAllSensorDataIn10Min() {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date tenMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SensorDataDto> getAllSensorDataIn15Min() {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -15);
+        Date tenMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBySensorId5Min(String sensorId) {
         Date now = new Date();
@@ -262,12 +297,21 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
      */
-
-    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
-        return sensorDataRepository.findAllBySensorIdAndTimestampBetween(dateDto.getSensorId(), dateDto.getForm(), dateDto.getTo()).stream()
+
+        //TODO VEDERE PERCHE NON GLI PIACE COME GLI ARRIVA E DEVO FARE -2 ORE
+        ZonedDateTime fromDateTime = dateDto.getForm().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
+        ZonedDateTime toDateTime = dateDto.getTo().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
+
+        Date fromDateUTC = Date.from(fromDateTime.toInstant());
+        Date toDateUTC = Date.from(toDateTime.toInstant());
+
+        List<SensorDataDto> results = sensorDataRepository.findAllByTimestampBetween(fromDateUTC, toDateUTC).stream()
                 .map(sensorDataMapper::sensorDataToSensorDataDto)
                 .collect(Collectors.toList());
+
+        System.out.println("Query Results: " + results.size() + " records found.");
+        return results;
     }
 
 
