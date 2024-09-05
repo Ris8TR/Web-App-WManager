@@ -4,7 +4,7 @@ import {Router, RouterOutlet} from "@angular/router";
 import {FormsModule} from "@angular/forms";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {NgForOf} from "@angular/common";
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 
 @Component({
   selector: 'app-userdata',

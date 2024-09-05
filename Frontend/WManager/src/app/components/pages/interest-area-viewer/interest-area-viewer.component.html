@@ -125,30 +125,29 @@
           </div>
           <div class="row text-center justify-content-center align-self-center">
             <div class="col-md-16 ">
-
-              <select class="form-select" aria-label="Default select example">
-                <option selected>Open this select menu</option>
-                <option value="1">last 5m</option>
-                <option value="2">last 10m</option>
-                <option value="3">last 15m</option>
+              <select class="form-select" aria-label="Select Interval" (change)="onIntervalSelect($event)">
+                <option selected>Select Interval</option>
+                <option value="5">Last 5 minutes</option>
+                <option value="10">Last 10 minutes</option>
+                <option value="15">Last 15 minutes</option>
               </select>
             </div>
-
           </div>
+
 
           <div *ngIf="logStringResult !== 'Login'" class="row text-center justify-content-center align-self-center ">
             <div class="row" id="calendar">
               <div class="col">
                 <div class="form-group">
-                  <label for="endDate">Start Day</label>
-                  <input id="endDate" class="form-control" type="date" />
+                  <label for="startDate">Start Day</label>
+                  <input id="startDate" class="form-control" type="date" [(ngModel)]="startDate" />
                 </div>
               </div>
 
               <div class="col">
                 <div class="form-group">
-                  <label class="active" for="timeStandard">Start hour</label>
-                  <input class="form-control" id="timeStandard" type="time">
+                  <label class="active" for="startHour">Start Hour</label>
+                  <input class="form-control" id="startHour" type="time" [(ngModel)]="startHour">
                 </div>
               </div>
             </div>
@@ -157,14 +156,14 @@
               <div class="col">
                 <div class="form-group">
                   <label for="endDateEnd">End Day</label>
-                  <input id="endDateEnd" class="form-control" type="date" />
+                  <input id="endDateEnd" class="form-control" type="date" [(ngModel)]="endDate" />
                 </div>
               </div>
 
               <div class="col">
                 <div class="form-group">
-                  <label class="active" for="timeStandardEnd">End Hour</label>
-                  <input class="form-control" id="timeStandardEnd" type="time">
+                  <label class="active" for="endHour">End Hour</label>
+                  <input class="form-control" id="endHour" type="time" [(ngModel)]="endHour">
                 </div>
               </div>
             </div>
@@ -172,7 +171,7 @@
             <div class="row">
               <div class=" col">
                 <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary "
-                         style=" margin-top:10px;" >Submit</button>
+                         style=" margin-top:10px;"  (click)="onDateRangeSubmit()">Submit</button>
               </div>
             </div>
           </div>

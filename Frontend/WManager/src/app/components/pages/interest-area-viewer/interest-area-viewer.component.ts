@@ -3,6 +3,11 @@ import * as L from 'leaflet';
 import {SensorDataService} from "../../../service/sensorData.service";
 import {NgIf} from "@angular/common";
 import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {SensorDto} from "../../../model/sensorDto";
+import {SensorService} from "../../../service/sensor.service";
+import {CookieService} from "ngx-cookie-service";
+import {DateDto} from "../../../model/dateDto";
+import {FormsModule} from "@angular/forms";
 
 
 @Component({
@@ -10,7 +15,8 @@ import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
   standalone: true,
   imports: [
     NgIf,
-    ToolbarComponent
+    ToolbarComponent,
+    FormsModule
   ],
   templateUrl: './interest-area-viewer.component.html',
   styleUrl: './interest-area-viewer.component.css'
@@ -18,21 +24,32 @@ import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
 export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
 
   private map: L.Map | undefined;
-
-  public sensorType: string = 'CO2'; // Default sensor type
   private layerGroup: L.LayerGroup | undefined;
-  logStringResult: string = "Login";
-  private cachedData: Map<string, any> = new Map(); // Cache for sensor data
+  public sensorType: string = 'CO2';  // Default sensor type
+  public sensors: SensorDto[] = [];
+  public logStringResult: string = 'Login';
+  public startDate: string | undefined;
+  public endDate: string | undefined;
+  public startHour: string | undefined;
+  public endHour: string | undefined;
+  private cachedData: Map<string, any> = new Map();  // Cache for sensor data
 
-  constructor(private sensorDataService: SensorDataService,
-              public toolbarComponent: ToolbarComponent) {}
+  constructor(
+    private sensorDataService: SensorDataService,
+    private sensorService: SensorService,
+    private cookieService: CookieService,
+    public toolbarComponent: ToolbarComponent
+  ) {}
+
+
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initializeMap();
       this.layerGroup = L.layerGroup().addTo(this.map!);
       this.loadSensorData();
-      this.logStringResult = this.toolbarComponent.logStringResult
+      this.loadSensors();
+      this.logStringResult = this.toolbarComponent.logStringResult;
     }, 10);
   }
 
@@ -49,17 +66,30 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
     });
   }
 
-  onSensorTypeChange(): void {
-    console.log('Sensor type changed to: ', this.sensorType);
+  private loadSensors(): void {
+    this.sensorService.findByUserId(this.cookieService.get('token')).subscribe((sensors) => {
+      this.sensors = sensors;
+    });
+  }
+
+  onSensorSelect(sensor: SensorDto): void {
+    if (sensor.type != null) {
+      this.sensorType = sensor.type;
+    }
     this.loadSensorData();
   }
 
   private loadSensorData(): void {
-    if (this.cachedData.has(this.sensorType)) {
+    if (!this.map) {
+      console.error('Map is not initialized yet.');
+      return; // Ensure map is initialized before proceeding
+    }
+
+    if (this.cachedData.has(this.sensorType!)) {
       this.updateGrid();
     } else {
       this.sensorDataService
-        .getProcessedSensorData(this.sensorType)
+        .getProcessedSensorData(this.sensorType!)
         .subscribe((geoJson: any) => {
           const heatData = geoJson.features.map((feature: any) => {
             const coordinates = feature.geometry.coordinates;
@@ -67,46 +97,114 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
             return [coordinates[1], coordinates[0], value] as [number, number, number];
           });
 
-          this.cachedData.set(this.sensorType, heatData);
+          this.cachedData.set(this.sensorType!, heatData);
           this.updateGrid();
         });
     }
   }
 
+  onIntervalSelect(event: Event): void {
+    const selectedValue = (event.target as HTMLSelectElement).value;
+    const interval = parseInt(selectedValue, 10);  // Fix parsing issue by using base 10
+
+    let observable;
+    switch (interval) {
+      case 5:
+        this.sensors = [];
+        observable = this.sensorDataService.getAllSensorDataIn5Min();
+        break;
+      case 10:
+        this.sensors = [];
+        observable = this.sensorDataService.getAllSensorDataIn10Min();
+        break;
+      case 15:
+        this.sensors = [];
+        observable = this.sensorDataService.getAllSensorDataIn15Min();
+        break;
+      default:
+        return;
+    }
+    console.log(observable)
+    observable.subscribe((data) => {
+      this.cachedData.set(this.sensorType, this.processData(data));
+      this.updateGrid();
+    });
+  }
+
+  onDateRangeSubmit(): void {
+    const formattedStartHour = this.startHour ? this.startHour.padStart(2, '0') : '00';
+    const formattedEndHour = this.endHour ? this.endHour.padStart(2, '0') : '00';
+
+    const dateDto: DateDto = {
+      form: `${this.startDate}T${formattedStartHour}:00:00`,
+      to: `${this.endDate}T${formattedEndHour}:00:00`,
+      sensorId: this.sensorType
+    };
+
+    console.log(dateDto)
+
+    this.sensorDataService.getAllSensorDataBetweenDate(dateDto).subscribe((data) => {
+      this.cachedData.set(this.sensorType, this.processData(data));
+      this.updateGrid();
+    });
+  }
+
+
+  private addPointsToMap(heatData: [number, number, number][]): void {
+    heatData.forEach(dataPoint => {
+      const [lat, lng, value] = dataPoint;
+      if (lat != null && lng != null && value != null) {  // Check for valid data
+        const marker = L.circleMarker([lat, lng], {
+          radius: 8,
+          fillColor: this.getColorScale()(value),
+          color: '#000',
+          weight: 1,
+          opacity: 1,
+          fillOpacity: 0.8
+        }).addTo(this.layerGroup!);
+        marker.bindPopup('Value: ${value}');
+      } else {
+        console.error('Invalid data point: ${dataPoint}');
+      }
+    });
+  }
+
   private updateGrid(): void {
     if (this.layerGroup) {
-      this.layerGroup.clearLayers(); // Remove existing layers if present
+      this.map!.removeLayer(this.layerGroup);  // Remove the existing layer group
     }
+    this.layerGroup = L.layerGroup().addTo(this.map!);  // Recreate the layer group
     const heatData = this.cachedData.get(this.sensorType);
     if (heatData) {
       this.addPointsToMap(heatData);
     }
   }
 
-  private addPointsToMap(heatData: [number, number, number][]): void {
-    heatData.forEach(dataPoint => {
-      const [lat, lng, value] = dataPoint;
-      const marker = L.circleMarker([lat, lng], {
-        radius: 8,
-        fillColor: this.getColorScale()(value),
-        color: '#000',
-        weight: 1,
-        opacity: 1,
-        fillOpacity: 0.8
-      }).addTo(this.layerGroup!);
-      marker.bindPopup(`Value: ${value}`);
-    });
-  }
 
   private getColorScale() {
     return (value: number) => {
-      const min = 0, max = 100; // Adjust these values based on your data range
+      const min = 0, max = 100;  // Adjust these values based on your data range
       const ratio = (value - min) / (max - min);
       const r = Math.round(255 * ratio);
       const g = 0;
       const b = Math.round(255 * (1 - ratio));
-      return `rgb(${r},${g},${b})`;
+      return 'rgb(${r},${g},${b})';
     };
+  }
+
+  private processData(data: any): [number, number, number][] {
+    if (!this.map) {
+      console.error('Map is not initialized yet.');
+      return []; // Early return or handle the case where the map is not initialized
+    }
+    console.log("Processing data: ", data);
+    return data.map((sensorData: any) => {
+      const lat = sensorData.latitude;
+      const lng = sensorData.longitude;
+      const value = sensorData.value;
+      console.log('Processed point: lat=${lat}, lng=${lng}, value=${value}');
+      return [lat, lng, value];
+    });
   }
 
   ngOnDestroy(): void {
@@ -114,4 +212,5 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
       this.map.remove();
     }
   }
+
 }

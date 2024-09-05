@@ -3,21 +3,23 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { MatSnackBar } from "@angular/material/snack-bar";
 import { CookieService } from "ngx-cookie-service";
 import { Router } from "@angular/router";
-import { InterestAreaService } from "../../../service/interestArea.service";
-import { InterestAreaDto } from "../../../model/interestAreaDto";
+
 import { MatListModule } from "@angular/material/list";
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from "@angular/material/input";
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from "@angular/common";
-import {NewSensorDto} from "../../../model/newSensorDto";
-import {SensorService} from "../../../service/sensor.service";
+
 import {error} from "@angular/compiler-cli/src/transformers/util";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {style} from "@angular/animations";
 import {UserComponent} from "../userMenu/user.component";
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
-import {FileType} from "../../../model/enum/FileType";
+import {FileType} from "../../../../model/enum/FileType";
+import {NewSensorDto} from "../../../../model/newSensorDto";
+import {SensorService} from "../../../../service/sensor.service";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {InterestAreaService} from "../../../../service/interestArea.service";
+import {InterestAreaDto} from "../../../../model/interestAreaDto";
 
 
 @Component({

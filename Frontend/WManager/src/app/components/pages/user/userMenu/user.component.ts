@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 
 @Component({
   selector: 'app-user',

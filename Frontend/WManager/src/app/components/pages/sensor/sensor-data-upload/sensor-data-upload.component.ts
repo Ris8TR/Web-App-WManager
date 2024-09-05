@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
-import { NewInterestAreaDto } from '../../../model/newInterestAreaDto';
+import { NewInterestAreaDto } from '../../../../model/newInterestAreaDto';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
-import { UserService } from '../../../service/user.service';
+import { UserService } from '../../../../service/user.service';
 import { Token } from '@angular/compiler';
-import { NewSensorDataDto } from '../../../model/newSensorDataDto';
+import { NewSensorDataDto } from '../../../../model/newSensorDataDto';
 import { FormsModule } from '@angular/forms';
-import { SensorDataService } from '../../../service/sensorData.service';
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import { SensorDataService } from '../../../../service/sensorData.service';
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 
 @Component({
   selector: 'app-sensor-data-upload',

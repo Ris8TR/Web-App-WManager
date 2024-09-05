@@ -8,8 +8,8 @@ import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { NewUserDto } from '../../../model/newUserDto';
-import { UserService } from '../../../service/user.service';
+import { NewUserDto } from '../../../../model/newUserDto';
+import { UserService } from '../../../../service/user.service';
 
 
 @Component({

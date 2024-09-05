@@ -227,6 +227,116 @@ export class SensorDataService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
+  public getAllSensorDataIn10Min(observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataIn10Min(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataIn10Min(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataIn10Min(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last10m`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataIn15Min(observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataIn15Min(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataIn15Min(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataIn15Min(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last15m`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataIn5Min(observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataIn5Min(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataIn5Min(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataIn5Min(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last5m`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+
+
+  /**
+   *
+   *
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
   public getAllSensorData(observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
   public getAllSensorData(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
   public getAllSensorData(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
@@ -539,6 +649,36 @@ export class SensorDataService {
     );
   }
 
+
+  public getAllSensorDataBetweenDate(date: DateDto, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+      'application/json' // Example Content-Type
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('post', `${this.basePath}/v1/SensorData/date`, {
+      body: date,
+      withCredentials: this.configuration.withCredentials,
+      headers: headers,
+      observe: observe,
+      reportProgress: reportProgress
+    });
+  }
+
+
+
   /**
    *
    *
@@ -554,7 +694,6 @@ export class SensorDataService {
     if (date === null || date === undefined) {
       throw new Error('Required parameter date was null or undefined when calling getAllSensorDataBySensorBetweenDate.');
     }
-
 
     let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
     if (date !== undefined && date !== null) {
@@ -576,7 +715,7 @@ export class SensorDataService {
     const consumes: string[] = [
     ];
 
-    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/date`,
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/date/sensor`,
       {
         params: queryParameters,
         withCredentials: this.configuration.withCredentials,

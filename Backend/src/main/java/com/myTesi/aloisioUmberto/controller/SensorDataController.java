@@ -63,7 +63,27 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId15Min(sensorId));
     }
 
-    @GetMapping("/SensorData/date")
+    @GetMapping("/SensorData/last5m")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn5Min() {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn5Min());
+    }
+
+    @GetMapping("/SensorData/last10m")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn10Min() {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn10Min());
+    }
+
+    @GetMapping("/SensorData/last15m")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn15Min() {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn15Min());
+    }
+
+    @PostMapping("/SensorData/date")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBetweenDate(@RequestBody DateDto date) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBetweenDate(date));
+    }
+
+    @GetMapping("/SensorData/date/sensor")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensorBetweenDate(@RequestBody DateDto date) {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorBetweenDate(date));
     }
