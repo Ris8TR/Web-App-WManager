@@ -1,9 +1,11 @@
 package com.myTesi.aloisioUmberto.controller;
 
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
+import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
+import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -58,6 +60,11 @@ public class InterestAreaController {
         //TODO ADD TOKEN CHECK
         List<InterestAreaDto> interestAreas = interestAreaService.getInterestAreasByUserId(token);
         return ResponseEntity.ok(interestAreas);
+    }
+
+    @PutMapping("/interestarea/update")
+    public ResponseEntity<InterestAreaDto> updateInterestArea(@RequestBody InterestAreaDto interestAreaDto) {
+        return ResponseEntity.ok(interestAreaService.update(interestAreaDto));
     }
 
     @DeleteMapping("/interestarea/{id}")

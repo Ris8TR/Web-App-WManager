@@ -1,0 +1,38 @@
+<table>
+  <thead>
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let interestArea of interestAreaList; let i = index">
+    <td>{{ interestArea.id }}</td>
+
+
+    <td *ngIf="!interestArea.isEditing">{{ interestArea.name }}</td>
+    <td *ngIf="interestArea.isEditing">
+      <input [(ngModel)]="interestArea.name" />
+    </td>
+
+    <td *ngIf="!interestArea.isEditing">{{ interestArea.description }}</td>
+    <td *ngIf="interestArea.isEditing">
+      <input [(ngModel)]="interestArea.description" />
+    </td>
+
+    <td *ngIf="!interestArea.isEditing">{{ interestArea.type }}</td>
+    <td *ngIf="interestArea.isEditing">
+      <input [(ngModel)]="interestArea.type" />
+    </td>
+
+    <td>
+      <button *ngIf="!interestArea.isEditing" (click)="startEdit(interestArea)">Modifica</button>
+      <button *ngIf="interestArea.isEditing" (click)="saveEdit(interestArea)">Salva</button>
+      <button *ngIf="interestArea.isEditing" (click)="cancelEdit(interestArea)">Annulla</button>
+    </td>
+  </tr>
+  </tbody>
+</table>

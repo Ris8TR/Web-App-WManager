@@ -20,5 +20,7 @@ public interface InterestAreaService {
 
     List<InterestAreaDto> getInterestAreasByUserId(String userId);
 
+    InterestAreaDto update(InterestAreaDto InterestAreaDto);
+
     void deleteInterestArea(ObjectId id);
 }

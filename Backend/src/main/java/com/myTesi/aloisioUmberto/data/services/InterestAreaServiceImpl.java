@@ -8,6 +8,7 @@ import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
+import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
@@ -131,6 +132,26 @@ public class InterestAreaServiceImpl implements InterestAreaService {
             interestAreaDto.setId(interestArea.getId().toString());
             return interestAreaDto;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public InterestAreaDto update(InterestAreaDto interestAreaDto) {
+        String userId = isValidToken(interestAreaDto.getToken());
+        assert userId != null;
+        InterestArea interestArea = interestAreaRepository.findById(interestAreaDto.getId()).orElse(null);
+        assert interestArea != null;
+
+        if (!Objects.equals(interestArea.getUserId(), userId)) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        interestArea.setType(interestAreaDto.getType());
+        interestArea.setName(interestAreaDto.getName());
+        interestArea.setDescription(interestAreaDto.getDescription());
+        System.out.println(interestArea);
+        interestAreaRepository.save(interestArea);
+
+        return interestAreaDto;
     }
 
     private String isValidToken(String token) {

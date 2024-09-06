@@ -28,6 +28,7 @@ import { Configuration }                                     from '../configurat
 import { InterestAreaDto } from '../model/interestAreaDto';
 import {CookieService} from "ngx-cookie-service";
 import {ToolbarComponent} from "../components/elements/toolbar/toolbar.component";
+import {SensorDto} from "../model/sensorDto";
 
 
 @Injectable()
@@ -293,4 +294,46 @@ export class InterestAreaService {
     );
   }
 
+  /**
+   *
+   *
+   * @param body
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public updateArea(body: InterestAreaDto, observe?: 'body', reportProgress?: boolean): Observable<InterestAreaDto>;
+  public updateArea(body: InterestAreaDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestAreaDto>>;
+  public updateArea(body: InterestAreaDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestAreaDto>>;
+  public updateArea(body: InterestAreaDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (body === null || body === undefined) {
+      throw new Error('Required parameter body was null or undefined when calling updateSensor.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+
+    return this.httpClient.request<SensorDto>('put',`${this.basePath}/v1/interestarea/update`,
+      {
+        body: body,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
 }

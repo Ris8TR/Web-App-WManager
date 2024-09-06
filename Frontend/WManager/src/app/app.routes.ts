@@ -22,6 +22,9 @@ import {UsermodifyComponent} from "./components/pages/user/usermodify/usermodify
 import {UserSendDataComponent} from "./components/pages/user/user-send-data/user-send-data.component";
 import {SensorCreationComponent} from "./components/pages/user/user-sensor-creation/sensor-creation.component";
 import {SensorDataViewComponent} from "./components/pages/sensor/sensor-data-view/sensor-data-view.component";
+import {
+  InterestAreaDataViewComponent
+} from "./components/pages/area/interest-area-data-view/interest-area-data-view.component";
 
 
 
@@ -43,6 +46,7 @@ export const routes: Routes = [
     {path: 'userCreateSensor', title: "Create new sensor' ", component: SensorCreationComponent },
     {path: 'interestAreaViewer', title: "", component: InterestAreaViewerComponent },
     {path: 'Show-Sensor', title: "", component: SensorDataViewComponent },
+    {path: 'Show-Areas', title: "", component: InterestAreaDataViewComponent },
 
     {path: 'reset/:token', title: "Password reset", component: ResetComponent },
 
