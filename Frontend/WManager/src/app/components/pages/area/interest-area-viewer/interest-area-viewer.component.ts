@@ -1,7 +1,7 @@
 import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import * as L from 'leaflet';
 import {SensorDataService} from "../../../../service/sensorData.service";
-import {NgIf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 import {SensorDto} from "../../../../model/sensorDto";
 import {SensorService} from "../../../../service/sensor.service";
@@ -16,7 +16,8 @@ import {FormsModule} from "@angular/forms";
   imports: [
     NgIf,
     ToolbarComponent,
-    FormsModule
+    FormsModule,
+    NgForOf
   ],
   templateUrl: './interest-area-viewer.component.html',
   styleUrl: './interest-area-viewer.component.css'
@@ -124,7 +125,6 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
       default:
         return;
     }
-    console.log(observable)
     observable.subscribe((data) => {
       this.cachedData.set(this.sensorType, this.processData(data));
       this.updateGrid();
@@ -140,9 +140,6 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
       to: `${this.endDate}T${formattedEndHour}:00:00`,
       sensorId: this.sensorType
     };
-
-    console.log(dateDto)
-
     this.sensorDataService.getAllSensorDataBetweenDate(dateDto).subscribe((data) => {
       this.cachedData.set(this.sensorType, this.processData(data));
       this.updateGrid();
