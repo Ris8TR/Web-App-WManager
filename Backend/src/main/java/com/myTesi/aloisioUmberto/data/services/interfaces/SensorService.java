@@ -15,7 +15,7 @@ public interface SensorService {
 
     Optional<SensorDto> findById(String id, String token);
     List<SensorDto> findByCompanyName(String companyName, String token);
-    SensorDto saveDto(NewSensorDto newUserDto);
+    SensorDto saveDto(NewSensorDto newSensorDto);
     List<SensorDto> getAllSensor();
     SensorDto save(MultipartFile file) throws IOException;
 
@@ -26,4 +26,7 @@ public interface SensorService {
     List<SensorDto> findByTypeAndUser(String type, String token);
 
     List<SensorDto> findByInterestAreaId(String interestAreaId, String token);
+
+    SensorDto update(SensorDto sensorDto);
+
 }

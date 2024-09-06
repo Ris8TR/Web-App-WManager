@@ -117,7 +117,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         data.setTimestamp(Date.from(Instant.now()));
 
         if (file != null && !file.isEmpty()) {
-            SensorDataHandler handler = getHandlerForType(sensor.get().getType());
+            SensorDataHandler handler = getHandlerForType(String.valueOf(sensor.get().getType()));
             if (handler != null) {
                 handler.handle(data, newSensorDataDTO, file);
             }

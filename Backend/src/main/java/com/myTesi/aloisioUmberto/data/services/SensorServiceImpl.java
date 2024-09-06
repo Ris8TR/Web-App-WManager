@@ -22,6 +22,7 @@ import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.SensorAndAreas;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
+import com.myTesi.aloisioUmberto.dto.enumetation.PayloadType;
 import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -35,6 +36,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -74,7 +76,7 @@ public class SensorServiceImpl implements SensorService {
         if (BCrypt.checkpw(newSensorDto.getPassword(), user.get().getSensorPassword())) {
             sensor.setPassword(BCrypt.hashpw(newSensorDto.getPassword(), BCrypt.gensalt(10)));
             sensor.setDescription(newSensorDto.getDescription());
-            sensor.setType(newSensorDto.getType());
+            sensor.setType(String.valueOf((newSensorDto.getType())));
             sensor.setUserId(String.valueOf(user.get().getId()));
             sensor.setCompanyName(newSensorDto.getCompanyName());
             sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
@@ -318,6 +320,30 @@ public class SensorServiceImpl implements SensorService {
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public SensorDto update(SensorDto sensorDto) {
+        String userId = isValidToken(sensorDto.getToken());
+        if (userId == null) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        Sensor existingSensor = sensorRepository.findById(sensorDto.getId())
+                .orElseThrow(() -> new RuntimeException("Sensor not found"));
+
+        if (!Objects.equals(sensorDto.getUserId(), existingSensor.getUserId())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+        existingSensor.setType(String.valueOf(sensorDto.getType()));
+        existingSensor.setDescription(sensorDto.getDescription());
+        existingSensor.setCompanyName(sensorDto.getCompanyName());
+        existingSensor.setInterestAreaID(sensorDto.getInterestAreaID());
+        existingSensor.setColorBarId(sensorDto.getColorBarId());
+
+        Sensor updatedSensor = sensorRepository.save(existingSensor);
+        return modelMapper.map(updatedSensor, SensorDto.class);
+    }
+
 
 }
 

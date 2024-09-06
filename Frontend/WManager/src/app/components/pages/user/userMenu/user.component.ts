@@ -41,6 +41,11 @@ export class UserComponent implements OnInit{
     this.router.navigate(['/userCreateSensor']);
 
   }
+
+  redirectToSensorDataView() {
+    this.router.navigate(['/Show-Sensor']);
+
+  }
 }
 
 

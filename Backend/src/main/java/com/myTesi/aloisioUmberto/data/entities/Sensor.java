@@ -1,5 +1,6 @@
 package com.myTesi.aloisioUmberto.data.entities;
 
+import com.myTesi.aloisioUmberto.dto.enumetation.PayloadType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

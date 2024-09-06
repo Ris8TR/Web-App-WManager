@@ -12,15 +12,16 @@ import { SensorDataUploadComponent } from './components/pages/sensor/sensor-data
 import { WebcamComponent } from './components/elements/map/webcam/webcam.component';
 import {
   InterestAreaCreationComponent
-} from "./components/pages/interest-area-creation/interest-area-creation.component";
+} from "./components/pages/area/interest-area-creation/interest-area-creation.component";
 import {ResetComponent} from "./components/pages/auth/reset/reset.component";
 
-import {InterestAreaViewerComponent} from "./components/pages/interest-area-viewer/interest-area-viewer.component";
+import {InterestAreaViewerComponent} from "./components/pages/area/interest-area-viewer/interest-area-viewer.component";
 import {UserComponent} from "./components/pages/user/userMenu/user.component";
 import {UserdataComponent} from "./components/pages/user/userdata/userdata.component";
 import {UsermodifyComponent} from "./components/pages/user/usermodify/usermodify.component";
 import {UserSendDataComponent} from "./components/pages/user/user-send-data/user-send-data.component";
 import {SensorCreationComponent} from "./components/pages/user/user-sensor-creation/sensor-creation.component";
+import {SensorDataViewComponent} from "./components/pages/sensor/sensor-data-view/sensor-data-view.component";
 
 
 
@@ -41,6 +42,7 @@ export const routes: Routes = [
     {path: 'create-area', title: "Create new area' ", component: InterestAreaCreationComponent },
     {path: 'userCreateSensor', title: "Create new sensor' ", component: SensorCreationComponent },
     {path: 'interestAreaViewer', title: "", component: InterestAreaViewerComponent },
+    {path: 'Show-Sensor', title: "", component: SensorDataViewComponent },
 
     {path: 'reset/:token', title: "Password reset", component: ResetComponent },
 

@@ -16,6 +16,7 @@ public class SensorDto {
     private String id;
     private String password;
     private String token;
+    private String colorBarId;
     private PayloadType type;
     private String description;
     private String interestAreaID;

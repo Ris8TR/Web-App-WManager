@@ -1,12 +1,12 @@
 import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import * as L from 'leaflet';
-import {SensorDataService} from "../../../service/sensorData.service";
+import {SensorDataService} from "../../../../service/sensorData.service";
 import {NgIf} from "@angular/common";
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
-import {SensorDto} from "../../../model/sensorDto";
-import {SensorService} from "../../../service/sensor.service";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {SensorDto} from "../../../../model/sensorDto";
+import {SensorService} from "../../../../service/sensor.service";
 import {CookieService} from "ngx-cookie-service";
-import {DateDto} from "../../../model/dateDto";
+import {DateDto} from "../../../../model/dateDto";
 import {FormsModule} from "@angular/forms";
 
 

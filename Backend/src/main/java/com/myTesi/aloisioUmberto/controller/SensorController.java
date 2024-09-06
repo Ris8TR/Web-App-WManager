@@ -47,6 +47,11 @@ public class SensorController {
         return ResponseEntity.ok(sensorService.save(file));
     }
 
+    @PutMapping("/sensors/update")
+    public ResponseEntity<SensorDto> updateSensor(@RequestBody SensorDto sensorDto) {
+        return ResponseEntity.ok(sensorService.update(sensorDto));
+    }
+
 
     @GetMapping("/sensors/company/{companyName}/{token}")
     public ResponseEntity <List<SensorDto>> findByCompanyName(@PathVariable @Valid String companyName,  @PathVariable @Valid String token) {
