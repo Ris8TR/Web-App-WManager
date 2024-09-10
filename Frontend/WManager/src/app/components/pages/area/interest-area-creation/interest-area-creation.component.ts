@@ -1,16 +1,16 @@
 import { Component } from '@angular/core';
 
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {NewSensorDataDto} from "../../../model/newSensorDataDto";
-import {SensorDataService} from "../../../service/sensorData.service";
+import {NewSensorDataDto} from "../../../../model/newSensorDataDto";
+import {SensorDataService} from "../../../../service/sensorData.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CookieService} from "ngx-cookie-service";
 import {Router} from "@angular/router";
-import {NewInterestAreaDto} from "../../../model/newInterestAreaDto";
+import {NewInterestAreaDto} from "../../../../model/newInterestAreaDto";
 import {F} from "@angular/cdk/keycodes";
-import {InterestAreaService} from "../../../service/interestArea.service";
-import {InterestArea} from "../../../model/interestArea";
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {InterestAreaService} from "../../../../service/interestArea.service";
+import {InterestArea} from "../../../../model/interestArea";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 import {resetParseTemplateAsSourceFileForTest} from "@angular/compiler-cli/src/ngtsc/typecheck/diagnostics";
 
 @Component({

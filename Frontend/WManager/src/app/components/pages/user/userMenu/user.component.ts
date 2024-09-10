@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 
 @Component({
   selector: 'app-user',
@@ -39,6 +39,16 @@ export class UserComponent implements OnInit{
 
   redirectToUserCreateSensor() {
     this.router.navigate(['/userCreateSensor']);
+
+  }
+
+  redirectToSensorDataView() {
+    this.router.navigate(['/Show-Sensor']);
+
+  }
+
+  redirectToInterestAreaDataView() {
+    this.router.navigate(['/Show-Areas']);
 
   }
 }

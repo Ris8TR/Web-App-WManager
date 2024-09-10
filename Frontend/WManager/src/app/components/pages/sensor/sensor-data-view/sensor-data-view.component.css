@@ -1,0 +1,27 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead th, tbody td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+tbody td {
+  color: black; /* Imposta il colore del testo a nero */
+}
+
+thead th {
+  background-color: #f2f2f2;
+  color: black; /* Imposta il colore del testo a nero per l'intestazione */
+}
+
+input {
+  color: black; /* Imposta il colore del testo a nero per gli input */
+}
+
+button {
+  color: black; /* Imposta il colore del testo a nero per i bottoni */
+}

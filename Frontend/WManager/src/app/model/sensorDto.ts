@@ -10,16 +10,17 @@
  * Do not edit the class manually.
  */
 
-export interface SensorDto {
-  companyName?: string;
-  userId?: string;
-  id?: string;
-  password?: string;
-  description?: string;
-  type?: string;
-  interestAreaID?: string;
-  longitude?: Array<number>;
-  latitude?: Array<number>;
-  token?: string;
+  export interface SensorDto {
+    companyName?: string;
+    userId?: string;
+    id?: string;
+    password?: string;
+    description?: string;
+    type?: string;
+    interestAreaID?: string;
+    longitude?: Array<number>;
+    latitude?: Array<number>;
+    token?: string;
+  isEditing?: boolean;
 
-}
+  }

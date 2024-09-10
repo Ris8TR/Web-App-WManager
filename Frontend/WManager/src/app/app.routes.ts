@@ -1,26 +1,30 @@
 import { Routes } from '@angular/router';
 import { ForecastComponent } from './components/elements/map/forecast/forecast.component';
 import { MapComponent } from './components/elements/map/observations/map.component';
-import { LoginComponent } from './components/pages/login/login.component';
-import { SigninComponent } from './components/pages/signin/signin.component';
+import { LoginComponent } from './components/pages/auth/login/login.component';
+import { SigninComponent } from './components/pages/auth/signin/signin.component';
 import { BadComponent } from './components/pages/Errors/badRequest/bad.component';
 import { NotAuthorizedComponent } from './components/pages/Errors/not-authorized/not-authorized.component';
 import { NotFoundComponent } from './components/pages/Errors/not-found/not-found.component';
 import { RefusedComponent } from './components/pages/Errors/refused/refused.component';
 import { DetailedAreaComponent } from './components/elements/map/detailed-area/detailed-area.component';
-import { SensorDataUploadComponent } from './components/pages/sensor-data-upload/sensor-data-upload.component';
+import { SensorDataUploadComponent } from './components/pages/sensor/sensor-data-upload/sensor-data-upload.component';
 import { WebcamComponent } from './components/elements/map/webcam/webcam.component';
 import {
   InterestAreaCreationComponent
-} from "./components/pages/interest-area-creation/interest-area-creation.component";
-import {ResetComponent} from "./components/pages/reset/reset.component";
-import {SensorCreationComponent} from "./components/pages/user-sensor-creation/sensor-creation.component";
+} from "./components/pages/area/interest-area-creation/interest-area-creation.component";
+import {ResetComponent} from "./components/pages/auth/reset/reset.component";
 
-import {UserComponent} from "./components/pages/userMenu/user.component";
-import {UserdataComponent} from "./components/pages/userdata/userdata.component";
-import {UsermodifyComponent} from "./components/pages/usermodify/usermodify.component";
-import {UserSendDataComponent} from "./components/pages/user-send-data/user-send-data.component";
-import {InterestAreaViewerComponent} from "./components/pages/interest-area-viewer/interest-area-viewer.component";
+import {InterestAreaViewerComponent} from "./components/pages/area/interest-area-viewer/interest-area-viewer.component";
+import {UserComponent} from "./components/pages/user/userMenu/user.component";
+import {UserdataComponent} from "./components/pages/user/userdata/userdata.component";
+import {UsermodifyComponent} from "./components/pages/user/usermodify/usermodify.component";
+import {UserSendDataComponent} from "./components/pages/user/user-send-data/user-send-data.component";
+import {SensorCreationComponent} from "./components/pages/user/user-sensor-creation/sensor-creation.component";
+import {SensorDataViewComponent} from "./components/pages/sensor/sensor-data-view/sensor-data-view.component";
+import {
+  InterestAreaDataViewComponent
+} from "./components/pages/area/interest-area-data-view/interest-area-data-view.component";
 
 
 
@@ -41,6 +45,8 @@ export const routes: Routes = [
     {path: 'create-area', title: "Create new area' ", component: InterestAreaCreationComponent },
     {path: 'userCreateSensor', title: "Create new sensor' ", component: SensorCreationComponent },
     {path: 'interestAreaViewer', title: "", component: InterestAreaViewerComponent },
+    {path: 'Show-Sensor', title: "", component: SensorDataViewComponent },
+    {path: 'Show-Areas', title: "", component: InterestAreaDataViewComponent },
 
     {path: 'reset/:token', title: "Password reset", component: ResetComponent },
 

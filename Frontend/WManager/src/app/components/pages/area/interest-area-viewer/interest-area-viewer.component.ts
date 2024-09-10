@@ -1,14 +1,13 @@
 import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import * as L from 'leaflet';
-import {SensorDataService} from "../../../service/sensorData.service";
-import {CommonModule, NgIf} from "@angular/common";
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
-import {DateDto} from "../../../model/dateDto";
-import {SensorDto} from "../../../model/sensorDto";
-import {SensorService} from "../../../service/sensor.service";
-import {from} from "rxjs";
-import {FormsModule} from "@angular/forms";
+import {SensorDataService} from "../../../../service/sensorData.service";
+import {NgForOf, NgIf} from "@angular/common";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {SensorDto} from "../../../../model/sensorDto";
+import {SensorService} from "../../../../service/sensor.service";
 import {CookieService} from "ngx-cookie-service";
+import {DateDto} from "../../../../model/dateDto";
+import {FormsModule} from "@angular/forms";
 
 
 @Component({
@@ -17,12 +16,13 @@ import {CookieService} from "ngx-cookie-service";
   imports: [
     NgIf,
     ToolbarComponent,
-    CommonModule,
-    FormsModule
+    FormsModule,
+    NgForOf
   ],
   templateUrl: './interest-area-viewer.component.html',
   styleUrl: './interest-area-viewer.component.css'
-})export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy {
+})
+export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
 
   private map: L.Map | undefined;
   private layerGroup: L.LayerGroup | undefined;
@@ -41,6 +41,8 @@ import {CookieService} from "ngx-cookie-service";
     private cookieService: CookieService,
     public toolbarComponent: ToolbarComponent
   ) {}
+
+
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -110,20 +112,19 @@ import {CookieService} from "ngx-cookie-service";
     switch (interval) {
       case 5:
         this.sensors = [];
-        observable = this.sensorDataService.getAllSensorDataBy5m();
+        observable = this.sensorDataService.getAllSensorDataIn5Min();
         break;
       case 10:
         this.sensors = [];
-        observable = this.sensorDataService.getAllSensorDataBy10m();
+        observable = this.sensorDataService.getAllSensorDataIn10Min();
         break;
       case 15:
         this.sensors = [];
-        observable = this.sensorDataService.getAllSensorDataBy15m();
+        observable = this.sensorDataService.getAllSensorDataIn15Min();
         break;
       default:
         return;
     }
-console.log(observable)
     observable.subscribe((data) => {
       this.cachedData.set(this.sensorType, this.processData(data));
       this.updateGrid();
@@ -135,30 +136,16 @@ console.log(observable)
     const formattedEndHour = this.endHour ? this.endHour.padStart(2, '0') : '00';
 
     const dateDto: DateDto = {
-      form: `${this.startDate}T${formattedStartHour}:00:00`,  // Corretto il formato
-      to: `${this.endDate}T${formattedEndHour}:00:00`,        // Corretto il formato
+      form: `${this.startDate}T${formattedStartHour}:00:00`,
+      to: `${this.endDate}T${formattedEndHour}:00:00`,
       sensorId: this.sensorType
     };
-    console.log(dateDto)
-
-    this.sensorDataService.getAllSensorDataBySensorBetweenDate(dateDto).subscribe((data) => {
+    this.sensorDataService.getAllSensorDataBetweenDate(dateDto).subscribe((data) => {
       this.cachedData.set(this.sensorType, this.processData(data));
       this.updateGrid();
     });
   }
 
-
-
-  private updateGrid(): void {
-    if (this.layerGroup) {
-      this.map!.removeLayer(this.layerGroup);  // Remove the existing layer group
-    }
-    this.layerGroup = L.layerGroup().addTo(this.map!);  // Recreate the layer group
-    const heatData = this.cachedData.get(this.sensorType);
-    if (heatData) {
-      this.addPointsToMap(heatData);
-    }
-  }
 
   private addPointsToMap(heatData: [number, number, number][]): void {
     heatData.forEach(dataPoint => {
@@ -172,12 +159,24 @@ console.log(observable)
           opacity: 1,
           fillOpacity: 0.8
         }).addTo(this.layerGroup!);
-        marker.bindPopup(`Value: ${value}`);
+        marker.bindPopup('Value: ${value}');
       } else {
-        console.error(`Invalid data point: ${dataPoint}`);
+        console.error('Invalid data point: ${dataPoint}');
       }
     });
   }
+
+  private updateGrid(): void {
+    if (this.layerGroup) {
+      this.map!.removeLayer(this.layerGroup);  // Remove the existing layer group
+    }
+    this.layerGroup = L.layerGroup().addTo(this.map!);  // Recreate the layer group
+    const heatData = this.cachedData.get(this.sensorType);
+    if (heatData) {
+      this.addPointsToMap(heatData);
+    }
+  }
+
 
   private getColorScale() {
     return (value: number) => {
@@ -186,7 +185,7 @@ console.log(observable)
       const r = Math.round(255 * ratio);
       const g = 0;
       const b = Math.round(255 * (1 - ratio));
-      return `rgb(${r},${g},${b})`;
+      return 'rgb(${r},${g},${b})';
     };
   }
 
@@ -200,7 +199,7 @@ console.log(observable)
       const lat = sensorData.latitude;
       const lng = sensorData.longitude;
       const value = sensorData.value;
-      console.log(`Processed point: lat=${lat}, lng=${lng}, value=${value}`);
+      console.log('Processed point: lat=${lat}, lng=${lng}, value=${value}');
       return [lat, lng, value];
     });
   }
@@ -211,5 +210,4 @@ console.log(observable)
     }
   }
 
-  protected readonly from = from;
 }

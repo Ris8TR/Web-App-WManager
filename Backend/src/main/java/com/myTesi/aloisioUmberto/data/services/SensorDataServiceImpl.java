@@ -33,11 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -90,8 +87,7 @@ public class SensorDataServiceImpl implements SensorDataService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);  // Ottieni l'ora corrente in UTC
-        sensorData.setTimestamp(Date.from(now.toInstant()));
+        sensorData.setTimestamp(Date.from(Instant.now()));
         return sensorDataRepository.save(sensorData);
     }
 
@@ -118,11 +114,10 @@ public class SensorDataServiceImpl implements SensorDataService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);  // Ottieni l'ora corrente in UTC
-        data.setTimestamp(Date.from(now.toInstant()));
+        data.setTimestamp(Date.from(Instant.now()));
 
         if (file != null && !file.isEmpty()) {
-            SensorDataHandler handler = getHandlerForType(sensor.get().getType());
+            SensorDataHandler handler = getHandlerForType(String.valueOf(sensor.get().getType()));
             if (handler != null) {
                 handler.handle(data, newSensorDataDTO, file);
             }
@@ -220,8 +215,7 @@ public class SensorDataServiceImpl implements SensorDataService {
 
         return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
                 .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
+                .collect(Collectors.toList());    }
 
     @Override
     public List<SensorDataDto> getAllSensorDataIn15Min() {
@@ -234,8 +228,7 @@ public class SensorDataServiceImpl implements SensorDataService {
 
         return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
                 .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
+                .collect(Collectors.toList());    }
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBySensorId5Min(String sensorId) {
@@ -297,20 +290,43 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
      */
-    public List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
 
-        //TODO VEDERE PERCHE NON GLI PIACE COME GLI ARRIVA E DEVO FARE -2 ORE
+    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
+    public List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
+        // Supponiamo che le date siano nel fuso orario locale e le convertiamo in UTC
         ZonedDateTime fromDateTime = dateDto.getForm().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
         ZonedDateTime toDateTime = dateDto.getTo().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
 
         Date fromDateUTC = Date.from(fromDateTime.toInstant());
         Date toDateUTC = Date.from(toDateTime.toInstant());
 
+        System.out.println("From Date UTC (after -2 hours): " + fromDateUTC);
+        System.out.println("To Date UTC (after -2 hours): " + toDateUTC);
+
+        List<SensorDataDto> results = sensorDataRepository.findAllBySensorIdAndTimestampBetween(dateDto.getSensorId(), fromDateUTC, toDateUTC).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+
+        return results;
+    }
+
+    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
+    public List<SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto) {
+        // Supponiamo che le date siano nel fuso orario locale e le convertiamo in UTC
+        ZonedDateTime fromDateTime = dateDto.getForm().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
+        ZonedDateTime toDateTime = dateDto.getTo().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
+
+        Date fromDateUTC = Date.from(fromDateTime.toInstant());
+        Date toDateUTC = Date.from(toDateTime.toInstant());
+
+        System.out.println("From Date UTC (after -2 hours): " + fromDateUTC);
+        System.out.println("To Date UTC (after -2 hours): " + toDateUTC);
+
+        // Effettua la query utilizzando l'intervallo di date
         List<SensorDataDto> results = sensorDataRepository.findAllByTimestampBetween(fromDateUTC, toDateUTC).stream()
                 .map(sensorDataMapper::sensorDataToSensorDataDto)
                 .collect(Collectors.toList());
 
-        System.out.println("Query Results: " + results.size() + " records found.");
         return results;
     }
 

@@ -3,12 +3,11 @@ import {UserComponent} from "../userMenu/user.component";
 import {FormsModule} from "@angular/forms";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {NgForOf} from "@angular/common";
-import {SensorService} from "../../../service/sensor.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CookieService} from "ngx-cookie-service";
 import {Router} from "@angular/router";
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
-import {InterestAreaService} from "../../../service/interestArea.service";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+
 
 @Component({
   selector: 'app-usermodify',

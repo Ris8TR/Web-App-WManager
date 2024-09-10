@@ -619,5 +619,26 @@ footer {
 
 
 
+.sidebar-right {
+  width: 200px;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.5); /* Sfondo semi-trasparente */
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+.sensor-buttons {
+  list-style-type: none;
+  padding: 0;
+}
+
+.sensor-buttons li {
+  margin-bottom: 10px;
+}
+
+.sensor-buttons button {
+  width: 100%;
+}
+
 
 

@@ -1,0 +1,44 @@
+<table>
+  <thead>
+  <tr>
+    <th>Company Name</th>
+    <th>ID</th>
+    <th>Description</th>
+    <th>Type</th>
+    <th>Interest Area ID</th>
+    <th>Longitude</th>
+    <th>Latitude</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let sensor of sensorList; let i = index">
+    <td *ngIf="!sensor.isEditing">{{ sensor.companyName }}</td>
+    <td *ngIf="sensor.isEditing">
+      <input [(ngModel)]="sensor.companyName" />
+    </td>
+
+    <td>{{ sensor.id }}</td>
+
+    <td *ngIf="!sensor.isEditing">{{ sensor.description }}</td>
+    <td *ngIf="sensor.isEditing">
+      <input [(ngModel)]="sensor.description" />
+    </td>
+
+    <td>{{ sensor.type }}</td>
+
+    <td>{{ sensor.interestAreaID }}</td>
+
+    <td>{{ sensor.longitude?.join(', ') }}</td>
+
+    <td>{{ sensor.latitude?.join(', ') }}</td>
+
+
+    <td>
+      <button *ngIf="!sensor.isEditing" (click)="startEdit(sensor)">Modifica</button>
+      <button *ngIf="sensor.isEditing" (click)="saveEdit(sensor)">Salva</button>
+      <button *ngIf="sensor.isEditing" (click)="cancelEdit(sensor)">Annulla</button>
+    </td>
+  </tr>
+  </tbody>
+</table>

@@ -17,11 +17,11 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
-@CrossOrigin(origins = "http://192.168.15.34:4200", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
 @RestController
 @RequestMapping("/v1")
 @RequiredArgsConstructor
-@Tag(name = "SensorData")
+@CrossOrigin(origins = "http://192.168.15.34:4200")
+@Tag(name = "SensorData") //Name displayed on swagger
 public class SensorDataController {
 
     private final SensorDataService sensorDataService;
@@ -44,21 +44,9 @@ public class SensorDataController {
     }
 
     @GetMapping("/SensorData/get-latest")
-    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBy5m() {
+    public ResponseEntity<List<SensorDataDto>> getAllSensorData() {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataIn5Min());
     }
-
-    @GetMapping("/SensorData/get-10")
-    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBy10m() {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn10Min());
-    }
-
-
-    @GetMapping("/SensorData/get-15")
-    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBy15m() {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn15Min());
-    }
-
 
     @GetMapping("/SensorData/last5m-by-sensorId/{sensorId}")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensor5Min(@PathVariable String sensorId) {
@@ -75,11 +63,30 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId15Min(sensorId));
     }
 
+    @GetMapping("/SensorData/last5m")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn5Min() {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn5Min());
+    }
+
+    @GetMapping("/SensorData/last10m")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn10Min() {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn10Min());
+    }
+
+    @GetMapping("/SensorData/last15m")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn15Min() {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn15Min());
+    }
+
     @PostMapping("/SensorData/date")
+    public ResponseEntity<List<SensorDataDto>> getAllSensorDataBetweenDate(@RequestBody DateDto date) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBetweenDate(date));
+    }
+
+    @GetMapping("/SensorData/date/sensor")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensorBetweenDate(@RequestBody DateDto date) {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorBetweenDate(date));
     }
-
 
     @GetMapping("/SensorData/{id}")
     public ResponseEntity<SensorDataDto> getSensorDataById(@PathVariable String id) {

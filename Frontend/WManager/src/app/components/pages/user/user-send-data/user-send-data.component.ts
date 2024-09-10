@@ -1,20 +1,19 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {UserComponent} from "../userMenu/user.component";
 import {FormsModule} from "@angular/forms";
-import {NewSensorDataDto} from "../../../model/newSensorDataDto";
-import {SensorDataService} from "../../../service/sensorData.service";
-import {SensorService} from "../../../service/sensor.service";
+
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CookieService} from "ngx-cookie-service";
 import {Router} from "@angular/router";
-import {InterestAreaDto} from "../../../model/interestAreaDto";
-import {InterestAreaService} from "../../../service/interestArea.service";
-import {SensorDto} from "../../../model/sensorDto";
-import {InterestArea} from "../../../model/interestArea";
+
 import {MatRadioButton} from "@angular/material/radio";
 import {NgForOf} from "@angular/common";
-import {ToolbarComponent} from "../../elements/toolbar/toolbar.component";
-import {SensorAndAreas} from "../../../model/sensorAndAreas";
+import {NewSensorDataDto} from "../../../../model/newSensorDataDto";
+import {SensorDataService} from "../../../../service/sensorData.service";
+import {SensorService} from "../../../../service/sensor.service";
+import {InterestAreaService} from "../../../../service/interestArea.service";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {SensorAndAreas} from "../../../../model/sensorAndAreas";
 
 
 @Component({
