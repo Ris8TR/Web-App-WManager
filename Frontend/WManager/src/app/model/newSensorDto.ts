@@ -10,11 +10,19 @@
  * Do not edit the class manually.
  */
 
+export enum payloadType{
+  image,
+  raster,
+  json,
+  shapefile
+}
+
 export interface NewSensorDto {
     companyName?: string;
     password?: string;
     description?: string;
     userId?: string;
+    payloadType?: payloadType;
     type?: string;
     sensorId?: string;
     interestAreaId?: string;

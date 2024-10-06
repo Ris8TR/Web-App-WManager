@@ -15,7 +15,7 @@ import java.util.Date;
 public class NewSensorDataDto {
     private String sensorId;
     private String Id;
-    private LocalDateTime timestamp;
+    private Date timestamp;
     private String payloadType;
     private double latitude;
     private double longitude;

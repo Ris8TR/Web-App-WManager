@@ -30,7 +30,9 @@ public class SensorData {
 
     private Date timestamp; // Timestamp dei dati inviati
 
-    //@NotNull
+    private Date savedOnTime; // Timestamp dei dati registrati
+
+    @NotNull
     private Object payload;
 
     private String interestAreaID;

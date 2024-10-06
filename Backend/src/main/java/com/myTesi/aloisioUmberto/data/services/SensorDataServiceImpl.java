@@ -86,8 +86,8 @@ public class SensorDataServiceImpl implements SensorDataService {
         }else {
             throw new RuntimeException("Invalid credentials");
         }
-
-        sensorData.setTimestamp(Date.from(Instant.now()));
+        sensorData.setTimestamp(newSensorDataDto.getTimestamp());
+        sensorData.setSavedOnTime(Date.from(Instant.now()));
         return sensorDataRepository.save(sensorData);
     }
 
@@ -113,8 +113,8 @@ public class SensorDataServiceImpl implements SensorDataService {
         }else {
             throw new RuntimeException("Invalid credentials");
         }
-
-        data.setTimestamp(Date.from(Instant.now()));
+        data.setTimestamp(newSensorDataDTO.getTimestamp());
+        data.setSavedOnTime(Date.from(Instant.now()));
 
         if (file != null && !file.isEmpty()) {
             SensorDataHandler handler = getHandlerForType(String.valueOf(sensor.get().getType()));

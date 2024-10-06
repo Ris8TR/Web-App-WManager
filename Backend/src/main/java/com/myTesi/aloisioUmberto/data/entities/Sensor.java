@@ -17,7 +17,6 @@ import java.util.List;
 @NoArgsConstructor
 @Document(collection = "Sensor")
 public class Sensor {
-
         @Id
         private ObjectId id;
         //@Size(min=10)
@@ -26,12 +25,11 @@ public class Sensor {
         private String companyName;
         private String userId;
         private String description;
+        private PayloadType payloadType;
         private String type;
         @NotNull
         @Field
         private String password;
         private String interestAreaID;
         private String colorBarId;
-
-
 }
