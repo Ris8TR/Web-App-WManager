@@ -76,7 +76,8 @@ public class SensorServiceImpl implements SensorService {
         if (BCrypt.checkpw(newSensorDto.getPassword(), user.get().getSensorPassword())) {
             sensor.setPassword(BCrypt.hashpw(newSensorDto.getPassword(), BCrypt.gensalt(10)));
             sensor.setDescription(newSensorDto.getDescription());
-            sensor.setType(String.valueOf((newSensorDto.getType())));
+            sensor.setPayloadType(newSensorDto.getPayloadType());
+            sensor.setType(newSensorDto.getType());
             sensor.setUserId(String.valueOf(user.get().getId()));
             sensor.setCompanyName(newSensorDto.getCompanyName());
             sensor.setInterestAreaID(newSensorDto.getInterestAreaId());

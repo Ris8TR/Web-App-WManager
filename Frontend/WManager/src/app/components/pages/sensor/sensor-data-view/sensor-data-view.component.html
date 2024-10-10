@@ -4,6 +4,7 @@
     <th>Company Name</th>
     <th>ID</th>
     <th>Description</th>
+    <th>Payload Type</th>
     <th>Type</th>
     <th>Interest Area ID</th>
     <th>Longitude</th>
@@ -25,7 +26,13 @@
       <input [(ngModel)]="sensor.description" />
     </td>
 
-    <td>{{ sensor.type }}</td>
+    <td>{{ sensor.payloadType }}</td>
+
+    <td *ngIf="!sensor.isEditing">{{ sensor.type }}</td>
+    <td *ngIf="sensor.isEditing">
+      <input [(ngModel)]="sensor.type" />
+    </td>
+
 
     <td>{{ sensor.interestAreaID }}</td>
 

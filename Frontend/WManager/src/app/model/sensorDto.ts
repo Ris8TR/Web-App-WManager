@@ -9,13 +9,15 @@
  * https://github.com/swagger-api/swagger-codegen.git
  * Do not edit the class manually.
  */
+import {payloadType} from "./newSensorDto";
 
-  export interface SensorDto {
+export interface SensorDto {
     companyName?: string;
     userId?: string;
     id?: string;
     password?: string;
     description?: string;
+    payloadType?: string;
     type?: string;
     interestAreaID?: string;
     longitude?: Array<number>;

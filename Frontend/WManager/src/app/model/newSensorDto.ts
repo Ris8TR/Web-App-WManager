@@ -11,10 +11,10 @@
  */
 
 export enum payloadType{
-  image,
-  raster,
+  geojson,
   json,
-  shapefile
+  image,
+  raster
 }
 
 export interface NewSensorDto {

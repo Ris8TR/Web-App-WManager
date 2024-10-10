@@ -16,22 +16,30 @@
                    placeholder="Description:" id="description" name="description" [(ngModel)]="data.description" required />
           </div>
 
+
+          <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" style="color: black">Password*:</label>
+            <input class="form-control form-control-lg"
+                   placeholder="Password:" type="password" id="password" name="password" [(ngModel)]="data.password" required>
+          </div>
+
           <div data-mdb-input-init class="form-outline mb-4">
             <label class="form-label" style="color: black">Type*:</label>
+            <input class="form-control form-control-lg" id="type" name="type"  placeholder="Type:"[(ngModel)]="data.type" required>
+          </div>
+
+          <div data-mdb-input-init class="form-outline mb-4">
+            <label class="form-label" style="color: black">Payload Type*:</label>
             <select class="form-control form-control-lg"
-                    id="type"
+                    id="payloadType"
                     name="type"
-                    [(ngModel)]="data.type"
+                    [(ngModel)]="data.payloadType"
                     required>
               <option *ngFor="let type of fileTypes" [value]="type">{{ type }}</option>
             </select>
           </div>
 
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Password*:</label>
-            <input class="form-control form-control-lg"
-                   placeholder="Password:" type="password" id="password" name="password" [(ngModel)]="data.password" required/>
-          </div>
+
 
           <div class="full-width">
             <label style="color: black">Seleziona Area di Interesse*</label>
@@ -41,6 +49,9 @@
               </mat-radio-button>
             </mat-radio-group>
           </div>
+
+
+
           <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
                   style="padding-left: 2.5rem; padding-right: 2.5rem;" [disabled]="!controllo()">Carica dato</button>
         </form>
