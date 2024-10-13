@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 
 public class SensorDataSimulator {
 
-    private static final int NUM_SENSORS_PER_USER = 15;
+    private static final int NUM_SENSORS_PER_USER = 10;
     private static final int NUM_USERS = 5;
     private static final Map<String, List<NewSensorDto>> userSensorsMap = new HashMap<>();
 

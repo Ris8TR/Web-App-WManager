@@ -219,6 +219,7 @@ public class SensorServiceImpl implements SensorService {
                     newSensor.setPassword(BCrypt.hashpw(password, BCrypt.gensalt(10)));
                     newSensor.setInterestAreaID(interestAreaId);
                     newSensor.setDescription(description);
+                    newSensor.setInterestAreaID(interestAreaId);
 
                     sensorRepository.save(newSensor);
 

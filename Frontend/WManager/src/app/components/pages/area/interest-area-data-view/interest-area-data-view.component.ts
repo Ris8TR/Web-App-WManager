@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {InterestAreaDto} from "../../../../model/interestAreaDto";
 import {FormsModule} from "@angular/forms";
 import {InterestAreaService} from "../../../../service/interestArea.service";
@@ -18,7 +18,7 @@ import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
   templateUrl: './interest-area-data-view.component.html',
   styleUrl: './interest-area-data-view.component.css'
 })
-export class InterestAreaDataViewComponent {
+export class InterestAreaDataViewComponent implements  OnInit{
   token = "";
   interestAreaList: InterestAreaDto[] = [];
 
@@ -34,6 +34,7 @@ export class InterestAreaDataViewComponent {
   }
 
   loadData() {
+    console.log("sdaaaaaa")
     this.toolbar.refreshToken().then(r => {
      this.token = this.cookieService.get("token");
     this.interestAreaService.getInterestAreasByUser(this.token).subscribe(

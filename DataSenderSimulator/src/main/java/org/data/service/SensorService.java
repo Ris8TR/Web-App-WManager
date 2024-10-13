@@ -68,10 +68,11 @@ public class SensorService {
                       "password": "%s",
                       "description": "%s",
                       "userId": "%s",
+                      "token": "%s",
                       "interestAreaId": "%s"
                     }""",
                     newSensor.getCompanyName(), newSensor.getPassword(),
-                    newSensor.getDescription(), token,
+                    newSensor.getDescription(), token,token,
                     newSensor.getInterestAreaId()
             );
 
@@ -126,7 +127,8 @@ public class SensorService {
                 try (CloseableHttpResponse response = client.execute(post)) {
                     String responseBody = EntityUtils.toString(response.getEntity());
                     if (response.getStatusLine().getStatusCode() == 200) {
-                        System.out.println("Data sent successfully for sensor " + sensor.getSensorId());
+                        //System.out.println("Data sent successfully for sensor " + sensor.getSensorId());
+                        System.out.println(sensorDataJson);
                     } else {
                         System.err.println("Failed to send data for sensor " + sensor.getSensorId() + ": " + response.getStatusLine().getStatusCode());
                         System.err.println("Response: " + responseBody);
@@ -156,7 +158,7 @@ public class SensorService {
         return String.format(
                 """
                 {
-                    "userId": "%s",
+                    "token": "%s",
                     "sensorId": "%s",
                     "timestamp": "%s",
                     "payloadType": "json",

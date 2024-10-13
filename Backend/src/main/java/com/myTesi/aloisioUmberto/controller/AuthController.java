@@ -32,6 +32,7 @@ public class AuthController {
 
     @PostMapping("/auth/user")
     public ResponseEntity<TokenDto> loginUser(HttpServletRequest req, HttpServletResponse resp, @RequestBody LoginDto loginDto) {
+        System.out.println(loginDto);
         return authService.loginUser(req, resp, loginDto);
     }
 

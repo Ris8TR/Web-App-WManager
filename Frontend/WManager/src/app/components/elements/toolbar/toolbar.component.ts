@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
@@ -24,7 +24,7 @@ import {jwtDecode} from "jwt-decode";
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.css'
 })
-export class ToolbarComponent {
+export class ToolbarComponent implements  OnInit{
 
   pageNumber: number = 0;
   logStringResult: string = "Login";
@@ -89,9 +89,10 @@ export class ToolbarComponent {
       (interestAreas: InterestAreaDto[]) => {
         this.interestAreaNames = [];
         interestAreas.forEach((area: InterestAreaDto) => {
-          if (area.id && area.name) {
+          if (area.id || area.name) {
             this.interestAreaNames.push({ id: area.id, name: area.name });
           }
+          console.log(this.interestAreaNames)
         });
       },
       (error: any) => {
@@ -102,7 +103,7 @@ export class ToolbarComponent {
 
 
 redirectToInterestArea(id: string) {
-  this.router.navigate(['/detail', id]);
+  this.router.navigate(['/interestAreaViewer', id]);
 }
 
   redirectToCreateArea() {

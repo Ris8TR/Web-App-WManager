@@ -50,4 +50,6 @@ public interface SensorDataService  {
     void delete(String token, String id);
 
     public SensorData saveSensorData(NewSensorDataDto newSensorDataDto);
+
+    SensorDataDto getLatestSensorDataBySensorId(String token, String id);
 }

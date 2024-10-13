@@ -158,6 +158,52 @@ export class SensorService {
   /**
    *
    *
+   * @param interestAreaId
+   * @param token
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public findByInterestAreaId(interestAreaId: string, token: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDto>>;
+  public findByInterestAreaId(interestAreaId: string, token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDto>>>;
+  public findByInterestAreaId(interestAreaId: string, token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDto>>>;
+  public findByInterestAreaId(interestAreaId: string, token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (interestAreaId === null || interestAreaId === undefined) {
+      throw new Error('Required parameter interestAreaId was null or undefined when calling findByInterestAreaId.');
+    }
+
+    if (token === null || token === undefined) {
+      throw new Error('Required parameter token was null or undefined when calling findByInterestAreaId.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDto>>('get',`${this.basePath}/v1/sensors/interestArea/${encodeURIComponent(String(interestAreaId))}/${encodeURIComponent(String(token))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
    * @param id
    * @param token
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.

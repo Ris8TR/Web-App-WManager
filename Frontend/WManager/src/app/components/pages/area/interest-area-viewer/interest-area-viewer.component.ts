@@ -8,6 +8,8 @@ import {SensorService} from "../../../../service/sensor.service";
 import {CookieService} from "ngx-cookie-service";
 import {DateDto} from "../../../../model/dateDto";
 import {FormsModule} from "@angular/forms";
+import {ActivatedRoute, ParamMap, Router} from "@angular/router";
+import {SensorDataDto} from "../../../../model/sensorDataDto";
 
 
 @Component({
@@ -22,9 +24,10 @@ import {FormsModule} from "@angular/forms";
   templateUrl: './interest-area-viewer.component.html',
   styleUrl: './interest-area-viewer.component.css'
 })
-export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
+export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, OnInit{
 
   private map: L.Map | undefined;
+  id: string | null = null;
   private layerGroup: L.LayerGroup | undefined;
   public sensorType: string = 'CO2';  // Default sensor type
   public sensors: SensorDto[] = [];
@@ -39,51 +42,108 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
     private sensorDataService: SensorDataService,
     private sensorService: SensorService,
     private cookieService: CookieService,
-    public toolbarComponent: ToolbarComponent
+    public toolbarComponent: ToolbarComponent,
+    private route: ActivatedRoute
   ) {}
 
 
+  ngOnInit(): void {
+    // Osserva il cambiamento dell'id e carica i dati quando cambia
+    this.route.paramMap.subscribe((params: ParamMap) => {
+      const newId = params.get('id');
+      if (newId !== this.id) {
+        this.id = newId;
+        this.reloadComponentData();
+      }
+    });
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.initializeMap();
-      this.layerGroup = L.layerGroup().addTo(this.map!);
-      this.loadSensorData();
-      this.loadSensors();
+      if (!this.map) {
+        this.initializeMap();
+      }
+      if (!this.layerGroup) {
+        this.layerGroup = L.layerGroup().addTo(this.map!);
+      }
+      this.reloadComponentData();  // Carica i dati inizialmente
       this.logStringResult = this.toolbarComponent.logStringResult;
     }, 10);
   }
 
-  private initializeMap(): void {
-    this.map = L.map('map').setView([45.0, 7.0], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 8,
-      minZoom: 5
-    }).addTo(this.map);
+  // Funzione che ricarica tutti i dati quando l'id cambia
+  private reloadComponentData(): void {
+    if (!this.id) {
+      return;
+    }
 
-    this.map.on('moveend', () => {
-      this.updateGrid();
-    });
+    // Ripulisce la cache quando cambia l'id
+    this.cachedData.clear();
+    // Carica i dati dei sensori e aggiorna la mappa
+    this.loadSensors();
+    this.loadSensorData();
+  }
+
+  private initializeMap(): void {
+    if (!this.map) {  // Verifica se la mappa è già stata inizializzata
+      this.map = L.map('map').setView([45.0, 7.0], 5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 8,
+        minZoom: 5
+      }).addTo(this.map);
+
+      this.map.on('moveend', () => {
+        this.updateGrid();
+      });
+    }
   }
 
   private loadSensors(): void {
-    this.sensorService.findByUserId(this.cookieService.get('token')).subscribe((sensors) => {
+    this.sensorService.findByInterestAreaId(this.id!, this.cookieService.get('token')).subscribe((sensors) => {
       this.sensors = sensors;
     });
-  }
+    console.log(this.sensors)
+    console.log("Sensor " + this.sensors)
+    console.log("Sensor cose " + this.id + "   " +  this.cookieService.get('token'))
 
+  }
   onSensorSelect(sensor: SensorDto): void {
     if (sensor.type != null) {
       this.sensorType = sensor.type;
     }
+
+    // Carica i dati relativi al sensore selezionato
+    this.sensorDataService.getSensorDataBySensorId(sensor.id!, this.cookieService.get('token')).subscribe((sensorData: SensorDataDto) => {
+      if (sensorData ) {
+        console.log("Sensor data" + sensorData)
+        const latestData = sensorData; // Prendi il dato più recente o il primo disponibile
+        if (latestData.latitude && latestData.longitude) {
+          const lat = latestData.latitude;  // Assumi che il primo valore sia la latitudine
+          const lng = latestData.longitude; // Assumi che il primo valore sia la longitudine
+
+          // Sposta la mappa sulla posizione del sensore selezionato e fai zoom
+          if (this.map) {
+            this.map.setView([lat, lng], 10);  // Imposta lo zoom a 10 o il livello che preferisci
+          }
+        } else {
+          console.error('Coordinate mancanti per il sensore selezionato');
+        }
+      } else {
+        console.log(sensor)
+        console.error('Nessun dato trovato per il sensore selezionato');
+      }
+    });
+
     this.loadSensorData();
   }
+
+
 
   private loadSensorData(): void {
     if (!this.map) {
       console.error('Map is not initialized yet.');
-      return; // Ensure map is initialized before proceeding
+      return; // Fermati finché la mappa non è inizializzata
     }
 
     if (this.cachedData.has(this.sensorType!)) {
@@ -146,7 +206,6 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
     });
   }
 
-
   private addPointsToMap(heatData: [number, number, number][]): void {
     heatData.forEach(dataPoint => {
       const [lat, lng, value] = dataPoint;
@@ -159,7 +218,7 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
           opacity: 1,
           fillOpacity: 0.8
         }).addTo(this.layerGroup!);
-        marker.bindPopup('Value: ${value}');
+        marker.bindPopup(`Value: ${value}`);
       } else {
         console.error('Invalid data point: ${dataPoint}');
       }
@@ -176,7 +235,6 @@ export class InterestAreaViewerComponent  implements AfterViewInit, OnDestroy {
       this.addPointsToMap(heatData);
     }
   }
-
 
   private getColorScale() {
     return (value: number) => {

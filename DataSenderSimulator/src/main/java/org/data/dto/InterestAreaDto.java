@@ -7,6 +7,15 @@ public class InterestAreaDto {
         private String id; // Identificatore univoco del documento nel database
         private String userId; // ID dell'utente a cui appartiene l'area di interesse
         private String name; // Nome dell'area di interesse
+        private String token;  // Add this field
+
+        public String getToken() {
+                return token;
+        }
+
+        public void setToken(String token) {
+                this.token = token;
+        }
 
         public String getId() {
                 return id;
@@ -21,6 +30,8 @@ public class InterestAreaDto {
                         ", geometry='" + geometry + '\'' +
                         ", Type='" + Type + '\'' +
                         ", description='" + description + '\'' +
+                        ", token='" + token + '\'' +
+
                         '}';
         }
 

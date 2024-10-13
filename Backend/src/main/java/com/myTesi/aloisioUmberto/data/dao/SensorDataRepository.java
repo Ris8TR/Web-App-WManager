@@ -30,4 +30,5 @@ public interface SensorDataRepository extends MongoRepository<SensorData, String
     Optional<SensorData> findByIdAndSensorId( String id, String sensorId);
 
     Optional<SensorData> findTopByTimestampBetweenAndSensorId(Date date, Date date2, @NotNull String sensorId);
+    Optional<SensorData> findTopBySensorId(String sensorId);
 }

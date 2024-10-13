@@ -77,7 +77,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         if (BCrypt.checkpw(newSensorDataDto.getSensorPassword(), user.get().getSensorPassword())) {
             try {
                 sensorData.setSensorId(sensor.get().getId().toString());
-                //TODO Aggiungere verifica area di interesse
+
                 sensor.get().setInterestAreaID(sensorData.getInterestAreaID());
                 sensorRepository.save(sensor.get());
             } catch (DataIntegrityViolationException e) {
@@ -92,8 +92,18 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     @Override
+    public SensorDataDto getLatestSensorDataBySensorId(String token, String id) {
+        String userId = isValidToken(token);
+        assert userId != null;
+        System.out.println(id);
+
+        Optional<SensorData> sensorData = sensorDataRepository.findTopBySensorId(id);
+        System.out.println(sensorData);
+        return sensorData.map(data -> modelMapper.map(data, SensorDataDto.class)).orElse(null);
+    }
+
+    @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
-        System.out.println(newSensorDataDTO);
         SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
         String userId = isValidToken(newSensorDataDTO.getToken());
         assert userId != null;
@@ -102,10 +112,9 @@ public class SensorDataServiceImpl implements SensorDataService {
         assert  sensor.isPresent();
         if (BCrypt.checkpw(newSensorDataDTO.getSensorPassword(), user.get().getSensorPassword())) {
             try {
-                System.out.println(sensor.get().getId().toString());
             data.setSensorId(sensor.get().getId().toString());
             //TODO Aggiungere verifica area di interesse
-            sensor.get().setInterestAreaID(data.getInterestAreaID());
+            data.setInterestAreaID(newSensorDataDTO.getInterestAreaId());
             sensorRepository.save(sensor.get());
             } catch (DataIntegrityViolationException e) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);

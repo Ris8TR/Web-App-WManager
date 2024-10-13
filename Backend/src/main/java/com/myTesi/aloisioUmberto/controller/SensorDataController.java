@@ -91,6 +91,11 @@ public class SensorDataController {
     @GetMapping("/SensorData/{id}")
     public ResponseEntity<SensorDataDto> getSensorDataById(@PathVariable String id) {
         return ResponseEntity.ok(sensorDataService.getSensorDataById(id));
+
+    }@GetMapping("/SensorData/Sensor/{id}/{token}")
+    public ResponseEntity<SensorDataDto> getSensorDataBySensorId(@PathVariable String id, @PathVariable String token ) {
+        System.out.println("sdsad");
+        return ResponseEntity.ok(sensorDataService.getLatestSensorDataBySensorId(token,id));
     }
 
     @PutMapping("/SensorData/{id}")

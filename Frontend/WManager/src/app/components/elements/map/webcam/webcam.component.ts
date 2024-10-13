@@ -110,7 +110,7 @@ export class WebcamComponent {
             Lon: ${longitude} <br>
           <img src="${image}" style="max-width:80%;" onerror="this.style.display='none';">`;
 
-          const marker = L.marker([latitude[0], longitude[0]], {
+          const marker = L.marker([latitude, longitude], {
             icon: this.createGreenMarkerIcon(sensorCount) // Create icon
           }).bindPopup(popupContent);
 
