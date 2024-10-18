@@ -24,7 +24,7 @@
             <a class="nav-link py-3 px-0 px-lg-3 rounded" href="">Forecast</a>
           </li>
           <!-- Interest Areas Dropdown (now identical to Observations) -->
-          <li class="nav-item mx-0 mx-lg-1 dropdown">
+          <li  *ngIf="logStringResult !== 'Login'" class="nav-item mx-0 mx-lg-1 dropdown">
             <a class="nav-link py-3 px-0 px-lg-3 dropdown-toggle" id="NavbarInterest" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Interest Areas
             </a>

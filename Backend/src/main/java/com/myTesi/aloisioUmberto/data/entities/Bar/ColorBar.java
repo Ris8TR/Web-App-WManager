@@ -15,7 +15,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@Document(collection = "InterestArea")
+@Document(collection = "ColorBar")
 @Data
 public class ColorBar {
 
