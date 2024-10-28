@@ -83,7 +83,7 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBetweenDate(date));
     }
 
-    @GetMapping("/SensorData/date/sensor")
+    @PostMapping("/SensorData/date/sensor")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensorBetweenDate(@RequestBody DateDto date) {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorBetweenDate(date));
     }
@@ -94,7 +94,6 @@ public class SensorDataController {
 
     }@GetMapping("/SensorData/Sensor/{id}/{token}")
     public ResponseEntity<SensorDataDto> getSensorDataBySensorId(@PathVariable String id, @PathVariable String token ) {
-        System.out.println("sdsad");
         return ResponseEntity.ok(sensorDataService.getLatestSensorDataBySensorId(token,id));
     }
 

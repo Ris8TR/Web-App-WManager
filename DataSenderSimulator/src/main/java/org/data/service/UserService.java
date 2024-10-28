@@ -79,6 +79,9 @@ public class UserService {
                     System.out.println("User created successfully: " + newUser.getEmail());
                     JSONObject jsonResponse = new JSONObject(responseBody);
                     userId = jsonResponse.getString("id");
+                } else if (response.getStatusLine().getStatusCode() == 409) {
+
+                    userId = loginUser(newUser);;
                 } else {
                     System.err.println("Failed to create user: " + response.getStatusLine().getStatusCode());
                     System.err.println("Response: " + responseBody);
@@ -123,6 +126,41 @@ public class UserService {
             e.printStackTrace();
         }
         return token;
+    }
+
+    public String loginExistingUser(NewUserDto newUser) {
+        String token = null;
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            HttpPost post = new HttpPost(LOGIN_URL);
+            post.setHeader("Content-Type", "application/json");
+            post.setHeader("Accept", "application/json");
+
+            String loginJson = String.format(
+                    """
+                    {
+                      "email": "%s",
+                      "password": "%s"
+                    }""",
+                    newUser.getEmail(), newUser.getPassword()
+            );
+
+            StringEntity entity = new StringEntity(loginJson, ContentType.APPLICATION_JSON);
+            post.setEntity(entity);
+
+            try (CloseableHttpResponse response = client.execute(post)) {
+                String responseBody = EntityUtils.toString(response.getEntity());
+                if (response.getStatusLine().getStatusCode() == 200) {
+                    System.out.println("Login successful for user: " + newUser.getEmail());
+                    new JSONObject(responseBody).getString("id");
+                } else {
+                    System.err.println("Failed to login: " + response.getStatusLine().getStatusCode());
+                    System.err.println("Response: " + responseBody);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private String parseTokenFromResponse(String responseBody) {

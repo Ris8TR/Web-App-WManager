@@ -7,7 +7,6 @@ import { BadComponent } from './components/pages/Errors/badRequest/bad.component
 import { NotAuthorizedComponent } from './components/pages/Errors/not-authorized/not-authorized.component';
 import { NotFoundComponent } from './components/pages/Errors/not-found/not-found.component';
 import { RefusedComponent } from './components/pages/Errors/refused/refused.component';
-import { DetailedAreaComponent } from './components/elements/map/detailed-area/detailed-area.component';
 import { SensorDataUploadComponent } from './components/pages/sensor/sensor-data-upload/sensor-data-upload.component';
 import { WebcamComponent } from './components/elements/map/webcam/webcam.component';
 import {
@@ -25,13 +24,14 @@ import {SensorDataViewComponent} from "./components/pages/sensor/sensor-data-vie
 import {
   InterestAreaDataViewComponent
 } from "./components/pages/area/interest-area-data-view/interest-area-data-view.component";
+import {resolve} from "@angular/compiler-cli";
 
 
 
 export const routes: Routes = [
     //Pages
-    {path: '', redirectTo: "/home", pathMatch : "full"},
-    {path: 'home',title:"Home", component: ForecastComponent},
+    {path: '', redirectTo: "/forecast", pathMatch : "full"},
+    {path: 'forecast',title:"Home", component: ForecastComponent},
     {path: 'ground-stations',title:"Graunded Stations", component: MapComponent},
     {path: 'login',title:"login", component: LoginComponent},
     {path: 'signing',title:"signing", component: SigninComponent},
@@ -39,7 +39,6 @@ export const routes: Routes = [
     {path: 'userData',title:"user", component: UserdataComponent},
     {path: 'userModify',title:"user", component: UsermodifyComponent},
     {path: 'userSendData',title:"user", component: UserSendDataComponent},
-    {path: 'detail/:id', title: "Area Details", component: DetailedAreaComponent },
     {path: 'sensorDataUpload', title: "Test upload sensori", component: SensorDataUploadComponent },
     {path: 'webcam', title: "Webcam 'LIVE' ", component: WebcamComponent },
     {path: 'create-area', title: "Create new area' ", component: InterestAreaCreationComponent },
@@ -56,6 +55,7 @@ export const routes: Routes = [
     {path: 'not-found',title:"Not Found", component: NotFoundComponent},
     {path: 'refused',title:"Refused", component: RefusedComponent},
     //Others:
-    { path: '**', component: MapComponent }
+    { path: '**', component: NotFoundComponent },
+    { path: '**/:**', component: NotFoundComponent, pathMatch: "full" }
   ];
 

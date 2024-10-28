@@ -4,11 +4,20 @@
     <div  id="sensor-list" class="sensor-list" style="position: absolute; top: 10px; right: 10px;;  z-index: 600;">
       <ul style="list-style-type: none; padding: 0;">
         <li *ngFor="let sensor of sensors" style="margin-bottom: 10px;">
-          <button type="button" class="btn btn-primary" (click)="onSensorSelect(sensor)">
-            {{ sensor.companyName }} - {{sensor.description}}
+          <button
+            type="button"
+            class="btn"
+            [ngClass]="{
+        'btn-primary': selectedSensor !== sensor.id,
+        'btn-success': selectedSensor === sensor.id
+      }"
+            (click)="onSensorSelect(sensor)"
+          >
+            {{ sensor.companyName }} - {{ sensor.description }}
           </button>
         </li>
       </ul>
+
     </div>
 
     <div id="sidebar" class="sidebar sidebar-left leaflet-touch" style="display: block;">

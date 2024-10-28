@@ -26,7 +26,8 @@ import {jwtDecode} from "jwt-decode";
 })
 export class ToolbarComponent implements  OnInit{
 
-  pageNumber: number = 0;
+
+  id: string = "";
   logStringResult: string = "Login";
   productDetails = [[] as any];
   showLoadButton = false;
@@ -103,7 +104,7 @@ export class ToolbarComponent implements  OnInit{
 
 
 redirectToInterestArea(id: string) {
-  this.router.navigate(['/interestAreaViewer', id]);
+    this.router.navigate(['/interestAreaViewer', id]);
 }
 
   redirectToCreateArea() {

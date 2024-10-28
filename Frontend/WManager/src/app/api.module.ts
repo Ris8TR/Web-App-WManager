@@ -3,12 +3,15 @@ import { Configuration } from './configuration';
 import { HttpClient } from '@angular/common/http';
 
 
-import { AuthService } from './api/auth.service';
-import { UserService } from './api/user.service';
+
 import { SensorDataService } from './service/sensorData.service';
+import {routes} from "./app.routes";
+import {RouterModule} from "@angular/router";
+import {AuthService} from "./service/auth.service";
+import {UserService} from "./service/user.service";
 
 @NgModule({
-  imports:      [],
+  imports:      [ RouterModule.forRoot(routes)],
   declarations: [],
   exports:      [],
   providers: [

@@ -13,5 +13,5 @@ import {ToolbarComponent} from "./components/elements/toolbar/toolbar.component"
 
 //TODO QUI VANNO I SERVICES ORA
 export const appConfig: ApplicationConfig = {
-  providers: [provideAnimationsAsync(),provideRouter(routes),FormsModule,AuthService,UserService, InterestAreaService,SensorDataService, ToolbarComponent, SensorService,provideHttpClient()]
+  providers: [provideAnimationsAsync(),provideRouter(routes),provideHttpClient(),FormsModule,AuthService,UserService, InterestAreaService,SensorDataService, ToolbarComponent, SensorService,provideHttpClient()]
 };
