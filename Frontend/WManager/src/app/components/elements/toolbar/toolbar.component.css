@@ -40,3 +40,7 @@
 .toolbar-button:active {
   box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12); /* Regola l'ombra quando il pulsante è cliccato */
 }
+
+.dropdown-menu{
+  z-index: 9000;
+}

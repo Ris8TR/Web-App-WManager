@@ -14,6 +14,8 @@ import {InterestAreaService} from "../../../../service/interestArea.service";
 import {InterestArea} from "../../../../model/interestArea";
 import { parse } from 'terraformer-wkt-parser';
 import {geometry} from "@turf/turf";
+import {Subscription} from "rxjs";
+import {MatSnackBar} from "@angular/material/snack-bar";
 
 
 @Component({
@@ -49,23 +51,61 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   public endHour?: string;
   private cachedData: Map<string, [number, number, number][]> = new Map();
   private drawnLayers: L.Layer[] = [];
+  private subscription: Subscription = new Subscription();
+  isPanelVisible = true;
+
+  temperatureScale = [
+    { label: '-10', color: '#0030ff' },
+    { label: '-8', color: '#0066ff' },
+    { label: '-6', color: '#00a4ff' },
+    { label: '-4', color: '#00d7ff' },
+    { label: '-2', color: '#00f9ed' },
+    { label: '0', color: '#00ebbd' },
+    { label: '2', color: '#00dc8d' },
+    { label: '4', color: '#00c951' },
+    { label: '6', color: '#01ba1c' },
+    { label: '8', color: '#21bd05' },
+    { label: '10', color: '#61cf03' },
+    { label: '12', color: '#93df01' },
+    { label: '14', color: '#cff000' },
+    { label: '16', color: '#ffff00' },
+    { label: '18', color: '#ffed00' },
+    { label: '20', color: '#ffd700' },
+    { label: '22', color: '#ffc400' },
+    { label: '24', color: '#ffaf00' },
+    { label: '26', color: '#ff9200' },
+    { label: '28', color: '#ff7100' },
+    { label: '30', color: '#ff4700' },
+    { label: '32', color: '#ff2300' },
+    { label: '34', color: '#ff0100' },
+    { label: '36', color: '#de0014' },
+    { label: '38', color: '#bd0033' },
+    { label: '40', color: '#940056' },
+    { label: '42', color: '#730073' }
+  ];
 
 
   constructor(
     private sensorDataService: SensorDataService,
     private interestAreaService: InterestAreaService,
     private sensorService: SensorService,
+    private snackBar: MatSnackBar,
     private cookieService: CookieService,
     public toolbarComponent: ToolbarComponent,
     private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
-      this.id = params.get('id');
+    this.subscription = this.interestAreaService.currentId$.subscribe(id => {
+      this.id = id;
+      this.reloadComponent(); // Chiama un metodo di ricarica o aggiorna la visualizzazione
       this.reloadComponentData();
-    });
-    this.reloadComponentData();
+    })
+
+    if (this.id == null){
+      this.snackBar.open("Selezionare un'area di interesse" , "ok")
+      return
+    }
 
     this.interestAreaService.getInterestArea(this.id!, this.cookieService.get('token')).subscribe(area => {
       this.interestArea = area;
@@ -76,6 +116,11 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
         this.drawInterestArea(this.interestArea.geometry);
       }
     });
+  }
+
+  reloadComponent() {
+    console.log(`Caricamento del componente con ID: ${this.id}`);
+    // Qui puoi aggiungere logica per aggiornare la visualizzazione se necessario
   }
 
 
@@ -90,6 +135,13 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
   ngOnDestroy(): void {
     if (this.map) this.map.remove();
+    this.subscription.unsubscribe();
+
+  }
+
+  togglePanel(event: MouseEvent): void {
+    event.stopPropagation(); // Evita che il click sul pannello tocchi elementi sottostanti
+    this.isPanelVisible = !this.isPanelVisible; // Alterna la visibilità del pannello
   }
 
 
@@ -162,7 +214,9 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     });
     this.loadSensors();
     this.loadSensorData();
-    this.drawInterestArea(this.interestArea!.geometry);
+    if (this.interestArea != null) {
+      this.drawInterestArea(this.interestArea!.geometry);
+    }
   }
 
   private initializeMap(): void {

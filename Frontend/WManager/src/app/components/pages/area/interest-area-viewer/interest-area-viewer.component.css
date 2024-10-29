@@ -18,7 +18,7 @@
 
 .overMap{
   position: absolute;
-  z-index: 600;
+  z-index: 100;
 }
 
 #refreshButton{
@@ -63,6 +63,38 @@
   width: 10%;
 }
 
+.sidebar-content {
+  display: block;
+  /* Aggiungi la transizione per un effetto più fluido */
+  transition: transform 0.3s ease;
+}
+
+.sidebar-content.hidden {
+  display: none; /* Oppure usa `transform: translateX(-100%);` per spostarlo fuori vista */
+}
+
+
+.panel {
+  position: relative;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+.toggle-icon {
+  cursor: pointer;
+}
+
+.panel-content {
+  padding-top: 10px;
+}
+
+.toggle-icon::before {
+  content: '▼'; /* Freccia giù per indicare pannello aperto */
+}
+
+.panel-content[hidden] .toggle-icon::before {
+  content: '▲'; /* Freccia su per indicare pannello chiuso */
+}
 
 
 

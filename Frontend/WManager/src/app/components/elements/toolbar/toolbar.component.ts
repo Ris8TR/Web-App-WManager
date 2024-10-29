@@ -3,7 +3,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import { MatIconModule, MatIconRegistry } from '@angular/material/icon';
 import { DomSanitizer } from '@angular/platform-browser';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { CommonModule } from '@angular/common';
 import { MatButton } from '@angular/material/button';
@@ -20,7 +20,11 @@ import {jwtDecode} from "jwt-decode";
 @Component({
   selector: 'app-toolbar',
   standalone: true,
-  imports: [MatToolbarModule, RouterOutlet, RouterLink, MatIconModule, HttpClientModule, CommonModule, MatButton, MatMenuModule, MatButtonModule],
+  imports: [MatToolbarModule, RouterOutlet, RouterLink, MatIconModule,
+// TODO: `HttpClientModule` should not be imported into a component directly.
+// Please refactor the code to add `provideHttpClient()` call to the provider list in the
+// application bootstrap logic and remove the `HttpClientModule` import from this component.
+ CommonModule, MatButton, MatMenuModule, MatButtonModule],
   templateUrl: './toolbar.component.html',
   styleUrl: './toolbar.component.css'
 })
@@ -104,7 +108,8 @@ export class ToolbarComponent implements  OnInit{
 
 
 redirectToInterestArea(id: string) {
-    this.router.navigate(['/interestAreaViewer', id]);
+  this.interestAreaService.setId(id);
+  this.router.navigate(['/interestAreaViewer']); // Naviga al componente di destinazione
 }
 
   redirectToCreateArea() {

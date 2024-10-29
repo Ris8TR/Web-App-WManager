@@ -43,7 +43,7 @@ export const routes: Routes = [
     {path: 'webcam', title: "Webcam 'LIVE' ", component: WebcamComponent },
     {path: 'create-area', title: "Create new area' ", component: InterestAreaCreationComponent },
     {path: 'userCreateSensor', title: "Create new sensor' ", component: SensorCreationComponent },
-    {path: 'interestAreaViewer/:id', title: "", component: InterestAreaViewerComponent },
+    {path: 'interestAreaViewer', title: "", component: InterestAreaViewerComponent },
     {path: 'Show-Sensor', title: "", component: SensorDataViewComponent },
     {path: 'Show-Areas', title: "", component: InterestAreaDataViewComponent },
 

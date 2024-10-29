@@ -11,11 +11,10 @@
  *//* tslint:disable:no-unused-variable member-ordering */
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams,
-         HttpResponse, HttpEvent }                           from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse, HttpEvent }                           from '@angular/common/http';
 import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
-import { Observable }                                        from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 
 import { InterestArea } from '../model/interestArea';
 import { NewInterestAreaDto } from '../model/newInterestAreaDto';
@@ -37,6 +36,20 @@ export class InterestAreaService {
     protected basePath = 'http://192.168.15.34:8010';
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
+    private idSubject = new BehaviorSubject<string | null>(this.getStoredId());
+      currentId$ = this.idSubject.asObservable();
+
+      // Metodo per aggiornare l'ID
+      setId(id: string) {
+        this.idSubject.next(id); // Emissione del nuovo ID
+        localStorage.setItem('interestAreaId', id); // Salva l'ID in localStorage
+      }
+
+      // Recupera l'ID da localStorage all'avvio dell'app
+      private getStoredId(): string | null {
+        return localStorage.getItem('interestAreaId');
+      }
+
 
     constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration, private CookiesService: CookieService,
     ) {
