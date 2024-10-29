@@ -55,7 +55,6 @@ export const routes: Routes = [
     {path: 'not-found',title:"Not Found", component: NotFoundComponent},
     {path: 'refused',title:"Refused", component: RefusedComponent},
     //Others:
-    { path: '**', component: NotFoundComponent },
-    { path: '**/:**', component: NotFoundComponent, pathMatch: "full" }
+    { path: '**', redirectTo: "/forecast", pathMatch:"full" },
   ];
 

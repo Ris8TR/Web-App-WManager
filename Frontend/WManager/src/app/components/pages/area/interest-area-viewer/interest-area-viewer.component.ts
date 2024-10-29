@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
 import * as L from 'leaflet';
 import {SensorDataService} from "../../../../service/sensorData.service";
 import {APP_BASE_HREF, LocationStrategy, NgClass, NgForOf, NgIf, PathLocationStrategy} from "@angular/common";
@@ -9,6 +9,11 @@ import {CookieService} from "ngx-cookie-service";
 import {DateDto} from "../../../../model/dateDto";
 import {FormsModule} from "@angular/forms";
 import {ActivatedRoute, ParamMap} from "@angular/router";
+import {InterestAreaDto} from "../../../../model/interestAreaDto";
+import {InterestAreaService} from "../../../../service/interestArea.service";
+import {InterestArea} from "../../../../model/interestArea";
+import { parse } from 'terraformer-wkt-parser';
+import {geometry} from "@turf/turf";
 
 
 @Component({
@@ -31,8 +36,9 @@ import {ActivatedRoute, ParamMap} from "@angular/router";
 export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, OnInit {
 
   private map: L.Map | undefined;
-  id: string | null = null;
   selectedSensor!: string | undefined;
+  interestArea: InterestArea | undefined;
+  id: string | undefined | null;
   private layerGroup: L.LayerGroup | undefined;
   public sensorType: string = 'CO2';
   public sensors: SensorDto[] = [];
@@ -42,9 +48,12 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   public startHour?: string;
   public endHour?: string;
   private cachedData: Map<string, [number, number, number][]> = new Map();
+  private drawnLayers: L.Layer[] = [];
+
 
   constructor(
     private sensorDataService: SensorDataService,
+    private interestAreaService: InterestAreaService,
     private sensorService: SensorService,
     private cookieService: CookieService,
     public toolbarComponent: ToolbarComponent,
@@ -56,7 +65,19 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       this.id = params.get('id');
       this.reloadComponentData();
     });
-    }
+    this.reloadComponentData();
+
+    this.interestAreaService.getInterestArea(this.id!, this.cookieService.get('token')).subscribe(area => {
+      this.interestArea = area;
+      console.log(this.interestArea);
+
+      // Disegna l'area d'interesse sulla mappa
+      if (this.interestArea && this.interestArea.geometry) {
+        this.drawInterestArea(this.interestArea.geometry);
+      }
+    });
+  }
+
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -72,19 +93,83 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
 
+  private drawInterestArea(geometry: string): void {
+    try {
+      // Rimuove eventuali punti e virgola finali
+      geometry = geometry.trim().replace(/;$/, '');
+
+      // Parse del WKT in GeoJSON
+      const geoJson = parse(geometry);
+
+      // Rimuove le geometrie già disegnate
+      this.removeDrawnAreas();
+
+      // Verifica il tipo di geometria e gestisce separatamente Polygon, MultiPolygon e LineString
+      if (geoJson && (geoJson.type === 'Polygon' || geoJson.type === 'MultiPolygon')) {
+        const polygon = L.geoJSON(geoJson, {
+          style: {
+            color: 'blue',    // Colore dei bordi del poligono
+            weight: 4,        // Spessore dei bordi
+            opacity: 0.7      // Opacità dei bordi
+          }
+        }).addTo(this.map!);
+
+        // Aggiungi il poligono all'array dei layer disegnati
+        this.drawnLayers.push(polygon);
+
+        // Centra la vista sul poligono
+        this.map!.fitBounds(polygon.getBounds());
+
+      } else if (geoJson && (geoJson.type === 'LineString' || geoJson.type === 'MultiLineString')) {
+        // @ts-ignore
+        const polyline = L.polyline(geoJson.coordinates, {
+          color: 'blue',   // Colore della linea
+          weight: 4,       // Spessore della linea
+          opacity: 0.7     // Opacità della linea
+        }).addTo(this.map!);
+
+        // Aggiungi la linea all'array dei layer disegnati
+        this.drawnLayers.push(polyline);
+
+        // Centra la vista sulla linea
+        this.map!.fitBounds(polyline.getBounds());
+
+      } else {
+        console.error('Tipo di geometria non valido o non supportato:', geoJson.type);
+      }
+    } catch (error) {
+      console.error('Errore durante il parsing WKT:', error);
+    }
+  }
+
+// Metodo per rimuovere le aree già disegnate
+  private removeDrawnAreas(): void {
+    if (this.drawnLayers.length > 0) {
+      this.drawnLayers.forEach(layer => {
+        this.map!.removeLayer(layer); // Rimuovi il layer dalla mappa
+      });
+      this.drawnLayers = []; // Svuota l'array
+    }
+  }
+
 
   private reloadComponentData(): void {
     if (!this.id) return;
     this.cachedData.clear();
+    this.interestAreaService.getInterestArea(this.id!, this.cookieService.get('token')).subscribe(area => {
+      this.interestArea = area;
+      console.log(this.interestArea);
+    });
     this.loadSensors();
     this.loadSensorData();
+    this.drawInterestArea(this.interestArea!.geometry);
   }
 
   private initializeMap(): void {
     this.map = L.map('map').setView([45.0, 7.0], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-      maxZoom: 8,
+      maxZoom: 14,
       minZoom: 5
     }).addTo(this.map);
 
@@ -197,7 +282,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       console.log(dateDto);
 
 
-      this.sensorDataService.getAllSensorDataBetweenDate(dateDto).subscribe(data => {
+      this.sensorDataService.getAllSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
         this.cachedData.set(this.sensorType, this.processData(data));
         console.log(data)
         this.updateGrid();

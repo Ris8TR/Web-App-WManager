@@ -3,7 +3,7 @@ import * as L from 'leaflet';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { ToolbarComponent } from '../../toolbar/toolbar.component';
 
-import 'leaflet.markercluster'; // Import the Leaflet.markercluster plugin
+import 'leaflet.markercluster';
 import { SensorDto } from '../../../../model/sensorDto';
 import { UserService } from '../../../../service/user.service';
 

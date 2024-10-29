@@ -27,6 +27,7 @@
 			<artifactId>mongodb-driver-sync</artifactId>
 			<version>${mongodb.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.bucket4j</groupId>
 			<artifactId>bucket4j_jdk17-core</artifactId>

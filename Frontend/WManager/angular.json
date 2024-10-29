@@ -13,6 +13,12 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "allowedCommonJsDependencies": [
+              "leaflet",
+              "leaflet.markercluster",
+              "leaflet.heat",
+              "wellknown"
+            ],
             "deployUrl": "/",
             "outputPath": "dist/wmanager",
             "index": "src/index.html",
@@ -23,11 +29,10 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets",
-              "src/assets/css/styles.css"
+              "src/assets"
             ],
             "styles": [
-              "src/assets/css/styles.css",
+              "@angular/material/prebuilt-themes/indigo-pink.css",
               "src/styles.css"
             ]
           ,
@@ -38,12 +43,12 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "600kb",
+                  "maximumWarning": "1mb",
                   "maximumError": "5mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kb",
+                  "maximumWarning": "8kb",
                   "maximumError": "12kb"
                 }
               ],
@@ -89,7 +94,7 @@
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
-              "src/styles.css"
+              "css/styles.css"
             ],
             "scripts": []
           }

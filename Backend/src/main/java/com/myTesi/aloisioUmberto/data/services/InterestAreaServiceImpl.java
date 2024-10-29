@@ -8,7 +8,6 @@ import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
-import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
@@ -22,7 +21,16 @@ import org.geotools.data.FileDataStoreFinder;
 import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.locationtech.jts.geom.Geometry;
+import org.geotools.geometry.jts.JTS;
+import org.opengis.referencing.operation.MathTransform;
 import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -98,16 +106,29 @@ public class InterestAreaServiceImpl implements InterestAreaService {
             shapefileDataStore.setCharset(StandardCharsets.UTF_8);
             SimpleFeatureCollection featureCollection = shapefileDataStore.getFeatureSource().getFeatures();
 
+            // Recupera il sistema di coordinate dello shapefile
+            CoordinateReferenceSystem sourceCRS = shapefileDataStore.getSchema().getCoordinateReferenceSystem();
+            CoordinateReferenceSystem targetCRS = DefaultGeographicCRS.WGS84;
+
+            MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS, true);
+
             StringBuilder wktBuilder = new StringBuilder();
             try (SimpleFeatureIterator featureIterator = featureCollection.features()) {
                 while (featureIterator.hasNext()) {
                     SimpleFeature feature = featureIterator.next();
-                    String wkt = feature.getDefaultGeometry().toString();
+                    Geometry originalGeometry = (Geometry) feature.getDefaultGeometry();
+
+                    // Applica la trasformazione
+                    Geometry targetGeometry = JTS.transform(originalGeometry, transform);
+
+                    String wkt = targetGeometry.toString();
                     wktBuilder.append(wkt).append(";");
                 }
             }
 
             return wktBuilder.toString();
+        } catch (FactoryException | TransformException e) {
+            throw new RuntimeException(e);
         } finally {
             shapefileDataStore.dispose();
         }

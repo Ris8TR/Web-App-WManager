@@ -4,7 +4,7 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 body {
-    color: white; /* Per assicurarti che il testo sia leggibile sullo sfondo nero */
+    color: white
 }
 
 
