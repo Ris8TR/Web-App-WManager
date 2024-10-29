@@ -14,4 +14,6 @@ export interface DateDto {
     form?: string;
     to?: string;
     sensorId?: string;
+    interestAreaId?: string;
+    token?: string;
 }

@@ -35,7 +35,7 @@ public interface SensorDataService  {
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by sensorId
     List<SensorDataDto> getAllSensorDataIn15Min();
 
-    List<SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto);
+    //List<SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto);
 
     List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto);
 

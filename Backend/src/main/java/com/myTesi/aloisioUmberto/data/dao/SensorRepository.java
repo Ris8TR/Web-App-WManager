@@ -16,6 +16,7 @@ public interface SensorRepository extends MongoRepository<Sensor, String> {
     List<Sensor> findAllByUserId(String userId);
     List<Sensor> findAllByUserIdAndType(String userId, String type);
     List<Sensor> findAllByInterestAreaIDAndUserId(String InterestAreaId, String userId);
+    Sensor findByIdAndInterestAreaIDAndUserId(ObjectId id, String interestAreaID, String userId);
     boolean existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(String companyName, String userId, String interestAreaID , String description);
     List<Sensor> findAllByIdAndUserId(ObjectId id, String userId);
     Optional<Sensor> findByIdAndUserId(Object Id, String sensorId);

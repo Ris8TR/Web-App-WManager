@@ -78,10 +78,10 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataIn15Min());
     }
 
-    @PostMapping("/SensorData/date")
+   /* @PostMapping("/SensorData/date")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataBetweenDate(@RequestBody DateDto date) {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBetweenDate(date));
-    }
+    }*/
 
     @PostMapping("/SensorData/date/sensor")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataBySensorBetweenDate(@RequestBody DateDto date) {

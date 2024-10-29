@@ -303,22 +303,39 @@ public class SensorDataServiceImpl implements SensorDataService {
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
         // Supponiamo che le date siano nel fuso orario locale e le convertiamo in UTC
+        String userId = isValidToken(dateDto.getToken());
+        assert userId != null;
         ZonedDateTime fromDateTime = dateDto.getForm().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
         ZonedDateTime toDateTime = dateDto.getTo().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
 
         Date fromDateUTC = Date.from(fromDateTime.toInstant());
         Date toDateUTC = Date.from(toDateTime.toInstant());
 
-        System.out.println("From Date UTC (after -2 hours): " + fromDateUTC);
-        System.out.println("To Date UTC (after -2 hours): " + toDateUTC);
+        if (dateDto.getSensorId() != null) {
+            Sensor sensor = sensorRepository.findById(dateDto.getSensorId()).orElse(null);
+            assert sensor != null;
+            Sensor sensor1 = sensorRepository.findByIdAndInterestAreaIDAndUserId(sensor.getId(), dateDto.getInterestAreaId(), userId);
+            assert sensor1 !=null;
+            return sensorDataRepository.findAllBySensorIdAndTimestampBetween(String.valueOf(sensor1.getId()), fromDateUTC, toDateUTC).stream()
+                    .map(sensorDataMapper::sensorDataToSensorDataDto)
+                    .toList();
+        } else {
+            List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(dateDto.getInterestAreaId(), userId);
+            List<SensorDataDto> allResults = new ArrayList<>();
 
-        List<SensorDataDto> results = sensorDataRepository.findAllBySensorIdAndTimestampBetween(dateDto.getSensorId(), fromDateUTC, toDateUTC).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
+            for (Sensor sensor : sensors) {
+                List<SensorDataDto> sensorResults = sensorDataRepository.findAllBySensorIdAndTimestampBetween(String.valueOf(sensor.getId()), fromDateUTC, toDateUTC).stream()
+                        .map(sensorDataMapper::sensorDataToSensorDataDto)
+                        .toList();
+                allResults.addAll(sensorResults);
+            }
 
-        return results;
+            return allResults;
+        }
+
     }
 
+    /*
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto) {
         // Supponiamo che le date siano nel fuso orario locale e le convertiamo in UTC
@@ -328,8 +345,6 @@ public class SensorDataServiceImpl implements SensorDataService {
         Date fromDateUTC = Date.from(fromDateTime.toInstant());
         Date toDateUTC = Date.from(toDateTime.toInstant());
 
-        System.out.println("From Date UTC (after -2 hours): " + fromDateUTC);
-        System.out.println("To Date UTC (after -2 hours): " + toDateUTC);
 
         // Effettua la query utilizzando l'intervallo di date
         List<SensorDataDto> results = sensorDataRepository.findAllByTimestampBetween(fromDateUTC, toDateUTC).stream()
@@ -338,7 +353,7 @@ public class SensorDataServiceImpl implements SensorDataService {
 
         return results;
     }
-
+*/
 
 
     @Override

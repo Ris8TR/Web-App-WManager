@@ -40,7 +40,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private map: L.Map | undefined;
   selectedSensor!: string | undefined;
   interestArea: InterestArea | undefined;
-  id: string | undefined | null;
+  id: string | null | undefined ;
   private layerGroup: L.LayerGroup | undefined;
   public sensorType: string = 'CO2';
   public sensors: SensorDto[] = [];
@@ -98,6 +98,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   ngOnInit(): void {
     this.subscription = this.interestAreaService.currentId$.subscribe(id => {
       this.id = id;
+      console.log(this.id)
       this.reloadComponent(); // Chiama un metodo di ricarica o aggiorna la visualizzazione
       this.reloadComponentData();
     })
@@ -241,9 +242,14 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   onSensorSelect(sensor: SensorDto): void {
     if (sensor.type) this.sensorType = sensor.type;
     this.loadSingleSensorData(sensor);
-    this.selectedSensor = sensor.id
-    this.loadSensorData();
-    return
+    if (this.selectedSensor == sensor.id){
+      this.selectedSensor = undefined;
+    }else {
+      this.selectedSensor = sensor.id
+      this.loadSensorData();
+      return
+    }
+
   }
 
   private loadSingleSensorData(sensor: SensorDto): void {
@@ -323,25 +329,21 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     const formattedStartHour = this.startHour || now.getHours().toString().padStart(2, '0');
     const formattedEndHour = this.endHour || now.getHours().toString().padStart(2, '0');
 
-    const defaultDate = now.toISOString().split('T')[0];  // "yyyy-MM-dd" corrente
-    console.log(this.selectedSensor)
+    const defaultDate = now.toISOString().split('T')[0];
 
-    if (this.selectedSensor != null) {
-      const dateDto: DateDto = {
-        form: `${this.startDate || defaultDate}T${formattedStartHour}:${now.getMinutes().toString().padStart(2, '0')}:00`,
-        to: `${this.endDate || defaultDate}T${formattedEndHour}:${now.getMinutes().toString().padStart(2, '0')}:00`,
-        sensorId: this.selectedSensor
-
-      };
-      console.log(dateDto);
-
+    const dateDto: DateDto = {
+      form: `${this.startDate || defaultDate}T${formattedStartHour}:${now.getMinutes().toString().padStart(2, '0')}:00`,
+      to: `${this.endDate || defaultDate}T${formattedEndHour}:${now.getMinutes().toString().padStart(2, '0')}:00`,
+      sensorId: this.selectedSensor,
+      interestAreaId: this.id!,
+      token: this.cookieService.get('token')
+    };
 
       this.sensorDataService.getAllSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
         this.cachedData.set(this.sensorType, this.processData(data));
-        console.log(data)
         this.updateGrid();
       });
-    }
+
   }
 
 

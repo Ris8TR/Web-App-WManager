@@ -20,4 +20,6 @@ public class DateDto {
     private Date to;
 
     private String sensorId;
+    private String interestAreaId;
+    private String token;
 }
