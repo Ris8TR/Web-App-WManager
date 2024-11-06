@@ -37,6 +37,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -150,42 +152,36 @@ public class SensorServiceImpl implements SensorService {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public List<SensorDto> getAllSensor() {
         List<Sensor> sensors = sensorRepository.findAll();
         List<SensorDto> sensorDtoList = new ArrayList<>();
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -10);
-        Date tenMinutesAgo = calendar.getTime();
-
-        // Log per debugging
-        System.out.println("Current Time: " + now);
-        System.out.println("Ten Minutes Ago: " + tenMinutesAgo);
+// Ottieni la data e l'ora attuali in UTC e convertila in `Date`
+        ZonedDateTime fromDateTime = ZonedDateTime.now(ZoneId.of("UTC"));
+        Date fromDate = Date.from(fromDateTime.toInstant());
+        System.out.println(fromDate);
 
         for (Sensor sensor : sensors) {
-            Optional<SensorData> sensorDataOptional = sensorDataRepository.findTopByTimestampBetweenAndSensorId(tenMinutesAgo, now, sensor.getId().toString());
+            Optional<SensorData> sensorDataOptional = sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()));
 
-            // Log per debugging
-            System.out.println("Sensor ID: " + sensor.getId());
+
             if (sensorDataOptional.isPresent()) {
-                System.out.println("SensorData found for Sensor ID: " + sensor.getId());
                 SensorData sensorData = sensorDataOptional.get();
                 SensorDto sensorDto = new SensorDto();
+                sensorDto.setId(String.valueOf(sensor.getId()));
                 sensorDto.setCompanyName(sensor.getCompanyName());
                 sensorDto.setLatitude(Collections.singletonList(sensorData.getLatitude()));
                 sensorDto.setLongitude(Collections.singletonList(sensorData.getLongitude()));
+                sensorDto.setTimestamp(String.valueOf(sensorData.getTimestamp())); // Imposta il timestamp dell'ultimo dato
                 sensorDtoList.add(sensorDto);
             } else {
-                System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
+               System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
             }
         }
 
-        System.out.println(sensorDtoList);
         return sensorDtoList;
     }
+
 
     @Override
     public SensorDto save(MultipartFile file) throws IOException {

@@ -13,6 +13,7 @@ import java.util.List;
 public class SensorDto {
     private String companyName;
     private String userId;
+    private String Timestamp;
     private String id;
     private String password;
     private String token;

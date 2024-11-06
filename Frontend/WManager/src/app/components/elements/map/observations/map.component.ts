@@ -79,7 +79,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private initMap(): void {
     this.obsmap = L.map('map').setView([41.8719, 12.5674], 5);
-    this.obsmap.setMaxZoom(9); // Imposta il livello di zoom massimo a 9
+    this.obsmap.setMaxZoom(13); // Imposta il livello di zoom massimo a 9
     this.obsmap.setMinZoom(5); // Imposta il livello di zoom minimo a 5
 
     const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
