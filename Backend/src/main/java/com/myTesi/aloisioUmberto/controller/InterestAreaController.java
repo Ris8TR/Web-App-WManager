@@ -31,7 +31,7 @@ public class InterestAreaController {
 
     private final InterestAreaService interestAreaService;
 
-    @PostMapping(value = "/interestarea", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/interestArea", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<InterestAreaDto> createInterestArea(@RequestPart("data") NewInterestAreaDto data, @RequestPart(value = "file" , required = false) MultipartFile file) throws IOException {
         InterestAreaDto savedInterestArea = interestAreaService.save(data, file);
         return ResponseEntity.ok(savedInterestArea);

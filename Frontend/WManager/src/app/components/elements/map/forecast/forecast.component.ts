@@ -34,7 +34,7 @@ export class ForecastComponent implements AfterViewInit, OnDestroy {
     this.map = L.map('map').setView([45.0, 7.0], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-      maxZoom: 8,
+      maxZoom: 12,
       minZoom: 5
     }).addTo(this.map);
 
@@ -52,17 +52,35 @@ export class ForecastComponent implements AfterViewInit, OnDestroy {
     if (this.cachedData.has(this.sensorType)) {
       this.updateGrid();
     } else {
-      this.sensorDataService
-        .getProcessedSensorData(this.sensorType)
-        .subscribe((geoJson: any) => {
-          const heatData = geoJson.features.map((feature: any) => {
-            const coordinates = feature.geometry.coordinates;
-            const value = feature.properties.value;
-            return [coordinates[1], coordinates[0], value] as [number, number, number];
-          });
+      this.sensorDataService.getProcessedSensorData(this.sensorType)
+        .subscribe(response => {
+          let geoJson: any;
 
-          this.cachedData.set(this.sensorType, heatData);
-          this.updateGrid();
+          // Effettua il parsing della risposta se è una stringa
+          if (typeof response === 'string') {
+            try {
+              geoJson = JSON.parse(response);
+            } catch (error) {
+              console.error('Errore nel parsing del JSON:', error);
+              return;
+            }
+          } else {
+            geoJson = response;
+          }
+
+          // Verifica che geoJson abbia la struttura corretta
+          if (geoJson && Array.isArray(geoJson.features)) {
+            const heatData = geoJson.features.map((feature: any) => [
+              feature.geometry.coordinates[1],
+              feature.geometry.coordinates[0],
+              feature.properties.value
+            ] as [number, number, number]);
+
+            this.cachedData.set(this.sensorType, heatData);
+            this.updateGrid();
+          } else {
+            console.error('Formato della risposta non valido:', geoJson);
+          }
         });
     }
   }

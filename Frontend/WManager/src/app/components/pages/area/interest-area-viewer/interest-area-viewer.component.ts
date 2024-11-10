@@ -16,6 +16,7 @@ import { parse } from 'terraformer-wkt-parser';
 import {geometry} from "@turf/turf";
 import {Subscription} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
+import {SensorData} from "../../../../model/sensorData";
 
 
 @Component({
@@ -42,7 +43,8 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   interestArea: InterestArea | undefined;
   id: string | null | undefined ;
   private layerGroup: L.LayerGroup | undefined;
-  public sensorType: string = 'CO2';
+  public selectedSensorType: string = "CO2";
+  sensorTypeList!: string[];
   public sensors: SensorDto[] = [];
   public logStringResult: string = 'Login';
   public startDate?: string;
@@ -83,6 +85,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     { label: '40', color: '#940056' },
     { label: '42', color: '#730073' }
   ];
+  private sensorDataLocalList: Array<SensorData> | undefined;
 
 
   constructor(
@@ -98,8 +101,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   ngOnInit(): void {
     this.subscription = this.interestAreaService.currentId$.subscribe(id => {
       this.id = id;
-      console.log(this.id)
-      this.reloadComponent(); // Chiama un metodo di ricarica o aggiorna la visualizzazione
       this.reloadComponentData();
     })
 
@@ -110,7 +111,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
     this.interestAreaService.getInterestArea(this.id!, this.cookieService.get('token')).subscribe(area => {
       this.interestArea = area;
-      console.log(this.interestArea);
 
       // Disegna l'area d'interesse sulla mappa
       if (this.interestArea && this.interestArea.geometry) {
@@ -118,12 +118,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       }
     });
   }
-
-  reloadComponent() {
-    console.log(`Caricamento del componente con ID: ${this.id}`);
-    // Qui puoi aggiungere logica per aggiornare la visualizzazione se necessario
-  }
-
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -141,8 +135,8 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
   togglePanel(event: MouseEvent): void {
-    event.stopPropagation(); // Evita che il click sul pannello tocchi elementi sottostanti
-    this.isPanelVisible = !this.isPanelVisible; // Alterna la visibilità del pannello
+    event.stopPropagation();
+    this.isPanelVisible = !this.isPanelVisible;
   }
 
 
@@ -211,10 +205,9 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     this.cachedData.clear();
     this.interestAreaService.getInterestArea(this.id!, this.cookieService.get('token')).subscribe(area => {
       this.interestArea = area;
-      console.log(this.interestArea);
     });
     this.loadSensors();
-    this.loadSensorData();
+    this.loadAllSensorData();
     if (this.interestArea != null) {
       this.drawInterestArea(this.interestArea!.geometry);
     }
@@ -240,7 +233,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
   onSensorSelect(sensor: SensorDto): void {
-    if (sensor.type) this.sensorType = sensor.type;
+    if (sensor.type) this.selectedSensor = sensor.type;
     this.loadSingleSensorData(sensor);
     if (this.selectedSensor == sensor.id){
       this.selectedSensor = undefined;
@@ -264,11 +257,11 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private loadSensorData(): void {
     if (!this.map) return;
 
-    const cachedData = this.cachedData.get(this.sensorType);
+    const cachedData = this.cachedData.get(this.selectedSensorType);
     if (cachedData) {
       this.updateGrid();
     } else {
-      this.sensorDataService.getProcessedSensorData(this.sensorType)
+      this.sensorDataService.getProcessedSensorData(this.selectedSensorType)
         .subscribe(response => {
           let geoJson: any;
 
@@ -292,7 +285,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
               feature.properties.value
             ] as [number, number, number]);
 
-            this.cachedData.set(this.sensorType, heatData);
+            this.cachedData.set(this.selectedSensorType, heatData);
             this.updateGrid();
           } else {
             console.error('Formato della risposta non valido:', geoJson);
@@ -301,6 +294,49 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     }
   }
 
+  private loadAllSensorData(): void {
+    if (!this.map) return;
+
+    this.sensorDataService.getSensorDataByInterestArea(this.id!, this.cookieService.get('token'))
+      .subscribe((response: any) => {
+        let geoJson: any;
+
+        const sensorDataList = response.sensorData; // Lista di dati sensori
+        const sensorAreaTypes = response.sensorAreaTypes; // Tipi di sensori unici
+        this.sensorTypeList = response.sensorAreaTypes;
+        this.sensorDataLocalList = response.sensorData;
+
+        if (sensorDataList && sensorAreaTypes) {
+          const heatData: [number, number, number][] = [];
+
+          // Estrai le informazioni di geolocalizzazione e valore per ogni sensore
+          sensorDataList.forEach((data: any) => {
+            // Ottieni la latitudine, longitudine e il valore per il sensore
+            const lat = data.latitude;
+            const lng = data.longitude;
+            let value: number = 0;
+
+            // Aggiungi il valore del sensore in base al tipo selezionato
+            try {
+              const payloadData = JSON.parse(data.payload);
+              value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
+            } catch (error) {
+              console.error("Errore nel parsing del payload:", error);
+            }
+
+            if (lat && lng) {
+              heatData.push([lat, lng, value]);
+            }
+          });
+
+          // Salva i dati nella cache per il tipo di sensore selezionato
+          this.cachedData.set(this.selectedSensorType, heatData);
+          this.updateGrid();  // Aggiorna la mappa con i nuovi dati
+        } else {
+          console.error('Formato della risposta non valido:', response);
+        }
+      });
+  }
 
   onIntervalSelect(event: Event): void {
     const interval = parseInt((event.target as HTMLSelectElement).value, 10);
@@ -308,7 +344,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
     if (intervalObservable) {
       intervalObservable.subscribe(data => {
-        this.cachedData.set(this.sensorType, this.processData(data));
+        this.cachedData.set(this.selectedSensorType, this.processData(data));
         this.updateGrid();
       });
     }
@@ -340,7 +376,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     };
 
       this.sensorDataService.getAllSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
-        this.cachedData.set(this.sensorType, this.processData(data));
+        this.cachedData.set(this.selectedSensorType, this.processData(data));
         this.updateGrid();
       });
 
@@ -351,7 +387,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private updateGrid(): void {
     if (this.layerGroup) this.map!.removeLayer(this.layerGroup);
     this.layerGroup = L.layerGroup().addTo(this.map!);
-    this.addPointsToMap(this.cachedData.get(this.sensorType) || []);
+    this.addPointsToMap(this.cachedData.get(this.selectedSensorType) || []);
   }
 
   private addPointsToMap(heatData: [number, number, number][]): void {
@@ -387,7 +423,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       // Parsing il campo payload per ottenere i dati specifici del sensore
       try {
         const payloadData = JSON.parse(sensorData.payload);
-        value = payloadData[this.sensorType];
+        value = payloadData[this.selectedSensorType];
       } catch (error) {
         console.error("Errore nel parsing del payload:", error);
       }
@@ -398,5 +434,34 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
 
+  onSensorTypeSelect(type: any) {
+    this.selectedSensorType = type;
+    const heatData: [number, number, number][] = [];  // Initialize outside the loop
+
+    this.sensorDataLocalList!.forEach((data: any) => {
+      // Ottieni la latitudine, longitudine e il valore per il sensore
+      const lat = data.latitude;
+      const lng = data.longitude;
+      let value: number = 0;
+
+      // Aggiungi il valore del sensore in base al tipo selezionato
+      try {
+        const payloadData = JSON.parse(data.payload);
+        value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
+      } catch (error) {
+        console.error("Errore nel parsing del payload:", error);
+      }
+
+      // Aggiungi il punto al heatData se latitudine e longitudine sono definiti
+      if (lat && lng) {
+        heatData.push([lat, lng, value]);
+      }
+    });
+
+    // Salva i dati nella cache per il tipo di sensore selezionato
+    this.cachedData.set(this.selectedSensorType, heatData);
+
+    this.updateGrid();  // Aggiorna la mappa con i nuovi dati
+  }
 
 }

@@ -155,6 +155,7 @@ public class SensorService {
         double latitude = getRandomLatitudeFromGeometry(geometry, random);
         double longitude = getRandomLongitudeFromGeometry(geometry, random);
 
+
         return String.format(
                 """
                 {
@@ -192,17 +193,21 @@ public class SensorService {
                 .replace(")", "")
                 .split(",");
 
+        if (parts.length < 2) {
+            parts = new String[] { parts[0], parts[0] };
+        }
+
         // Seleziona una coordinata casuale
         String[] coordinates = parts[random.nextInt(parts.length)].trim().split(" ");
 
-        // Rimuovi eventuali caratteri non numerici (come il punto e virgola) e converti in double
+        // Rimuovi eventuali caratteri non numerici e converti in double
         String coordinateString = isLatitude ? coordinates[1] : coordinates[0];
+        coordinateString = coordinateString.replaceAll("[^0-9.\\-]", "");
 
-        // Pulizia della coordinata
-        coordinateString = coordinateString.replaceAll("[^0-9.\\-]", "");  // Mantieni solo numeri, punto e trattino
-
-        // Converte la stringa in double
-        return Double.parseDouble(coordinateString);
+        // Aggiungi una piccola variazione alla coordinata
+        double coordinate = Double.parseDouble(coordinateString);
+        double variation = (random.nextDouble() - 0.5) * 0.00050;
+        return coordinate + variation;
     }
 
 }

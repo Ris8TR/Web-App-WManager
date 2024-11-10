@@ -4,6 +4,7 @@ import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
 import com.myTesi.aloisioUmberto.dto.DateDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
+import com.myTesi.aloisioUmberto.dto.SensorDataInterestAreaDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -92,7 +93,9 @@ public class SensorDataController {
     public ResponseEntity<SensorDataDto> getSensorDataById(@PathVariable String id) {
         return ResponseEntity.ok(sensorDataService.getSensorDataById(id));
 
-    }@GetMapping("/SensorData/Sensor/{id}/{token}")
+    }
+
+    @GetMapping("/SensorData/Sensor/{id}/{token}")
     public ResponseEntity<SensorDataDto> getSensorDataBySensorId(@PathVariable String id, @PathVariable String token ) {
         return ResponseEntity.ok(sensorDataService.getLatestSensorDataBySensorId(token,id));
     }
@@ -108,9 +111,13 @@ public class SensorDataController {
         return HttpStatus.OK;
     }
 
+    @GetMapping("/SensorData/area/{interestAreaId}/{token}")
+    public ResponseEntity<SensorDataInterestAreaDto> getSensorDataByInterestArea(@PathVariable String interestAreaId , @PathVariable String token ) {
+        return ResponseEntity.ok( sensorDataService.getAllSensorDataProcessedByInterestArea( interestAreaId, token));
+    }
+
     @GetMapping("/SensorData/processed/{type}")
-    public ResponseEntity<String> getProcessedSensorData(@PathVariable String type) {
-        String geoJson = sensorDataService.getProcessedSensorData(type);
-        return ResponseEntity.ok(geoJson);
+    public ResponseEntity<String> getProcessedDataByType(@PathVariable String type ) {
+        return ResponseEntity.ok( sensorDataService.getProcessedSensorData(type));
     }
 }

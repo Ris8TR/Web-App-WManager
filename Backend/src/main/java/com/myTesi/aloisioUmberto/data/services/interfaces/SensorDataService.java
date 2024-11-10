@@ -5,6 +5,7 @@ import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.dto.DateDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
+import com.myTesi.aloisioUmberto.dto.SensorDataInterestAreaDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -52,4 +53,6 @@ public interface SensorDataService  {
     public SensorData saveSensorData(NewSensorDataDto newSensorDataDto);
 
     SensorDataDto getLatestSensorDataBySensorId(String token, String id);
+
+    SensorDataInterestAreaDto getAllSensorDataProcessedByInterestArea(String interestAreaId, String token);
 }

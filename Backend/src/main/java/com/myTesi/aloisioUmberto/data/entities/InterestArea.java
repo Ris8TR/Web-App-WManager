@@ -41,5 +41,7 @@ public class InterestArea {
 
     private String Type; //Tipo di dato. Puo anche essere un enum volendo
 
+    private List<String> sensorDataName;
+
     private List<ObjectId> SensorList;
 }

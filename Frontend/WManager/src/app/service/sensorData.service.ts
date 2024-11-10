@@ -26,6 +26,7 @@ import { Configuration }                                     from '../configurat
 import { V1SensorDataBody } from '../model/v1SensorDataBody';
 import {DateDto} from "../model/dateDto";
 import {ToolbarComponent} from "../components/elements/toolbar/toolbar.component";
+import {SensorDataInterestAreaDto} from "../model/SensorDataInterestAreaDto";
 
 
 @Injectable()
@@ -195,6 +196,54 @@ export class SensorDataService {
       }
     );
   }
+
+
+  /**
+   *
+   *
+   * @param interestAreaId
+   * @param token
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getSensorDataByInterestArea(interestAreaId: string, token: string, observe?: 'body', reportProgress?: boolean): Observable<SensorDataInterestAreaDto>;
+  public getSensorDataByInterestArea(interestAreaId: string, token: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorDataInterestAreaDto>>;
+  public getSensorDataByInterestArea(interestAreaId: string, token: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorDataInterestAreaDto>>;
+  public getSensorDataByInterestArea(interestAreaId: string, token: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (interestAreaId === null || interestAreaId === undefined) {
+      throw new Error('Required parameter interestAreaId was null or undefined when calling getSensorDataByInterestArea.');
+    }
+
+    if (token === null || token === undefined) {
+      throw new Error('Required parameter token was null or undefined when calling getSensorDataByInterestArea.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<SensorDataInterestAreaDto>('get',`${this.basePath}/v1/SensorData/area/${encodeURIComponent(String(interestAreaId))}/${encodeURIComponent(String(token))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
 
   /**
    *

@@ -97,7 +97,6 @@ export class ToolbarComponent implements  OnInit{
           if (area.id || area.name) {
             this.interestAreaNames.push({ id: area.id, name: area.name });
           }
-          console.log(this.interestAreaNames)
         });
       },
       (error: any) => {

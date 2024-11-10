@@ -21,14 +21,16 @@ public interface SensorDataRepository extends MongoRepository<SensorData, String
     Optional<SensorData> findTopBySensorIdOrderByTimestampDesc(String sensorId);
 
     Optional<SensorData> findTopByPayloadTypeAndTimestampAfterOrderByTimestampDesc(String dataType, Date timestamp);
+    List<SensorData> findAllByTimestampBetweenAndSensorId(Date timestamp, Date timestamp2, @NotNull String sensorId);
 
     List<SensorData> findByTimestampBetween(Date from, Date to);
 
     List<SensorData> findByTimestampBetweenAndPayloadType(Date from, Date to,String dataType);
 
     List<SensorData> findAllBySensorId(String sensorId);
+    List<SensorData> findAllByTimestampBetweenAndPayloadTypeAndSensorId (Date timestamp, Date timestamp2, @NotNull String sensorId, ObjectId id);
 
-    Optional<SensorData> findByIdAndSensorId( String id, String sensorId);
+    Optional<SensorData> findByIdAndSensorId(ObjectId id, @NotNull String sensorId);
 
     Optional<SensorData> findTopByTimestampBetweenAndSensorId(Date date, Date date2, @NotNull String sensorId);
     Optional<SensorData> findTopBySensorId(String sensorId);

@@ -99,7 +99,7 @@ export class InterestAreaService {
     formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' })); // Assuming data is JSON
     formData.append('file', file!); // Assuming file is a Blob or File object
 
-    return this.httpClient.post<InterestAreaDto>(`${this.basePath}/v1/interestarea`, formData, {
+    return this.httpClient.post<InterestAreaDto>(`${this.basePath}/v1/interestArea`, formData, {
       withCredentials: this.configuration.withCredentials,
       headers: headers, // headers should not include Content-Type
       observe: observe,

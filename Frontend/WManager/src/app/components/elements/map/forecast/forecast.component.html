@@ -3,11 +3,10 @@
     <mat-form-field class="sensor-select">
       <mat-label for="sensorType">Select Sensor Type:</mat-label>
       <mat-select id="sensorType" [(ngModel)]="sensorType" (ngModelChange)="onSensorTypeChange()">
-        <mat-option value="Temperature">Temperature</mat-option>
+        <mat-option value="temperature">Temperature</mat-option>
         <mat-option value="CO2">CO2</mat-option>
-        <mat-option value="Rain">Rain</mat-option>
-        <mat-option value="Wind">Wind</mat-option>
-        <mat-option value="Fire">Fire</mat-option>
+        <mat-option value="humidity">Humidity</mat-option>
+        <mat-option value="ap">Pression</mat-option>
       </mat-select>
     </mat-form-field>
   </div>

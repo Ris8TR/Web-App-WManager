@@ -10,7 +10,6 @@ import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
-import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
@@ -18,9 +17,9 @@ import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.*;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
 import com.myTesi.aloisioUmberto.dto.DateDto;
-import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
+import com.myTesi.aloisioUmberto.dto.SensorDataInterestAreaDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -73,15 +71,16 @@ public class SensorDataServiceImpl implements SensorDataService {
         String userId = isValidToken(newSensorDataDto.getToken());
         assert userId != null;
         Optional<User> user = userDao.findById(userId);
+        assert user.isPresent();
         Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDto.getSensorId(), userId);
+        assert sensor.isPresent();
         if (BCrypt.checkpw(newSensorDataDto.getSensorPassword(), user.get().getSensorPassword())) {
             try {
                 sensorData.setSensorId(sensor.get().getId().toString());
-
                 sensor.get().setInterestAreaID(sensorData.getInterestAreaID());
                 sensorRepository.save(sensor.get());
             } catch (DataIntegrityViolationException e) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "|Error|", e);
             }
         }else {
             throw new RuntimeException("Invalid credentials");
@@ -102,6 +101,8 @@ public class SensorDataServiceImpl implements SensorDataService {
         return sensorData.map(data -> modelMapper.map(data, SensorDataDto.class)).orElse(null);
     }
 
+
+
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
         SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
@@ -117,7 +118,7 @@ public class SensorDataServiceImpl implements SensorDataService {
             data.setInterestAreaID(newSensorDataDTO.getInterestAreaId());
             sensorRepository.save(sensor.get());
             } catch (DataIntegrityViolationException e) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "|Error|", e);
             }
         }else {
             throw new RuntimeException("Invalid credentials");
@@ -404,7 +405,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -10);
+        calendar.add(Calendar.MINUTE, -30);
         Date tenMinutesAgo = calendar.getTime();
 
         List<SensorData> sensorDataList = sensorDataRepository.findByTimestampBetweenAndPayloadType(tenMinutesAgo, now, "json");
@@ -413,6 +414,51 @@ public class SensorDataServiceImpl implements SensorDataService {
 
         return geoJson;
     }
+
+
+    @Override
+    public SensorDataInterestAreaDto getAllSensorDataProcessedByInterestArea(String interestAreaId, String token) {
+        String userId = isValidToken(token);
+        assert userId != null;
+
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date tenMinutesAgo = calendar.getTime();
+
+        List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
+        if (sensors == null || sensors.isEmpty()) {
+            return null;
+        }
+
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
+        List<SensorData> sensorDataList = new ArrayList<>();
+        for (Sensor sensor : sensors) {
+            sensorDataList = sensorDataRepository.findAllByTimestampBetweenAndSensorId(tenMinutesAgo, now, String.valueOf(sensor.getId()));
+
+            // Collect unique keys from payloads
+            for (SensorData data : sensorDataList) {
+                uniqueKeys.addAll(getSensorKeys(data));
+            }
+
+        }
+
+        sensorDataInterestAreaDto.setSensorData(sensorDataList);
+        sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
+
+        System.out.println(sensorDataInterestAreaDto);
+
+        return sensorDataInterestAreaDto;
+
+
+
+
+
+    }
+
 
     private String createGeoJson(List<SensorData> sensorDataList, String type) {
         ObjectMapper mapper = new ObjectMapper();
@@ -433,6 +479,7 @@ public class SensorDataServiceImpl implements SensorDataService {
             coordinates.add(data.getLatitude());
 
             ObjectNode properties = mapper.createObjectNode();
+
             properties.put("value", getSensorValue(data, type));
 
             feature.set("geometry", geometry);
@@ -452,18 +499,14 @@ public class SensorDataServiceImpl implements SensorDataService {
     private double getSensorValue(SensorData data, String type) {
         if (data.getPayload() != null) {
             try {
-                // Deserializza la stringa JSON nel payload in una Map
+                // Deserialize the JSON payload into a Map
                 ObjectMapper mapper = new ObjectMapper();
                 Map<String, Object> payload = mapper.readValue(data.getPayload().toString(), Map.class);
 
-                Object value = switch (type.toLowerCase()) {
-                    case "co2" -> payload.get("CO2");
-                    case "temperatura" -> payload.get("temperature");
-                    case "pressione" -> payload.get("ap");
-                    case "umidita" -> payload.get("humidity");
-                    default -> 0.0;
-                };
+                // Find the value based on the provided key (type)
+                Object value = payload.getOrDefault(type, 0.0);
 
+                // Check if the retrieved value is a number
                 if (value instanceof Number) {
                     return ((Number) value).doubleValue();
                 } else {
@@ -475,4 +518,23 @@ public class SensorDataServiceImpl implements SensorDataService {
         }
         return 0.0;
     }
+
+    private List<String> getSensorKeys(SensorData data) {
+        List<String> keys = new ArrayList<>();
+        if (data.getPayload() != null) {
+            try {
+                // Deserialize the JSON payload into a Map
+                ObjectMapper mapper = new ObjectMapper();
+                Map<String, Object> payload = mapper.readValue(data.getPayload().toString(), Map.class);
+
+                // Extract the keys and add them to the list
+                keys.addAll(payload.keySet());
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+        }
+        return keys;
+    }
+
+
 }

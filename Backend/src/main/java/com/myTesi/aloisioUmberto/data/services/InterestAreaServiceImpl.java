@@ -94,7 +94,6 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         }
         return convFile;
     }
-
     private String extractGeometryFromShapefile(File shapefile) throws IOException {
         FileDataStore store = FileDataStoreFinder.getDataStore(shapefile);
         if (store == null) {
@@ -108,6 +107,12 @@ public class InterestAreaServiceImpl implements InterestAreaService {
 
             // Recupera il sistema di coordinate dello shapefile
             CoordinateReferenceSystem sourceCRS = shapefileDataStore.getSchema().getCoordinateReferenceSystem();
+            if (sourceCRS == null) {
+                // If CRS is undefined in the shapefile, set a default CRS
+                sourceCRS = DefaultGeographicCRS.WGS84;
+                // Replace EPSG code with the actual CRS code
+            }
+
             CoordinateReferenceSystem targetCRS = DefaultGeographicCRS.WGS84;
 
             MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS, true);
@@ -128,7 +133,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
 
             return wktBuilder.toString();
         } catch (FactoryException | TransformException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error during CRS transformation: " + e.getMessage(), e);
         } finally {
             shapefileDataStore.dispose();
         }

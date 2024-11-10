@@ -17,7 +17,9 @@ import org.data.dto.NewSensorDto;
 import org.data.dto.NewUserDto;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.*;
 
@@ -37,7 +39,7 @@ public class UserService {
 
     private static final String USER_CREATION_URL = "http://192.168.15.34:8010/v1/users";
     private static final String LOGIN_URL = "http://192.168.15.34:8010/v1/auth/user";
-    private static final String INTEREST_AREA_URL = "http://192.168.15.34:8010/v1/interestarea";
+    private static final String INTEREST_AREA_URL = "http://192.168.15.34:8010/v1/interestArea";
 
     public NewUserDto createDummyUser(int userId, Random random) {
         NewUserDto newUser = new NewUserDto();
@@ -178,24 +180,22 @@ public class UserService {
                 interestAreaDto.setDescription("Description for interest area " + i);
                 interestAreaDto.setToken(token);
 
-                // Costruisci l'entity multipart
                 MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
+                ObjectMapper objectMapper = new ObjectMapper();
 
-                // Aggiungi i dati JSON
-                entityBuilder.addTextBody("data", new ObjectMapper().writeValueAsString(interestAreaDto), ContentType.APPLICATION_JSON);
+                // Add JSON data as a text body
+                entityBuilder.addTextBody("data", objectMapper.writeValueAsString(interestAreaDto), ContentType.APPLICATION_JSON);
 
-                // Verifica se ci sono file disponibili prima di selezionarne uno
+                // Load file from "shape" directory
                 ClassLoader classLoader = getClass().getClassLoader();
                 URL resourceUrl = classLoader.getResource("shape");
-
                 if (resourceUrl != null) {
                     File directory = new File(resourceUrl.getFile());
                     File[] shapeFiles = directory.listFiles();
+
                     if (shapeFiles != null && shapeFiles.length > 0) {
-                        // Prendi un file casuale dalla directory
                         File file = shapeFiles[random.nextInt(shapeFiles.length)];
-                        // Aggiungi il file con il nome corretto e il tipo di contenuto specificato
-                        entityBuilder.addPart("file", new FileBody(file));
+                        entityBuilder.addPart("file", new FileBody(file, ContentType.DEFAULT_BINARY));
                     } else {
                         System.err.println("No files found in resources/shape.");
                     }
@@ -204,19 +204,16 @@ public class UserService {
                 }
 
                 HttpEntity entity = entityBuilder.build();
-
-                // Crea la richiesta POST
                 HttpPost post = new HttpPost(INTEREST_AREA_URL);
                 post.setEntity(entity);
 
-                // Esegui la richiesta e gestisci la risposta
+                // Execute request and handle response
                 try (CloseableHttpResponse response = client.execute(post)) {
-                    String responseBody = EntityUtils.toString(response.getEntity());
+                    String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
                     if (response.getStatusLine().getStatusCode() == 200) {
-                        InterestAreaDto createdInterestArea = new ObjectMapper().readValue(responseBody, InterestAreaDto.class);
+                        InterestAreaDto createdInterestArea = objectMapper.readValue(responseBody, InterestAreaDto.class);
                         interestAreas.add(createdInterestArea);
-                        System.out.println(createdInterestArea.getGeometry());
                         System.out.println("Interest area created successfully: " + createdInterestArea.getName());
                     } else {
                         System.err.println("Failed to create interest area: " + response.getStatusLine().getStatusCode());
@@ -224,12 +221,16 @@ public class UserService {
                     }
                 }
             }
+        } catch (IOException e) {
+            System.err.println("I/O error occurred: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.err.println("Argument error: " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return interestAreas;
     }
+
 
 
 
