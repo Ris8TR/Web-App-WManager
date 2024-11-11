@@ -277,6 +277,42 @@ public class SensorDataServiceImpl implements SensorDataService {
                 .collect(Collectors.toList());
     }
 
+    public List<SensorDataDto> getAllSensorDataByAreaId5Min(String areaId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -5);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllByfindAllByInterestAreaIdAndTimestampBetweenAndTimestampBetween(areaId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<SensorDataDto> getAllSensorDataByAreaId10Min(String areaId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllByfindAllByInterestAreaIdAndTimestampBetweenAndTimestampBetween(areaId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<SensorDataDto> getAllSensorDataByAreaId15Min(String areaId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -15);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllByfindAllByInterestAreaIdAndTimestampBetweenAndTimestampBetween(areaId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
     /*
     public List<SensorDataDto> getAllSensorDataBy10MinByType(String type) {
         String cacheKey = "SensorData:" + type;
