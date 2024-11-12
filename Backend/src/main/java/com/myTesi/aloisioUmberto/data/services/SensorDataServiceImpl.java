@@ -115,7 +115,7 @@ public class SensorDataServiceImpl implements SensorDataService {
             try {
             data.setSensorId(sensor.get().getId().toString());
             //TODO Aggiungere verifica area di interesse
-            data.setInterestAreaID(newSensorDataDTO.getInterestAreaId());
+            data.setInterestAreaID(sensor.get().getInterestAreaID());
             sensorRepository.save(sensor.get());
             } catch (DataIntegrityViolationException e) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "|Error|", e);
@@ -277,38 +277,38 @@ public class SensorDataServiceImpl implements SensorDataService {
                 .collect(Collectors.toList());
     }
 
-    public List<SensorDataDto> getAllSensorDataByAreaId5Min(String areaId) {
+    public List<SensorDataDto> getAllSensorDataByInterestAreaId5Min(String interestAreaId) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);
         calendar.add(Calendar.MINUTE, -5);
         Date fiveMinutesAgo = calendar.getTime();
 
-        return sensorDataRepository.findAllByfindAllByInterestAreaIdAndTimestampBetweenAndTimestampBetween(areaId, fiveMinutesAgo, now).stream()
+        return sensorDataRepository.findAllByInterestAreaIDAndTimestampBetween(interestAreaId, fiveMinutesAgo, now).stream()
                 .map(sensorDataMapper::sensorDataToSensorDataDto)
                 .collect(Collectors.toList());
     }
 
-    public List<SensorDataDto> getAllSensorDataByAreaId10Min(String areaId) {
+    public List<SensorDataDto> getAllSensorDataByInterestAreaId10Min(String interestAreaId) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);
         calendar.add(Calendar.MINUTE, -10);
         Date fiveMinutesAgo = calendar.getTime();
 
-        return sensorDataRepository.findAllByfindAllByInterestAreaIdAndTimestampBetweenAndTimestampBetween(areaId, fiveMinutesAgo, now).stream()
+        return sensorDataRepository.findAllByInterestAreaIDAndTimestampBetween(interestAreaId, fiveMinutesAgo, now).stream()
                 .map(sensorDataMapper::sensorDataToSensorDataDto)
                 .collect(Collectors.toList());
     }
 
-    public List<SensorDataDto> getAllSensorDataByAreaId15Min(String areaId) {
+    public List<SensorDataDto> getAllSensorDataByInterestAreaId15Min(String interestAreaId) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);
         calendar.add(Calendar.MINUTE, -15);
         Date fiveMinutesAgo = calendar.getTime();
 
-        return sensorDataRepository.findAllByfindAllByInterestAreaIdAndTimestampBetweenAndTimestampBetween(areaId, fiveMinutesAgo, now).stream()
+        return sensorDataRepository.findAllByInterestAreaIDAndTimestampBetween(interestAreaId, fiveMinutesAgo, now).stream()
                 .map(sensorDataMapper::sensorDataToSensorDataDto)
                 .collect(Collectors.toList());
     }

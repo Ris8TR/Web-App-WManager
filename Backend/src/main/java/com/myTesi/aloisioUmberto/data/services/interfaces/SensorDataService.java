@@ -26,6 +26,15 @@ public interface SensorDataService  {
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by sensorId
     List<SensorDataDto> getAllSensorDataBySensorId15Min(String sensorId);
 
+    List<SensorDataDto> getAllSensorDataByInterestAreaId5Min(String interestAreaId);
+
+    // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by sensorId
+    List<SensorDataDto> getAllSensorDataByInterestAreaId10Min(String interestAreaId);
+
+    // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by sensorId
+    List<SensorDataDto> getAllSensorDataByInterestAreaId15Min(String interestAreaId);
+
+
 
     // Metodo per ottenere i sensorDatadino di un sensore negli ultimi 5m by sensorId
     List<SensorDataDto> getAllSensorDataIn5Min();

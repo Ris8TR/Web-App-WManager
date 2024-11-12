@@ -352,9 +352,9 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
   private getIntervalObservable(interval: number) {
     switch (interval) {
-      case 5: return this.sensorDataService.getAllSensorDataIn5Min();
-      case 10: return this.sensorDataService.getAllSensorDataIn10Min();
-      case 15: return this.sensorDataService.getAllSensorDataIn15Min();
+      case 5: return this.sensorDataService.getAllSensorDataByInterestAreaId5Min(this.id!);
+      case 10: return this.sensorDataService.getAllSensorDataByInterestAreaId10Min(this.id!);
+      case 15: return this.sensorDataService.getAllSensorDataByInterestAreaId15Min(this.id!);
       default: return null;
     }
   }
@@ -414,13 +414,11 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
   private processData(data: any): [number, number, number][] {
-    console.log("Processing data: ", data);
     return data.map((sensorData: any) => {
       const lat = sensorData.latitude;
       const lng = sensorData.longitude;
       let value: number | undefined;
 
-      // Parsing il campo payload per ottenere i dati specifici del sensore
       try {
         const payloadData = JSON.parse(sensorData.payload);
         value = payloadData[this.selectedSensorType];
@@ -439,12 +437,10 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     const heatData: [number, number, number][] = [];  // Initialize outside the loop
 
     this.sensorDataLocalList!.forEach((data: any) => {
-      // Ottieni la latitudine, longitudine e il valore per il sensore
       const lat = data.latitude;
       const lng = data.longitude;
       let value: number = 0;
 
-      // Aggiungi il valore del sensore in base al tipo selezionato
       try {
         const payloadData = JSON.parse(data.payload);
         value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
@@ -452,13 +448,11 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
         console.error("Errore nel parsing del payload:", error);
       }
 
-      // Aggiungi il punto al heatData se latitudine e longitudine sono definiti
       if (lat && lng) {
         heatData.push([lat, lng, value]);
       }
     });
 
-    // Salva i dati nella cache per il tipo di sensore selezionato
     this.cachedData.set(this.selectedSensorType, heatData);
 
     this.updateGrid();  // Aggiorna la mappa con i nuovi dati
