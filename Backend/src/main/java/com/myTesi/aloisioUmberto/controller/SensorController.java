@@ -31,11 +31,8 @@ public class SensorController {
 
     private final SensorService sensorService;
 
-    @GetMapping("/sensors/all-sensors")
-    public ResponseEntity<List<SensorDto>> getAllSensor() {
-        return ResponseEntity.ok(sensorService.getAllSensor());
-    }
 
+    //CREATE & UPDATE
     @PostMapping("/sensors")
     public ResponseEntity<SensorDto> addSensor(@RequestBody @Valid NewSensorDto newSensorDto) {
         return ResponseEntity.ok(sensorService.saveDto(newSensorDto));
@@ -53,11 +50,38 @@ public class SensorController {
     }
 
 
+
+
+    //PUBLIC
+    @GetMapping("/sensors/public/all-sensors")
+    public ResponseEntity<List<SensorDto>> getAllSensor() {
+        return ResponseEntity.ok(sensorService.getAllSensor());
+    }
+
+    @GetMapping("/sensors/public/company/{companyName}")
+    public ResponseEntity <List<SensorDto>> findPublicByCompanyName(@PathVariable @Valid String companyName) {
+        return ResponseEntity.ok(sensorService.findPublicByCompanyName(companyName));
+    }
+
+    @GetMapping("/sensors/public/{id}")
+    public ResponseEntity <Optional<SensorDto>> findById(@PathVariable @Valid String id) {
+        return ResponseEntity.ok(sensorService.findPublicById(id));
+    }
+
+    @GetMapping("/sensors/public/type/{type}/")
+    public ResponseEntity <List<SensorDto>> findPublicByTypeAndUserId(@PathVariable String type) {
+        return ResponseEntity.ok(sensorService.findPublicByType(type));
+    }
+
+
+
+
+
+    //PRIVATE
     @GetMapping("/sensors/company/{companyName}/{token}")
     public ResponseEntity <List<SensorDto>> findByCompanyName(@PathVariable @Valid String companyName,  @PathVariable @Valid String token) {
         return ResponseEntity.ok(sensorService.findByCompanyName(companyName, token));
     }
-
 
     @GetMapping("/sensors/interestArea/{interestAreaId}/{token}")
     public ResponseEntity <List<SensorDto>> findByInterestAreaId(@PathVariable @Valid String interestAreaId,  @PathVariable @Valid String token) {

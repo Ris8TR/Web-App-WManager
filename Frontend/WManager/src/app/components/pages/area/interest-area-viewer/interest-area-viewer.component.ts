@@ -41,7 +41,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private map: L.Map | undefined;
   selectedSensor!: string | undefined;
   interestArea: InterestArea | undefined;
-  id: string | null | undefined ;
+  id: string | null | undefined;
   private layerGroup: L.LayerGroup | undefined;
   public selectedSensorType: string = "CO2";
   sensorTypeList!: string[];
@@ -54,36 +54,38 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private cachedData: Map<string, [number, number, number][]> = new Map();
   private drawnLayers: L.Layer[] = [];
   private subscription: Subscription = new Subscription();
+  selectedLatestInterval: string | null = null;
+  selectedForecastInterval: string | null = null;
   isPanelVisible = true;
 
   temperatureScale = [
-    { label: '-10', color: '#0030ff' },
-    { label: '-8', color: '#0066ff' },
-    { label: '-6', color: '#00a4ff' },
-    { label: '-4', color: '#00d7ff' },
-    { label: '-2', color: '#00f9ed' },
-    { label: '0', color: '#00ebbd' },
-    { label: '2', color: '#00dc8d' },
-    { label: '4', color: '#00c951' },
-    { label: '6', color: '#01ba1c' },
-    { label: '8', color: '#21bd05' },
-    { label: '10', color: '#61cf03' },
-    { label: '12', color: '#93df01' },
-    { label: '14', color: '#cff000' },
-    { label: '16', color: '#ffff00' },
-    { label: '18', color: '#ffed00' },
-    { label: '20', color: '#ffd700' },
-    { label: '22', color: '#ffc400' },
-    { label: '24', color: '#ffaf00' },
-    { label: '26', color: '#ff9200' },
-    { label: '28', color: '#ff7100' },
-    { label: '30', color: '#ff4700' },
-    { label: '32', color: '#ff2300' },
-    { label: '34', color: '#ff0100' },
-    { label: '36', color: '#de0014' },
-    { label: '38', color: '#bd0033' },
-    { label: '40', color: '#940056' },
-    { label: '42', color: '#730073' }
+    {label: '-10', color: '#0030ff'},
+    {label: '-8', color: '#0066ff'},
+    {label: '-6', color: '#00a4ff'},
+    {label: '-4', color: '#00d7ff'},
+    {label: '-2', color: '#00f9ed'},
+    {label: '0', color: '#00ebbd'},
+    {label: '2', color: '#00dc8d'},
+    {label: '4', color: '#00c951'},
+    {label: '6', color: '#01ba1c'},
+    {label: '8', color: '#21bd05'},
+    {label: '10', color: '#61cf03'},
+    {label: '12', color: '#93df01'},
+    {label: '14', color: '#cff000'},
+    {label: '16', color: '#ffff00'},
+    {label: '18', color: '#ffed00'},
+    {label: '20', color: '#ffd700'},
+    {label: '22', color: '#ffc400'},
+    {label: '24', color: '#ffaf00'},
+    {label: '26', color: '#ff9200'},
+    {label: '28', color: '#ff7100'},
+    {label: '30', color: '#ff4700'},
+    {label: '32', color: '#ff2300'},
+    {label: '34', color: '#ff0100'},
+    {label: '36', color: '#de0014'},
+    {label: '38', color: '#bd0033'},
+    {label: '40', color: '#940056'},
+    {label: '42', color: '#730073'}
   ];
   private sensorDataLocalList: Array<SensorData> | undefined;
 
@@ -96,7 +98,8 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     private cookieService: CookieService,
     public toolbarComponent: ToolbarComponent,
     private route: ActivatedRoute
-  ) {}
+  ) {
+  }
 
   ngOnInit(): void {
     this.subscription = this.interestAreaService.currentId$.subscribe(id => {
@@ -104,8 +107,8 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       this.reloadComponentData();
     })
 
-    if (this.id == null){
-      this.snackBar.open("Selezionare un'area di interesse" , "ok")
+    if (this.id == null) {
+      this.snackBar.open("Selezionare un'area di interesse", "ok")
       return
     }
 
@@ -137,6 +140,17 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   togglePanel(event: MouseEvent): void {
     event.stopPropagation();
     this.isPanelVisible = !this.isPanelVisible;
+  }
+
+
+  onForecastIntervalSelect(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    this.selectedForecastInterval = selectElement.value;
+
+    this.selectedLatestInterval = null;
+    (document.getElementById('latestInterval') as HTMLSelectElement).value = '';
+
+
   }
 
 
@@ -227,17 +241,17 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private loadSensors(): void {
     this.sensorService.findByInterestAreaId(this.id!, this.cookieService.get('token'))
       .subscribe(sensors => this.sensors = sensors);
-    if (this.sensors.length>0){
-      this.selectedSensor=this.sensors[0].id
+    if (this.sensors.length > 0) {
+      this.selectedSensor = this.sensors[0].id
     }
   }
 
   onSensorSelect(sensor: SensorDto): void {
     if (sensor.type) this.selectedSensor = sensor.type;
     this.loadSingleSensorData(sensor);
-    if (this.selectedSensor == sensor.id){
+    if (this.selectedSensor == sensor.id) {
       this.selectedSensor = undefined;
-    }else {
+    } else {
       this.selectedSensor = sensor.id
       this.loadSensorData();
       return
@@ -338,7 +352,12 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       });
   }
 
-  onIntervalSelect(event: Event): void {
+  onLatestIntervalSelect(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    this.selectedLatestInterval = selectElement.value;
+
+    this.selectedForecastInterval = null;
+    (document.getElementById('forecastInterval') as HTMLSelectElement).value = '';
     const interval = parseInt((event.target as HTMLSelectElement).value, 10);
     const intervalObservable = this.getIntervalObservable(interval);
 
@@ -352,10 +371,14 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
   private getIntervalObservable(interval: number) {
     switch (interval) {
-      case 5: return this.sensorDataService.getAllSensorDataByInterestAreaId5Min(this.id!);
-      case 10: return this.sensorDataService.getAllSensorDataByInterestAreaId10Min(this.id!);
-      case 15: return this.sensorDataService.getAllSensorDataByInterestAreaId15Min(this.id!);
-      default: return null;
+      case 5:
+        return this.sensorDataService.getAllSensorDataByInterestAreaId5Min(this.id!);
+      case 10:
+        return this.sensorDataService.getAllSensorDataByInterestAreaId10Min(this.id!);
+      case 15:
+        return this.sensorDataService.getAllSensorDataByInterestAreaId15Min(this.id!);
+      default:
+        return null;
     }
   }
 
@@ -375,13 +398,12 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       token: this.cookieService.get('token')
     };
 
-      this.sensorDataService.getAllSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
-        this.cachedData.set(this.selectedSensorType, this.processData(data));
-        this.updateGrid();
-      });
+    this.sensorDataService.getAllSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
+      this.cachedData.set(this.selectedSensorType, this.processData(data));
+      this.updateGrid();
+    });
 
   }
-
 
 
   private updateGrid(): void {

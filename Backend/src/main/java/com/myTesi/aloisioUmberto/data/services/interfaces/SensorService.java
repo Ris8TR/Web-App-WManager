@@ -13,20 +13,22 @@ import java.util.Optional;
 
 public interface SensorService {
 
+    //PUBLIC
+    List<SensorDto> findPublicByCompanyName(String companyName);
+    Optional<SensorDto> findPublicById(String id);
+    List<SensorDto> findPublicByType(String type);
+
+
+    //PRIVATE
     Optional<SensorDto> findById(String id, String token);
     List<SensorDto> findByCompanyName(String companyName, String token);
     SensorDto saveDto(NewSensorDto newSensorDto);
     List<SensorDto> getAllSensor();
     SensorDto save(MultipartFile file) throws IOException;
-
     List<SensorDto> findByUserId(String token);
-
     SensorAndAreas findAndAreaByUserId(String token);
-
     List<SensorDto> findByTypeAndUser(String type, String token);
-
     List<SensorDto> findByInterestAreaId(String interestAreaId, String token);
-
     SensorDto update(SensorDto sensorDto);
 
 }

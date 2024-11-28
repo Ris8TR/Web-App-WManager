@@ -31,5 +31,6 @@ public class Sensor {
         @Field
         private String password;
         private String interestAreaID;
+        private Boolean visibility;
         private String colorBarId;
 }
