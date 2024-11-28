@@ -44,16 +44,11 @@ public class SensorDataController {
 
     }
 
-    @GetMapping("/SensorData/get-latest")
-    public ResponseEntity<List<SensorDataDto>> getAllSensorData() {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn5Min());
-    }
+
     @GetMapping("/SensorData/last5m-by-interestAreaId/{interestAreaId}")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataByInterestAreaId5Min(@PathVariable String interestAreaId) {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataByInterestAreaId5Min(interestAreaId));
     }
-
-
 
     @GetMapping("/SensorData/last10m-by-interestAreaId/{interestAreaId}")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataByInterestAreaId10Min(@PathVariable String interestAreaId) {
@@ -81,19 +76,19 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId15Min(sensorId));
     }
 
-    @GetMapping("/SensorData/last5m")
+    @GetMapping("/SensorData/public/last5m")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn5Min() {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn5Min());
+        return ResponseEntity.ok(sensorDataService.getAllPublicSensorDataIn5Min());
     }
 
-    @GetMapping("/SensorData/last10m")
+    @GetMapping("/SensorData/public/last10m")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn10Min() {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn10Min());
+        return ResponseEntity.ok(sensorDataService.getAllPublicSensorDataIn10Min());
     }
 
-    @GetMapping("/SensorData/last15m")
+    @GetMapping("/SensorData/public/last15m")
     public ResponseEntity<List<SensorDataDto>> getAllSensorDataIn15Min() {
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataIn15Min());
+        return ResponseEntity.ok(sensorDataService.getAllPublicSensorDataIn15Min());
     }
 
    /* @PostMapping("/SensorData/date")
@@ -106,11 +101,12 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorBetweenDate(date));
     }
 
+    /*
     @GetMapping("/SensorData/{id}")
     public ResponseEntity<SensorDataDto> getSensorDataById(@PathVariable String id) {
         return ResponseEntity.ok(sensorDataService.getSensorDataById(id));
 
-    }
+    }*/
 
     @GetMapping("/SensorData/Sensor/{id}/{token}")
     public ResponseEntity<SensorDataDto> getSensorDataBySensorId(@PathVariable String id, @PathVariable String token ) {
@@ -133,7 +129,7 @@ public class SensorDataController {
         return ResponseEntity.ok( sensorDataService.getAllSensorDataProcessedByInterestArea( interestAreaId, token));
     }
 
-    @GetMapping("/SensorData/processed/{type}")
+    @GetMapping("/SensorData/public/processed/{type}")
     public ResponseEntity<String> getProcessedDataByType(@PathVariable String type ) {
         return ResponseEntity.ok( sensorDataService.getProcessedSensorData(type));
     }

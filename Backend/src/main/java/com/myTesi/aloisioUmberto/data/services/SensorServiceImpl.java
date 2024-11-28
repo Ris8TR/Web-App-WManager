@@ -380,6 +380,7 @@ public class SensorServiceImpl implements SensorService {
         if (!Objects.equals(sensorDto.getUserId(), existingSensor.getUserId())) {
             throw new RuntimeException("Invalid credentials");
         }
+        existingSensor.setVisibility(sensorDto.getVisibility());
         existingSensor.setType(String.valueOf(sensorDto.getType()));
         existingSensor.setDescription(sensorDto.getDescription());
         existingSensor.setCompanyName(sensorDto.getCompanyName());

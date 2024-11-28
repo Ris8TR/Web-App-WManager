@@ -1,16 +1,86 @@
-<div class="row">
-  <div class="col-2 justify-content-md-center">
-    <mat-form-field class="sensor-select">
-      <mat-label for="sensorType">Select Sensor Type:</mat-label>
-      <mat-select id="sensorType" [(ngModel)]="sensorType" (ngModelChange)="onSensorTypeChange()">
-        <mat-option value="temperature">Temperature</mat-option>
-        <mat-option value="CO2">CO2</mat-option>
-        <mat-option value="humidity">Humidity</mat-option>
-        <mat-option value="ap">Pression</mat-option>
-      </mat-select>
-    </mat-form-field>
+1<div>
+  <!-- Pannello laterale (sidebar) -->
+  <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; margin: 5%">
+
+    <!-- Contenuto della sidebar -->
+    <div class="sidebar-content overMap" (click)="$event.stopPropagation()">
+      <div class="sidebar-pane active" id="home">
+        <h1 class="sidebar-header">
+          Control Panel
+          <span class="sidebar-close">
+            <!-- Icona di chiusura -->
+            <svg class="svg-inline--fa fa-caret-left fa-w-6" aria-hidden="true" data-prefix="fa" data-icon="caret-left" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512">
+              <path fill="currentColor" d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"></path>
+            </svg>
+          </span>
+        </h1>
+      </div>
+
+      <!-- Sezione della legenda -->
+      <div class="row text-center justify-content-center align-self-center">
+        <div class="col-md-12">
+          <div class="my-legend" style="margin: 1%">
+            <div class="legend-title" style="font-size: 9px; color: #fff">{{selectedSensorType}} Color Bar</div>
+            <div class="legend-scale">
+              <ul class="legend-labels">
+                <!-- Scala della temperatura -->
+                <li *ngFor="let item of temperatureScale" style="color: #fff; font-size: 9px;">
+                  <span [style.background]="item.color"></span>{{ item.label }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <h4 class=" py-3 px-0 px-lg-3 rounded">Past Data</h4>
+          <div class="row">
+            <h6 style="color: white; padding-right: 80% ">Select Type:</h6>
+            <div class="col-2 justify-content-md-center">
+              <!-- Sezione checkbox per selezionare un sensore -->
+              <div>
+                <mat-radio-group [(ngModel)]="selectedSensorType" (change)="onSensorTypeChange($event)">
+                  <div *ngFor="let sensor of sensorOptions">
+                    <mat-radio-button value="{{ sensor.value }}" class="custom-radio">
+                      {{ sensor.label }}
+                    </mat-radio-button>
+                  </div>
+                </mat-radio-group>
+            </div>
+            </div>
+          </div>
+          <!-- Selettore per Latest data -->
+          <div class="row text-center justify-content-center align-self-center" style="margin: 5%">
+            <div class="col-md-12">
+              <label for="latestInterval">Latest data</label>
+              <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect($event)">
+                <option value="" selected>Select Interval</option>
+                <option value="5">-5 Minutes</option>
+                <option value="60">-1 Hour</option>
+                <option value="180">-3 Hour</option>
+              </select>
+            </div>
+          <h4 class=" py-3 px-0 px-lg-3 rounded">Forecast Data</h4>
+          <!-- Selettore per Forecast data -->
+          <div class="col-md-12">
+            <label for="forecastInterval">Forecast data</label>
+            <select id="forecastInterval" class="form-select" aria-label="Select Interval" (change)="onForecastIntervalSelect($event)">
+              <option value="" selected>Select Interval</option>
+              <option value="1">+1 Hour</option>
+              <option value="2">+2 Hours</option>
+              <option value="3">+3 Hours</option>
+              <option value="4">+4 Hours</option>
+              <option value="12">+12 Hours</option>
+              <option value="24">+24 Hours</option>
+              <option value="36">+36 Hours</option>
+              <option value="72">+72 Hours</option>
+            </select>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
   </div>
+
   <div class="col-lg justify-content-md-center">
-    <div id="map" style="height: 600px; min-height: 80%;"></div>
+    <div id="map" style="height: 1000px; min-height: 80%;"></div>
   </div>
 </div>

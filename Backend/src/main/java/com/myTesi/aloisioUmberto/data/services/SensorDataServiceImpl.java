@@ -201,7 +201,13 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
-    public List<SensorDataDto> getAllSensorDataIn5Min() {
+    public List<SensorDataDto> getAllPublicSensorDataIn5Min() {
+        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
+        if (sensors == null || sensors.isEmpty()) {
+            return null;
+        }
+
+
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
 
@@ -209,13 +215,27 @@ public class SensorDataServiceImpl implements SensorDataService {
         calendar.add(Calendar.MINUTE, -5);
         Date tenMinutesAgo = calendar.getTime();
 
-        return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
+
+
+        List<SensorData> sensorDataList = new ArrayList<>();
+        for (Sensor sensor : sensors) {
+            sensorDataList = sensorDataRepository.findAllByTimestampBetweenAndSensorId(tenMinutesAgo, now, String.valueOf(sensor.getId()));
+
+
+        }
+;
+        return sensorDataList.stream().map(sensorDataMapper::sensorDataToSensorDataDto).collect(Collectors.toList());
+
     }
 
     @Override
-    public List<SensorDataDto> getAllSensorDataIn10Min() {
+    public List<SensorDataDto> getAllPublicSensorDataIn10Min() {
+        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
+        if (sensors == null || sensors.isEmpty()) {
+            return null;
+        }
+
+
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
 
@@ -223,12 +243,26 @@ public class SensorDataServiceImpl implements SensorDataService {
         calendar.add(Calendar.MINUTE, -10);
         Date tenMinutesAgo = calendar.getTime();
 
-        return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());    }
+
+
+        List<SensorData> sensorDataList = new ArrayList<>();
+        for (Sensor sensor : sensors) {
+            sensorDataList = sensorDataRepository.findAllByTimestampBetweenAndSensorId(tenMinutesAgo, now, String.valueOf(sensor.getId()));
+
+
+        }
+        ;
+        return sensorDataList.stream().map(sensorDataMapper::sensorDataToSensorDataDto).collect(Collectors.toList());
+    }
 
     @Override
-    public List<SensorDataDto> getAllSensorDataIn15Min() {
+    public List<SensorDataDto> getAllPublicSensorDataIn15Min() {
+        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
+        if (sensors == null || sensors.isEmpty()) {
+            return null;
+        }
+
+
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
 
@@ -236,9 +270,15 @@ public class SensorDataServiceImpl implements SensorDataService {
         calendar.add(Calendar.MINUTE, -15);
         Date tenMinutesAgo = calendar.getTime();
 
-        return sensorDataRepository.findByTimestampBetween(tenMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());    }
+
+
+        List<SensorData> sensorDataList = new ArrayList<>();
+        for (Sensor sensor : sensors) {
+            sensorDataList = sensorDataRepository.findAllByTimestampBetweenAndSensorId(tenMinutesAgo, now, String.valueOf(sensor.getId()));
+        }
+        ;
+        return sensorDataList.stream().map(sensorDataMapper::sensorDataToSensorDataDto).collect(Collectors.toList());
+    }
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBySensorId5Min(String sensorId) {
@@ -313,33 +353,10 @@ public class SensorDataServiceImpl implements SensorDataService {
                 .collect(Collectors.toList());
     }
 
-    /*
-    public List<SensorDataDto> getAllSensorDataBy10MinByType(String type) {
-        String cacheKey = "SensorData:" + type;
-        List<SensorDataDto> sensorDataList = (List<SensorDataDto>) redisTemplate.opsForValue().get(cacheKey);
 
-        if (sensorDataList == null) {
-            Date now = new Date();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(now);
-            calendar.add(Calendar.MINUTE, -10);
-            Date tenMinutesAgo = calendar.getTime();
-
-            sensorDataList = sensorDataRepository.findByTimestampBetweenAndPayloadType(tenMinutesAgo, now, type).stream()
-                    .map(sensorDataMapper::sensorDataToSensorDataDto)
-                    .collect(Collectors.toList());
-
-            redisTemplate.opsForValue().set(cacheKey, sensorDataList, 5, TimeUnit.MINUTES); // Cache for 5 minutes
-        }
-
-        return sensorDataList;
-    }
-
-     */
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
-        // Supponiamo che le date siano nel fuso orario locale e le convertiamo in UTC
         String userId = isValidToken(dateDto.getToken());
         assert userId != null;
         ZonedDateTime fromDateTime = dateDto.getForm().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
@@ -372,25 +389,6 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     }
 
-    /*
-    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
-    public List<SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto) {
-        // Supponiamo che le date siano nel fuso orario locale e le convertiamo in UTC
-        ZonedDateTime fromDateTime = dateDto.getForm().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
-        ZonedDateTime toDateTime = dateDto.getTo().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
-
-        Date fromDateUTC = Date.from(fromDateTime.toInstant());
-        Date toDateUTC = Date.from(toDateTime.toInstant());
-
-
-        // Effettua la query utilizzando l'intervallo di date
-        List<SensorDataDto> results = sensorDataRepository.findAllByTimestampBetween(fromDateUTC, toDateUTC).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-
-        return results;
-    }
-*/
 
 
     @Override
@@ -438,6 +436,8 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public String getProcessedSensorData(String type) {
+        //TODO Implementare seriamente
+        //List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);

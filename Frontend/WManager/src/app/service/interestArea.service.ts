@@ -161,7 +161,7 @@ export class InterestAreaService {
     const consumes: string[] = [
     ];
 
-    return this.httpClient.request<any>('delete',`${this.basePath}/v1/interestarea/${encodeURIComponent(String(id))}`,
+    return this.httpClient.request<any>('delete',`${this.basePath}/v1/interestArea/${encodeURIComponent(String(id))}`,
       {
         withCredentials: this.configuration.withCredentials,
         headers: headers,
@@ -206,7 +206,7 @@ export class InterestAreaService {
     const consumes: string[] = [
     ];
 
-    return this.httpClient.request<InterestArea>('get',`${this.basePath}/v1/interestarea/${encodeURIComponent(String(id))}/${encodeURIComponent(String(token))}`,
+    return this.httpClient.request<InterestArea>('get',`${this.basePath}/v1/interestArea/${encodeURIComponent(String(id))}/${encodeURIComponent(String(token))}`,
       {
         withCredentials: this.configuration.withCredentials,
         headers: headers,
@@ -251,7 +251,7 @@ export class InterestAreaService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Array<InterestAreaDto>>('get',`${this.basePath}/v1/interestarea`,
+        return this.httpClient.request<Array<InterestAreaDto>>('get',`${this.basePath}/v1/interestArea`,
             {
                 params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
@@ -339,7 +339,7 @@ export class InterestAreaService {
     ];
 
 
-    return this.httpClient.request<SensorDto>('put',`${this.basePath}/v1/interestarea/update`,
+    return this.httpClient.request<SensorDto>('put',`${this.basePath}/v1/interestArea/update`,
       {
         body: body,
         withCredentials: this.configuration.withCredentials,

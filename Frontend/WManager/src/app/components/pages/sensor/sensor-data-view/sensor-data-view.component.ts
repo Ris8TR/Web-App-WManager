@@ -6,6 +6,7 @@ import {CookieService} from "ngx-cookie-service";
 import {SensorDto} from "../../../../model/sensorDto";
 import {FormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
+import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 
 @Component({
   selector: 'app-sensor-data-view',
@@ -13,7 +14,9 @@ import {CommonModule} from "@angular/common";
   templateUrl: './sensor-data-view.component.html',
   imports: [
     FormsModule,
-    CommonModule
+    CommonModule,
+    MatRadioButton,
+    MatRadioGroup
   ],
   styleUrls: ['./sensor-data-view.component.css']
 })
@@ -65,8 +68,8 @@ console.log(response)        },
           console.log(error);
         }
       );
-    }
-    )}
+    });
+  }
 
   cancelEdit(sensor: SensorDto) {
     sensor.isEditing = false;

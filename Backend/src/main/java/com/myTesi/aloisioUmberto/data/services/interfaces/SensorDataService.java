@@ -37,13 +37,13 @@ public interface SensorDataService  {
 
 
     // Metodo per ottenere i sensorDatadino di un sensore negli ultimi 5m by sensorId
-    List<SensorDataDto> getAllSensorDataIn5Min();
+    List<SensorDataDto> getAllPublicSensorDataIn5Min();
 
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by sensorId
-    List<SensorDataDto> getAllSensorDataIn10Min();
+    List<SensorDataDto> getAllPublicSensorDataIn10Min();
 
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by sensorId
-    List<SensorDataDto> getAllSensorDataIn15Min();
+    List<SensorDataDto> getAllPublicSensorDataIn15Min();
 
     // <SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto);
 

@@ -64,7 +64,7 @@ public class SensorController {
     }
 
     @GetMapping("/sensors/public/{id}")
-    public ResponseEntity <Optional<SensorDto>> findById(@PathVariable @Valid String id) {
+    public ResponseEntity <Optional<SensorDto>> findPublicById(@PathVariable @Valid String id) {
         return ResponseEntity.ok(sensorService.findPublicById(id));
     }
 
@@ -104,7 +104,7 @@ public class SensorController {
     }
 
     @GetMapping("/sensors/area/user/{token}")
-    public ResponseEntity <SensorAndAreas> findAndAreaByUserId(@PathVariable String token) {
+    public ResponseEntity <SensorAndAreas> findAreaByUserId(@PathVariable String token) {
         return ResponseEntity.ok(sensorService.findAndAreaByUserId(token));
     }
 

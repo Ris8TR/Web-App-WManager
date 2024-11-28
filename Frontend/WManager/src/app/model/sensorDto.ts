@@ -19,6 +19,7 @@ export interface SensorDto {
     description?: string;
     payloadType?: string;
     type?: string;
+    visibility?: boolean;
     interestAreaID?: string;
     longitude?: Array<number>;
     latitude?: Array<number>;

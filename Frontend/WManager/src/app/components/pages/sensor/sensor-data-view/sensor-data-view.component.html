@@ -6,6 +6,7 @@
     <th>Description</th>
     <th>Payload Type</th>
     <th>Type</th>
+    <th>Public?</th>
     <th>Interest Area ID</th>
     <th>Longitude</th>
     <th>Latitude</th>
@@ -32,6 +33,18 @@
     <td *ngIf="sensor.isEditing">
       <input [(ngModel)]="sensor.type" />
     </td>
+
+    <td *ngIf="sensor.isEditing">
+      <mat-radio-group [(ngModel)]="sensor.visibility">
+        <mat-radio-button [value]="true">Sì</mat-radio-button>
+        <mat-radio-button [value]="false">No</mat-radio-button>
+      </mat-radio-group>
+    </td>
+    <td *ngIf="!sensor.isEditing">
+      <ng-container *ngIf="sensor.visibility">Sì</ng-container>
+      <ng-container *ngIf="!sensor.visibility">No</ng-container>
+    </td>
+
 
 
     <td>{{ sensor.interestAreaID }}</td>

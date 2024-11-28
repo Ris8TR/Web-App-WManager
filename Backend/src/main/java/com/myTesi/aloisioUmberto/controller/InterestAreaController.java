@@ -49,25 +49,25 @@ public class InterestAreaController {
     }
 
 
-    @GetMapping("/interestarea/{id}/{token}")
+    @GetMapping("/interestArea/{id}/{token}")
     public ResponseEntity<InterestArea> getInterestArea(@PathVariable String id, @PathVariable String token) {
         //TODO ADD TOKEN CHECK
         return ResponseEntity.ok(interestAreaService.getInterestArea(id, token));
     }
 
-    @GetMapping("/interestarea")
+    @GetMapping("/interestArea")
     public ResponseEntity<List<InterestAreaDto>> getInterestAreasByUser(@RequestParam String token) {
         //TODO ADD TOKEN CHECK
         List<InterestAreaDto> interestAreas = interestAreaService.getInterestAreasByUserId(token);
         return ResponseEntity.ok(interestAreas);
     }
 
-    @PutMapping("/interestarea/update")
+    @PutMapping("/interestArea/update")
     public ResponseEntity<InterestAreaDto> updateInterestArea(@RequestBody InterestAreaDto interestAreaDto) {
         return ResponseEntity.ok(interestAreaService.update(interestAreaDto));
     }
 
-    @DeleteMapping("/interestarea/{id}")
+    @DeleteMapping("/interestArea/{id}")
     public ResponseEntity<Void> deleteInterestArea(@PathVariable ObjectId id) {
         //TODO ADD TOKEN CHECK
         interestAreaService.deleteInterestArea(id);

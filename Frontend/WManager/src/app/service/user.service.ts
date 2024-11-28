@@ -207,7 +207,7 @@ export class UserService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Array<SensorDto>>('get',`${this.basePath}/v1/sensors/all-sensors`,
+        return this.httpClient.request<Array<SensorDto>>('get',`${this.basePath}/v1/sensors/public/all-sensors`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
