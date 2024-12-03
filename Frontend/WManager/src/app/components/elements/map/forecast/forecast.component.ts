@@ -59,6 +59,7 @@ export class ForecastComponent implements AfterViewInit, OnDestroy {
     {label: '42', color: '#730073'}
   ];
   private cachedData: Map<string, any> = new Map(); // Cache for sensor data
+  isPanelVisible = true;
 
   constructor(private sensorDataService: SensorDataService) {}
 
@@ -69,6 +70,12 @@ export class ForecastComponent implements AfterViewInit, OnDestroy {
       this.loadSensorData();
     }, 10);
   }
+
+  togglePanel(event: MouseEvent): void {
+    event.stopPropagation();
+    this.isPanelVisible = !this.isPanelVisible;
+  }
+
 
 
   private initializeMap(): void {

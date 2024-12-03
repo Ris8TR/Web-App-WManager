@@ -88,7 +88,7 @@ public class SensorController {
         return ResponseEntity.ok(sensorService.findByInterestAreaId(interestAreaId, token));
     }
 
-    @GetMapping("/sensors/{id}")
+    @GetMapping("/sensors/{id}/{token}")
     public ResponseEntity <Optional<SensorDto>> findById(@PathVariable @Valid String id,  @PathVariable @Valid String token) {
         return ResponseEntity.ok(sensorService.findById(id, token));
     }
