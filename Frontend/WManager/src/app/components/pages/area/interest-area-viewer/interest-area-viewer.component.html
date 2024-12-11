@@ -1,14 +1,6 @@
 <div>
-
-
-
     <!-- Pannello laterale (sidebar) -->
     <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; margin: 5%">
-
-
-
-
-
       <!-- Tabs della sidebar -->
       <div class="sidebar-tabs" (click)="$event.stopPropagation()">
         <ul role="tablist">
@@ -22,8 +14,6 @@
         </ul>
       </div>
 
-
-
       <!-- Contenuto della sidebar -->
       <div   *ngIf="isPanelVisible"   class="sidebar-content overMap" (click)="$event.stopPropagation()">
         <div class="sidebar-pane active" id="home">
@@ -36,7 +26,6 @@
           </svg>
         </span>
           </h1>
-
         </div>
 
 
@@ -57,9 +46,11 @@
               </div>
 
             </div>
-            <h4 *ngIf="selectedSensor== undefined" class=" py-3 px-0 px-lg-3 rounded">Area Past Data</h4>
-            <h4 *ngIf="selectedSensor!= undefined" class=" py-3 px-0 px-lg-3 rounded">Sensor Past Data</h4>
-          </div>
+
+            <div *ngIf="isObservation">
+            <h4  *ngIf="selectedSensor== undefined " class=" py-3 px-0 px-lg-3 rounded">Area Past Data</h4>
+            <h4  *ngIf="selectedSensor!= undefined " class=" py-3 px-0 px-lg-3 rounded">Sensor Past Data</h4>
+
 
         <!-- Sezione di selezione della data e ora -->
           <div *ngIf="logStringResult !== 'Login'" class="row text-center justify-content-center align-self-center" style="!important; margin-top: 2px " >
@@ -109,10 +100,12 @@
                 </select>
               </div>
             </div>
-
+          </div>
+            </div>
+            <div *ngIf="isForecast">
             <!-- Titolo dinamico -->
-            <h4 *ngIf="selectedSensor == undefined" class="py-3 px-0 px-lg-3 rounded">Area Forecast Data</h4>
-            <h4 *ngIf="selectedSensor != undefined" class="py-3 px-0 px-lg-3 rounded">Sensor Forecast Data</h4>
+            <h4  *ngIf="selectedSensor == undefined" class="py-3 px-0 px-lg-3 rounded">Area Forecast Data</h4>
+            <h4   *ngIf="selectedSensor != undefined"  class="py-3 px-0 px-lg-3 rounded">Sensor Forecast Data</h4>
 
             <!-- Selettore per Forecast data -->
             <div class="row text-center justify-content-center align-self-center" style="margin-right: 2%; margin-left: 2%">
@@ -132,6 +125,7 @@
               </div>
             </div>
 
+            </div>
 
           </div>
 

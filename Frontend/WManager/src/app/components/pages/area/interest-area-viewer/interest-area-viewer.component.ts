@@ -58,6 +58,9 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   selectedForecastInterval: string | null = null;
   isPanelVisible = true;
 
+  isForecast: boolean = this.toolbarComponent.isForecast;
+  isObservation: boolean = this.toolbarComponent.isObservation;
+
   temperatureScale = [
     {label: '-10', color: '#0030ff'},
     {label: '-8', color: '#0066ff'},
@@ -107,6 +110,18 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       this.reloadComponentData();
     })
 
+    this.subscription.add(
+      this.toolbarComponent.isForecast$.subscribe(value => {
+        this.isForecast = value;
+      })
+    );
+
+    this.subscription.add(
+      this.toolbarComponent.isObservation$.subscribe(value => {
+        this.isObservation = value;
+      })
+    );
+
     if (this.id == null) {
       this.snackBar.open("Selezionare un'area di interesse", "ok")
       return
@@ -114,6 +129,9 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
     this.interestAreaService.getInterestArea(this.id!, this.cookieService.get('token')).subscribe(area => {
       this.interestArea = area;
+      this.toolbarComponent.inArea=true;
+      this.toolbarComponent.isObservation=true;
+      this.toolbarComponent.areaName=area.name;
 
       // Disegna l'area d'interesse sulla mappa
       if (this.interestArea && this.interestArea.geometry) {
@@ -134,6 +152,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   ngOnDestroy(): void {
     if (this.map) this.map.remove();
     this.subscription.unsubscribe();
+    this.toolbarComponent.inArea=false;
 
   }
 

@@ -14,6 +14,7 @@ import { InterestAreaDto } from '../../../model/interestAreaDto';
 import {AuthService} from "../../../service/auth.service";
 import * as jwt_decode from 'jwt-decode';
 import {jwtDecode} from "jwt-decode";
+import {BehaviorSubject} from "rxjs";
 
 
 
@@ -35,20 +36,23 @@ export class ToolbarComponent implements  OnInit{
   logStringResult: string = "Login";
   productDetails = [[] as any];
   showLoadButton = false;
-  interestAreaNames: InterestAreaDto[] = [ ];
+  interestAreaNames: InterestAreaDto[] = [];
+  private isForecastSubject = new BehaviorSubject<boolean>(false);
+  private isObservationSubject = new BehaviorSubject<boolean>(false);
+
+  isForecast$ = this.isForecastSubject.asObservable();
+  isObservation$ = this.isObservationSubject.asObservable();
 
   userId=""
+  areaName=""
   role: string = this.cookieService.get("role");
+  inArea: boolean = false;
 
   constructor(private cookieService: CookieService,
     private router: Router,
     private interestAreaService: InterestAreaService,
               private authService: AuthService,
-
-              iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {
-    iconRegistry.addSvgIconSet(
-      domSanitizer.bypassSecurityTrustResourceUrl('./assets/mdi.svg')
-    );
+              iconRegistry: MatIconRegistry, domSanitizer: DomSanitizer) {iconRegistry.addSvgIconSet(domSanitizer.bypassSecurityTrustResourceUrl('./assets/mdi.svg'));
   }
 
   ngOnInit(): void {
@@ -85,6 +89,33 @@ export class ToolbarComponent implements  OnInit{
       // Se c'è un errore nel decodificare il token, presupponiamo che sia scaduto
       return true;
     }
+  }
+
+
+  set isForecast(value: boolean) {
+    this.isForecastSubject.next(value);
+  }
+
+  get isForecast(): boolean {
+    return this.isForecastSubject.value;
+  }
+
+  set isObservation(value: boolean) {
+    this.isObservationSubject.next(value);
+  }
+
+  get isObservation(): boolean {
+    return this.isObservationSubject.value;
+  }
+
+  setObservation(): void{
+    this.isForecast=false
+    this.isObservation=true;
+  }
+
+  setForecast(): void{
+    this.isObservation=false;
+    this.isForecast=true;
   }
 
 

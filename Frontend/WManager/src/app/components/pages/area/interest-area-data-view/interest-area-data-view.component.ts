@@ -34,7 +34,6 @@ export class InterestAreaDataViewComponent implements  OnInit{
   }
 
   loadData() {
-    console.log("sdaaaaaa")
     this.toolbar.refreshToken().then(r => {
      this.token = this.cookieService.get("token");
     this.interestAreaService.getInterestAreasByUser(this.token).subscribe(

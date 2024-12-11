@@ -1,18 +1,4 @@
 @import url("https://unpkg.com/leaflet@1.9.3/dist/leaflet.css");
-@import url("https://unpkg.com/leaflet@1.9.3/dist/leaflet.css");
-
-
-.sensor-select {
-  margin-bottom: 8px; /* Adjust the distance from the component above */
-}
-
-.map {
-  height: 800px;
-  min-height: 90%;
-  margin-top: -3%; /* Slightly overlap with the form field */
-}
-
-
 .container {
   margin-top: 2%;
   display: flex;
@@ -109,6 +95,15 @@
 .panel-content[hidden] .toggle-icon::before {
   content: '▲'; /* Freccia su per indicare pannello chiuso */
 }
+
+
+
+#sidebar:hover ~ #map,
+#sidebar.open ~ #map {
+  pointer-events: none; /* Disabilita gli eventi */
+}
+
+
 
 
 
@@ -672,27 +667,4 @@ footer {
 
 .sensor-buttons button {
   width: 100%;
-}
-.custom-checkbox {
-  color: white; /* Cambia il colore del testo */
-}
-
-.custom-checkbox .mat-checkbox-label {
-  color: white; /* Assicura che il testo della label sia bianco */
-}
-.container {
-  display: flex;
-  height: 100vh; /* Assicura che l'altezza copra tutta la finestra */
-}
-
-#sidebar {
-  width: 300px; /* Larghezza fissa per la sidebar */
-  background-color: #333; /* Sfondo scuro per visibilità */
-  color: white;
-  overflow-y: auto; /* Scroll per il contenuto lungo */
-}
-
-#map {
-  flex: 1; /* Occupa tutto lo spazio rimanente */
-  min-height: 100%; /* Assicura che copra sempre l'intera altezza */
 }
