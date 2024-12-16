@@ -1,0 +1,24 @@
+@import url("https://unpkg.com/leaflet@1.9.3/dist/leaflet.css");
+
+
+
+.custom-marker-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+
+}
+
+.custom-cluster-icon{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+
+
+}

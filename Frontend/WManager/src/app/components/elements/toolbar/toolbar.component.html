@@ -2,7 +2,7 @@
   <!-- Navigation-->
   <nav class="navbar navbar-expand-lg bg-secondary text-uppercase" id="mainNav">
     <div class="container">
-      <a class="navbar-brand" href="/forecast">
+      <a class="navbar-brand" href="/observation">
         <img src="assets/img/logo-tech4you.png" style="height: 3rem">
       </a>
       <button class="navbar-toggler text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,7 +13,7 @@
         <ul class="navbar-nav mr-auto">
           <li *ngIf="!inArea" class="nav-item mx-0 mx-lg-1 dropdown">
             <a class="nav-link py-3 px-0 px-lg-3 dropdown-toggle" id="NavbarObs" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Observations
+              Public Observations
             </a>
             <div class="dropdown-menu" aria-labelledby="NavbarObs">
               <a class="dropdown-item" (click)="redirectToGroundStations()">Ground Stations</a>
@@ -21,20 +21,18 @@
             </div>
           </li>
           <li *ngIf="!inArea" class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="/forecast">Forecast</a>
+            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="/forecast">Public Forecast</a>
           </li>
 
           <li *ngIf="inArea" class=" mx-0 mx-lg-1">
             <a class="nav-link py-3 px-0 px-lg-3 rounded" style="color: white !important;">{{ areaName }}</a>
           </li>
           <li *ngIf="inArea" class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="setObservation()">Observations</a>
+            <a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="setObservation()">Private Observations</a>
           </li>
           <li *ngIf="inArea" class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="setForecast()">Forecast</a>
+            <a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="setForecast()">Private Forecast</a>
           </li>
-
-
           <!-- Interest Areas Dropdown (now identical to Observations) -->
           <li  *ngIf="logStringResult !== 'Login'" class="nav-item mx-0 mx-lg-1 dropdown">
             <a class="nav-link py-3 px-0 px-lg-3 dropdown-toggle" id="NavbarInterest" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">

@@ -16,7 +16,7 @@ import {RouterModule} from "@angular/router";
 
 @NgModule({
   declarations: [],
-  imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent, ResetComponent, ToolbarComponent, RouterModule.forRoot(routes, { useHash: false }) ],
+  imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent, ResetComponent,ToolbarComponent, RouterModule.forRoot(routes, { useHash: false }) ],
   providers: [AuthService,UserService,SensorService, ToolbarComponent],
   bootstrap: []
 })

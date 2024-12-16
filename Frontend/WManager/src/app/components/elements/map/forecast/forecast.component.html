@@ -1,7 +1,7 @@
 1<div>
   <!-- Pannello laterale (sidebar) -->
   <!-- Pannello laterale (sidebar) -->
-  <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; margin: 5%">
+  <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; margin-left: 5%; margin-bottom:20%; margin-top:8%">
     <!-- Tabs della sidebar -->
     <div class="sidebar-tabs" (click)="$event.stopPropagation()">
       <ul role="tablist">
@@ -72,22 +72,7 @@
                 <option value="180">-3 Hour</option>
               </select>
             </div>
-          <h4 class=" py-3 px-0 px-lg-3 rounded" style="margin-top: 40%">Forecast Data</h4>
-          <!-- Selettore per Forecast data -->
-          <div class="col-md-12">
-            <label for="forecastInterval">Forecast data</label>
-            <select id="forecastInterval" class="form-select" aria-label="Select Interval" (change)="onForecastIntervalSelect($event)">
-              <option value="" selected>Select Interval</option>
-              <option value="1">+1 Hour</option>
-              <option value="2">+2 Hours</option>
-              <option value="3">+3 Hours</option>
-              <option value="4">+4 Hours</option>
-              <option value="12">+12 Hours</option>
-              <option value="24">+24 Hours</option>
-              <option value="36">+36 Hours</option>
-              <option value="72">+72 Hours</option>
-            </select>
-          </div>
+
         </div>
         </div>
       </div>
@@ -95,6 +80,6 @@
   </div>
 
   <div class="col-lg justify-content-md-center">
-    <div id="map" style="height: 1000px; min-height: 80%;"></div>
+    <div id="map" style="height: 800px; min-height: 70%;"></div>
   </div>
 </div>

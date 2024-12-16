@@ -25,14 +25,16 @@ import {
   InterestAreaDataViewComponent
 } from "./components/pages/area/interest-area-data-view/interest-area-data-view.component";
 import {resolve} from "@angular/compiler-cli";
+import {StationComponent} from "./components/elements/map/station/station.component";
 
 
 
 export const routes: Routes = [
     //Pages
     {path: '', redirectTo: "/forecast", pathMatch : "full"},
-    {path: 'forecast',title:"Home", component: ForecastComponent},
-    {path: 'ground-stations',title:"Graunded Stations", component: MapComponent},
+    {path: 'observation',title:"Home", component: MapComponent},
+    {path: 'forecast',title:"Forecast", component: ForecastComponent},
+    {path: 'ground-stations',title:"Grounded Stations", component: StationComponent},
     {path: 'login',title:"login", component: LoginComponent},
     {path: 'signing',title:"signing", component: SigninComponent},
     {path: 'user',title:"user", component: UserComponent},
