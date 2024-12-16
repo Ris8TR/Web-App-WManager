@@ -176,14 +176,7 @@ export class ForecastComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  onLatestIntervalSelect($event: Event) {
-    const selectElement = event?.target as HTMLSelectElement;
-    this.selectedLatestInterval = selectElement.value;
 
-    this.selectedForecastInterval = null;
-    (document.getElementById('forecastInterval') as HTMLSelectElement).value = '';
-    this.loadSensorData()
-  }
 
   onForecastIntervalSelect($event: Event) {
     const selectElement = event?.target as HTMLSelectElement;

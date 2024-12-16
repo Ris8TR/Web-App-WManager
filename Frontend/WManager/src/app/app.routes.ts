@@ -31,7 +31,7 @@ import {StationComponent} from "./components/elements/map/station/station.compon
 
 export const routes: Routes = [
     //Pages
-    {path: '', redirectTo: "/forecast", pathMatch : "full"},
+    {path: '', redirectTo: "/observation", pathMatch : "full"},
     {path: 'observation',title:"Home", component: MapComponent},
     {path: 'forecast',title:"Forecast", component: ForecastComponent},
     {path: 'ground-stations',title:"Grounded Stations", component: StationComponent},

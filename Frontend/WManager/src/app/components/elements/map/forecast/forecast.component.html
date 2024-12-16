@@ -1,4 +1,4 @@
-1<div>
+<div>
   <!-- Pannello laterale (sidebar) -->
   <!-- Pannello laterale (sidebar) -->
   <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; margin-left: 5%; margin-bottom:20%; margin-top:8%">
@@ -44,12 +44,9 @@
               </ul>
             </div>
           </div>
-
-          <h4 class=" py-3 px-0 px-lg-3 rounded">Past Data</h4>
-          <div class="row">
-            <h6 style="color: white; padding-right: 80% ">Select Type:</h6>
-            <div class="col-2 justify-content-md-center">
-              <!-- Sezione checkbox per selezionare un sensore -->
+          <div class="   " style="margin: 5%">
+            <div class="col-md-12">
+              <h4  class="py-3 px-0 px-lg-3 rounded">Forecast Data</h4>
               <div>
                 <mat-radio-group [(ngModel)]="selectedSensorType" (change)="onSensorTypeChange($event)">
                   <div *ngFor="let sensor of sensorOptions">
@@ -58,19 +55,25 @@
                     </mat-radio-button>
                   </div>
                 </mat-radio-group>
-            </div>
-            </div>
-          </div>
-          <!-- Selettore per Latest data -->
-          <div class="row text-center justify-content-center align-self-center" style="margin: 5%">
-            <div class="col-md-12">
-              <label for="latestInterval">Latest data</label>
-              <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect($event)">
-                <option value="" selected>Select Interval</option>
-                <option value="5">-5 Minutes</option>
-                <option value="60">-1 Hour</option>
-                <option value="180">-3 Hour</option>
-              </select>
+              </div>
+              <!-- Selettore per Forecast data -->
+              <div class="row text-center justify-content-center align-self-center" style="margin-right: 2%; margin-left: 2%">
+                <div class="col-md-12">
+                  <label for="forecastInterval">Forecast data</label>
+                  <select id="forecastInterval" class="form-select" aria-label="Select Interval" (change)="onForecastIntervalSelect($event)">
+                    <option value="" selected>Select Interval</option>
+                    <option value="1">+1 Hour</option>
+                    <option value="2">+2 Hours</option>
+                    <option value="3">+3 Hours</option>
+                    <option value="4">+4 Hours</option>
+                    <option value="12">+12 Hours</option>
+                    <option value="24">+24 Hours</option>
+                    <option value="36">+36 Hours</option>
+                    <option value="72">+72 Hours</option>
+                  </select>
+                </div>
+              </div>
+
             </div>
 
         </div>
