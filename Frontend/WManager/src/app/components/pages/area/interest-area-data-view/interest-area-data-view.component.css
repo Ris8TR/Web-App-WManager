@@ -1,3 +1,19 @@
+/* Stile per la barra laterale */
+app-user {
+  background-color: #f8f9fa; /* Colore di sfondo per la barra */
+  height: 100%; /* Occupare l'intera altezza */
+  box-sizing: border-box;
+}
+
+/* Contenitore della tabella */
+.table-container {
+  overflow-x: auto; /* Scroll orizzontale per tabelle lunghe */
+  padding: 10px;
+  height: 100%; /* Occupare l'intera altezza */
+  box-sizing: border-box;
+}
+
+/* Stile generale della tabella */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -10,18 +26,18 @@ thead th, tbody td {
 }
 
 tbody td {
-  color: black; /* Imposta il colore del testo a nero */
+  color: black;
 }
 
 thead th {
   background-color: #f2f2f2;
-  color: black; /* Imposta il colore del testo a nero per l'intestazione */
+  color: black;
 }
 
-input {
-  color: black; /* Imposta il colore del testo a nero per gli input */
+input, button {
+  color: black;
 }
 
-button {
-  color: black; /* Imposta il colore del testo a nero per i bottoni */
+.table-striped tbody tr:nth-child(odd) {
+  background-color: #f9f9f9;
 }

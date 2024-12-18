@@ -44,9 +44,11 @@
               </ul>
             </div>
           </div>
-          <div class="   " style="margin: 5%">
-            <div class="col-md-12">
-              <h4  class="py-3 px-0 px-lg-3 rounded">Forecast Data</h4>
+          <h4 class=" py-3 px-0 px-lg-3 rounded">Past Data</h4>
+          <div class="row">
+            <h6 style="color: white; padding-right: 80% ">Select Type:</h6>
+            <div class="col-2 justify-content-md-center">
+              <!-- Sezione checkbox per selezionare un sensore -->
               <div>
                 <mat-radio-group [(ngModel)]="selectedSensorType" (change)="onSensorTypeChange($event)">
                   <div *ngFor="let sensor of sensorOptions">
@@ -56,8 +58,11 @@
                   </div>
                 </mat-radio-group>
               </div>
+            </div>
+          </div>
+
               <!-- Selettore per Forecast data -->
-              <div class="row text-center justify-content-center align-self-center" style="margin-right: 2%; margin-left: 2%">
+              <div class="row text-center justify-content-center align-self-center" style="margin: 5%">
                 <div class="col-md-12">
                   <label for="forecastInterval">Forecast data</label>
                   <select id="forecastInterval" class="form-select" aria-label="Select Interval" (change)="onForecastIntervalSelect($event)">
@@ -73,16 +78,16 @@
                   </select>
                 </div>
               </div>
+        </div>
 
             </div>
 
         </div>
         </div>
       </div>
-    </div>
-  </div>
+
 
   <div class="col-lg justify-content-md-center">
     <div id="map" style="height: 800px; min-height: 70%;"></div>
   </div>
-</div>
+

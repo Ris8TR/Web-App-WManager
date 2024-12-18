@@ -1,64 +1,69 @@
-<table>
-  <thead>
-  <tr>
-    <th>Company Name</th>
-    <th>ID</th>
-    <th>Description</th>
-    <th>Payload Type</th>
-    <th>Type</th>
-    <th>Public?</th>
-    <th>Interest Area ID</th>
-    <th>Longitude</th>
-    <th>Latitude</th>
-    <th>Actions</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr *ngFor="let sensor of sensorList; let i = index">
-    <td *ngIf="!sensor.isEditing">{{ sensor.companyName }}</td>
-    <td *ngIf="sensor.isEditing">
-      <input [(ngModel)]="sensor.companyName" />
-    </td>
+<div class="row" style="display: flex; height: 100vh;">
+  <!-- Barra laterale sinistra -->
+  <app-user style="flex: 0 0 250px; border-right: 1px solid #ddd; ;"></app-user>
 
-    <td>{{ sensor.id }}</td>
+  <!-- Contenitore della tabella -->
+  <div class="table-container" style="flex: 1; padding: 10px;">
+    <table class="table table-striped table-bordered">
+      <thead>
+      <tr>
+        <th>Company Name</th>
+        <th>ID</th>
+        <th>Description</th>
+        <th>Payload Type</th>
+        <th>Type</th>
+        <th>Public?</th>
+        <th>Interest Area ID</th>
+        <th>Longitude</th>
+        <th>Latitude</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let sensor of sensorList; let i = index">
+        <td *ngIf="!sensor.isEditing">{{ sensor.companyName }}</td>
+        <td *ngIf="sensor.isEditing">
+          <input [(ngModel)]="sensor.companyName" />
+        </td>
 
-    <td *ngIf="!sensor.isEditing">{{ sensor.description }}</td>
-    <td *ngIf="sensor.isEditing">
-      <input [(ngModel)]="sensor.description" />
-    </td>
+        <td>{{ sensor.id }}</td>
 
-    <td>{{ sensor.payloadType }}</td>
+        <td *ngIf="!sensor.isEditing">{{ sensor.description }}</td>
+        <td *ngIf="sensor.isEditing">
+          <input [(ngModel)]="sensor.description" />
+        </td>
 
-    <td *ngIf="!sensor.isEditing">{{ sensor.type }}</td>
-    <td *ngIf="sensor.isEditing">
-      <input [(ngModel)]="sensor.type" />
-    </td>
+        <td>{{ sensor.payloadType }}</td>
 
-    <td *ngIf="sensor.isEditing">
-      <mat-radio-group [(ngModel)]="sensor.visibility">
-        <mat-radio-button [value]="true">Sì</mat-radio-button>
-        <mat-radio-button [value]="false">No</mat-radio-button>
-      </mat-radio-group>
-    </td>
-    <td *ngIf="!sensor.isEditing">
-      <ng-container *ngIf="sensor.visibility">Sì</ng-container>
-      <ng-container *ngIf="!sensor.visibility">No</ng-container>
-    </td>
+        <td *ngIf="!sensor.isEditing">{{ sensor.type }}</td>
+        <td *ngIf="sensor.isEditing">
+          <input [(ngModel)]="sensor.type" />
+        </td>
 
+        <td *ngIf="sensor.isEditing">
+          <mat-radio-group [(ngModel)]="sensor.visibility">
+            <mat-radio-button [value]="true">Sì</mat-radio-button>
+            <mat-radio-button [value]="false">No</mat-radio-button>
+          </mat-radio-group>
+        </td>
+        <td *ngIf="!sensor.isEditing">
+          <ng-container *ngIf="sensor.visibility">Sì</ng-container>
+          <ng-container *ngIf="!sensor.visibility">No</ng-container>
+        </td>
 
+        <td>{{ sensor.interestAreaID }}</td>
 
-    <td>{{ sensor.interestAreaID }}</td>
+        <td>{{ sensor.longitude?.join(', ') }}</td>
 
-    <td>{{ sensor.longitude?.join(', ') }}</td>
+        <td>{{ sensor.latitude?.join(', ') }}</td>
 
-    <td>{{ sensor.latitude?.join(', ') }}</td>
-
-
-    <td>
-      <button *ngIf="!sensor.isEditing" (click)="startEdit(sensor)">Modifica</button>
-      <button *ngIf="sensor.isEditing" (click)="saveEdit(sensor)">Salva</button>
-      <button *ngIf="sensor.isEditing" (click)="cancelEdit(sensor)">Annulla</button>
-    </td>
-  </tr>
-  </tbody>
-</table>
+        <td>
+          <button *ngIf="!sensor.isEditing" (click)="startEdit(sensor)">Modifica</button>
+          <button *ngIf="sensor.isEditing" (click)="saveEdit(sensor)">Salva</button>
+          <button *ngIf="sensor.isEditing" (click)="cancelEdit(sensor)">Annulla</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

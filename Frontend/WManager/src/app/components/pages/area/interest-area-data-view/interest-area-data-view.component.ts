@@ -6,6 +6,7 @@ import {MatSnackBar} from "@angular/material/snack-bar";
 import {CookieService} from "ngx-cookie-service";
 import {NgForOf, NgIf} from "@angular/common";
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {UserComponent} from "../../user/userMenu/user.component";
 
 @Component({
   selector: 'app-interest-area-data-view',
@@ -13,7 +14,8 @@ import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
   imports: [
     FormsModule,
     NgIf,
-    NgForOf
+    NgForOf,
+    UserComponent
   ],
   templateUrl: './interest-area-data-view.component.html',
   styleUrl: './interest-area-data-view.component.css'

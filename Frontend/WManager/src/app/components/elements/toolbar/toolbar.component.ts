@@ -165,7 +165,7 @@ redirectToInterestArea(id: string) {
   }
 
   redirectToUser() {
-    this.router.navigate(['/user']);
+    this.router.navigate(['/userData']);
   }
 
   logOut() {

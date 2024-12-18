@@ -1,18 +1,18 @@
 <div class="row">
   <app-user class="col-sm-2"></app-user>
   <div class="col-sm-4" >
-    <div class="container-fluid">
+    <div class="container-fluid" style="margin: 20%">
       <div >
-        <label class="form-label" style="color: black">Name:</label>
-        <label class="form-label" style="color: black">XXX</label>
+        <h3 class="form-label" style="color: black">Name:</h3>
+        <h5 class="form-label" style="color: black">{{ userDto.firstName }}</h5>
       </div>
-      <div >
-        <label class="form-label" style="color: black">Last Name:</label>
-        <label class="form-label" style="color: black">XXX</label>
+      <div style="margin-top: 5%;">
+        <h3 class="form-label" style="color: black">Last Name:</h3>
+        <h5 class="form-label" style="color: black">{{ userDto.lastName }}</h5>
       </div>
-      <div >
-        <label class="form-label" style="color: black">Password:</label>
-        <label class="form-label" style="color: black">XXX</label>
+      <div style="margin-top: 5%" >
+        <h3 class="form-label" style="color: black">Email:</h3>
+        <h5 class="form-label" style="color: black">{{ userDto.email }}</h5>
       </div>
     </div>
   </div>

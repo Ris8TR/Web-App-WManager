@@ -7,6 +7,8 @@ import {SensorDto} from "../../../../model/sensorDto";
 import {FormsModule} from "@angular/forms";
 import {CommonModule} from "@angular/common";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
+import {Router, RouterOutlet} from "@angular/router";
+import {UserComponent} from "../../user/userMenu/user.component";
 
 @Component({
   selector: 'app-sensor-data-view',
@@ -16,7 +18,8 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
     FormsModule,
     CommonModule,
     MatRadioButton,
-    MatRadioGroup
+    MatRadioGroup,
+    UserComponent
   ],
   styleUrls: ['./sensor-data-view.component.css']
 })
@@ -30,10 +33,12 @@ export class SensorDataViewComponent implements OnInit {
     private snackBar: MatSnackBar,
     private toolbar: ToolbarComponent,
     private cookieService: CookieService,
+    private router:Router
   ) { }
 
   ngOnInit() {
     this.loadData();
+    this.toolbar.refreshToken()
   }
 
   loadData() {
@@ -74,6 +79,39 @@ console.log(response)        },
   cancelEdit(sensor: SensorDto) {
     sensor.isEditing = false;
     this.loadData(); // Ricarica i dati originali
+  }
+
+
+  toggleSidebar() {
+    document.getElementById('wrapper')?.classList.toggle('toggled');
+  }
+
+  redirectToUserData() {
+    this.router.navigate(['/userData']);
+  }
+
+  redirectToUserModify() {
+    this.router.navigate(['/userModify']);
+  }
+
+  redirectToUserSendData() {
+    this.router.navigate(['/userSendData']);
+
+  }
+
+  redirectToUserCreateSensor() {
+    this.router.navigate(['/userCreateSensor']);
+
+  }
+
+  redirectToSensorDataView() {
+    this.router.navigate(['/Show-Sensor']);
+
+  }
+
+  redirectToInterestAreaDataView() {
+    this.router.navigate(['/Show-Areas']);
+
   }
 }
 
