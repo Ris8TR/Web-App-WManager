@@ -91,12 +91,12 @@
             <!-- Selettore per Latest data -->
             <div class="row text-center justify-content-center align-self-center" style="margin: 5%">
               <div class="col-md-12">
-                <label for="latestInterval">Latest data</label>
-                <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect($event)">
-                  <option value="" selected>Select Interval</option>
-                  <option value="5">Last 5 minutes</option>
-                  <option value="10">Last 10 minutes</option>
-                  <option value="15">Last 15 minutes</option>
+                <label for="latestInterval">Observation Interval</label>
+                <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect()">
+                  <option value="" selected>Select Observation Interval</option>
+                  <option value="5">5 Minutes</option>
+                  <option value="10">10 Minutes</option>
+                  <option value="15">15 Minutes</option>
                 </select>
               </div>
             </div>
@@ -111,7 +111,7 @@
             <div class="row text-center justify-content-center align-self-center" style="margin-right: 2%; margin-left: 2%">
               <div class="col-md-12">
                 <label for="forecastInterval">Forecast data</label>
-                <select id="forecastInterval" class="form-select" aria-label="Select Interval" (change)="onForecastIntervalSelect($event)">
+                <select #forecastInterval id="forecastInterval" class="form-select" aria-label="Select Interval" (change)="onForecastIntervalSelect()">
                   <option value="" selected>Select Interval</option>
                   <option value="1">+1 Hour</option>
                   <option value="2">+2 Hours</option>
@@ -122,6 +122,7 @@
                   <option value="36">+36 Hours</option>
                   <option value="72">+72 Hours</option>
                 </select>
+
               </div>
             </div>
 

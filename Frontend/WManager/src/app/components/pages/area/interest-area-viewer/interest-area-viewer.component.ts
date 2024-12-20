@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, Input, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import * as L from 'leaflet';
 import {SensorDataService} from "../../../../service/sensorData.service";
 import {APP_BASE_HREF, LocationStrategy, NgClass, NgForOf, NgIf, PathLocationStrategy} from "@angular/common";
@@ -37,6 +37,7 @@ import {SensorData} from "../../../../model/sensorData";
   styleUrl: './interest-area-viewer.component.css'
 })
 export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, OnInit {
+  @ViewChild('forecastInterval', { static: false }) forecastIntervalElement!: ElementRef<HTMLSelectElement>;
 
   private map: L.Map | undefined;
   selectedSensor!: string | undefined;
@@ -54,9 +55,11 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private cachedData: Map<string, [number, number, number][]> = new Map();
   private drawnLayers: L.Layer[] = [];
   private subscription: Subscription = new Subscription();
-  selectedLatestInterval: string | null = null;
+
   selectedForecastInterval: string | null = null;
   isPanelVisible = true;
+
+  selectedLatestInterval: string = '';
 
   isForecast: boolean = this.toolbarComponent.isForecast;
   isObservation: boolean = this.toolbarComponent.isObservation;
@@ -162,15 +165,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
 
-  onForecastIntervalSelect(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    this.selectedForecastInterval = selectElement.value;
-
-    this.selectedLatestInterval = null;
-    (document.getElementById('latestInterval') as HTMLSelectElement).value = '';
-
-
-  }
 
 
   private drawInterestArea(geometry: string): void {
@@ -371,14 +365,31 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       });
   }
 
-  onLatestIntervalSelect(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    this.selectedLatestInterval = selectElement.value;
+  onForecastIntervalSelect(): void {
+    const forecastElement = document.getElementById('forecastInterval') as HTMLSelectElement | null;
+    if (forecastElement) {
+      const selectedInterval = forecastElement.value;
+      console.log('Selected forecast interval:', selectedInterval);
+      forecastElement.value = ''; // Reset select element
+    } else {
+      console.warn('Forecast interval select element not found.');
+    }
+  }
 
-    this.selectedForecastInterval = null;
-    (document.getElementById('forecastInterval') as HTMLSelectElement).value = '';
-    const interval = parseInt((event.target as HTMLSelectElement).value, 10);
+  onLatestIntervalSelect(): void {
+    const latestElement = document.getElementById('latestInterval') as HTMLSelectElement | null;
+
+    if (latestElement) {
+      const selectedInterval = latestElement.value;
+      console.log('Selected observation interval:', selectedInterval);
+    } else {
+      console.warn('forecastIntervalElement is not defined.');
+    }
+
+    const interval = parseInt(latestElement?.value!, 10);
+
     const intervalObservable = this.getIntervalObservable(interval);
+
 
     if (intervalObservable) {
       intervalObservable.subscribe(data => {
@@ -389,16 +400,30 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
   private getIntervalObservable(interval: number) {
-    switch (interval) {
-      case 5:
-        return this.sensorDataService.getAllSensorDataByInterestAreaId5Min(this.id!);
-      case 10:
-        return this.sensorDataService.getAllSensorDataByInterestAreaId10Min(this.id!);
-      case 15:
-        return this.sensorDataService.getAllSensorDataByInterestAreaId15Min(this.id!);
-      default:
-        return null;
+    if (this.selectedSensor){
+      switch (interval) {
+        case 5:
+          return this.sensorDataService.getAllSensorDataBySensorAndInterestAreaId5Min(this.selectedSensor, this.id!);
+        case 10:
+          return this.sensorDataService.getAllSensorDataBySensorAndInterestAreaId10Min(this.selectedSensor, this.id!);
+        case 15:
+          return this.sensorDataService.getAllSensorDataBySensorAndInterestAreaId15Min(this.selectedSensor, this.id!);
+        default:
+          return null;
+      }
+    }else{
+      switch (interval) {
+        case 5:
+          return this.sensorDataService.getAllSensorDataByInterestAreaId5Min(this.id!);
+        case 10:
+          return this.sensorDataService.getAllSensorDataByInterestAreaId10Min(this.id!);
+        case 15:
+          return this.sensorDataService.getAllSensorDataByInterestAreaId15Min(this.id!);
+        default:
+          return null;
+      }
     }
+
   }
 
 
@@ -498,5 +523,8 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
     this.updateGrid();  // Aggiorna la mappa con i nuovi dati
   }
+
+
+
 
 }

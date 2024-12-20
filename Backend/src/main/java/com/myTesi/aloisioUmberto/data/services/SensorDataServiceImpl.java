@@ -353,6 +353,43 @@ public class SensorDataServiceImpl implements SensorDataService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId5Min(String interestAreaId, String sensorId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -5);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId,sensorId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());    }
+
+    @Override
+    public List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId10Min(String interestAreaId,  String sensorId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -10);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId,sensorId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId15Min(String interestAreaId, String sensorId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -15);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        return sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId,sensorId, fiveMinutesAgo, now).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
 
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL

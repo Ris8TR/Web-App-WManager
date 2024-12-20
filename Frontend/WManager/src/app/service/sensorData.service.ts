@@ -237,6 +237,8 @@ export class SensorDataService {
     );
   }
 
+
+
   /**
    *
    *
@@ -320,6 +322,146 @@ export class SensorDataService {
       }
     );
   }
+
+
+  /**
+   *
+   *
+   * @param interestAreaId
+   * @param sensorId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataBySensorAndInterestAreaId10Min(interestAreaId: string, sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataBySensorAndInterestAreaId10Min(interestAreaId: string, sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensorAndInterestAreaId10Min(interestAreaId: string, sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensorAndInterestAreaId10Min(interestAreaId: string, sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (interestAreaId === null || interestAreaId === undefined) {
+      throw new Error('Required parameter interestAreaId was null or undefined when calling getAllSensorDataBySensorAndInterestAreaId10Min.');
+    }
+
+    if (sensorId === null || sensorId === undefined) {
+      throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensorAndInterestAreaId10Min.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last10m-by-sensor-interestAreaId/${encodeURIComponent(String(interestAreaId))}/${encodeURIComponent(String(sensorId))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param interestAreaId
+   * @param sensorId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataBySensorAndInterestAreaId15Min(interestAreaId: string, sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataBySensorAndInterestAreaId15Min(interestAreaId: string, sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensorAndInterestAreaId15Min(interestAreaId: string, sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensorAndInterestAreaId15Min(interestAreaId: string, sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (interestAreaId === null || interestAreaId === undefined) {
+      throw new Error('Required parameter interestAreaId was null or undefined when calling getAllSensorDataBySensorAndInterestAreaId15Min.');
+    }
+
+    if (sensorId === null || sensorId === undefined) {
+      throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensorAndInterestAreaId15Min.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last15m-by-sensor-interestAreaId/${encodeURIComponent(String(interestAreaId))}/${encodeURIComponent(String(sensorId))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param interestAreaId
+   * @param sensorId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorDataBySensorAndInterestAreaId5Min(interestAreaId: string, sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
+  public getAllSensorDataBySensorAndInterestAreaId5Min(interestAreaId: string, sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensorAndInterestAreaId5Min(interestAreaId: string, sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getAllSensorDataBySensorAndInterestAreaId5Min(interestAreaId: string, sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (interestAreaId === null || interestAreaId === undefined) {
+      throw new Error('Required parameter interestAreaId was null or undefined when calling getAllSensorDataBySensorAndInterestAreaId5Min.');
+    }
+
+    if (sensorId === null || sensorId === undefined) {
+      throw new Error('Required parameter sensorId was null or undefined when calling getAllSensorDataBySensorAndInterestAreaId5Min.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/last5m-by-sensor-interestAreaId/${encodeURIComponent(String(interestAreaId))}/${encodeURIComponent(String(sensorId))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
 
 
   /**
