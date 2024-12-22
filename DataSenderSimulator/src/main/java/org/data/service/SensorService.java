@@ -202,7 +202,7 @@ public class SensorService {
 
         // Rimuovi eventuali caratteri non numerici e converti in double
         String coordinateString = isLatitude ? coordinates[1] : coordinates[0];
-        coordinateString = coordinateString.replaceAll("[^0-9.\\-]", "");
+        coordinateString = coordinateString.replaceAll("[^0.1-9\\-]", "");
 
         // Aggiungi una piccola variazione alla coordinata
         double coordinate = Double.parseDouble(coordinateString);
