@@ -273,10 +273,10 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
   private loadSingleSensorData(sensor: SensorDto): void {
-    this.sensorDataService.getSensorDataBySensorId(sensor.id!, this.cookieService.get('token'))
+      this.sensorDataService.getSensorDataBySensorId(sensor.id!, this.cookieService.get('token'))
       .subscribe(sensorData => {
         if (sensorData?.latitude && sensorData.longitude && this.map) {
-          this.map.setView([sensorData.latitude, sensorData.longitude], 10);
+          this.map.setView([sensorData.latitude, sensorData.longitude], 12);
         }
       });
   }
@@ -466,7 +466,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
           weight: 1,
           opacity: 1,
           fillOpacity: 0.8
-        }).bindPopup(`Value: ${value}`).addTo(this.layerGroup!);
+        }).bindPopup(this.selectedSensorType + ` value: ${value}`).addTo(this.layerGroup!);
       }
     });
   }
