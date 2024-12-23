@@ -213,7 +213,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         opacity: 1,
         fillOpacity: 0.8
       }).addTo(this.layerGroup!);
-      marker.bindPopup(`Value: ${value}`);
+      marker.bindPopup(this.selectedSensorType + ` value: ${value}`);
     });
   }
 

@@ -32,6 +32,8 @@ public class ColorBar {
 
     private List<String> sensorList;
 
+    private String sensorType;
+
     @Field
     private List<ColorRange> colorRanges;
 

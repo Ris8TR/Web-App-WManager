@@ -1,0 +1,6 @@
+
+jwt:
+  auth:
+    converter:
+      resource-id: wm-client
+      principle-attribute: preferred_username

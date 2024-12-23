@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.myTesi.aloisioUmberto.JwtAuthConverter;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorDataMapper;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
@@ -52,6 +53,9 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Autowired
     private final JwtTokenProvider jwtTokenProvider;
 
+    @Autowired
+    private final JwtAuthConverter jwtAuthConverter;
+
 
     private RedisTemplate<String, Object> redisTemplate;
     @Autowired
@@ -94,10 +98,9 @@ public class SensorDataServiceImpl implements SensorDataService {
     public SensorDataDto getLatestSensorDataBySensorId(String token, String id) {
         String userId = isValidToken(token);
         assert userId != null;
-        System.out.println(id);
-
-        Optional<SensorData> sensorData = sensorDataRepository.findTopBySensorId(id);
-        System.out.println(sensorData);
+        Sensor sensor = sensorRepository.findByIdAndUserId(id, userId).orElse(null);
+        assert sensor != null;
+        Optional<SensorData> sensorData = sensorDataRepository.findTopBySensorId(sensor.getId().toString());
         return sensorData.map(data -> modelMapper.map(data, SensorDataDto.class)).orElse(null);
     }
 
@@ -159,6 +162,44 @@ public class SensorDataServiceImpl implements SensorDataService {
         return data;
     }
 
+    @Override
+    public SensorDataDto getTopSensorDataBySensorId(String sensorId) {
+
+
+        Sensor sensor = sensorRepository.findById(sensorId).orElse(null);
+        assert sensor != null;
+        Optional<SensorData> sensorData = sensorDataRepository.findTopBySensorId(sensor.getId().toString());
+        return sensorData.map(data -> modelMapper.map(data, SensorDataDto.class)).orElse(null);
+
+    }
+
+    @Override
+    public List<SensorDataDto> getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId) {
+
+        return sensorDataRepository.findAllTopByInterestAreaIDAndSensorId(interestAreaId,sensorId).stream()
+                .map(sensorDataMapper::sensorDataToSensorDataDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SensorDataDto> getTopSensorDataByInterestAreaId(String interestAreaId) {
+        System.out.println(jwtAuthConverter.getId());
+        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
+        if (sensors == null || sensors.isEmpty()) {
+            return null;
+        }
+
+
+
+        List<SensorData> sensorDataList = new ArrayList<>();
+        for (Sensor sensor : sensors) {
+            sensorDataList = sensorDataRepository.findAllTopBySensorId(String.valueOf(sensor.getId()));
+
+        }
+        return sensorDataList.stream().map(sensorDataMapper::sensorDataToSensorDataDto).collect(Collectors.toList());
+
+    }
+
 
     // Metodo di utilità per interpretare i valori come numeri o stringhe
     private Object parseValue(String value) {
@@ -202,6 +243,8 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllPublicSensorDataIn5Min() {
+
+        System.out.println(jwtAuthConverter.getId());
         List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
         if (sensors == null || sensors.isEmpty()) {
             return null;
