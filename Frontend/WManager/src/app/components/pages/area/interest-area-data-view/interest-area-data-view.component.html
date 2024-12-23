@@ -1,46 +1,59 @@
 <div class="row" style="display: flex; height: 100vh;">
   <!-- Barra laterale sinistra -->
-  <app-user style="flex: 0 0 250px; border-right: 1px solid #ddd; ;"></app-user>
+  <app-user style="flex: 0 0 250px; border-right: 1px solid #ddd;"></app-user>
 
   <!-- Contenitore della tabella -->
   <div class="table-container" style="flex: 1; padding: 10px;">
-<table>
-  <thead>
-  <tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Description</th>
-    <th>Type</th>
-    <th>Actions</th>
-  </tr>
-  </thead>
-  <tbody>
-  <tr *ngFor="let interestArea of interestAreaList; let i = index">
-    <td>{{ interestArea.id }}</td>
+    <table>
+      <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th>Public?</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let interestArea of interestAreaList; let i = index">
+        <td>{{ interestArea.id }}</td>
 
+        <!-- Name -->
+        <td *ngIf="!interestArea.isEditing">{{ interestArea.name }}</td>
+        <td *ngIf="interestArea.isEditing">
+          <input [(ngModel)]="interestArea.name" />
+        </td>
 
-    <td *ngIf="!interestArea.isEditing">{{ interestArea.name }}</td>
-    <td *ngIf="interestArea.isEditing">
-      <input [(ngModel)]="interestArea.name" />
-    </td>
+        <!-- Description -->
+        <td *ngIf="!interestArea.isEditing">{{ interestArea.description }}</td>
+        <td *ngIf="interestArea.isEditing">
+          <input [(ngModel)]="interestArea.description" />
+        </td>
 
-    <td *ngIf="!interestArea.isEditing">{{ interestArea.description }}</td>
-    <td *ngIf="interestArea.isEditing">
-      <input [(ngModel)]="interestArea.description" />
-    </td>
+        <!-- Type -->
+        <td *ngIf="!interestArea.isEditing">{{ interestArea.type }}</td>
+        <td *ngIf="interestArea.isEditing">
+          <input [(ngModel)]="interestArea.type" />
+        </td>
 
-    <td *ngIf="!interestArea.isEditing">{{ interestArea.type }}</td>
-    <td *ngIf="interestArea.isEditing">
-      <input [(ngModel)]="interestArea.type" />
-    </td>
+        <!-- isPublic -->
+        <td *ngIf="!interestArea.isEditing">{{ interestArea.isPublic }}</td>
+        <td *ngIf="interestArea.isEditing">
+          <mat-radio-group [(ngModel)]="interestArea.isPublic">
+            <mat-radio-button [value]="true">Yes</mat-radio-button>
+            <mat-radio-button [value]="false">No</mat-radio-button>
+          </mat-radio-group>
+        </td>
 
-    <td>
-      <button *ngIf="!interestArea.isEditing" (click)="startEdit(interestArea)">Modifica</button>
-      <button *ngIf="interestArea.isEditing" (click)="saveEdit(interestArea)">Salva</button>
-      <button *ngIf="interestArea.isEditing" (click)="cancelEdit(interestArea)">Annulla</button>
-    </td>
-  </tr>
-  </tbody>
-</table>
+        <!-- Actions -->
+        <td>
+          <button *ngIf="!interestArea.isEditing" (click)="startEdit(interestArea)">Modifica</button>
+          <button *ngIf="interestArea.isEditing" (click)="saveEdit(interestArea)">Salva</button>
+          <button *ngIf="interestArea.isEditing" (click)="cancelEdit(interestArea)">Annulla</button>
+        </td>
+      </tr>
+      </tbody>
+    </table>
   </div>
 </div>

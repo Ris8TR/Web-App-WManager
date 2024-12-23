@@ -7,6 +7,7 @@ import {CookieService} from "ngx-cookie-service";
 import {NgForOf, NgIf} from "@angular/common";
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 import {UserComponent} from "../../user/userMenu/user.component";
+import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 
 @Component({
   selector: 'app-interest-area-data-view',
@@ -15,7 +16,9 @@ import {UserComponent} from "../../user/userMenu/user.component";
     FormsModule,
     NgIf,
     NgForOf,
-    UserComponent
+    UserComponent,
+    MatRadioButton,
+    MatRadioGroup
   ],
   templateUrl: './interest-area-data-view.component.html',
   styleUrl: './interest-area-data-view.component.css'
@@ -58,6 +61,7 @@ export class InterestAreaDataViewComponent implements  OnInit{
   saveEdit(interestArea: InterestAreaDto) {
     this.toolbar.refreshToken().then(r => {
       interestArea.token = this.cookieService.get("token");
+      console.log(interestArea)
     this.interestAreaService.updateArea(interestArea).subscribe(
       () => {
         interestArea.isEditing = false;

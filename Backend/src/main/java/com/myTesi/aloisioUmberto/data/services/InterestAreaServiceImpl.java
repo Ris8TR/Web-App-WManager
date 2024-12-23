@@ -174,6 +174,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         interestArea.setType(interestAreaDto.getType());
         interestArea.setName(interestAreaDto.getName());
         interestArea.setDescription(interestAreaDto.getDescription());
+        interestArea.setIsPublic(interestAreaDto.getIsPublic());
         System.out.println(interestArea);
         interestAreaRepository.save(interestArea);
 

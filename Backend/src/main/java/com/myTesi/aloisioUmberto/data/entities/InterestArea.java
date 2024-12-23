@@ -35,6 +35,8 @@ public class InterestArea {
     @Field
     private String description; // Descrizione dell'area
 
+    private Boolean isPublic; // Stato area
+
 
     @Field
     private byte[] shapefileData; // Dati del Shapefile
