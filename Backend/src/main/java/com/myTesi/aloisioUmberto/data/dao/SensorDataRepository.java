@@ -19,15 +19,14 @@ public interface SensorDataRepository extends MongoRepository<SensorData, String
     List<SensorData> findAllBySensorIdAndTimestampBetween(String sensorId, Date from, Date to);
     List<SensorData> findAllByInterestAreaIDAndTimestampBetween(String interestAreaId, Date startTime, Date endTime);
     List<SensorData> findAllByInterestAreaIDAndSensorIdAndTimestampBetween(String interestAreaId,String sensorId, Date startTime, Date endTime);
-    List<SensorData> findAllTopByInterestAreaIDAndSensorId(String interestAreaId,String sensorId);
-    List<SensorData> findAllTopBySensorId(String sensorId);
+
     List<SensorData> findAllByTimestampBetween( Date from, Date to);
     Optional<SensorData> findTopBySensorIdOrderByTimestampDesc(String sensorId);
 
     Optional<SensorData> findTopByPayloadTypeAndTimestampAfterOrderByTimestampDesc(String dataType, Date timestamp);
     List<SensorData> findAllByTimestampBetweenAndSensorId(Date timestamp, Date timestamp2, @NotNull String sensorId);
 
-    List<SensorData> findByTimestampBetween(Date from, Date to);
+    List<SensorData> findAllByInterestAreaID(String interestAreaId);
 
     List<SensorData> findByTimestampBetweenAndPayloadType(Date from, Date to,String dataType);
 
@@ -37,5 +36,7 @@ public interface SensorDataRepository extends MongoRepository<SensorData, String
     Optional<SensorData> findByIdAndSensorId(ObjectId id, @NotNull String sensorId);
 
     Optional<SensorData> findTopByTimestampBetweenAndSensorId(Date date, Date date2, @NotNull String sensorId);
+
     Optional<SensorData> findTopBySensorId(String sensorId);
+    List<SensorData> findAllByInterestAreaIDAndSensorId(String interestAreaId,String sensorId);
 }

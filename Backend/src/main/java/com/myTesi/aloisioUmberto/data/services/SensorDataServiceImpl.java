@@ -164,8 +164,6 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorDataDto getTopSensorDataBySensorId(String sensorId) {
-
-
         Sensor sensor = sensorRepository.findById(sensorId).orElse(null);
         assert sensor != null;
         Optional<SensorData> sensorData = sensorDataRepository.findTopBySensorId(sensor.getId().toString());
@@ -175,28 +173,31 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public List<SensorDataDto> getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId) {
-
-        return sensorDataRepository.findAllTopByInterestAreaIDAndSensorId(interestAreaId,sensorId).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
+        return sensorDataRepository.findAllByInterestAreaIDAndSensorId(interestAreaId, sensorId)
+                .stream()
+                .collect(Collectors.groupingBy(SensorData::getSensorId)) // Raggruppa per sensore
+                .values()
+                .stream()
+                .map(sensorDataList -> sensorDataList.stream()
+                        .max(Comparator.comparing(SensorData::getTimestamp)) // Trova l'ultimo dato per ogni sensore
+                        .map(sensorDataMapper::sensorDataToSensorDataDto)
+                        .orElse(null))
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<SensorDataDto> getTopSensorDataByInterestAreaId(String interestAreaId) {
-        System.out.println(jwtAuthConverter.getId());
-        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
-        if (sensors == null || sensors.isEmpty()) {
-            return null;
-        }
 
-
-
-        List<SensorData> sensorDataList = new ArrayList<>();
-        for (Sensor sensor : sensors) {
-            sensorDataList = sensorDataRepository.findAllTopBySensorId(String.valueOf(sensor.getId()));
-
-        }
-        return sensorDataList.stream().map(sensorDataMapper::sensorDataToSensorDataDto).collect(Collectors.toList());
+        return sensorDataRepository.findAllByInterestAreaID(interestAreaId)
+                .stream()
+                .collect(Collectors.groupingBy(SensorData::getSensorId)) // Raggruppa per sensore
+                .values()
+                .stream()
+                .map(sensorDataList -> sensorDataList.stream()
+                        .max(Comparator.comparing(SensorData::getTimestamp)) // Trova l'ultimo dato per ogni sensore
+                        .map(sensorDataMapper::sensorDataToSensorDataDto)
+                        .orElse(null))
+                .collect(Collectors.toList());
 
     }
 

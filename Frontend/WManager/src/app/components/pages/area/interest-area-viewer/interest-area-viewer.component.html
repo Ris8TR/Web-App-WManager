@@ -89,16 +89,18 @@
               </div>
             </div>
             <!-- Selettore per Latest data -->
-            <div class="row text-center justify-content-center align-self-center" style="margin: 5%">
+            <div *ngIf="isRealTime" class="row text-center justify-content-center align-self-center" style="margin: 5%">
               <div class="col-md-12">
                 <label for="latestInterval">Observation Interval</label>
                 <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect()">
-                  <option value="" selected>Select Observation Interval</option>
+                  <option value="5" selected>Select Observation Interval</option>
                   <option value="5">5 Minutes</option>
                   <option value="10">10 Minutes</option>
                   <option value="15">15 Minutes</option>
                 </select>
               </div>
+            </div>
+
             </div>
           </div>
             </div>
@@ -125,12 +127,44 @@
 
               </div>
             </div>
-
             </div>
-
-          </div>
-
+        <div class="form-check" style="margin: 5%">
+          <input
+            class="form-check-input"
+            type="radio"
+            value="1"
+            name="flexRadioDefault"
+            id="flexRadioDefault1"
+            [(ngModel)]="isRealTime"
+            [value]="true"
+            (ngModelChange)="onLatestIntervalSelect()"
+          >
+          <label class="form-check-label" for="flexRadioDefault1">
+            Real-Time
+          </label>
         </div>
+        <div class="form-check" style="margin: 5%">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="flexRadioDefault"
+            id="flexRadioDefault2"
+            [(ngModel)]="isRealTime"
+            [value]="false"
+            (ngModelChange)="onLatestIntervalSelect()"
+          >
+          <label class="form-check-label" for="flexRadioDefault2">
+            Latest
+          </label>
+        </div>
+
+
+
+
+
+      </div>
+
+
 
     </div>
 
@@ -146,7 +180,6 @@
           </button>
         </li>
       </ul>
-    </div>
 
 
 
@@ -172,7 +205,7 @@
       </li>
     </ul>
   </div>
-
+</div>
 
 
 </div>
