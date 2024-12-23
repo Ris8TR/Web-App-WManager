@@ -1,6 +1,7 @@
-package com.myTesi.aloisioUmberto.config;
+package com.myTesi.aloisioUmberto.core.security;
 
 import com.mongodb.annotations.Sealed;
+import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,21 +30,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, jakarta.servlet.FilterChain filterChain) throws jakarta.servlet.ServletException, IOException {
-            String token = jwtTokenProvider.getTokenFromRequest(request);
+        String token = jwtTokenProvider.getTokenFromRequest(request);
 
-            if (token != null && jwtTokenProvider.validateToken(token)) {
-                String email = jwtTokenProvider.getEmailFromUserToken(token);
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            String email = jwtTokenProvider.getEmailFromUserToken(token);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            // Qui l'utente verrà caricato dal DB tramite il servizio configurato
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities());
+            authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-
-            filterChain.doFilter(request, response);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
         }
+
+        filterChain.doFilter(request, response);
     }
+}
 

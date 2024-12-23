@@ -27,6 +27,7 @@ import { V1SensorDataBody } from '../model/v1SensorDataBody';
 import {DateDto} from "../model/dateDto";
 import {ToolbarComponent} from "../components/elements/toolbar/toolbar.component";
 import {SensorDataInterestAreaDto} from "../model/SensorDataInterestAreaDto";
+import {CookieService} from "ngx-cookie-service";
 
 
 @Injectable()
@@ -36,7 +37,7 @@ export class SensorDataService {
   public defaultHeaders = new HttpHeaders();
   public configuration = new Configuration();
 
-  constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string,    @Optional() configuration: Configuration) {
+  constructor(protected httpClient: HttpClient, @Optional() @Inject(BASE_PATH) basePath: string,  private CookiesService: CookieService,  @Optional() configuration: Configuration) {
     if (basePath) {
       this.basePath = basePath;
     }
@@ -1140,6 +1141,14 @@ export class SensorDataService {
 
     let headers = this.defaultHeaders;
 
+    // authentication (bearerAuth) required
+    if (this.CookiesService.get("token")) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.CookiesService.get("token")
+        : this.CookiesService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [
       '*/*'
@@ -1180,7 +1189,13 @@ export class SensorDataService {
     }
 
     let headers = this.defaultHeaders;
-
+    // authentication (bearerAuth) required
+        if (this.CookiesService.get("token")) {
+          const accessToken = typeof this.configuration.accessToken === 'function'
+            ? this.CookiesService.get("token")
+            : this.CookiesService.get("token");
+          headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [
       '*/*'
@@ -1226,6 +1241,13 @@ export class SensorDataService {
     }
 
     let headers = this.defaultHeaders;
+    // authentication (bearerAuth) required
+        if (this.CookiesService.get("token")) {
+          const accessToken = typeof this.configuration.accessToken === 'function'
+            ? this.CookiesService.get("token")
+            : this.CookiesService.get("token");
+          headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
 
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [

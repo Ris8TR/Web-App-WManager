@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -163,8 +164,10 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     @Override
-    public SensorDataDto getTopSensorDataBySensorId(String sensorId) {
-        Sensor sensor = sensorRepository.findById(sensorId).orElse(null);
+    public SensorDataDto getTopSensorDataBySensorId(String sensorId, String token) {
+        User user = userDao.findById(Objects.requireNonNull(isValidToken(token))).orElse(null);
+        assert user != null;
+        Sensor sensor = sensorRepository.findByIdAndUserId(sensorId, user.getId().toString()).orElse(null);
         assert sensor != null;
         Optional<SensorData> sensorData = sensorDataRepository.findTopBySensorId(sensor.getId().toString());
         return sensorData.map(data -> modelMapper.map(data, SensorDataDto.class)).orElse(null);
@@ -172,7 +175,9 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     @Override
-    public List<SensorDataDto> getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId) {
+    public List<SensorDataDto> getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId, String token) {
+        User user = userDao.findById(Objects.requireNonNull(jwtTokenProvider.getUserIdFromUserToken(token))).orElse(null);
+        assert user != null;
         return sensorDataRepository.findAllByInterestAreaIDAndSensorId(interestAreaId, sensorId)
                 .stream()
                 .collect(Collectors.groupingBy(SensorData::getSensorId)) // Raggruppa per sensore
@@ -186,23 +191,31 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     @Override
-    public List<SensorDataDto> getTopSensorDataByInterestAreaId(String interestAreaId) {
+    public List<SensorDataDto> getTopSensorDataByInterestAreaId(String interestAreaId, String token) {
+        User user = userDao.findById(Objects.requireNonNull(jwtTokenProvider.getUserIdFromUserToken(token)))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return sensorDataRepository.findAllByInterestAreaID(interestAreaId)
-                .stream()
-                .collect(Collectors.groupingBy(SensorData::getSensorId)) // Raggruppa per sensore
-                .values()
-                .stream()
-                .map(sensorDataList -> sensorDataList.stream()
-                        .max(Comparator.comparing(SensorData::getTimestamp)) // Trova l'ultimo dato per ogni sensore
+        List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, String.valueOf(user.getId()));
+        if (sensors == null || sensors.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<SensorDataDto> sensorDataDtos = new ArrayList<>();
+        for (Sensor sensor : sensors) {
+            List<SensorData> sensorDataList = sensorDataRepository.findAllBySensorId(String.valueOf(sensor.getId()));
+
+            if (sensorDataList != null && !sensorDataList.isEmpty()) {
+                sensorDataList.stream()
+                        .max(Comparator.comparing(SensorData::getTimestamp))
                         .map(sensorDataMapper::sensorDataToSensorDataDto)
-                        .orElse(null))
-                .collect(Collectors.toList());
+                        .ifPresent(sensorDataDtos::add);
+            }
+        }
 
+        return sensorDataDtos;
     }
 
 
-    // Metodo di utilità per interpretare i valori come numeri o stringhe
     private Object parseValue(String value) {
         try {
             if (value.contains(".")) {
@@ -245,7 +258,6 @@ public class SensorDataServiceImpl implements SensorDataService {
     //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
     public List<SensorDataDto> getAllPublicSensorDataIn5Min() {
 
-        System.out.println(jwtAuthConverter.getId());
         List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
         if (sensors == null || sensors.isEmpty()) {
             return null;

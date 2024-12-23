@@ -25,13 +25,11 @@ import io.swagger.v3.oas.annotations.servers.Server;
         }
 )
 @SecurityScheme(
-        name = "bearerAuth",
-        description = "Jwt auth description",
-        scheme = "bearer",
+        name = "Bearer Authentication",
         type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT"
+        bearerFormat = "JWT",
+        scheme = "bearer"
 )
-
 public class OpenApiConfig { // mette "in sicurezza" la documentazione di Swagger
 
 }
