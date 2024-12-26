@@ -50,24 +50,27 @@ public class SensorDataController {
 
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/SensorData/top-by-interestAreaId/{interestAreaId}")
-    public ResponseEntity<List<SensorDataDto>> getLastSensorDataByInterestAreaId(HttpServletRequest request , @PathVariable String interestAreaId) {
+    public ResponseEntity<SensorDataInterestAreaDto> getLastSensorDataByInterestAreaId(HttpServletRequest request , @PathVariable String interestAreaId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorDataService.getTopSensorDataByInterestAreaId(interestAreaId, token));
     }
 
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/SensorData/top-by-sensor-interestAreaId/{interestAreaId}/{sensorId}")
-    public ResponseEntity<List<SensorDataDto>> getLastSensorDataBySensorAndInterestAreaId(HttpServletRequest request ,@PathVariable String interestAreaId, @PathVariable String sensorId) {
+    public ResponseEntity<SensorDataInterestAreaDto> getLastSensorDataBySensorAndInterestAreaId(HttpServletRequest request ,@PathVariable String interestAreaId, @PathVariable String sensorId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorDataService.getTopSensorDataByInterestAreaIdAndSensorId(interestAreaId, sensorId, token));
     }
 
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/SensorData/top-by-sensorId/{sensorId}")
-    public ResponseEntity<SensorDataDto> getLastSensorDataBySensor(HttpServletRequest request ,@PathVariable String sensorId) {
+    public ResponseEntity<SensorDataInterestAreaDto> getLastSensorDataBySensor(HttpServletRequest request ,@PathVariable String sensorId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorDataService.getTopSensorDataBySensorId(sensorId, token));
     }
+
+
+
 
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/SensorData/last5m-by-interestAreaId/{interestAreaId}")

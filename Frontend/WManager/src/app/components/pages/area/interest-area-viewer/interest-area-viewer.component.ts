@@ -262,7 +262,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
   onSensorSelect(sensor: SensorDto): void {
     if (sensor.type) this.selectedSensor = sensor.type;
-    this.loadSingleSensorData(sensor);
     if (this.selectedSensor == sensor.id) {
       this.selectedSensor = undefined;
     } else {
@@ -273,22 +272,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
   }
 
-  private loadSingleSensorData(sensor: SensorDto): void {
-    if (this.isRealTime){
-      this.sensorDataService.getSensorDataBySensorId(sensor.id!, this.cookieService.get('token'))
-        .subscribe(sensorData => {
-          if (sensorData?.latitude && sensorData.longitude && this.map) {
-            this.map.setView([sensorData.latitude, sensorData.longitude], 12);
-          }
-        });
-    }
-      this.sensorDataService.getLastSensorDataBySensor(sensor.id!)
-      .subscribe(sensorData => {
-        if (sensorData?.latitude && sensorData.longitude && this.map) {
-          this.map.setView([sensorData.latitude, sensorData.longitude], 12);
-        }
-      });
-  }
 
   private loadSensorData(): void {
     if (!this.map) return;
@@ -443,6 +426,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
         let intervalObservable = this.getIntervalObservable(interval);
 
         if (intervalObservable) {
+          // @ts-ignore
           intervalObservable.subscribe(
             (response: any) => {
               console.log('Data received from observable:', response);
@@ -483,7 +467,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
                 console.warn('No data returned from observable.');
               }
             },
-            error => {
+              ( error: any) => {
               console.error('Error during observable subscription:', error);
             }
           );

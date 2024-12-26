@@ -164,56 +164,106 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     @Override
-    public SensorDataDto getTopSensorDataBySensorId(String sensorId, String token) {
-        User user = userDao.findById(Objects.requireNonNull(isValidToken(token))).orElse(null);
-        assert user != null;
-        Sensor sensor = sensorRepository.findByIdAndUserId(sensorId, user.getId().toString()).orElse(null);
-        assert sensor != null;
-        Optional<SensorData> sensorData = sensorDataRepository.findTopBySensorId(sensor.getId().toString());
-        return sensorData.map(data -> modelMapper.map(data, SensorDataDto.class)).orElse(null);
+    public SensorDataInterestAreaDto getTopSensorDataBySensorId(String sensorId, String token) {
+        String userId = isValidToken(token);
+        assert userId != null;
+        Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(sensorId, userId);
+        if (sensor.isEmpty()) {
+            return null;
+        }
+
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
+        List<SensorData> sensorDataList = new ArrayList<>();
+
+        Optional<SensorData> latestSensorData = sensorDataRepository
+                .findAllBySensorId(String.valueOf(sensor.get().getId()))
+                .stream()
+                .max(Comparator.comparing(SensorData::getTimestamp));
+
+        latestSensorData.ifPresent(data -> {
+            sensorDataList.add(data);
+            uniqueKeys.addAll(getSensorKeys(data));
+        });
+
+
+
+        sensorDataInterestAreaDto.setSensorData(sensorDataList);
+        sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
+
+        return sensorDataInterestAreaDto;
 
     }
 
     @Override
-    public List<SensorDataDto> getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId, String token) {
-        User user = userDao.findById(Objects.requireNonNull(jwtTokenProvider.getUserIdFromUserToken(token))).orElse(null);
-        assert user != null;
-        return sensorDataRepository.findAllByInterestAreaIDAndSensorId(interestAreaId, sensorId)
-                .stream()
-                .collect(Collectors.groupingBy(SensorData::getSensorId)) // Raggruppa per sensore
-                .values()
-                .stream()
-                .map(sensorDataList -> sensorDataList.stream()
-                        .max(Comparator.comparing(SensorData::getTimestamp)) // Trova l'ultimo dato per ogni sensore
-                        .map(sensorDataMapper::sensorDataToSensorDataDto)
-                        .orElse(null))
-                .collect(Collectors.toList());
+    public SensorDataInterestAreaDto getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId, String token) {
+        String userId = isValidToken(token);
+        assert userId != null;
+        Sensor sensors = sensorRepository.findByIdAndInterestAreaIDAndUserId(sensorId, interestAreaId, userId);
+        if (sensors == null) {
+            return null;
+        }
+
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
+        List<SensorData> sensorDataList = new ArrayList<>();
+
+            Optional<SensorData> latestSensorData = sensorDataRepository
+                    .findAllBySensorId(String.valueOf(sensors.getId()))
+                    .stream()
+                    .max(Comparator.comparing(SensorData::getTimestamp));
+
+            latestSensorData.ifPresent(data -> {
+                sensorDataList.add(data);
+                uniqueKeys.addAll(getSensorKeys(data));
+            });
+
+
+        sensorDataInterestAreaDto.setSensorData(sensorDataList);
+        sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
+
+
+        return sensorDataInterestAreaDto;
     }
 
-    @Override
-    public List<SensorDataDto> getTopSensorDataByInterestAreaId(String interestAreaId, String token) {
-        User user = userDao.findById(Objects.requireNonNull(jwtTokenProvider.getUserIdFromUserToken(token)))
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, String.valueOf(user.getId()));
+    @Override
+    public SensorDataInterestAreaDto getTopSensorDataByInterestAreaId(String interestAreaId, String token) {
+        String userId = isValidToken(token);
+        assert userId != null;
+
+        List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
         if (sensors == null || sensors.isEmpty()) {
-            return Collections.emptyList();
+            return null;
         }
 
-        List<SensorDataDto> sensorDataDtos = new ArrayList<>();
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
+        List<SensorData> sensorDataList = new ArrayList<>();
         for (Sensor sensor : sensors) {
-            List<SensorData> sensorDataList = sensorDataRepository.findAllBySensorId(String.valueOf(sensor.getId()));
+            Optional<SensorData> latestSensorData = sensorDataRepository
+                    .findAllBySensorId(String.valueOf(sensor.getId()))
+                    .stream()
+                    .max(Comparator.comparing(SensorData::getTimestamp));
 
-            if (sensorDataList != null && !sensorDataList.isEmpty()) {
-                sensorDataList.stream()
-                        .max(Comparator.comparing(SensorData::getTimestamp))
-                        .map(sensorDataMapper::sensorDataToSensorDataDto)
-                        .ifPresent(sensorDataDtos::add);
-            }
-        }
+            latestSensorData.ifPresent(data -> {
+                sensorDataList.add(data);
+                uniqueKeys.addAll(getSensorKeys(data));
+            });
 
-        return sensorDataDtos;
+
     }
+
+        sensorDataInterestAreaDto.setSensorData(sensorDataList);
+        sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
+
+
+        return sensorDataInterestAreaDto;
+    }
+
 
 
     private Object parseValue(String value) {
@@ -461,7 +511,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         if (dateDto.getSensorId() != null) {
             Sensor sensor = sensorRepository.findById(dateDto.getSensorId()).orElse(null);
             assert sensor != null;
-            Sensor sensor1 = sensorRepository.findByIdAndInterestAreaIDAndUserId(sensor.getId(), dateDto.getInterestAreaId(), userId);
+            Sensor sensor1 = sensorRepository.findByIdAndInterestAreaIDAndUserId(String.valueOf(sensor.getId()), dateDto.getInterestAreaId(), userId);
             assert sensor1 !=null;
             return sensorDataRepository.findAllBySensorIdAndTimestampBetween(String.valueOf(sensor1.getId()), fromDateUTC, toDateUTC).stream()
                     .map(sensorDataMapper::sensorDataToSensorDataDto)

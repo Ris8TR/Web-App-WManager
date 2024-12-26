@@ -1123,6 +1123,7 @@ export class SensorDataService {
   }
 
 
+
   /**
    *
    *
@@ -1130,9 +1131,9 @@ export class SensorDataService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
-  public getLastSensorDataByInterestAreaId(interestAreaId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
-  public getLastSensorDataByInterestAreaId(interestAreaId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
-  public getLastSensorDataByInterestAreaId(interestAreaId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getLastSensorDataByInterestAreaId(interestAreaId: string, observe?: 'body', reportProgress?: boolean): Observable<SensorDataInterestAreaDto>;
+  public getLastSensorDataByInterestAreaId(interestAreaId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorDataInterestAreaDto>>;
+  public getLastSensorDataByInterestAreaId(interestAreaId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorDataInterestAreaDto>>;
   public getLastSensorDataByInterestAreaId(interestAreaId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
     if (interestAreaId === null || interestAreaId === undefined) {
@@ -1162,7 +1163,7 @@ export class SensorDataService {
     const consumes: string[] = [
     ];
 
-    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/top-by-interestAreaId/${encodeURIComponent(String(interestAreaId))}`,
+    return this.httpClient.request<SensorDataInterestAreaDto>('get',`${this.basePath}/v1/SensorData/top-by-interestAreaId/${encodeURIComponent(String(interestAreaId))}`,
       {
         withCredentials: this.configuration.withCredentials,
         headers: headers,
@@ -1179,9 +1180,9 @@ export class SensorDataService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
-  public getLastSensorDataBySensor(sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<SensorDataDto>;
-  public getLastSensorDataBySensor(sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorDataDto>>;
-  public getLastSensorDataBySensor(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorDataDto>>;
+  public getLastSensorDataBySensor(sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<SensorDataInterestAreaDto>;
+  public getLastSensorDataBySensor(sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorDataInterestAreaDto>>;
+  public getLastSensorDataBySensor(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorDataInterestAreaDto>>;
   public getLastSensorDataBySensor(sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
     if (sensorId === null || sensorId === undefined) {
@@ -1189,13 +1190,15 @@ export class SensorDataService {
     }
 
     let headers = this.defaultHeaders;
+
     // authentication (bearerAuth) required
-        if (this.CookiesService.get("token")) {
-          const accessToken = typeof this.configuration.accessToken === 'function'
-            ? this.CookiesService.get("token")
-            : this.CookiesService.get("token");
-          headers = headers.set('Authorization', 'Bearer ' + accessToken);
-        }
+    if (this.CookiesService.get("token")) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.CookiesService.get("token")
+        : this.CookiesService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [
       '*/*'
@@ -1209,7 +1212,7 @@ export class SensorDataService {
     const consumes: string[] = [
     ];
 
-    return this.httpClient.request<SensorDataDto>('get',`${this.basePath}/v1/SensorData/top-by-sensorId/${encodeURIComponent(String(sensorId))}`,
+    return this.httpClient.request<SensorDataInterestAreaDto>('get',`${this.basePath}/v1/SensorData/top-by-sensorId/${encodeURIComponent(String(sensorId))}`,
       {
         withCredentials: this.configuration.withCredentials,
         headers: headers,
@@ -1227,9 +1230,9 @@ export class SensorDataService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
-  public getLastSensorDataBySensorAndInterestAreaId(interestAreaId: string, sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDataDto>>;
-  public getLastSensorDataBySensorAndInterestAreaId(interestAreaId: string, sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDataDto>>>;
-  public getLastSensorDataBySensorAndInterestAreaId(interestAreaId: string, sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDataDto>>>;
+  public getLastSensorDataBySensorAndInterestAreaId(interestAreaId: string, sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<SensorDataInterestAreaDto>;
+  public getLastSensorDataBySensorAndInterestAreaId(interestAreaId: string, sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorDataInterestAreaDto>>;
+  public getLastSensorDataBySensorAndInterestAreaId(interestAreaId: string, sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorDataInterestAreaDto>>;
   public getLastSensorDataBySensorAndInterestAreaId(interestAreaId: string, sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
     if (interestAreaId === null || interestAreaId === undefined) {
@@ -1241,13 +1244,14 @@ export class SensorDataService {
     }
 
     let headers = this.defaultHeaders;
+
     // authentication (bearerAuth) required
-        if (this.CookiesService.get("token")) {
-          const accessToken = typeof this.configuration.accessToken === 'function'
-            ? this.CookiesService.get("token")
-            : this.CookiesService.get("token");
-          headers = headers.set('Authorization', 'Bearer ' + accessToken);
-        }
+    if (this.CookiesService.get("token")) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.CookiesService.get("token")
+        : this.CookiesService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
 
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [
@@ -1262,7 +1266,7 @@ export class SensorDataService {
     const consumes: string[] = [
     ];
 
-    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/SensorData/top-by-sensor-interestAreaId/${encodeURIComponent(String(interestAreaId))}/${encodeURIComponent(String(sensorId))}`,
+    return this.httpClient.request<SensorDataInterestAreaDto>('get',`${this.basePath}/v1/SensorData/top-by-sensor-interestAreaId/${encodeURIComponent(String(interestAreaId))}/${encodeURIComponent(String(sensorId))}`,
       {
         withCredentials: this.configuration.withCredentials,
         headers: headers,

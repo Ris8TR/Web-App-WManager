@@ -19,11 +19,11 @@ public interface SensorDataService  {
 
 
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 5m by sensorId
-    SensorDataDto getTopSensorDataBySensorId(String sensorId, String token);
+    SensorDataInterestAreaDto getTopSensorDataBySensorId(String sensorId, String token);
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by sensorId and interestAreaId
-    List<SensorDataDto> getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId, String token);
+    SensorDataInterestAreaDto getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId, String token);
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by interestAreaId
-    List<SensorDataDto> getTopSensorDataByInterestAreaId(String interestAreaId, String token);
+    SensorDataInterestAreaDto getTopSensorDataByInterestAreaId(String interestAreaId, String token);
 
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 5m by sensorId
     List<SensorDataDto> getAllSensorDataBySensorId5Min(String sensorId);
