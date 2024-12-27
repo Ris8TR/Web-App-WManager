@@ -97,7 +97,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   onSensorTypeChange(event: any) {
     this.selectedSensorType = event.value;
-    this.loadSensorData()
   }
 
 
@@ -155,42 +154,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
 
-  private loadSensorData(): void {
-    if (this.cachedData.has(this.selectedSensorType)) {
-      this.updateGrid();
-    } else {
-      this.sensorDataService.getProcessedSensorData(this.selectedSensorType)
-        .subscribe(response => {
-          let geoJson: any;
 
-          // Effettua il parsing della risposta se è una stringa
-          if (typeof response === 'string') {
-            try {
-              geoJson = JSON.parse(response);
-            } catch (error) {
-              console.error('Errore nel parsing del JSON:', error);
-              return;
-            }
-          } else {
-            geoJson = response;
-          }
-
-          // Verifica che geoJson abbia la struttura corretta
-          if (geoJson && Array.isArray(geoJson.features)) {
-            const heatData = geoJson.features.map((feature: any) => [
-              feature.geometry.coordinates[1],
-              feature.geometry.coordinates[0],
-              feature.properties.value
-            ] as [number, number, number]);
-
-            this.cachedData.set(this.selectedSensorType, heatData);
-            this.updateGrid();
-          } else {
-            console.error('Formato della risposta non valido:', geoJson);
-          }
-        });
-    }
-  }
 
   private updateGrid(): void {
     if (this.layerGroup) {
@@ -239,7 +203,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initMap();
-      this.loadSensorData();
+      //this.loadSensorData();
     }, 10);
   }
 
@@ -249,6 +213,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     this.selectedForecastInterval = null;
     (document.getElementById('forecastInterval') as HTMLSelectElement).value = '';
-    this.loadSensorData()
+    //this.loadSensorData()
   }
 }

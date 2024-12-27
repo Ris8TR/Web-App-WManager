@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -23,6 +24,19 @@ public class SensorDto {
     private String type;
     private Boolean visibility;
     private String interestAreaID;
-    private List<Double> Latitude;
-    private List<Double> Longitude;
+    private List<Double> latitude;
+    private List<Double> longitude;
+
+    public void addCoordinatesAtStart(Double newLatitude, Double newLongitude) {
+        if (this.latitude == null) {
+            this.latitude = new ArrayList<>();
+        }
+        if (this.longitude == null) {
+            this.longitude = new ArrayList<>();
+        }
+
+        this.latitude.addFirst(newLatitude);
+        this.longitude.addFirst(newLongitude);
+    }
+
 }

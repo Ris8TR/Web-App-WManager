@@ -79,21 +79,43 @@ public class SensorDataServiceImpl implements SensorDataService {
         assert user.isPresent();
         Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDto.getSensorId(), userId);
         assert sensor.isPresent();
+
         if (BCrypt.checkpw(newSensorDataDto.getSensorPassword(), user.get().getSensorPassword())) {
             try {
                 sensorData.setSensorId(sensor.get().getId().toString());
                 sensor.get().setInterestAreaID(sensorData.getInterestAreaID());
+
+                // Aggiornamento delle coordinate
+                if (!sensor.get().getLongitude().isEmpty() && !sensor.get().getLatitude().isEmpty()) {
+                    Double currentLongitude = sensor.get().getLongitude().getFirst();
+                    Double currentLatitude = sensor.get().getLatitude().getFirst();
+
+                    if (!currentLongitude.equals(sensorData.getLongitude()) ||
+                            !currentLatitude.equals(sensorData.getLatitude())) {
+
+                        // Aggiunta dei nuovi dati alla posizione 0
+                        sensor.get().getLongitude().addFirst(sensorData.getLongitude());
+                        sensor.get().getLatitude().addFirst(sensorData.getLatitude());
+                    }
+                } else {
+                    // Inizializza liste e aggiungi il primo valore se vuote
+                    sensor.get().setLongitude(new ArrayList<>(List.of(sensorData.getLongitude())));
+                    sensor.get().setLatitude(new ArrayList<>(List.of(sensorData.getLatitude())));
+                }
+
                 sensorRepository.save(sensor.get());
             } catch (DataIntegrityViolationException e) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "|Error|", e);
             }
-        }else {
+        } else {
             throw new RuntimeException("Invalid credentials");
         }
+
         sensorData.setTimestamp(newSensorDataDto.getTimestamp());
         sensorData.setSavedOnTime(Date.from(Instant.now()));
         return sensorDataRepository.save(sensorData);
     }
+
 
     @Override
     public SensorDataDto getLatestSensorDataBySensorId(String token, String id) {
@@ -146,7 +168,7 @@ public class SensorDataServiceImpl implements SensorDataService {
             for (String entry : entries) {
                 String[] keyValue = entry.split("=");
                 String key = keyValue[0].trim();
-                Object value = parseValue(keyValue[1].trim()); // Metodo per interpretare il valore come numero o stringa
+                Object value = parseValue(keyValue[1].trim());
                 payload.put(key, value);
             }
 
@@ -166,370 +188,264 @@ public class SensorDataServiceImpl implements SensorDataService {
     @Override
     public SensorDataInterestAreaDto getTopSensorDataBySensorId(String sensorId, String token) {
         String userId = isValidToken(token);
-        assert userId != null;
-        Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(sensorId, userId);
-        if (sensor.isEmpty()) {
-            return null;
-        }
+        if (userId == null) return null;
 
-        HashSet<String> uniqueKeys = new HashSet<>();
-
-        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
-        List<SensorData> sensorDataList = new ArrayList<>();
-
-        Optional<SensorData> latestSensorData = sensorDataRepository
-                .findAllBySensorId(String.valueOf(sensor.get().getId()))
-                .stream()
-                .max(Comparator.comparing(SensorData::getTimestamp));
-
-        latestSensorData.ifPresent(data -> {
-            sensorDataList.add(data);
-            uniqueKeys.addAll(getSensorKeys(data));
-        });
-
-
-
-        sensorDataInterestAreaDto.setSensorData(sensorDataList);
-        sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
-
-        return sensorDataInterestAreaDto;
-
+        return sensorRepository.findByIdAndUserId(sensorId, userId)
+                .map(sensor -> createSensorDataInterestAreaDto(String.valueOf(sensor.getId()), null, null))
+                .orElse(null);
     }
+
 
     @Override
     public SensorDataInterestAreaDto getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId, String token) {
         String userId = isValidToken(token);
-        assert userId != null;
-        Sensor sensors = sensorRepository.findByIdAndInterestAreaIDAndUserId(sensorId, interestAreaId, userId);
-        if (sensors == null) {
-            return null;
-        }
+        if (userId == null) return null;
 
-        HashSet<String> uniqueKeys = new HashSet<>();
-
-        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
-        List<SensorData> sensorDataList = new ArrayList<>();
-
-            Optional<SensorData> latestSensorData = sensorDataRepository
-                    .findAllBySensorId(String.valueOf(sensors.getId()))
-                    .stream()
-                    .max(Comparator.comparing(SensorData::getTimestamp));
-
-            latestSensorData.ifPresent(data -> {
-                sensorDataList.add(data);
-                uniqueKeys.addAll(getSensorKeys(data));
-            });
-
-
-        sensorDataInterestAreaDto.setSensorData(sensorDataList);
-        sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
-
-
-        return sensorDataInterestAreaDto;
+        Sensor sensor = sensorRepository.findByIdAndInterestAreaIDAndUserId(sensorId, interestAreaId, userId);
+        return sensor != null ? createSensorDataInterestAreaDto(String.valueOf(sensor.getId()), null, null) : null;
     }
 
 
     @Override
     public SensorDataInterestAreaDto getTopSensorDataByInterestAreaId(String interestAreaId, String token) {
         String userId = isValidToken(token);
-        assert userId != null;
+        if (userId == null) return null;
 
         List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
-        if (sensors == null || sensors.isEmpty()) {
-            return null;
-        }
-
-        HashSet<String> uniqueKeys = new HashSet<>();
-
-        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
-        List<SensorData> sensorDataList = new ArrayList<>();
-        for (Sensor sensor : sensors) {
-            Optional<SensorData> latestSensorData = sensorDataRepository
-                    .findAllBySensorId(String.valueOf(sensor.getId()))
-                    .stream()
-                    .max(Comparator.comparing(SensorData::getTimestamp));
-
-            latestSensorData.ifPresent(data -> {
-                sensorDataList.add(data);
-                uniqueKeys.addAll(getSensorKeys(data));
-            });
-
-
+        return createSensorDataInterestAreaDtoForMultipleSensors(sensors, null, null);
     }
 
+    @Override
+    public SensorDataInterestAreaDto getTopPublicSensorData() {
+        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
+        return createSensorDataInterestAreaDtoForMultipleSensors(sensors, null, null);
+    }
+
+    @Override
+    public SensorDataInterestAreaDto getAllPublicSensorDataIn5Min() {
+        return getAllPublicSensorDataInTimeFrame(-5);
+    }
+
+    @Override
+    public SensorDataInterestAreaDto getAllPublicSensorDataIn10Min() {
+        return getAllPublicSensorDataInTimeFrame(-10);
+    }
+
+    @Override
+    public SensorDataInterestAreaDto getAllPublicSensorDataIn15Min() {
+        return getAllPublicSensorDataInTimeFrame(-15);
+    }
+
+    public SensorDataInterestAreaDto getAllSensorDataBySensorId5Min(String sensorId) {
+        Date now = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(now);
+        calendar.add(Calendar.MINUTE, -5);
+        Date fiveMinutesAgo = calendar.getTime();
+
+        Optional<SensorData> latestSensorData = sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now)
+                .stream()
+                .max(Comparator.comparing(SensorData::getTimestamp));
+
+        List<SensorData> sensorDataList = new ArrayList<>();
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        latestSensorData.ifPresent(data -> {
+            sensorDataList.add(data);
+            uniqueKeys.addAll(getSensorKeys(data));
+        });
+
+        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
         sensorDataInterestAreaDto.setSensorData(sensorDataList);
         sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
-
 
         return sensorDataInterestAreaDto;
     }
 
 
 
-    private Object parseValue(String value) {
-        try {
-            if (value.contains(".")) {
-                return Double.parseDouble(value);
-            } else {
-                return Integer.parseInt(value);
-            }
-        } catch (NumberFormatException e) {
-            return value;
-        }
-    }
-
-
-    private String isValidToken(String token) {
-        if (jwtTokenProvider.validateToken(token))
-            return jwtTokenProvider.getUserIdFromUserToken(token);
-        return null;
-    }
-
-    private SensorDataHandler getHandlerForType(String dataType) {
-        return switch (dataType.toLowerCase()) {
-            case "json" -> new JsonSensorDataHandler();
-            case "geojson" -> new GeoJsonSensorDataHandler();
-            case "image" -> new ImageSensorDataHandler(new ImageServiceImpl());
-            case "shapefile" -> new ShapefileSensorDataHandler(); //Probably not serve
-            case "raster" -> new RasterSensorDataHandler(); //TODO
-            default -> null;
-        };
-    }
-
-
-
-    //TODO Serve?!
-    public List<SensorDataDto> getAllSensorDataByNow() {
-        return sensorDataRepository.findAll().stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
-
-    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
-    public List<SensorDataDto> getAllPublicSensorDataIn5Min() {
-
-        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
-        if (sensors == null || sensors.isEmpty()) {
-            return null;
-        }
-
-
+    @Override
+    public SensorDataInterestAreaDto getAllSensorDataByInterestAreaIdAndSensorId5Min(String interestAreaId, String sensorId) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
-
         calendar.setTime(now);
         calendar.add(Calendar.MINUTE, -5);
-        Date tenMinutesAgo = calendar.getTime();
+        Date fiveMinutesAgo = calendar.getTime();
 
-
+        Optional<SensorData> latestSensorData = sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId, sensorId, fiveMinutesAgo, now)
+                .stream()
+                .max(Comparator.comparing(SensorData::getTimestamp));
 
         List<SensorData> sensorDataList = new ArrayList<>();
-        for (Sensor sensor : sensors) {
-            sensorDataList = sensorDataRepository.findAllByTimestampBetweenAndSensorId(tenMinutesAgo, now, String.valueOf(sensor.getId()));
+        HashSet<String> uniqueKeys = new HashSet<>();
 
+        latestSensorData.ifPresent(data -> {
+            sensorDataList.add(data);
+            uniqueKeys.addAll(getSensorKeys(data));
+        });
 
-        }
-;
-        return sensorDataList.stream().map(sensorDataMapper::sensorDataToSensorDataDto).collect(Collectors.toList());
+        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
+        sensorDataInterestAreaDto.setSensorData(sensorDataList);
+        sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
 
+        return sensorDataInterestAreaDto;
     }
 
     @Override
-    public List<SensorDataDto> getAllPublicSensorDataIn10Min() {
-        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
-        if (sensors == null || sensors.isEmpty()) {
-            return null;
-        }
-
-
+    public SensorDataInterestAreaDto getAllSensorDataByInterestAreaIdAndSensorId10Min(String interestAreaId, String sensorId) {
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
-
         calendar.setTime(now);
         calendar.add(Calendar.MINUTE, -10);
         Date tenMinutesAgo = calendar.getTime();
 
-
-
-        List<SensorData> sensorDataList = new ArrayList<>();
-        for (Sensor sensor : sensors) {
-            sensorDataList = sensorDataRepository.findAllByTimestampBetweenAndSensorId(tenMinutesAgo, now, String.valueOf(sensor.getId()));
-
-
-        }
-        ;
-        return sensorDataList.stream().map(sensorDataMapper::sensorDataToSensorDataDto).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<SensorDataDto> getAllPublicSensorDataIn15Min() {
-        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
-        if (sensors == null || sensors.isEmpty()) {
-            return null;
-        }
-
-
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -15);
-        Date tenMinutesAgo = calendar.getTime();
-
-
+        Optional<SensorData> latestSensorData = sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId, sensorId, tenMinutesAgo, now)
+                .stream()
+                .max(Comparator.comparing(SensorData::getTimestamp));
 
         List<SensorData> sensorDataList = new ArrayList<>();
-        for (Sensor sensor : sensors) {
-            sensorDataList = sensorDataRepository.findAllByTimestampBetweenAndSensorId(tenMinutesAgo, now, String.valueOf(sensor.getId()));
-        }
-        ;
-        return sensorDataList.stream().map(sensorDataMapper::sensorDataToSensorDataDto).collect(Collectors.toList());
-    }
+        HashSet<String> uniqueKeys = new HashSet<>();
 
-    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
-    public List<SensorDataDto> getAllSensorDataBySensorId5Min(String sensorId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -5);
-        Date fiveMinutesAgo = calendar.getTime();
+        latestSensorData.ifPresent(data -> {
+            sensorDataList.add(data);
+            uniqueKeys.addAll(getSensorKeys(data));
+        });
 
-        return sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
+        SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
+        sensorDataInterestAreaDto.setSensorData(sensorDataList);
+        sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
 
-    public List<SensorDataDto> getAllSensorDataBySensorId10Min(String sensorId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -10);
-        Date fiveMinutesAgo = calendar.getTime();
-
-        return sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<SensorDataDto> getAllSensorDataBySensorId15Min(String sensorId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -15);
-        Date fiveMinutesAgo = calendar.getTime();
-
-        return sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<SensorDataDto> getAllSensorDataByInterestAreaId5Min(String interestAreaId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -5);
-        Date fiveMinutesAgo = calendar.getTime();
-
-        return sensorDataRepository.findAllByInterestAreaIDAndTimestampBetween(interestAreaId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<SensorDataDto> getAllSensorDataByInterestAreaId10Min(String interestAreaId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -10);
-        Date fiveMinutesAgo = calendar.getTime();
-
-        return sensorDataRepository.findAllByInterestAreaIDAndTimestampBetween(interestAreaId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<SensorDataDto> getAllSensorDataByInterestAreaId15Min(String interestAreaId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -15);
-        Date fiveMinutesAgo = calendar.getTime();
-
-        return sensorDataRepository.findAllByInterestAreaIDAndTimestampBetween(interestAreaId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
+        return sensorDataInterestAreaDto;
     }
 
     @Override
-    public List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId5Min(String interestAreaId, String sensorId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -5);
-        Date fiveMinutesAgo = calendar.getTime();
-
-        return sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId,sensorId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());    }
-
-    @Override
-    public List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId10Min(String interestAreaId,  String sensorId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -10);
-        Date fiveMinutesAgo = calendar.getTime();
-
-        return sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId,sensorId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
+    public SensorDataInterestAreaDto getAllSensorDataBySensorId10Min(String sensorId) {
+        return getAllSensorDataBySensorIdInTimeFrame(sensorId, -10);
     }
 
     @Override
-    public List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId15Min(String interestAreaId, String sensorId) {
-        Date now = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(now);
-        calendar.add(Calendar.MINUTE, -15);
-        Date fiveMinutesAgo = calendar.getTime();
-
-        return sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId,sensorId, fiveMinutesAgo, now).stream()
-                .map(sensorDataMapper::sensorDataToSensorDataDto)
-                .collect(Collectors.toList());
+    public SensorDataInterestAreaDto getAllSensorDataBySensorId15Min(String sensorId) {
+        return getAllSensorDataBySensorIdInTimeFrame(sensorId, -15);
     }
 
+    @Override
+    public SensorDataInterestAreaDto getAllSensorDataByInterestAreaId5Min(String interestAreaId) {
+        return getAllSensorDataByInterestAreaIdInTimeFrame(interestAreaId, -5);
+    }
 
-    //TODO IN "GROUND STATION" VA SICURAMENTE CARICATO QUESTO INVECE CHE GET-ALL
-    public List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
+    @Override
+    public SensorDataInterestAreaDto getAllSensorDataByInterestAreaId10Min(String interestAreaId) {
+        return getAllSensorDataByInterestAreaIdInTimeFrame(interestAreaId, -10);
+    }
+
+    @Override
+    public SensorDataInterestAreaDto getAllSensorDataByInterestAreaId15Min(String interestAreaId) {
+        return getAllSensorDataByInterestAreaIdInTimeFrame(interestAreaId, -15);
+    }
+
+    private SensorDataInterestAreaDto getAllSensorDataBySensorIdInTimeFrame(String sensorId, int minutesAgo) {
+        Date fromTime = calculateTimeFromNow(minutesAgo);
+        List<SensorData> sensorDataList = new ArrayList<>();
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fromTime, new Date())
+                .stream()
+                .max(Comparator.comparing(SensorData::getTimestamp))
+                .ifPresent(data -> {
+                    sensorDataList.add(data);
+                    uniqueKeys.addAll(getSensorKeys(data));
+                });
+
+        return buildSensorDataInterestAreaDto(sensorDataList, uniqueKeys);
+    }
+
+    private SensorDataInterestAreaDto getAllSensorDataByInterestAreaIdInTimeFrame(String interestAreaId, int minutesAgo) {
+        Date fromTime = calculateTimeFromNow(minutesAgo);
+        List<SensorData> sensorDataList = new ArrayList<>();
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        sensorDataRepository.findAllByInterestAreaIDAndTimestampBetween(interestAreaId, fromTime, new Date())
+                .stream()
+                .max(Comparator.comparing(SensorData::getTimestamp))
+                .ifPresent(data -> {
+                    sensorDataList.add(data);
+                    uniqueKeys.addAll(getSensorKeys(data));
+                });
+
+        return buildSensorDataInterestAreaDto(sensorDataList, uniqueKeys);
+    }
+
+    @Override
+    public SensorDataInterestAreaDto getAllSensorDataByInterestAreaIdAndSensorId15Min(String interestAreaId, String sensorId) {
+        return getAllSensorDataByInterestAreaAndSensorIdInTimeFrame(interestAreaId, sensorId, -15);
+    }
+
+    private SensorDataInterestAreaDto getAllSensorDataByInterestAreaAndSensorIdInTimeFrame(String interestAreaId, String sensorId, int minutesAgo) {
+        Date fromTime = calculateTimeFromNow(minutesAgo);
+        List<SensorData> sensorDataList = new ArrayList<>();
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        sensorDataRepository.findAllByInterestAreaIDAndSensorIdAndTimestampBetween(interestAreaId, sensorId, fromTime, new Date())
+                .stream()
+                .max(Comparator.comparing(SensorData::getTimestamp))
+                .ifPresent(data -> {
+                    sensorDataList.add(data);
+                    uniqueKeys.addAll(getSensorKeys(data));
+                });
+
+        return buildSensorDataInterestAreaDto(sensorDataList, uniqueKeys);
+    }
+
+    public SensorDataInterestAreaDto getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
         String userId = isValidToken(dateDto.getToken());
         assert userId != null;
-        ZonedDateTime fromDateTime = dateDto.getForm().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
-        ZonedDateTime toDateTime = dateDto.getTo().toInstant().atZone(ZoneId.of("UTC")).minusHours(2);
 
-        Date fromDateUTC = Date.from(fromDateTime.toInstant());
-        Date toDateUTC = Date.from(toDateTime.toInstant());
+        Date fromDateUTC = adjustToUTC(dateDto.getForm());
+        Date toDateUTC = adjustToUTC(dateDto.getTo());
+
+        List<SensorData> sensorDataList = new ArrayList<>();
+        HashSet<String> uniqueKeys = new HashSet<>();
 
         if (dateDto.getSensorId() != null) {
-            Sensor sensor = sensorRepository.findById(dateDto.getSensorId()).orElse(null);
-            assert sensor != null;
-            Sensor sensor1 = sensorRepository.findByIdAndInterestAreaIDAndUserId(String.valueOf(sensor.getId()), dateDto.getInterestAreaId(), userId);
-            assert sensor1 !=null;
-            return sensorDataRepository.findAllBySensorIdAndTimestampBetween(String.valueOf(sensor1.getId()), fromDateUTC, toDateUTC).stream()
-                    .map(sensorDataMapper::sensorDataToSensorDataDto)
-                    .toList();
+            Sensor sensor = findSensorForUser(dateDto.getSensorId(), dateDto.getInterestAreaId(), userId);
+            sensorDataRepository.findAllBySensorIdAndTimestampBetween(String.valueOf(sensor.getId()), fromDateUTC, toDateUTC)
+                    .stream()
+                    .max(Comparator.comparing(SensorData::getTimestamp))
+                    .ifPresent(data -> {
+                        sensorDataList.add(data);
+                        uniqueKeys.addAll(getSensorKeys(data));
+                    });
         } else {
             List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(dateDto.getInterestAreaId(), userId);
-            List<SensorDataDto> allResults = new ArrayList<>();
-
             for (Sensor sensor : sensors) {
-                List<SensorDataDto> sensorResults = sensorDataRepository.findAllBySensorIdAndTimestampBetween(String.valueOf(sensor.getId()), fromDateUTC, toDateUTC).stream()
-                        .map(sensorDataMapper::sensorDataToSensorDataDto)
-                        .toList();
-                allResults.addAll(sensorResults);
+                sensorDataRepository.findAllBySensorIdAndTimestampBetween(String.valueOf(sensor.getId()), fromDateUTC, toDateUTC)
+                        .stream()
+                        .max(Comparator.comparing(SensorData::getTimestamp))
+                        .ifPresent(data -> {
+                            sensorDataList.add(data);
+                            uniqueKeys.addAll(getSensorKeys(data));
+                        });
             }
-
-            return allResults;
         }
 
+        return buildSensorDataInterestAreaDto(sensorDataList, uniqueKeys);
+    }
+
+    private Date calculateTimeFromNow(int minutesAgo) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MINUTE, minutesAgo);
+        return calendar.getTime();
+    }
+
+    private Date adjustToUTC(Date date) {
+        return Date.from(date.toInstant().atZone(ZoneId.of("UTC")).minusHours(2).toInstant());
+    }
+
+    private Sensor findSensorForUser(String sensorId, String interestAreaId, String userId) {
+        Sensor sensor = sensorRepository.findById(sensorId).orElse(null);
+        assert sensor != null;
+        return sensorRepository.findByIdAndInterestAreaIDAndUserId(String.valueOf(sensor.getId()), interestAreaId, userId);
     }
 
 
@@ -713,6 +629,115 @@ public class SensorDataServiceImpl implements SensorDataService {
             }
         }
         return keys;
+    }
+
+
+    private Object parseValue(String value) {
+        try {
+            if (value.contains(".")) {
+                return Double.parseDouble(value);
+            } else {
+                return Integer.parseInt(value);
+            }
+        } catch (NumberFormatException e) {
+            return value;
+        }
+    }
+
+
+
+
+
+    private String isValidToken(String token) {
+        if (jwtTokenProvider.validateToken(token))
+            return jwtTokenProvider.getUserIdFromUserToken(token);
+        return null;
+    }
+
+    private SensorDataHandler getHandlerForType(String dataType) {
+        return switch (dataType.toLowerCase()) {
+            case "json" -> new JsonSensorDataHandler();
+            case "geojson" -> new GeoJsonSensorDataHandler();
+            case "image" -> new ImageSensorDataHandler(new ImageServiceImpl());
+            case "shapefile" -> new ShapefileSensorDataHandler(); //Probably not serve
+            case "raster" -> new RasterSensorDataHandler(); //TODO
+            default -> null;
+        };
+    }
+
+    private SensorDataInterestAreaDto getAllPublicSensorDataInTimeFrame(int minutesAgo) {
+        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
+        if (sensors == null || sensors.isEmpty()) return null;
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.MINUTE, minutesAgo);
+        Date fromTime = calendar.getTime();
+        Date toTime = new Date();
+
+        return createSensorDataInterestAreaDtoForMultipleSensors(sensors, fromTime, toTime);
+    }
+
+
+    private SensorDataInterestAreaDto createSensorDataInterestAreaDto(String sensorId, Date fromTime, Date toTime) {
+        List<SensorData> sensorDataList = new ArrayList<>();
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        if (fromTime != null && toTime != null) {
+            sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fromTime, toTime)
+                    .stream()
+                    .max(Comparator.comparing(SensorData::getTimestamp))
+                    .ifPresent(data -> {
+                        sensorDataList.add(data);
+                        uniqueKeys.addAll(getSensorKeys(data));
+                    });
+            return buildSensorDataInterestAreaDto(sensorDataList, uniqueKeys);
+        }else {
+            sensorDataRepository.findAllBySensorId(sensorId)
+                    .stream()
+                    .max(Comparator.comparing(SensorData::getTimestamp))
+                    .ifPresent(data -> {
+                        sensorDataList.add(data);
+                        uniqueKeys.addAll(getSensorKeys(data));
+                    });
+        }
+
+        return buildSensorDataInterestAreaDto(sensorDataList, uniqueKeys);
+    }
+
+    private SensorDataInterestAreaDto createSensorDataInterestAreaDtoForMultipleSensors(List<Sensor> sensors, Date fromTime, Date toTime) {
+        if (sensors == null || sensors.isEmpty()) return null;
+
+        List<SensorData> sensorDataList = new ArrayList<>();
+        HashSet<String> uniqueKeys = new HashSet<>();
+
+        for (Sensor sensor : sensors) {
+            if (fromTime != null && toTime != null) {
+                sensorDataRepository.findAllBySensorIdAndTimestampBetween(String.valueOf(sensor.getId()), fromTime, toTime)
+                        .stream()
+                        .max(Comparator.comparing(SensorData::getTimestamp))
+                        .ifPresent(data -> {
+                            sensorDataList.add(data);
+                            uniqueKeys.addAll(getSensorKeys(data));
+                        });
+            }else {
+                sensorDataRepository.findAllBySensorId(String.valueOf(sensor.getId()))
+                        .stream()
+                        .max(Comparator.comparing(SensorData::getTimestamp))
+                        .ifPresent(data -> {
+                            sensorDataList.add(data);
+                            uniqueKeys.addAll(getSensorKeys(data));
+                        });
+            }
+        }
+
+        return buildSensorDataInterestAreaDto(sensorDataList, uniqueKeys);
+    }
+
+    private SensorDataInterestAreaDto buildSensorDataInterestAreaDto(List<SensorData> sensorDataList, HashSet<String> uniqueKeys) {
+        SensorDataInterestAreaDto dto = new SensorDataInterestAreaDto();
+        dto.setSensorData(sensorDataList);
+        dto.setSensorAreaTypes(uniqueKeys);
+        return dto;
     }
 
 

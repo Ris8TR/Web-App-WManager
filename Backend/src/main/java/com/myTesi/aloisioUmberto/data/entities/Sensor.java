@@ -33,4 +33,6 @@ public class Sensor {
         private String interestAreaID;
         private Boolean visibility;
         private String colorBarId;
+        private List<Double> latitude;
+        private List<Double> longitude;
 }

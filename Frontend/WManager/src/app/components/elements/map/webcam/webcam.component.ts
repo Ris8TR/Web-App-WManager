@@ -84,8 +84,9 @@ export class WebcamComponent {
     this.map.on('zoomend', this.onZoomEnd); //Triggher dello zoom
   }
 
+  /*
   private loadSensorData(): void {
-    this.sensorDataService.getAllSensorBy10MinByType("image").subscribe(
+    this.sensorDataService.getAllSensorDataIn10Min().subscribe(
       (sensorDataDtos: SensorDataDto[]) => {
         const markers: L.Marker[] = [];
         console.log(sensorDataDtos);
@@ -124,7 +125,7 @@ export class WebcamComponent {
       }
     );
   }
-
+*/
 
 
   private onZoomEnd = () => {
@@ -136,7 +137,7 @@ export class WebcamComponent {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initMap();
-      this.loadSensorData();
+      //this.loadSensorData();
     }, 10);
   }
 }

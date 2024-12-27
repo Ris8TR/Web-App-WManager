@@ -62,7 +62,7 @@ export class SensorDataUploadComponent {
   loadData() {
     //if (this.controllo()) {
       this.toolbar.refreshToken().then(r => this.data.userId = this.cookieService.get("token") )
-      this.sensorDataService.saveSensorData(this.data , this.file).subscribe(
+      this.sensorDataService.saveSensorDataForm(this.data , this.file).subscribe(
         response => {
           this.snackBar.open("Dato caricato e accettato!", 'OK');
           console.log(response);

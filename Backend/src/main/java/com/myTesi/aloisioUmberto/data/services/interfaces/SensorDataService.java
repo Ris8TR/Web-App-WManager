@@ -24,41 +24,42 @@ public interface SensorDataService  {
     SensorDataInterestAreaDto getTopSensorDataByInterestAreaIdAndSensorId(String interestAreaId, String sensorId, String token);
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by interestAreaId
     SensorDataInterestAreaDto getTopSensorDataByInterestAreaId(String interestAreaId, String token);
+    SensorDataInterestAreaDto getTopPublicSensorData();
 
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 5m by sensorId
-    List<SensorDataDto> getAllSensorDataBySensorId5Min(String sensorId);
+    SensorDataInterestAreaDto getAllSensorDataBySensorId5Min(String sensorId);
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by sensorId
-    List<SensorDataDto> getAllSensorDataBySensorId10Min(String sensorId);
+    SensorDataInterestAreaDto getAllSensorDataBySensorId10Min(String sensorId);
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by sensorId
-    List<SensorDataDto> getAllSensorDataBySensorId15Min(String sensorId);
+    SensorDataInterestAreaDto getAllSensorDataBySensorId15Min(String sensorId);
 
 
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by interestAreaId
-    List<SensorDataDto> getAllSensorDataByInterestAreaId5Min(String interestAreaId);
+    SensorDataInterestAreaDto getAllSensorDataByInterestAreaId5Min(String interestAreaId);
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by interestAreaId
-    List<SensorDataDto> getAllSensorDataByInterestAreaId10Min(String interestAreaId);
+    SensorDataInterestAreaDto getAllSensorDataByInterestAreaId10Min(String interestAreaId);
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by interestAreaId
-    List<SensorDataDto> getAllSensorDataByInterestAreaId15Min(String interestAreaId);
+    SensorDataInterestAreaDto getAllSensorDataByInterestAreaId15Min(String interestAreaId);
 
 
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by sensorId and interestAreaId
-    List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId5Min(String interestAreaId, String sensorId);
+    SensorDataInterestAreaDto getAllSensorDataByInterestAreaIdAndSensorId5Min(String interestAreaId, String sensorId);
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by sensorId and interestAreaId
-    List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId10Min(String interestAreaId, String sensorId);
+    SensorDataInterestAreaDto getAllSensorDataByInterestAreaIdAndSensorId10Min(String interestAreaId, String sensorId);
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by sensorId and interestAreaId
-    List<SensorDataDto> getAllSensorDataByInterestAreaIdAndSensorId15Min(String interestAreaId, String sensorId);
+    SensorDataInterestAreaDto getAllSensorDataByInterestAreaIdAndSensorId15Min(String interestAreaId, String sensorId);
 
 
     // Metodo per ottenere i sensorDatadino di un sensore negli ultimi 5m by sensorId
-    List<SensorDataDto> getAllPublicSensorDataIn5Min();
+    SensorDataInterestAreaDto getAllPublicSensorDataIn5Min();
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by sensorId
-    List<SensorDataDto> getAllPublicSensorDataIn10Min();
+    SensorDataInterestAreaDto getAllPublicSensorDataIn10Min();
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by sensorId
-    List<SensorDataDto> getAllPublicSensorDataIn15Min();
+    SensorDataInterestAreaDto getAllPublicSensorDataIn15Min();
 
 
     // <SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto);
-    List<SensorDataDto> getAllSensorDataBySensorBetweenDate(DateDto dateDto);
+    SensorDataInterestAreaDto getAllSensorDataBySensorBetweenDate(DateDto dateDto);
 
     // Metodo per ottenere un dato specifico per ID
     SensorDataDto getSensorDataById(Object id);

@@ -101,21 +101,12 @@ export class ForecastComponent implements AfterViewInit, OnDestroy {
     if (this.cachedData.has(this.selectedSensorType)) {
       this.updateGrid();
     } else {
-      this.sensorDataService.getProcessedSensorData(this.selectedSensorType)
+      this.sensorDataService.getAllPublicSensorDataOnTop()
         .subscribe(response => {
           let geoJson: any;
 
           // Effettua il parsing della risposta se è una stringa
-          if (typeof response === 'string') {
-            try {
-              geoJson = JSON.parse(response);
-            } catch (error) {
-              console.error('Errore nel parsing del JSON:', error);
-              return;
-            }
-          } else {
-            geoJson = response;
-          }
+          geoJson = response;
 
           // Verifica che geoJson abbia la struttura corretta
           if (geoJson && Array.isArray(geoJson.features)) {

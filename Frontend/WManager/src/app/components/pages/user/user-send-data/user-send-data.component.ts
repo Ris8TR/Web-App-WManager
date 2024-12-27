@@ -134,7 +134,7 @@ export class UserSendDataComponent implements  OnInit{
     //if (this.controllo()) {
     this.toolbar.refreshToken().then(r => this.cookieService.get("token") )
       console.log(this.data.sensorId);
-      this.sensorDataService.saveSensorData(this.data, this.file).subscribe(
+      this.sensorDataService.saveSensorDataForm(this.data, this.file).subscribe(
         response => {
           this.snackBar.open("Dato caricato e accettato!", 'OK');
           console.log(response);
