@@ -4,6 +4,15 @@ public class NewSensorDto {
 
     private String companyName;
     private String password;
+    private Boolean isPublic;
+
+    public Boolean getPublic() {
+        return isPublic;
+    }
+
+    public void setPublic(Boolean aPublic) {
+        isPublic = aPublic;
+    }
 
     @Override
     public String toString() {
@@ -12,6 +21,7 @@ public class NewSensorDto {
                 ", password='" + password + '\'' +
                 ", SensorId='" + SensorId + '\'' +
                 ", description='" + description + '\'' +
+                ", Public='" + isPublic + '\'' +
                 ", userId='" + userId + '\'' +
                 ", interestAreaId='" + interestAreaId + '\'' +
                 '}';

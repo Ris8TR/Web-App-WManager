@@ -1,9 +1,10 @@
 package org.data.dto;
 
 
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NewInterestAreaDto {
+    @JsonProperty("isPublic")
     private String userId; // ID dell'utente a cui appartiene l'area di interesse
     private String name; // Nome dell'area di interesse
 
@@ -17,7 +18,12 @@ public class NewInterestAreaDto {
 
     private String description; // Nome dell'area di interesse
     private String type; // Nome dell'area di interesse
+    private Boolean isPublic; // Nome dell'area di interesse
     private Object file;
+
+    public Boolean getPublic() {return isPublic;}
+
+    public void setPublic(Boolean aPublic) {isPublic = aPublic;}
 
     public String getUserId() {
         return userId;

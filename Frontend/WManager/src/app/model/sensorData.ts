@@ -15,10 +15,11 @@ export interface SensorData {
     id?: ObjectId;
     userId: string;
     dataType: string;
+    sensorId: string;
     date?: Date;
     payload?: string;
     timestamp?: Date;
     type?: string;
-    latitude: number[];
-    longitude: number[];
+    latitude: number;
+    longitude: number;
 }

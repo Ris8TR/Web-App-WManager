@@ -10,6 +10,7 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {NgForOf, NgIf} from "@angular/common";
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {SensorDataService} from "../../../../service/sensorData.service";
+import {SensorData} from "../../../../model/sensorData";
 
 @Component({
   selector: 'app-obsmap',
@@ -23,9 +24,10 @@ import {SensorDataService} from "../../../../service/sensorData.service";
   styleUrls: ['./map.component.css']
 })
 export class MapComponent implements AfterViewInit, OnDestroy {
+  private isRealTime =false;
   constructor(private http: HttpClient, private userService: UserService, private sensorDataService: SensorDataService) {}
 
-  private obsmap!: L.Map;
+  private map!: L.Map;
   sensorOptions = [
     { label: 'Temperature', value: 'temperature', selected: false },
     { label: 'CO2', value: 'CO2', selected: false },
@@ -35,6 +37,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   public selectedSensorType: string = "CO2";
   selectedLatestInterval: string | null = null;
   selectedForecastInterval: string | null = null;
+  sensorTypeList!: string[];
+  private sensorDataLocalList: Array<SensorData> | undefined;
+
+
   private layerGroup: L.LayerGroup | undefined;
   temperatureScale = [
     {label: '-10', color: '#0030ff'},
@@ -90,8 +96,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
 
   ngOnDestroy(): void {
-    if (this.obsmap) {
-      this.obsmap.remove();
+    if (this.map) {
+      this.map.remove();
     }
   }
 
@@ -134,14 +140,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
 
   private initMap(): void {
-    this.obsmap = L.map('map').setView([41.8719, 12.5674], 5);
-    this.obsmap.setMaxZoom(13); // Imposta il livello di zoom massimo a 9
-    this.obsmap.setMinZoom(5); // Imposta il livello di zoom minimo a 5
+    this.map = L.map('map').setView([41.8719, 12.5674], 5);
+    this.map.setMaxZoom(13); // Imposta il livello di zoom massimo a 9
+    this.map.setMinZoom(5); // Imposta il livello di zoom minimo a 5
 
     const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     });
-    tileLayer.addTo(this.obsmap);
+    tileLayer.addTo(this.map);
 
     this.markerClusterGroup = L.markerClusterGroup({
       spiderfyOnMaxZoom: true,
@@ -149,8 +155,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       maxClusterRadius: 40,
       iconCreateFunction: this.createClusterIcon //crea le icone raggruppate
     });
-    this.markerClusterGroup.addTo(this.obsmap);
-    this.obsmap.on('zoomend', this.onZoomEnd); //Triggher dello zoom
+    this.markerClusterGroup.addTo(this.map);
+    this.map.on('zoomend', this.onZoomEnd); //Triggher dello zoom
   }
 
 
@@ -207,12 +213,147 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }, 10);
   }
 
-  onLatestIntervalSelect($event: Event) {
-    const selectElement = event?.target as HTMLSelectElement;
-    this.selectedLatestInterval = selectElement.value;
 
-    this.selectedForecastInterval = null;
-    (document.getElementById('forecastInterval') as HTMLSelectElement).value = '';
-    //this.loadSensorData()
+
+  private loadSensorData(): void {
+    if (this.isRealTime) {
+      if (!this.map) return;
+      this.cachedData.clear()
+      this.sensorDataService.getAllPublicSensorDataOnTop()
+        .subscribe((response: any) => {
+          let geoJson: any;
+
+          const sensorDataList = response.sensorData; // Lista di dati sensori
+          const sensorAreaTypes = response.sensorAreaTypes; // Tipi di sensori unici
+          this.sensorTypeList = response.sensorAreaTypes;
+          this.sensorDataLocalList = response.sensorData;
+
+          if (sensorDataList && sensorAreaTypes) {
+            const heatData: [number, number, number][] = [];
+
+            // Estrai le informazioni di geolocalizzazione e valore per ogni sensore
+            sensorDataList.forEach((data: any) => {
+              // Ottieni la latitudine, longitudine e il valore per il sensore
+              const lat = data.latitude;
+              const lng = data.longitude;
+              let value: number = 0;
+
+              // Aggiungi il valore del sensore in base al tipo selezionato
+              try {
+                const payloadData = JSON.parse(data.payload);
+                value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
+              } catch (error) {
+                console.error("Errore nel parsing del payload:", error);
+              }
+
+              if (lat && lng) {
+                heatData.push([lat, lng, value]);
+              }
+            });
+
+            // Salva i dati nella cache per il tipo di sensore selezionato
+            this.cachedData.set(this.selectedSensorType, heatData);
+            this.updateGrid();  // Aggiorna la mappa con i nuovi dati
+          } else {
+            console.error('Formato della risposta non valido:', response);
+          }
+        });
+
+    }
   }
+
+
+  onLatestIntervalSelect(): void {
+    this.cachedData.clear();
+
+    let latestElement: HTMLSelectElement | null = document.getElementById('latestInterval') as HTMLSelectElement | null;
+
+    if (latestElement) {
+      const selectedInterval = latestElement.value;
+      console.log('Selected observation interval:', selectedInterval);
+
+      const interval = parseInt(selectedInterval, 10);
+
+      if (!isNaN(interval)) {
+        let intervalObservable = this.getIntervalObservable(interval);
+
+        if (intervalObservable) {
+          // @ts-ignore
+          intervalObservable.subscribe(
+            (response: any) => {
+              console.log('Data received from observable:', response);
+              if (response) {
+                const sensorDataList = response.sensorData;
+                const sensorAreaTypes = response.sensorAreaTypes;
+                this.sensorTypeList = sensorAreaTypes;
+                this.sensorDataLocalList = sensorDataList;
+
+                if (sensorDataList && sensorAreaTypes) {
+                  const heatData: [number, number, number][] = [];
+
+                  // Estrai i dati di geolocalizzazione e valore per ogni sensore
+                  sensorDataList.forEach((data: any) => {
+                    const lat = data.latitude;
+                    const lng = data.longitude;
+                    let value = 0;
+
+                    try {
+                      const payloadData = JSON.parse(data.payload);
+                      value = payloadData[this.selectedSensorType] || 0;
+                    } catch (error) {
+                      console.error("Errore nel parsing del payload:", error);
+                    }
+
+                    if (lat && lng) {
+                      heatData.push([lat, lng, value]);
+                    }
+                  });
+
+                  // Salva i dati nella cache per il tipo di sensore selezionato
+                  this.cachedData.set(this.selectedSensorType, heatData);
+                  this.updateGrid();  // Aggiorna la mappa con i nuovi dati
+                } else {
+                  console.error('Formato della risposta non valido:', response);
+                }
+              } else {
+                console.warn('No data returned from observable.');
+              }
+            },
+            ( error: any) => {
+              console.error('Error during observable subscription:', error);
+            }
+          );
+        } else {
+          console.warn('Interval observable is not available for interval:', interval);
+        }
+      } else {
+        console.warn('Invalid or unsupported interval value:', selectedInterval);
+      }
+    } else {
+      console.warn('latestElement is not defined.');
+    }
+  }
+
+  private getIntervalObservable(interval: number) {
+    console.log(this.isRealTime);
+    if (this.isRealTime) {
+      switch (interval) {
+        case 5:
+          console.log("RT 5");
+          return this.sensorDataService.getAllPublicSensorDataIn5Min();
+        case 10:
+          console.log("RT 10");
+          return this.sensorDataService.getAllPublicSensorDataIn10Min();
+        case 15:
+          console.log("RT 15");
+          return this.sensorDataService.getAllPublicSensorDataIn15Min();
+        default:
+          return null;
+      }
+    } else {
+      console.log("L A");
+      return this.sensorDataService.getAllPublicSensorDataOnTop();
+    }
+  }
+
 }

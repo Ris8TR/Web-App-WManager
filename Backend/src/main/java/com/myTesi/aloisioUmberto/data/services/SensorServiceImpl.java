@@ -82,6 +82,8 @@ public class SensorServiceImpl implements SensorService {
                 String password = Objects.requireNonNull(data.get("password")).toString();
                 String interestAreaId = Objects.requireNonNull(data.get("interestAreaId")).toString();
                 String description = Objects.requireNonNull(data.get("description")).toString();
+                String isPublic = Objects.requireNonNull(data.get("isPublic")).toString();
+                String payloadType = Objects.requireNonNull(data.get("payloadType")).toString();
                 String userId = isValidToken(token);
                 if (userId == null) {
                     throw new IllegalArgumentException("Invalid user ID");
@@ -101,7 +103,9 @@ public class SensorServiceImpl implements SensorService {
                     newSensor.setPassword(BCrypt.hashpw(password, BCrypt.gensalt(10)));
                     newSensor.setInterestAreaID(interestAreaId);
                     newSensor.setDescription(description);
+                    newSensor.setIsPublic(Boolean.valueOf(isPublic));
                     newSensor.setInterestAreaID(interestAreaId);
+                    newSensor.setPayloadType(PayloadType.valueOf(payloadType));
 
                     sensorRepository.save(newSensor);
 
@@ -140,6 +144,7 @@ public class SensorServiceImpl implements SensorService {
             sensor.setType(newSensorDto.getType());
             sensor.setUserId(String.valueOf(user.get().getId()));
             sensor.setCompanyName(newSensorDto.getCompanyName());
+            sensor.setIsPublic(newSensorDto.getIsPublic());
             sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
             ColorBar colorBar = new ColorBar();
             colorBar.setUserId(newSensorDto.getUserId());
@@ -178,7 +183,7 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public List<SensorDto> findPublicByCompanyName(String companyName) {
 
-        List<Sensor> sensors = sensorRepository.findAllByCompanyNameAndVisibility(companyName, true);
+        List<Sensor> sensors = sensorRepository.findAllByCompanyNameAndIsPublic(companyName, true);
 
         if (sensors == null || sensors.isEmpty()) {
             return Collections.emptyList();
@@ -192,7 +197,7 @@ public class SensorServiceImpl implements SensorService {
     @Override
     public Optional<SensorDto> findPublicById(String id) {
 
-        Optional<Sensor> sensor = sensorRepository.findByUserIdAndVisibility(id, true);
+        Optional<Sensor> sensor = sensorRepository.findByUserIdAndIsPublic(id, true);
         if (sensor.isPresent()) {
             SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor.get());
             return Optional.ofNullable(sensorDto);
@@ -201,7 +206,7 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> findPublicByType(String type) {
-        List<Sensor> sensors = sensorRepository.findAllByTypeAndVisibility(type, true);
+        List<Sensor> sensors = sensorRepository.findAllByTypeAndIsPublic(type, true);
         if (sensors == null || sensors.isEmpty()) {
             return Collections.emptyList();
         }
@@ -254,8 +259,9 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> getAllSensor() {
-        List<Sensor> sensors = sensorRepository.findAllByVisibility(true);
+        List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
         List<SensorDto> sensorDtoList = new ArrayList<>();
+        System.out.println(sensorDtoList);
 
 
         for (Sensor sensor : sensors) {
@@ -266,10 +272,15 @@ public class SensorServiceImpl implements SensorService {
                 SensorData sensorData = sensorDataOptional.get();
                 SensorDto sensorDto = new SensorDto();
                 sensorDto.setId(String.valueOf(sensor.getId()));
+                sensorDto.setDescription(sensor.getDescription());
+                sensorDto.setUserId(String.valueOf(sensor.getUserId()));
+                sensorDto.setPayloadType(sensor.getPayloadType());
+                sensorDto.setInterestAreaID(sensor.getInterestAreaID());
                 sensorDto.setCompanyName(sensor.getCompanyName());
                 sensorDto.setLatitude(Collections.singletonList(sensorData.getLatitude()));
                 sensorDto.setLongitude(Collections.singletonList(sensorData.getLongitude()));
                 sensorDto.setTimestamp(String.valueOf(sensorData.getTimestamp()));
+                sensorDto.setIsPublic(sensor.getIsPublic());
                 sensorDtoList.add(sensorDto);
             } else {
                System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
@@ -380,7 +391,7 @@ public class SensorServiceImpl implements SensorService {
         if (!Objects.equals(sensorDto.getUserId(), existingSensor.getUserId())) {
             throw new RuntimeException("Invalid credentials");
         }
-        existingSensor.setVisibility(sensorDto.getVisibility());
+        existingSensor.setIsPublic(sensorDto.getIsPublic());
         existingSensor.setType(String.valueOf(sensorDto.getType()));
         existingSensor.setDescription(sensorDto.getDescription());
         existingSensor.setCompanyName(sensorDto.getCompanyName());

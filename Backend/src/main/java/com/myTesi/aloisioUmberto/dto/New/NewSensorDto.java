@@ -21,7 +21,7 @@ public class NewSensorDto{
     private String userId;
     private String token;
     private String type;
-    private Boolean visibility;
+    private Boolean isPublic;
     private PayloadType payloadType;
     private String interestAreaId;
     List<ColorRange> ranges;

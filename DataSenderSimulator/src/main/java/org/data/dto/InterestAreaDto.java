@@ -1,38 +1,24 @@
 package org.data.dto;
 
-
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class InterestAreaDto {
-        private String id; // Identificatore univoco del documento nel database
-        private String userId; // ID dell'utente a cui appartiene l'area di interesse
-        private String name; // Nome dell'area di interesse
-        private String token;  // Add this field
+        private String id;
+        private String userId;
+        private String name;
+        private String token;
 
-        public String getToken() {
-                return token;
-        }
+        @JsonProperty("isPublic")
+        private Boolean isPublic;
 
-        public void setToken(String token) {
-                this.token = token;
-        }
+        private String geometry;
+        private String Type;
+        private String description;
+
+        // Getters and Setters
 
         public String getId() {
                 return id;
-        }
-
-        @Override
-        public String toString() {
-                return "InterestAreaDto{" +
-                        "id='" + id + '\'' +
-                        ", userId='" + userId + '\'' +
-                        ", name='" + name + '\'' +
-                        ", geometry='" + geometry + '\'' +
-                        ", Type='" + Type + '\'' +
-                        ", description='" + description + '\'' +
-                        ", token='" + token + '\'' +
-
-                        '}';
         }
 
         public void setId(String id) {
@@ -53,6 +39,22 @@ public class InterestAreaDto {
 
         public void setName(String name) {
                 this.name = name;
+        }
+
+        public String getToken() {
+                return token;
+        }
+
+        public void setToken(String token) {
+                this.token = token;
+        }
+
+        public Boolean getIsPublic() {
+                return isPublic;
+        }
+
+        public void setIsPublic(Boolean isPublic) {
+                this.isPublic = isPublic;
         }
 
         public String getGeometry() {
@@ -79,10 +81,17 @@ public class InterestAreaDto {
                 this.description = description;
         }
 
-        private String geometry; // Geometria dell'area
-        private String Type; // tipo dell'area
-        private String description; // descrizione dell'area
-
-    }
-
-
+        @Override
+        public String toString() {
+                return "InterestAreaDto{" +
+                        "id='" + id + '\'' +
+                        ", userId='" + userId + '\'' +
+                        ", name='" + name + '\'' +
+                        ", geometry='" + geometry + '\'' +
+                        ", Type='" + Type + '\'' +
+                        ", description='" + description + '\'' +
+                        ", token='" + token + '\'' +
+                        ", isPublic=" + isPublic +
+                        '}';
+        }
+}

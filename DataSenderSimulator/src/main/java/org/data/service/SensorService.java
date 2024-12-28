@@ -50,6 +50,7 @@ public class SensorService {
         newSensor.setPassword(user.getSensorPassword());
         newSensor.setDescription("Sensor description for sensor " + sensorId);
         newSensor.setUserId(userId);
+        newSensor.setPublic(true);
         newSensor.setInterestAreaId(interestAreaId);
         return newSensor;
     }
@@ -69,11 +70,13 @@ public class SensorService {
                       "description": "%s",
                       "userId": "%s",
                       "token": "%s",
-                      "interestAreaId": "%s"
+                      "interestAreaId": "%s",
+                      "payloadType": "%s",
+                      "isPublic": true
                     }""",
                     newSensor.getCompanyName(), newSensor.getPassword(),
                     newSensor.getDescription(), token,token,
-                    newSensor.getInterestAreaId()
+                    newSensor.getInterestAreaId(), "json"
             );
 
             System.out.println(sensorJson);

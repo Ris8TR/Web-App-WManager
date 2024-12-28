@@ -41,21 +41,21 @@
         </td>
 
         <td *ngIf="sensor.isEditing">
-          <mat-radio-group [(ngModel)]="sensor.visibility">
+          <mat-radio-group [(ngModel)]="sensor.isPublic">
             <mat-radio-button [value]="true">Sì</mat-radio-button>
             <mat-radio-button [value]="false">No</mat-radio-button>
           </mat-radio-group>
         </td>
         <td *ngIf="!sensor.isEditing">
-          <ng-container *ngIf="sensor.visibility">Sì</ng-container>
-          <ng-container *ngIf="!sensor.visibility">No</ng-container>
+          <ng-container *ngIf="sensor.isPublic">Sì</ng-container>
+          <ng-container *ngIf="!sensor.isPublic">No</ng-container>
         </td>
 
         <td>{{ sensor.interestAreaID }}</td>
 
-        <td>{{ sensor.longitude?.join(', ') }}</td>
+        <td>{{ sensor.longitude }}</td>
 
-        <td>{{ sensor.latitude?.join(', ') }}</td>
+        <td>{{ sensor.latitude}}</td>
 
         <td>
           <button *ngIf="!sensor.isEditing" (click)="startEdit(sensor)">Modifica</button>

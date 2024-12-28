@@ -104,8 +104,10 @@ export class StationComponent implements AfterViewInit, OnDestroy {
         console.log(sensorDtos)
         if (sensorDtos) {
           sensorDtos.forEach((sensorDto: SensorDto) => {
-            const latitude = sensorDto.latitude!;
-            const longitude = sensorDto.longitude!;
+            // @ts-ignore
+            const latitude = sensorDto.latitude![0];
+            // @ts-ignore
+            const longitude = sensorDto.longitude![0];
             const key = `${latitude},${longitude}`; // Usa template literals per creare la chiave unica
 
             // Incrementa il contatore dei sensori per la chiave
@@ -113,7 +115,7 @@ export class StationComponent implements AfterViewInit, OnDestroy {
             const sensorCount = this.sensorCountPerMarker[key];
 
             const popupContent = `Nome: ${sensorDto.id} <br>Lat: ${latitude} <br>Lon: ${longitude}`;
-            const marker = L.marker([latitude[0], longitude[0]], {
+            const marker = L.marker([latitude, longitude], {
               icon: this.createGreenMarkerIcon(sensorCount) // Crea icone in base al conteggio
             })
               .bindPopup(popupContent);

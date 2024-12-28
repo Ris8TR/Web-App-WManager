@@ -179,16 +179,16 @@ public class UserService {
                 interestAreaDto.setName("Interest Area " + i);
                 interestAreaDto.setDescription("Description for interest area " + i);
                 interestAreaDto.setToken(token);
+                interestAreaDto.setPublic(true);
 
                 MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
                 ObjectMapper objectMapper = new ObjectMapper();
 
-                // Add JSON data as a text body
                 entityBuilder.addTextBody("data", objectMapper.writeValueAsString(interestAreaDto), ContentType.APPLICATION_JSON);
 
-                // Load file from "shape" directory
                 ClassLoader classLoader = getClass().getClassLoader();
                 URL resourceUrl = classLoader.getResource("shape");
+
                 if (resourceUrl != null) {
                     File directory = new File(resourceUrl.getFile());
                     File[] shapeFiles = directory.listFiles();
@@ -197,17 +197,17 @@ public class UserService {
                         File file = shapeFiles[random.nextInt(shapeFiles.length)];
                         entityBuilder.addPart("file", new FileBody(file, ContentType.DEFAULT_BINARY));
                     } else {
-                        System.err.println("No files found in resources/shape.");
+                        throw new IllegalStateException("No files found in the 'shape' directory.");
                     }
+
                 } else {
-                    System.err.println("Directory 'shape' not found in resources.");
+                    throw new IllegalStateException("Directory 'shape' not found in resources.");
                 }
 
                 HttpEntity entity = entityBuilder.build();
                 HttpPost post = new HttpPost(INTEREST_AREA_URL);
                 post.setEntity(entity);
 
-                // Execute request and handle response
                 try (CloseableHttpResponse response = client.execute(post)) {
                     String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 

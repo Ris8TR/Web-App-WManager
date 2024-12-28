@@ -1,6 +1,6 @@
 <div>
   <!-- Pannello laterale (sidebar) -->
-  <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; margin-left: 5%; margin-bottom:20%; margin-top:8%">
+  <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; max-height: 80vh; margin-left: 5%; margin-bottom:20%; margin-top:8%">
     <!-- Tabs della sidebar -->
     <div class="sidebar-tabs" (click)="$event.stopPropagation()">
       <ul role="tablist">
@@ -64,7 +64,7 @@
           <div class="row text-center justify-content-center align-self-center" style="margin: 5%">
             <div class="col-md-12">
               <label for="latestInterval">Latest data</label>
-              <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect($event)">
+              <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect()">
                 <option value="" selected>Select Interval</option>
                 <option value="5">-5 Minutes</option>
                 <option value="60">-1 Hour</option>
@@ -79,6 +79,6 @@
   </div>
 
   <div class="col-lg justify-content-md-center">
-    <div id="map" style="height: 90vh; min-height: 70%;"></div>
+    <div id="map" style="height: 75vh; min-height: 70%;"></div>
   </div>
 </div>

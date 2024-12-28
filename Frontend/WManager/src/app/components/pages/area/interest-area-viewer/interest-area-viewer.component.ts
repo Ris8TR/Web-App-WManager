@@ -41,7 +41,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private map: L.Map | undefined;
   selectedSensor!: string | undefined;
   interestArea: InterestArea | undefined;
-  isRealTime: boolean = true;
+  isRealTime: boolean = false;
   id: string | null | undefined;
   private layerGroup: L.LayerGroup | undefined;
   public selectedSensorType: string = "CO2";
@@ -260,23 +260,21 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
   onSensorSelect(sensor: SensorDto): void {
     if (sensor.type) this.selectedSensor = sensor.type;
+
+    // Controlla se lo stesso sensore è stato selezionato
     if (this.selectedSensor === sensor.id) {
       this.selectedSensor = undefined;
     } else {
       this.selectedSensor = sensor.id;
-
-      console.log(sensor)
-
-      if (sensor.latitude && sensor.longitude) {
-        this.map!.setView([sensor.latitude[0], sensor.longitude[0]], 14); // Imposta lo zoom a 14
+      const selectedSensorData = this.sensorDataLocalList?.find(data => data.sensorId === this.selectedSensor);
+      if (selectedSensorData?.latitude && selectedSensorData?.longitude) {
+        this.map!.setView([selectedSensorData.latitude, selectedSensorData.longitude], 14); // Imposta lo zoom a 14
+      } else {
+        console.warn(`Latitudine e longitudine non trovate per il sensore con ID: ${this.selectedSensor}`);
       }
-
-      return;
     }
-
-
-
   }
+
 
 
 
@@ -538,9 +536,11 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     this.sensorTypeList = data.sensorAreaTypes || [];
     this.sensorDataLocalList = data.sensorData;
 
+    console.log(data.sensorData)
+
     return data.sensorData.map((sensorData) => {
-      const lat = sensorData.latitude[0];
-      const lng = sensorData.longitude[0];
+      const lat = sensorData.latitude;
+      const lng = sensorData.longitude;
       let value: number | undefined;
 
       try {

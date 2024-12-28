@@ -76,20 +76,20 @@ public class SensorDataController {
     @GetMapping("/SensorData/private/last/5/interestAreaId/{interestAreaId}")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPrivateSensorDataByInterestAreaId5Min(HttpServletRequest request ,@PathVariable String interestAreaId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataByInterestAreaId5Min(interestAreaId));
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataByInterestAreaId5Min(interestAreaId, token));
     }
 
     @GetMapping("/SensorData/private/last/10m/interestAreaId/{interestAreaId}")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPrivateSensorDataByInterestAreaId10Min(HttpServletRequest request ,@PathVariable String interestAreaId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataByInterestAreaId10Min(interestAreaId));
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataByInterestAreaId10Min(interestAreaId, token));
     }
 
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/SensorData/private/last/15/interestAreaId/{interestAreaId}")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPrivateSensorDataByInterestAreaId15Min(HttpServletRequest request ,@PathVariable String interestAreaId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataByInterestAreaId15Min(interestAreaId));
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataByInterestAreaId15Min(interestAreaId, token));
     }
 
     @SecurityRequirement(name="Bearer Authentication")
@@ -117,21 +117,21 @@ public class SensorDataController {
     @GetMapping("/SensorData/private/last/5/sensorId/{sensorId}")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPrivateSensorDataBySensor5Min(HttpServletRequest request ,@PathVariable String sensorId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId5Min(sensorId));
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId5Min(sensorId, token));
     }
 
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/SensorData/private/last/10/sensorId/{sensorId}")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPrivateSensorDataBySensor10Min(HttpServletRequest request ,@PathVariable String sensorId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId10Min(sensorId));
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId10Min(sensorId, token));
     }
 
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/SensorData/private/last/15/sensorId/{sensorId}")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPrivateSensorDataBySensor15Min(HttpServletRequest request ,@PathVariable String sensorId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId15Min(sensorId));
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorId15Min(sensorId,token));
     }
 
 

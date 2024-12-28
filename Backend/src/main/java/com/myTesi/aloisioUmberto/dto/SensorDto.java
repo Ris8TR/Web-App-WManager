@@ -22,7 +22,7 @@ public class SensorDto {
     private PayloadType payloadType;
     private String description;
     private String type;
-    private Boolean visibility;
+    private Boolean isPublic;
     private String interestAreaID;
     private List<Double> latitude;
     private List<Double> longitude;

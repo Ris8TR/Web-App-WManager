@@ -3,7 +3,6 @@ package com.myTesi.aloisioUmberto.data.dao;
 
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import jakarta.validation.constraints.NotNull;
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,10 +11,10 @@ import java.util.Optional;
 
 @Repository
 public interface SensorRepository extends MongoRepository<Sensor, String> {
-    Optional<Sensor> findByUserIdAndVisibility(String userId, Boolean visibility);
-    List<Sensor> findAllByCompanyNameAndVisibility(@NotNull String companyName, Boolean visibility);
-    List<Sensor> findAllByTypeAndVisibility(String type, Boolean visibility);
-    List<Sensor> findAllByVisibility(Boolean visibility);
+    Optional<Sensor> findByUserIdAndIsPublic(String userId, Boolean visibility);
+    List<Sensor> findAllByCompanyNameAndIsPublic(@NotNull String companyName, Boolean visibility);
+    List<Sensor> findAllByTypeAndIsPublic(String type, Boolean visibility);
+    List<Sensor> findAllByIsPublic(Boolean isPublic);
 
 
     List<Sensor> findAllByCompanyNameAndUserId(@NotNull String companyName, String userId);
@@ -24,6 +23,6 @@ public interface SensorRepository extends MongoRepository<Sensor, String> {
     List<Sensor> findAllByInterestAreaIDAndUserId(String InterestAreaId, String userId);
     Sensor findByIdAndInterestAreaIDAndUserId(String id, String interestAreaID, String userId);
     boolean existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(String companyName, String userId, String interestAreaID , String description);
-    List<Sensor> findAllByIdAndUserId(ObjectId id, String userId);
+    List<Sensor> findAllByIdAndUserId(String id, String userId);
     Optional<Sensor> findByIdAndUserId(Object Id, String sensorId);
 }

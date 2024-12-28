@@ -19,11 +19,11 @@ export interface SensorDto {
     description?: string;
     payloadType?: string;
     type?: string;
-    visibility?: boolean;
+    isPublic?: boolean;
     interestAreaID?: string;
-    longitude?: Array<number>;
-    latitude?: Array<number>;
+    longitude?: number;
+    latitude?: number;
     token?: string;
-  isEditing?: boolean;
+    isEditing?: boolean;
 
   }

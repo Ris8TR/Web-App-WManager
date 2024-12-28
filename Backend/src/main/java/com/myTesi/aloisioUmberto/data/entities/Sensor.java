@@ -31,7 +31,7 @@ public class Sensor {
         @Field
         private String password;
         private String interestAreaID;
-        private Boolean visibility;
+        private Boolean isPublic;
         private String colorBarId;
         private List<Double> latitude;
         private List<Double> longitude;
