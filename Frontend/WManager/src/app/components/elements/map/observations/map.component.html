@@ -48,31 +48,62 @@
           <div class="row">
             <h6 style="color: white; padding-right: 80% ">Select Type:</h6>
             <div class="col-2 justify-content-md-center">
+
               <!-- Sezione checkbox per selezionare un sensore -->
               <div>
-                <mat-radio-group [(ngModel)]="selectedSensorType" (change)="onSensorTypeChange($event)">
+                <mat-radio-group id= "type" [(ngModel)]="selectedSensorType">
                   <div *ngFor="let sensor of sensorOptions">
-                    <mat-radio-button value="{{ sensor.value }}" class="custom-radio">
+                    <mat-radio-button value="{{ sensor.value }}" class="custom-radio" (click)="onSensorTypeSelect(sensor.value)">
                       {{ sensor.label }}
                     </mat-radio-button>
                   </div>
                 </mat-radio-group>
               </div>
+
             </div>
           </div>
           <!-- Selettore per Latest data -->
-          <div class="row text-center justify-content-center align-self-center" style="margin: 5%">
+          <div *ngIf="isRealTime" class="row text-center justify-content-center align-self-center" style="margin: 5%">
             <div class="col-md-12">
               <label for="latestInterval">Latest data</label>
               <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect()">
                 <option value="" selected>Select Interval</option>
                 <option value="5">-5 Minutes</option>
-                <option value="60">-1 Hour</option>
-                <option value="180">-3 Hour</option>
+                <option value="10">-0 Minutes</option>
+                <option value="15">-15 Minutes</option>
               </select>
             </div>
-
           </div>
+        </div>
+      </div>
+        <div class="form-check" style="margin: 5%">
+          <input
+            class="form-check-input"
+            type="radio"
+            value="1"
+            name="flexRadioDefault"
+            id="flexRadioDefault1"
+            [(ngModel)]="isRealTime"
+            [value]="true"
+            (ngModelChange)="onLatestIntervalSelect()"
+          >
+          <label class="form-check-label" for="flexRadioDefault1">
+            Real-Time
+          </label>
+        </div>
+        <div class="form-check" style="margin: 5%">
+          <input
+            class="form-check-input"
+            type="radio"
+            name="flexRadioDefault"
+            id="flexRadioDefault2"
+            [(ngModel)]="isRealTime"
+            [value]="false"
+            (ngModelChange)="onLatestIntervalSelect()"
+          >
+          <label class="form-check-label" for="flexRadioDefault2">
+            Latest
+          </label>
         </div>
       </div>
     </div>
@@ -81,4 +112,4 @@
   <div class="col-lg justify-content-md-center">
     <div id="map" style="height: 75vh; min-height: 70%;"></div>
   </div>
-</div>
+

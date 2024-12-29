@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, OnDestroy} from '@angular/core';
+import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
 import * as L from 'leaflet';
 import { HttpClient } from '@angular/common/http';
 import { ToolbarComponent } from '../../toolbar/toolbar.component';
@@ -23,16 +23,18 @@ import {SensorData} from "../../../../model/sensorData";
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
 })
-export class MapComponent implements AfterViewInit, OnDestroy {
-  private isRealTime =false;
-  constructor(private http: HttpClient, private userService: UserService, private sensorDataService: SensorDataService) {}
+export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
+  protected isRealTime = false;
+
+  constructor(private http: HttpClient, private userService: UserService, private sensorDataService: SensorDataService) {
+  }
 
   private map!: L.Map;
   sensorOptions = [
-    { label: 'Temperature', value: 'temperature', selected: false },
-    { label: 'CO2', value: 'CO2', selected: false },
-    { label: 'Humidity', value: 'humidity', selected: false },
-    { label: 'Pression', value: 'ap', selected: false },
+    {label: 'Temperature', value: 'temperature', selected: false},
+    {label: 'CO2', value: 'CO2', selected: false},
+    {label: 'Humidity', value: 'humidity', selected: false},
+    {label: 'Pression', value: 'ap', selected: false},
   ];
   public selectedSensorType: string = "CO2";
   selectedLatestInterval: string | null = null;
@@ -101,9 +103,60 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  onSensorTypeChange(event: any) {
-    this.selectedSensorType = event.value;
+  onSensorTypeSelect(type: any) {
+    this.selectedSensorType = type;
+    const heatData: [number, number, number][] = [];  // Initialize outside the loop
+
+    this.sensorDataLocalList!.forEach((data: any) => {
+      const lat = data.latitude;
+      const lng = data.longitude;
+      let value: number = 0;
+
+      try {
+        const payloadData = JSON.parse(data.payload);
+        value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
+      } catch (error) {
+        console.error("Errore nel parsing del payload:", error);
+      }
+
+      if (lat && lng) {
+        heatData.push([lat, lng, value]);
+      }
+    });
+
+    this.cachedData.set(this.selectedSensorType, heatData);
+
+    this.updateGrid();  // Aggiorna la mappa con i nuovi dati
   }
+
+
+  onSensorTypeChange() {
+    let typeElement: HTMLSelectElement | null = document.getElementById('type') as HTMLSelectElement | null;
+    this.selectedSensorType = String(typeElement);
+    const heatData: [number, number, number][] = [];  // Initialize outside the loop
+
+    this.sensorDataLocalList!.forEach((data: any) => {
+      const lat = data.latitude;
+      const lng = data.longitude;
+      let value: number = 0;
+
+      try {
+        const payloadData = JSON.parse(data.payload);
+        value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
+      } catch (error) {
+        console.error("Errore nel parsing del payload:", error);
+      }
+
+      if (lat && lng) {
+        heatData.push([lat, lng, value]);
+      }
+    });
+
+    this.cachedData.set(this.selectedSensorType, heatData);
+
+    this.updateGrid();  // Aggiorna la mappa con i nuovi dati
+  }
+
 
 
   togglePanel(event: MouseEvent): void {
@@ -141,38 +194,45 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private initMap(): void {
     this.map = L.map('map').setView([41.8719, 12.5674], 5);
-    this.map.setMaxZoom(13); // Imposta il livello di zoom massimo a 9
-    this.map.setMinZoom(5); // Imposta il livello di zoom minimo a 5
+    this.map.setMaxZoom(13);
+    this.map.setMinZoom(5);
 
-    const tileLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
-    });
-    tileLayer.addTo(this.map);
+    }).addTo(this.map);
+
+    this.layerGroup = L.layerGroup().addTo(this.map); // Initialize layer group
 
     this.markerClusterGroup = L.markerClusterGroup({
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       maxClusterRadius: 40,
-      iconCreateFunction: this.createClusterIcon //crea le icone raggruppate
-    });
-    this.markerClusterGroup.addTo(this.map);
-    this.map.on('zoomend', this.onZoomEnd); //Triggher dello zoom
+      iconCreateFunction: this.createClusterIcon
+    }).addTo(this.map);
+
+    this.map.on('zoomend', this.onZoomEnd);
   }
 
 
 
 
   private updateGrid(): void {
-    if (this.layerGroup) {
-      this.layerGroup.clearLayers(); // Remove existing layers if present
+    if (!this.layerGroup) {
+      this.layerGroup = L.layerGroup().addTo(this.map);
     }
+    this.layerGroup.clearLayers(); // Safely clear existing layers
     const heatData = this.cachedData.get(this.selectedSensorType);
     if (heatData) {
       this.addPointsToMap(heatData);
     }
   }
 
+
   private addPointsToMap(heatData: [number, number, number][]): void {
+    if (!this.layerGroup) {
+      console.error("Layer group is not initialized.");
+      return;
+    }
     heatData.forEach(dataPoint => {
       const [lat, lng, value] = dataPoint;
       const marker = L.circleMarker([lat, lng], {
@@ -186,6 +246,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       marker.bindPopup(this.selectedSensorType + ` value: ${value}`);
     });
   }
+
 
   private getColorScale() {
     return (value: number) => {
@@ -209,20 +270,19 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initMap();
-      //this.loadSensorData();
+      this.loadSensorData();
     }, 10);
   }
 
 
 
   private loadSensorData(): void {
-    if (this.isRealTime) {
+    if (!this.isRealTime) {
       if (!this.map) return;
       this.cachedData.clear()
       this.sensorDataService.getAllPublicSensorDataOnTop()
         .subscribe((response: any) => {
           let geoJson: any;
-
           const sensorDataList = response.sensorData; // Lista di dati sensori
           const sensorAreaTypes = response.sensorAreaTypes; // Tipi di sensori unici
           this.sensorTypeList = response.sensorAreaTypes;
@@ -354,6 +414,13 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       console.log("L A");
       return this.sensorDataService.getAllPublicSensorDataOnTop();
     }
+  }
+
+
+
+
+  ngOnInit(): void {
+    this.loadSensorData()
   }
 
 }
