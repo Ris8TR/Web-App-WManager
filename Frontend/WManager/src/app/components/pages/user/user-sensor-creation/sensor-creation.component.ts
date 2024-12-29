@@ -78,8 +78,7 @@ export class SensorCreationComponent implements  OnInit{
   }
 
   loadInterestAreas(): void {
-    const userId = this.cookieService.get("token");
-    this.interestAreaService.getInterestAreasByUser(userId).subscribe(
+    this.interestAreaService.getInterestAreasByUser().subscribe(
       (interestAreas: InterestAreaDto[]) => {
         this.interestAreaNames = interestAreas.map(area => ({ id: area.id, name: area.name }));
         console.log(interestAreas)

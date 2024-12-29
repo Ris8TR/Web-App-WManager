@@ -1,5 +1,6 @@
 package com.myTesi.aloisioUmberto.controller;
 
+import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.SensorServiceImpl;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorService;
@@ -10,7 +11,9 @@ import com.myTesi.aloisioUmberto.dto.SensorAndAreas;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +33,8 @@ import java.util.Optional;
 public class SensorController {
 
     private final SensorService sensorService;
+    private final JwtTokenProvider jwtTokenProvider;
+
 
 
     //CREATE & UPDATE
@@ -44,8 +49,9 @@ public class SensorController {
         return ResponseEntity.ok(sensorService.save(file));
     }
 
+    @SecurityRequirement(name="Bearer Authentication")
     @PutMapping("/sensors/update")
-    public ResponseEntity<SensorDto> updateSensor(@RequestBody SensorDto sensorDto) {
+    public ResponseEntity<SensorDto> updateSensor(HttpServletRequest request , @RequestBody SensorDto sensorDto) {
         return ResponseEntity.ok(sensorService.update(sensorDto));
     }
 
@@ -78,33 +84,45 @@ public class SensorController {
 
 
     //PRIVATE
-    @GetMapping("/sensors/company/{companyName}/{token}")
-    public ResponseEntity <List<SensorDto>> findByCompanyName(@PathVariable @Valid String companyName,  @PathVariable @Valid String token) {
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/sensors/company/{companyName}")
+    public ResponseEntity <List<SensorDto>> findByCompanyName(HttpServletRequest request ,@PathVariable @Valid String companyName) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorService.findByCompanyName(companyName, token));
     }
 
-    @GetMapping("/sensors/interestArea/{interestAreaId}/{token}")
-    public ResponseEntity <List<SensorDto>> findByInterestAreaId(@PathVariable @Valid String interestAreaId,  @PathVariable @Valid String token) {
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/sensors/interestArea/{interestAreaId}")
+    public ResponseEntity <List<SensorDto>> findByInterestAreaId(HttpServletRequest request ,@PathVariable @Valid String interestAreaId) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorService.findByInterestAreaId(interestAreaId, token));
     }
 
-    @GetMapping("/sensors/{id}/{token}")
-    public ResponseEntity <Optional<SensorDto>> findById(@PathVariable @Valid String id,  @PathVariable @Valid String token) {
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/sensors/{id}/")
+    public ResponseEntity <Optional<SensorDto>> findById(HttpServletRequest request ,@PathVariable @Valid String id) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorService.findById(id, token));
     }
 
-    @GetMapping("/sensors/type/{type}/{token}")
-    public ResponseEntity <List<SensorDto>> findByTypeAndUserId(@PathVariable String type, String token) {
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/sensors/type/{type}/")
+    public ResponseEntity <List<SensorDto>> findByTypeAndUserId(HttpServletRequest request ,@PathVariable String type) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorService.findByTypeAndUser(type, token));
     }
 
-    @GetMapping("/sensors/user/{token}")
-    public ResponseEntity <List<SensorDto>> findByUserId(@PathVariable String token) {
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/sensors/user")
+    public ResponseEntity <List<SensorDto>> findByUserId(HttpServletRequest request ) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorService.findByUserId(token));
     }
 
-    @GetMapping("/sensors/area/user/{token}")
-    public ResponseEntity <SensorAndAreas> findAreaByUserId(@PathVariable String token) {
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/sensors/area")
+    public ResponseEntity <SensorAndAreas> findAreaByUserId(HttpServletRequest request ) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorService.findAndAreaByUserId(token));
     }
 

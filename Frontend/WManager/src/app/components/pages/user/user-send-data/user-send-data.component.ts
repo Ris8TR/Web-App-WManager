@@ -95,8 +95,7 @@ export class UserSendDataComponent implements  OnInit{
   }
 
   loadEndPointsByUser(): void {
-    const userId = this.cookieService.get("token");
-    this.sensorService.findAndAreaByUserId(userId).subscribe(
+    this.sensorService.findAreaByUserId().subscribe(
       (sensorAndAreas: SensorAndAreas) => {
         console.log(sensorAndAreas)
         // Mappiamo i dati dei sensori

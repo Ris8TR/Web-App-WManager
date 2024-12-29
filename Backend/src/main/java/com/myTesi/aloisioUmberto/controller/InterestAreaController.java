@@ -1,5 +1,6 @@
 package com.myTesi.aloisioUmberto.controller;
 
+import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
@@ -7,6 +8,7 @@ import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -30,16 +32,16 @@ import java.util.List;
 public class InterestAreaController {
 
     private final InterestAreaService interestAreaService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @PostMapping(value = "/interestArea", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<InterestAreaDto> createInterestArea(@RequestPart("data") NewInterestAreaDto data, @RequestPart(value = "file" , required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<InterestAreaDto> createInterestArea(HttpServletRequest request ,@RequestPart("data") NewInterestAreaDto data, @RequestPart(value = "file" , required = false) MultipartFile file) throws IOException {
         InterestAreaDto savedInterestArea = interestAreaService.save(data, file);
         return ResponseEntity.ok(savedInterestArea);
     }
 
-
     @GetMapping("/{interestAreaId}/latest-sensor-data/{token}")
-    public ResponseEntity<List<SensorDataDto>> getLatestSensorDataInInterestArea(@PathVariable String interestAreaId, @PathVariable String token) {
+    public ResponseEntity<List<SensorDataDto>> getLatestSensorDataInInterestArea(HttpServletRequest request ,@PathVariable String interestAreaId, @PathVariable String token) {
         List<SensorDataDto> sensorDataList = interestAreaService.getLatestSensorDataInInterestArea(interestAreaId, token);
         if (sensorDataList != null && !sensorDataList.isEmpty()) {
             return ResponseEntity.ok(sensorDataList);
@@ -48,28 +50,34 @@ public class InterestAreaController {
         }
     }
 
-
-    @GetMapping("/interestArea/{id}/{token}")
-    public ResponseEntity<InterestArea> getInterestArea(@PathVariable String id, @PathVariable String token) {
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/interestArea/{id}")
+    public ResponseEntity<InterestArea> getInterestArea(HttpServletRequest request , @PathVariable String id) {
         //TODO ADD TOKEN CHECK
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(interestAreaService.getInterestArea(id, token));
     }
 
+    @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/interestArea")
-    public ResponseEntity<List<InterestAreaDto>> getInterestAreasByUser(@RequestParam String token) {
+    public ResponseEntity<List<InterestAreaDto>> getInterestAreasByUser(HttpServletRequest request ) {
         //TODO ADD TOKEN CHECK
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         List<InterestAreaDto> interestAreas = interestAreaService.getInterestAreasByUserId(token);
         return ResponseEntity.ok(interestAreas);
     }
 
+    @SecurityRequirement(name="Bearer Authentication")
     @PutMapping("/interestArea/update")
-    public ResponseEntity<InterestAreaDto> updateInterestArea(@RequestBody InterestAreaDto interestAreaDto) {
+    public ResponseEntity<InterestAreaDto> updateInterestArea(HttpServletRequest request , @RequestBody InterestAreaDto interestAreaDto) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(interestAreaService.update(interestAreaDto));
     }
 
+    @SecurityRequirement(name="Bearer Authentication")
     @DeleteMapping("/interestArea/{id}")
-    public ResponseEntity<Void> deleteInterestArea(@PathVariable ObjectId id) {
-        //TODO ADD TOKEN CHECK
+    public ResponseEntity<Void> deleteInterestArea(HttpServletRequest request , @PathVariable ObjectId id) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
         interestAreaService.deleteInterestArea(id);
         return ResponseEntity.noContent().build();
     }

@@ -120,8 +120,7 @@ export class ToolbarComponent implements  OnInit{
 
 
   loadInterestAreas(): void {
-    this.userId=this.cookieService.get("token")
-    this.interestAreaService.getInterestAreasByUser(this.userId).subscribe(
+    this.interestAreaService.getInterestAreasByUser().subscribe(
       (interestAreas: InterestAreaDto[]) => {
         this.interestAreaNames = [];
         interestAreas.forEach((area: InterestAreaDto) => {

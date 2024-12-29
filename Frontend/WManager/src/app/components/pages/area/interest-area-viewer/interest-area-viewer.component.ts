@@ -130,7 +130,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       return
     }
 
-    this.interestAreaService.getInterestArea(this.id!, this.cookieService.get('token')).subscribe(area => {
+    this.interestAreaService.getInterestArea(this.id!).subscribe(area => {
       this.interestArea = area;
       this.toolbarComponent.inArea=true;
       this.toolbarComponent.isObservation=true;
@@ -229,7 +229,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   private reloadComponentData(): void {
     if (!this.id) return;
     this.cachedData.clear();
-    this.interestAreaService.getInterestArea(this.id!, this.cookieService.get('token')).subscribe(area => {
+    this.interestAreaService.getInterestArea(this.id!).subscribe(area => {
       this.interestArea = area;
     });
     this.loadSensors();
@@ -251,7 +251,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
   private loadSensors(): void {
-    this.sensorService.findByInterestAreaId(this.id!, this.cookieService.get('token'))
+    this.sensorService.findByInterestAreaId(this.id!)
       .subscribe(sensors => this.sensors = sensors);
     if (this.sensors.length > 0) {
       this.selectedSensor = this.sensors[0].id

@@ -40,8 +40,7 @@ export class InterestAreaDataViewComponent implements  OnInit{
 
   loadData() {
     this.toolbar.refreshToken().then(r => {
-     this.token = this.cookieService.get("token");
-    this.interestAreaService.getInterestAreasByUser(this.token).subscribe(
+    this.interestAreaService.getInterestAreasByUser().subscribe(
       response => {
         this.interestAreaList = response.map((interestArea: InterestAreaDto) => ({ ...interestArea, isEditing: false }));
         this.snackBar.open("Dati caricati con successo", 'OK');
@@ -62,7 +61,7 @@ export class InterestAreaDataViewComponent implements  OnInit{
     this.toolbar.refreshToken().then(r => {
       interestArea.token = this.cookieService.get("token");
       console.log(interestArea)
-    this.interestAreaService.updateArea(interestArea).subscribe(
+    this.interestAreaService.updateInterestArea(interestArea).subscribe(
       () => {
         interestArea.isEditing = false;
         this.snackBar.open("Dati aggiornati con successo", 'OK');

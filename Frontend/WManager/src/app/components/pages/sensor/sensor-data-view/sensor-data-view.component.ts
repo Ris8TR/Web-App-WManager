@@ -43,8 +43,7 @@ export class SensorDataViewComponent implements OnInit {
 
   loadData() {
     this.toolbar.refreshToken().then(r => {
-      this.token = this.cookieService.get("token");
-      this.sensorService.findByUserId(this.token).subscribe(
+      this.sensorService.findByUserId().subscribe(
         response => {
           this.sensorList = response.map((sensor: SensorDto) => ({ ...sensor, isEditing: false }));
 console.log(response)        },
