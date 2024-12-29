@@ -12,7 +12,7 @@ import {ActivatedRoute} from "@angular/router";
 import {InterestAreaService} from "../../../../service/interestArea.service";
 import {InterestArea} from "../../../../model/interestArea";
 import {parse} from 'terraformer-wkt-parser';
-import {Subscription} from "rxjs";
+import {Subscription, timeout} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {SensorData} from "../../../../model/sensorData";
 import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAreaDto";
@@ -270,6 +270,9 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       if (selectedSensorData?.latitude && selectedSensorData?.longitude) {
         this.map!.setView([selectedSensorData.latitude, selectedSensorData.longitude], 14); // Imposta lo zoom a 14
       } else {
+        this.snackBar.open("No data found for this sensor", "OK", {
+          duration: 2000
+        });
         console.warn(`Latitudine e longitudine non trovate per il sensore con ID: ${this.selectedSensor}`);
       }
     }
