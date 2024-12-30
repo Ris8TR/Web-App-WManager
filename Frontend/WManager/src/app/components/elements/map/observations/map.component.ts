@@ -283,8 +283,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.initMap();
+      this.loadInterestAreas();
       this.loadSensorData();
-    }, 10);
+    }, 15);
   }
 
 
@@ -432,15 +433,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   ngOnInit(): void {
-    this.map = L.map('map');
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-    this.loadSensorData()
-    this.loadInterestAreas()
+
   }
 
   private loadInterestAreas() {
-    this.interestAreaService.getAllPublicInterestArea().subscribe(area => {
-      this.interestAreas = area;
+    this.interestAreaService.getAllPublicInterestArea().subscribe(areas => {
+      this.interestAreas=areas
       if (this.interestAreas) {
         this.drawInterestArea(this.interestAreas);
       }
