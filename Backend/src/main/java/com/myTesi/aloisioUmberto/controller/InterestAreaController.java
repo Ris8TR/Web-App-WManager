@@ -36,8 +36,16 @@ public class InterestAreaController {
 
     @PostMapping(value = "/interestArea", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<InterestAreaDto> createInterestArea(HttpServletRequest request ,@RequestPart("data") NewInterestAreaDto data, @RequestPart(value = "file" , required = false) MultipartFile file) throws IOException {
+        System.out.println("sdad");
+        System.out.println(data);
         InterestAreaDto savedInterestArea = interestAreaService.save(data, file);
         return ResponseEntity.ok(savedInterestArea);
+    }
+
+    //PUBLIC
+    @GetMapping("/interestArea/public")
+    public ResponseEntity<List<InterestAreaDto>> getAllPublicInterestArea() {
+        return ResponseEntity.ok(interestAreaService.getAllPublicInterestArea());
     }
 
     @GetMapping("/{interestAreaId}/latest-sensor-data/{token}")
@@ -53,7 +61,6 @@ public class InterestAreaController {
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/interestArea/{id}")
     public ResponseEntity<InterestArea> getInterestArea(HttpServletRequest request , @PathVariable String id) {
-        //TODO ADD TOKEN CHECK
         String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(interestAreaService.getInterestArea(id, token));
     }
@@ -61,7 +68,6 @@ public class InterestAreaController {
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/interestArea")
     public ResponseEntity<List<InterestAreaDto>> getInterestAreasByUser(HttpServletRequest request ) {
-        //TODO ADD TOKEN CHECK
         String token = jwtTokenProvider.getTokenFromRequest(request);
         List<InterestAreaDto> interestAreas = interestAreaService.getInterestAreasByUserId(token);
         return ResponseEntity.ok(interestAreas);

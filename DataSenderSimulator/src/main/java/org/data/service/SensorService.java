@@ -50,7 +50,7 @@ public class SensorService {
         newSensor.setPassword(user.getSensorPassword());
         newSensor.setDescription("Sensor description for sensor " + sensorId);
         newSensor.setUserId(userId);
-        newSensor.setPublic(true);
+        newSensor.setIsPublic(true);
         newSensor.setInterestAreaId(interestAreaId);
         return newSensor;
     }

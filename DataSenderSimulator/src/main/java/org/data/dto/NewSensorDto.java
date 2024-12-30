@@ -1,80 +1,18 @@
 package org.data.dto;
 
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@NoArgsConstructor
+@ToString
 public class NewSensorDto {
 
     private String companyName;
     private String password;
     private Boolean isPublic;
-
-    public Boolean getPublic() {
-        return isPublic;
-    }
-
-    public void setPublic(Boolean aPublic) {
-        isPublic = aPublic;
-    }
-
-    @Override
-    public String toString() {
-        return "NewSensorDto{" +
-                "companyName='" + companyName + '\'' +
-                ", password='" + password + '\'' +
-                ", SensorId='" + SensorId + '\'' +
-                ", description='" + description + '\'' +
-                ", Public='" + isPublic + '\'' +
-                ", userId='" + userId + '\'' +
-                ", interestAreaId='" + interestAreaId + '\'' +
-                '}';
-    }
-
-    public String getInterestAreaId() {
-        return interestAreaId;
-    }
-
-    public void setInterestAreaId(String interestAreaId) {
-        this.interestAreaId = interestAreaId;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getSensorId() {
-        return SensorId;
-    }
-
-    public void setSensorId(String sensorId) {
-        SensorId = sensorId;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getCompanyName() {
-        return companyName;
-    }
-
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
-
     private String SensorId;
     private String description;
     private String userId;

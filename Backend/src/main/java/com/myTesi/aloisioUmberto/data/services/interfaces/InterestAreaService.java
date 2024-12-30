@@ -17,6 +17,7 @@ public interface InterestAreaService {
     InterestArea getInterestArea(String id, String token);
 
     List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId, String token);
+    List<InterestAreaDto> getAllPublicInterestArea();
 
     List<InterestAreaDto> getInterestAreasByUserId(String userId);
 

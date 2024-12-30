@@ -56,16 +56,18 @@ public class InterestAreaServiceImpl implements InterestAreaService {
 
     public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto, MultipartFile file) throws IOException {
 
+        System.out.println(newInterestAreaDto);
         Optional<User> user = userRepository.findById(jwtTokenProvider.getUserIdFromUserToken(newInterestAreaDto.getToken()));
         if (user.isPresent()) {
             InterestArea interestArea = interestAreaMapper.newInterestAreaDtoToInterestArea(newInterestAreaDto);
             interestArea.setUserId(String.valueOf(user.get().getId())); // Set user ID from token
             interestArea.setDescription(newInterestAreaDto.getDescription());
             interestArea.setType(newInterestAreaDto.getType());
+            interestArea.setIsPublic(newInterestAreaDto.getIsPublic());
             if (file != null) {
                 File convertedFile = convertMultipartFileToFile(file);
                 interestArea.setGeometry(extractGeometryFromShapefile(convertedFile));
-                convertedFile.delete(); // Clean up the temporary file
+                convertedFile.delete();
             }
 
             interestAreaRepository.save(interestArea);
@@ -207,6 +209,21 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         }
         return sensorDataList;
     }
+
+    @Override
+    public List<InterestAreaDto> getAllPublicInterestArea() {
+
+        List<InterestArea> interestAreas = interestAreaRepository.findAllByIsPublic(true);
+        List<InterestArea> interestAre = interestAreaRepository.findAll();
+        System.out.println(interestAre);
+
+        return interestAreas.stream().map(interestArea -> {
+            InterestAreaDto interestAreaDto = interestAreaMapper.interestAreaToInterestAreaDto(interestArea);
+            interestAreaDto.setId(interestArea.getId().toString());
+            return interestAreaDto;
+        }).collect(Collectors.toList());
+    }
+
 
     public byte[] readShapefileData(ShapefileDataStore shapefileDataStore) throws IOException {
         return getBytes(shapefileDataStore);

@@ -179,12 +179,14 @@ public class UserService {
                 interestAreaDto.setName("Interest Area " + i);
                 interestAreaDto.setDescription("Description for interest area " + i);
                 interestAreaDto.setToken(token);
-                interestAreaDto.setPublic(true);
+                interestAreaDto.setIsPublic(true);
 
                 MultipartEntityBuilder entityBuilder = MultipartEntityBuilder.create();
                 ObjectMapper objectMapper = new ObjectMapper();
 
                 entityBuilder.addTextBody("data", objectMapper.writeValueAsString(interestAreaDto), ContentType.APPLICATION_JSON);
+
+                System.out.println(interestAreaDto.toString());
 
                 ClassLoader classLoader = getClass().getClassLoader();
                 URL resourceUrl = classLoader.getResource("shape");

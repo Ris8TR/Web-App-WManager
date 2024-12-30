@@ -14,6 +14,7 @@ import java.util.Optional;
 public interface InterestAreaRepository extends MongoRepository<InterestArea, String> {
 
     List<InterestArea> findAllByUserId(String userId);
+    List<InterestArea> findAllByIsPublic( Boolean isPublic);
     Optional<InterestArea> findByIdAndUserId(String id, String userId);
     List<InterestArea> findAll();
 
