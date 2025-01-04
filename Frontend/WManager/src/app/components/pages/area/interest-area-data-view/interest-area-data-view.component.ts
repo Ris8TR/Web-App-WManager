@@ -8,6 +8,10 @@ import {NgForOf, NgIf} from "@angular/common";
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 import {UserComponent} from "../../user/userMenu/user.component";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
+import {
+  DeleteConfirmationDialogComponent
+} from "../../../actions/delete-confirmation-dialog/delete-confirmation-dialog.component";
+import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-interest-area-data-view',
@@ -18,6 +22,8 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
     NgForOf,
     UserComponent,
     MatRadioButton,
+    MatDialogModule,
+    DeleteConfirmationDialogComponent,
     MatRadioGroup
   ],
   templateUrl: './interest-area-data-view.component.html',
@@ -26,12 +32,15 @@ import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 export class InterestAreaDataViewComponent implements  OnInit{
   token = "";
   interestAreaList: InterestAreaDto[] = [];
+  private file: any;
+
 
   constructor(
     private interestAreaService: InterestAreaService,
     private snackBar: MatSnackBar,
     private toolbar: ToolbarComponent,
-    private cookieService: CookieService
+    private cookieService: CookieService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
@@ -43,7 +52,6 @@ export class InterestAreaDataViewComponent implements  OnInit{
     this.interestAreaService.getInterestAreasByUser().subscribe(
       response => {
         this.interestAreaList = response.map((interestArea: InterestAreaDto) => ({ ...interestArea, isEditing: false }));
-        this.snackBar.open("Dati caricati con successo", 'OK');
       },
       error => {
         this.snackBar.open("Errore durante il caricamento dei dati.", 'OK');
@@ -61,9 +69,11 @@ export class InterestAreaDataViewComponent implements  OnInit{
     this.toolbar.refreshToken().then(r => {
       interestArea.token = this.cookieService.get("token");
       console.log(interestArea)
-    this.interestAreaService.updateInterestArea(interestArea).subscribe(
+      console.log(this.file)
+    this.interestAreaService.updateInterestArea(interestArea, this.file).subscribe(
       () => {
         interestArea.isEditing = false;
+        this.toolbar.loadInterestAreas()
         this.snackBar.open("Dati aggiornati con successo", 'OK');
       },
       error => {
@@ -76,5 +86,32 @@ export class InterestAreaDataViewComponent implements  OnInit{
   cancelEdit(interestArea: InterestAreaDto) {
     interestArea.isEditing = false;
     this.loadData();
+  }
+
+  caricaFile(event: any) {
+    const fileInput = event.target;
+    const files = fileInput.files;
+    this.file = files[0];
+  }
+
+  delete(interestArea: InterestAreaDto) {
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent);
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        // @ts-ignore
+        this.interestAreaService.deleteInterestArea(interestArea.id).subscribe(() => {
+            interestArea.isEditing = false;
+            this.loadData();
+            this.toolbar.loadInterestAreas();
+            this.snackBar.open("Area eliminata", 'OK');
+          },
+          error => {
+            this.snackBar.open("Errore durante l'eliminazione.", 'OK');
+            console.log(error);
+          });
+      } else {
+        this.snackBar.open("Eliminazione annullata", 'OK');
+      }
+    });
   }
 }

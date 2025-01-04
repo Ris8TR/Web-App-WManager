@@ -1,25 +1,26 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import * as L from 'leaflet';
-import {SensorDataService} from "../../../../service/sensorData.service";
-import {APP_BASE_HREF, LocationStrategy, NgClass, NgForOf, NgIf, PathLocationStrategy} from "@angular/common";
-import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
-import {SensorDto} from "../../../../model/sensorDto";
-import {SensorService} from "../../../../service/sensor.service";
-import {CookieService} from "ngx-cookie-service";
-import {DateDto} from "../../../../model/dateDto";
+import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {InterestAreaDto} from "../../../../model/interestAreaDto";
+import {InterestAreaDataService} from "../../../../service/InterestAreaDataService";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {ActivatedRoute} from "@angular/router";
-import {InterestAreaService} from "../../../../service/interestArea.service";
+import * as L from "leaflet";
 import {InterestArea} from "../../../../model/interestArea";
-import {parse} from 'terraformer-wkt-parser';
-import {Subscription, timeout} from "rxjs";
-import {MatSnackBar} from "@angular/material/snack-bar";
+import {SensorDto} from "../../../../model/sensorDto";
+import {Subscription} from "rxjs";
 import {SensorData} from "../../../../model/sensorData";
+import {SensorDataService} from "../../../../service/sensorData.service";
+import {InterestAreaService} from "../../../../service/interestArea.service";
+import {SensorService} from "../../../../service/sensor.service";
+import {MatSnackBar} from "@angular/material/snack-bar";
+import {CookieService} from "ngx-cookie-service";
+import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {ActivatedRoute} from "@angular/router";
+import {parse} from "terraformer-wkt-parser";
+import {DateDto} from "../../../../model/dateDto";
 import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAreaDto";
 
-
 @Component({
-  selector: 'app-interest-area-viewer',
+  selector: 'app-interest-area-public-viewer',
   standalone: true,
   imports: [
     NgIf,
@@ -28,24 +29,20 @@ import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAre
     NgForOf,
     NgClass
   ],
-  providers: [
-    { provide: LocationStrategy, useClass: PathLocationStrategy },
-    { provide: APP_BASE_HREF, useValue: '/' } // Imposta il base href
-  ],
-  templateUrl: './interest-area-viewer.component.html',
-  styleUrl: './interest-area-viewer.component.css'
+  templateUrl: './interest-area-public-viewer.component.html',
+  styleUrl: './interest-area-public-viewer.component.css'
 })
-export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, OnInit {
+export class InterestAreaPublicViewerComponent implements  OnInit {
+  interestArea!: InterestAreaDto | null;
   @ViewChild('forecastInterval', { static: false }) forecastIntervalElement!: ElementRef<HTMLSelectElement>;
 
   private map: L.Map | undefined;
   selectedSensor!: string | undefined;
-  interestArea: InterestArea | undefined;
   isRealTime: boolean = false;
   id: string | null | undefined;
   private layerGroup: L.LayerGroup | undefined;
   public selectedSensorType: string = "CO2";
-  sensorTypeList!: Array<string> | undefined;
+  sensorTypeList!: string[];
   public sensors: SensorDto[] = [];
   public logStringResult: string = 'Login';
   public startDate?: string;
@@ -60,9 +57,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   isPanelVisible = true;
 
   selectedLatestInterval: string = '';
-
-  isForecast: boolean = this.toolbarComponent.isForecast;
-  isObservation: boolean = this.toolbarComponent.isObservation;
 
   temperatureScale = [
     {label: '-10', color: '#0030ff'},
@@ -103,61 +97,34 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     private snackBar: MatSnackBar,
     private cookieService: CookieService,
     public toolbarComponent: ToolbarComponent,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private interestAreaDataService: InterestAreaDataService
   ) {
   }
 
+
+
   ngOnInit(): void {
-    this.subscription = this.interestAreaService.currentId$.subscribe(id => {
-      this.id = id;
-      this.reloadComponentData();
-    })
-
-    this.subscription.add(
-      this.toolbarComponent.isForecast$.subscribe(value => {
-        this.isForecast = value;
-      })
-    );
-
-    this.subscription.add(
-      this.toolbarComponent.isObservation$.subscribe(value => {
-        this.isObservation = value;
-      })
-    );
-
-    if (this.id == null) {
-      this.snackBar.open("Selezionare un'area di interesse", "ok")
-      return
-    }
-
-    this.interestAreaService.getInterestArea(this.id!).subscribe(area => {
-      this.interestArea = area;
-      this.toolbarComponent.inArea=true;
-      this.toolbarComponent.isObservation=true;
-      this.toolbarComponent.areaName=area.name;
-
-      // Disegna l'area d'interesse sulla mappa
-      if (this.interestArea && this.interestArea.geometry) {
-        this.drawInterestArea(this.interestArea.geometry);
+    if (!this.map) this.initializeMap();
+    this.interestAreaDataService.currentArea.subscribe((area) => {
+      if (area) {
+        this.interestArea = area;
+        if (this.interestArea && this.interestArea.geometry) {
+          this.drawInterestArea(this.interestArea.geometry);
+          this.loadSensors();
+          this.loadAllSensorData();
+        }
       }
     });
-  }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      if (!this.map) this.initializeMap();
-      if (!this.layerGroup) this.layerGroup = L.layerGroup().addTo(this.map!);
-      this.reloadComponentData();
-      this.logStringResult = this.toolbarComponent.logStringResult;
-    }, 10);
-  }
 
-  ngOnDestroy(): void {
-    if (this.map) this.map.remove();
-    this.subscription.unsubscribe();
-    this.toolbarComponent.inArea=false;
 
   }
+
+
+
+
+
 
   togglePanel(event: MouseEvent): void {
     event.stopPropagation();
@@ -167,52 +134,54 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
 
 
-  private drawInterestArea(geometry: string): void {
-    try {
-      // Rimuove eventuali punti e virgola finali
-      geometry = geometry.trim().replace(/;$/, '');
+  private drawInterestArea(geometry: string | undefined): void {
+    if (geometry) {
+      try {
+        // Rimuove eventuali punti e virgola finali
+        geometry = geometry.trim().replace(/;$/, '');
 
-      // Parse del WKT in GeoJSON
-      const geoJson = parse(geometry);
+        // Parse del WKT in GeoJSON
+        const geoJson = parse(geometry);
 
-      // Rimuove le geometrie già disegnate
-      this.removeDrawnAreas();
+        // Rimuove le geometrie già disegnate
+        this.removeDrawnAreas();
 
-      // Verifica il tipo di geometria e gestisce separatamente Polygon, MultiPolygon e LineString
-      if (geoJson && (geoJson.type === 'Polygon' || geoJson.type === 'MultiPolygon')) {
-        const polygon = L.geoJSON(geoJson, {
-          style: {
-            color: 'blue',    // Colore dei bordi del poligono
-            weight: 4,        // Spessore dei bordi
-            opacity: 0.7      // Opacità dei bordi
-          }
-        }).addTo(this.map!);
+        // Verifica il tipo di geometria e gestisce separatamente Polygon, MultiPolygon e LineString
+        if (geoJson && (geoJson.type === 'Polygon' || geoJson.type === 'MultiPolygon')) {
+          const polygon = L.geoJSON(geoJson, {
+            style: {
+              color: 'blue',    // Colore dei bordi del poligono
+              weight: 4,        // Spessore dei bordi
+              opacity: 0.7      // Opacità dei bordi
+            }
+          }).addTo(this.map!);
 
-        // Aggiungi il poligono all'array dei layer disegnati
-        this.drawnLayers.push(polygon);
+          // Aggiungi il poligono all'array dei layer disegnati
+          this.drawnLayers.push(polygon);
 
-        // Centra la vista sul poligono
-        this.map!.fitBounds(polygon.getBounds());
+          // Centra la vista sul poligono
+          this.map!.fitBounds(polygon.getBounds());
 
-      } else if (geoJson && (geoJson.type === 'LineString' || geoJson.type === 'MultiLineString')) {
-        // @ts-ignore
-        const polyline = L.polyline(geoJson.coordinates, {
-          color: 'blue',   // Colore della linea
-          weight: 4,       // Spessore della linea
-          opacity: 0.7     // Opacità della linea
-        }).addTo(this.map!);
+        } else if (geoJson && (geoJson.type === 'LineString' || geoJson.type === 'MultiLineString')) {
+          // @ts-ignore
+          const polyline = L.polyline(geoJson.coordinates, {
+            color: 'blue',   // Colore della linea
+            weight: 4,       // Spessore della linea
+            opacity: 0.7     // Opacità della linea
+          }).addTo(this.map!);
 
-        // Aggiungi la linea all'array dei layer disegnati
-        this.drawnLayers.push(polyline);
+          // Aggiungi la linea all'array dei layer disegnati
+          this.drawnLayers.push(polyline);
 
-        // Centra la vista sulla linea
-        this.map!.fitBounds(polyline.getBounds());
+          // Centra la vista sulla linea
+          this.map!.fitBounds(polyline.getBounds());
 
-      } else {
-        console.error('Tipo di geometria non valido o non supportato:', geoJson.type);
+        } else {
+          console.error('Tipo di geometria non valido o non supportato:', geoJson.type);
+        }
+      } catch (error) {
+        console.error('Errore durante il parsing WKT:', error);
       }
-    } catch (error) {
-      console.error('Errore durante il parsing WKT:', error);
     }
   }
 
@@ -226,18 +195,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     }
   }
 
-  private reloadComponentData(): void {
-    if (!this.id) return;
-    this.cachedData.clear();
-    this.interestAreaService.getInterestArea(this.id!).subscribe(area => {
-      this.interestArea = area;
-    });
-    this.loadSensors();
-    this.loadAllSensorData();
-    if (this.interestArea != null) {
-      this.drawInterestArea(this.interestArea!.geometry);
-    }
-  }
+
 
   private initializeMap(): void {
     this.map = L.map('map').setView([45.0, 7.0], 5);
@@ -251,7 +209,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
   private loadSensors(): void {
-    this.sensorService.findByInterestAreaId(this.id!)
+    this.sensorService.findByInterestAreaId(this.interestArea?.id!)
       .subscribe(sensors => this.sensors = sensors);
     if (this.sensors.length > 0) {
       this.selectedSensor = this.sensors[0].id
@@ -279,13 +237,10 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
 
-
-
-
   private loadAllSensorData(): void {
     if (this.isRealTime){
       if (!this.map) return;
-      this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!)
+      this.sensorDataService.getLastPublicSensorDataByInterestAreaId(this.interestArea?.id!)
         .subscribe((response: any) => {
           let geoJson: any;
 
@@ -326,9 +281,10 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
         });
     }else {
       if (!this.map) return;
-      this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!)
-        .subscribe((response: SensorDataInterestAreaDto) => {
+      this.sensorDataService.getLastPublicSensorDataByInterestAreaId(this.interestArea?.id!)
+        .subscribe((response: any) => {
           let geoJson: any;
+          console.log(response)
           const sensorDataList = response.sensorData;
           const sensorAreaTypes = response.sensorAreaTypes;
           this.sensorTypeList = response.sensorAreaTypes;
@@ -436,7 +392,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
                 console.warn('No data returned from observable.');
               }
             },
-              ( error: any) => {
+            ( error: any) => {
               console.error('Error during observable subscription:', error);
             }
           );

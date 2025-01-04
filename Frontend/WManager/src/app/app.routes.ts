@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { ForecastComponent } from './components/elements/map/forecast/forecast.component';
-import { MapComponent } from './components/elements/map/observations/map.component';
+import { MapComponent } from './components/elements/map/publicMap/map.component';
 import { LoginComponent } from './components/pages/auth/login/login.component';
 import { SigninComponent } from './components/pages/auth/signin/signin.component';
 import { BadComponent } from './components/pages/Errors/badRequest/bad.component';
@@ -26,6 +26,12 @@ import {
 } from "./components/pages/area/interest-area-data-view/interest-area-data-view.component";
 import {resolve} from "@angular/compiler-cli";
 import {StationComponent} from "./components/elements/map/station/station.component";
+import {
+  InterestAreaPublicListComponent
+} from "./components/pages/area/interest-area-public-list/interest-area-public-list.component";
+import {
+  InterestAreaPublicViewerComponent
+} from "./components/pages/area/interest-area-public-viewer/interest-area-public-viewer.component";
 
 
 
@@ -46,6 +52,8 @@ export const routes: Routes = [
     {path: 'create-area', title: "Create new area' ", component: InterestAreaCreationComponent },
     {path: 'userCreateSensor', title: "Create new sensor' ", component: SensorCreationComponent },
     {path: 'interestAreaViewer', title: "", component: InterestAreaViewerComponent },
+    {path: 'PublicInterestAreaList', title: "Public InterestArea List", component: InterestAreaPublicListComponent },
+    {path: 'PublicInterestAreaView', title: "Public InterestArea View", component: InterestAreaPublicViewerComponent },
     {path: 'Show-Sensor', title: "", component: SensorDataViewComponent },
     {path: 'Show-Areas', title: "", component: InterestAreaDataViewComponent },
 

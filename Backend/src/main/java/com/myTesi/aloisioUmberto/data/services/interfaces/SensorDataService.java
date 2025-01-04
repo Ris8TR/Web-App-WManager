@@ -72,4 +72,6 @@ public interface SensorDataService  {
     public SensorData saveSensorData(NewSensorDataDto newSensorDataDto);
     SensorDataDto getLatestSensorDataBySensorId(String token, String id);
     SensorDataInterestAreaDto getAllSensorDataProcessedByInterestArea(String interestAreaId, String token);
+
+    SensorDataInterestAreaDto getTopPublicSensorDataByInterestAreaId(String interestAreaId);
 }

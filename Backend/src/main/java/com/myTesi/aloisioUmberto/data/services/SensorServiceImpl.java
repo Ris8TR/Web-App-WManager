@@ -361,22 +361,47 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> findByInterestAreaId(String interestAreaId, String token) {
-        String userId = isValidToken(token);
-        if (userId == null) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        Optional<User> user = userDao.findById(userId);
-        assert user.isPresent();
-        List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
+        Optional<InterestArea> interestArea = interestAreaRepository.findById(interestAreaId);
 
-        if (sensors == null || sensors.isEmpty()) {
-            return Collections.emptyList();
+        if (interestArea.isEmpty()) {
+            throw new IllegalArgumentException("Interest area not found");
         }
 
-        return sensors.stream()
-                .map(sensorMapper::sensorToSensorDto)
-                .collect(Collectors.toList());
+        InterestArea area = interestArea.get();
+
+        Boolean isPublic = area.getIsPublic();
+        if (isPublic == null) {
+            isPublic = false;
+        }
+        if (isPublic) {
+            // L'area è pubblica, restituisci solo i sensori pubblici senza autenticazione
+            List<Sensor> publicSensors = sensorRepository.findAllByInterestAreaIDAndIsPublicTrue(interestAreaId);
+            if (publicSensors.isEmpty()) {
+                return Collections.emptyList();
+            }
+            return publicSensors.stream()
+                    .map(sensorMapper::sensorToSensorDto)
+                    .collect(Collectors.toList());
+        } else {
+            // L'area non è pubblica, verifica il token e restituisci i sensori associati all'utente
+            String userId = isValidToken(token);
+            if (userId == null) {
+                throw new IllegalArgumentException("Invalid user ID");
+            }
+
+            Optional<User> user = userDao.findById(userId);
+            assert user.isPresent();
+
+            List<Sensor> userSensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
+            if (userSensors.isEmpty()) {
+                return Collections.emptyList();
+            }
+            return userSensors.stream()
+                    .map(sensorMapper::sensorToSensorDto)
+                    .collect(Collectors.toList());
+        }
     }
+
 
     @Override
     public SensorDto update(SensorDto sensorDto) {
@@ -397,6 +422,9 @@ public class SensorServiceImpl implements SensorService {
         existingSensor.setCompanyName(sensorDto.getCompanyName());
         existingSensor.setInterestAreaID(sensorDto.getInterestAreaID());
         existingSensor.setColorBarId(sensorDto.getColorBarId());
+        if (!Objects.equals(sensorDto.getPassword(), "")) {
+            existingSensor.setPassword(BCrypt.hashpw(sensorDto.getPassword(), BCrypt.gensalt(10)));;
+        }
 
         Sensor updatedSensor = sensorRepository.save(existingSensor);
         return modelMapper.map(updatedSensor, SensorDto.class);

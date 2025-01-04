@@ -14,8 +14,8 @@ export interface InterestAreaDto {
     id?: string;
     userId?: string;
     name?: string;
-  isPublic?: boolean;
-  geometry?: string;
+    isPublic?: boolean;
+    geometry?: string;
     description?: string;
     type?: string;
   token?: string;

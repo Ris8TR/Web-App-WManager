@@ -1,0 +1,17 @@
+<div class="interest-area-container">
+  <div *ngFor="let area of interestAreaList" class="interest-area-item" (click)="redirect(area)">
+    <!-- Thumbnail -->
+    <div class="thumbnail">
+      <img
+        [src]="'assets/default-thumbnail.jpg'"
+        alt="Thumbnail"
+      />
+    </div>
+    <!-- Info Section -->
+    <div class="info">
+      <h3 class="title">{{ area.name }}</h3>
+      <p class="description">{{ area.description }}</p>
+      <div class="user-info">Uploaded by: {{ area.userId }}</div>
+    </div>
+  </div>
+</div>

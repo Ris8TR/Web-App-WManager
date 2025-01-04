@@ -167,7 +167,11 @@ public class SensorDataController {
     public ResponseEntity<SensorDataInterestAreaDto> getAllPublicSensorDataOnTop() {
         return ResponseEntity.ok(sensorDataService.getTopPublicSensorData());
     }
-
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/SensorData/public/top-by-interestAreaId/{interestAreaId}")
+    public ResponseEntity<SensorDataInterestAreaDto> getLastPublicSensorDataByInterestAreaId(@PathVariable String interestAreaId) {
+        return ResponseEntity.ok(sensorDataService.getTopPublicSensorDataByInterestAreaId(interestAreaId));
+    }
 
 
     /*

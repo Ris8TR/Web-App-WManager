@@ -12,7 +12,9 @@
         <th>Description</th>
         <th>Type</th>
         <th>Public?</th>
+        <th>Geometry</th>
         <th>Actions</th>
+        <th>Delete</th>
       </tr>
       </thead>
       <tbody>
@@ -46,11 +48,21 @@
           </mat-radio-group>
         </td>
 
+        <!-- Type -->
+        <td *ngIf="!interestArea.isEditing"></td>
+        <td *ngIf="interestArea.isEditing">
+          <input type="file" id="file" name="file"  (change)="caricaFile($event)">
+        </td>
+
         <!-- Actions -->
         <td>
-          <button *ngIf="!interestArea.isEditing" (click)="startEdit(interestArea)">Modifica</button>
-          <button *ngIf="interestArea.isEditing" (click)="saveEdit(interestArea)">Salva</button>
-          <button *ngIf="interestArea.isEditing" (click)="cancelEdit(interestArea)">Annulla</button>
+          <button *ngIf="!interestArea.isEditing" (click)="startEdit(interestArea)">Modify</button>
+          <button *ngIf="interestArea.isEditing" (click)="saveEdit(interestArea)">Save</button>
+          <button *ngIf="interestArea.isEditing" (click)="cancelEdit(interestArea)">Cancel</button>
+        </td>
+
+        <td>
+          <button (click)="delete(interestArea)">Delete</button>
         </td>
       </tr>
       </tbody>

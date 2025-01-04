@@ -603,6 +603,16 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     }
 
+    @Override
+    public SensorDataInterestAreaDto getTopPublicSensorDataByInterestAreaId(String interestAreaId) {
+        List<Sensor> sensors = sensorRepository.findAllByIsPublicAndInterestAreaID(true, interestAreaId);
+        if (sensors == null || sensors.isEmpty()) return null;
+
+
+
+        return createSensorDataInterestAreaDtoForMultipleSensors(sensors, null, null);
+    }
+
 
     private String createGeoJson(List<SensorData> sensorDataList, String type) {
         ObjectMapper mapper = new ObjectMapper();

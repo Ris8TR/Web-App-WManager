@@ -12,10 +12,9 @@
         <th>Description</th>
         <th>Payload Type</th>
         <th>Type</th>
+        <th>Password</th>
         <th>Public?</th>
         <th>Interest Area ID</th>
-        <th>Longitude</th>
-        <th>Latitude</th>
         <th>Actions</th>
       </tr>
       </thead>
@@ -40,6 +39,17 @@
           <input [(ngModel)]="sensor.type" />
         </td>
 
+        <td *ngIf="!sensor.isEditing"></td>
+        <td *ngIf="sensor.isEditing">
+          <input
+            [(ngModel)]="tempPassword"
+            (ngModelChange)="sensor.password = tempPassword"
+            [type]="'password'"
+            placeholder="Enter new password"
+          />
+        </td>
+
+
         <td *ngIf="sensor.isEditing">
           <mat-radio-group [(ngModel)]="sensor.isPublic">
             <mat-radio-button [value]="true">Sì</mat-radio-button>
@@ -53,9 +63,6 @@
 
         <td>{{ sensor.interestAreaID }}</td>
 
-        <td>{{ sensor.longitude }}</td>
-
-        <td>{{ sensor.latitude}}</td>
 
         <td>
           <button *ngIf="!sensor.isEditing" (click)="startEdit(sensor)">Modifica</button>

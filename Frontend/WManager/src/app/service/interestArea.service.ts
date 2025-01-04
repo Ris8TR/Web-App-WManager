@@ -93,8 +93,6 @@ export class InterestAreaService {
       'multipart/form-data'
     ];
 
-    console.log('Authorization Header:', headers.get('Authorization'));
-    console.log('Accept Header:', headers.get('Accept'));
     const formData = new FormData();
     formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' })); // Assuming data is JSON
     formData.append('file', file!); // Assuming file is a Blob or File object
@@ -347,9 +345,10 @@ export class InterestAreaService {
       headers = headers.set('Accept', httpHeaderAcceptSelected);
     }
 
-    // to determine the Content-Type header
     const consumes: string[] = [
+      'multipart/form-data'
     ];
+
 
     return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/${encodeURIComponent(String(interestAreaId))}/latest-sensor-data/${encodeURIComponent(String(token))}`,
       {
@@ -361,58 +360,37 @@ export class InterestAreaService {
     );
   }
 
-  /**
-   *
-   *
-   * @param body
-   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-   * @param reportProgress flag to report request and response progress.
-   */
-  public updateInterestArea(body: InterestAreaDto, observe?: 'body', reportProgress?: boolean): Observable<InterestAreaDto>;
-  public updateInterestArea(body: InterestAreaDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestAreaDto>>;
-  public updateInterestArea(body: InterestAreaDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestAreaDto>>;
-  public updateInterestArea(body: InterestAreaDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
-    if (body === null || body === undefined) {
+
+  public updateInterestArea(data: InterestAreaDto, file?: Blob, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+
+    if (data === null || data === undefined) {
       throw new Error('Required parameter body was null or undefined when calling updateInterestArea.');
     }
 
     let headers = this.defaultHeaders;
 
-    // authentication (Bearer Authentication) required
-    if (this.configuration.accessToken) {
-      const accessToken = typeof this.configuration.accessToken === 'function'
-        ? this.configuration.accessToken()
-        : this.configuration.accessToken;
-      headers = headers.set('Authorization', 'Bearer ' + accessToken);
-    }
-    // to determine the Accept header
-    let httpHeaderAccepts: string[] = [
-      '*/*'
-    ];
+    // Set headers for Accept (no need to manually set Content-Type for multipart requests)
+    let httpHeaderAccepts: string[] = ['*/*'];
     const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
       headers = headers.set('Accept', httpHeaderAcceptSelected);
     }
 
-    // to determine the Content-Type header
-    const consumes: string[] = [
-      'application/json'
-    ];
-    const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
-    if (httpContentTypeSelected != undefined) {
-      headers = headers.set('Content-Type', httpContentTypeSelected);
+    // FormData is used to send both JSON data and a file
+    const formData = new FormData();
+    formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' })); // JSON data
+    if (file) {
+      formData.append('file', file); // File data
     }
 
-    return this.httpClient.request<InterestAreaDto>('put',`${this.basePath}/v1/interestArea/update`,
-      {
-        body: body,
-        withCredentials: this.configuration.withCredentials,
-        headers: headers,
-        observe: observe,
-        reportProgress: reportProgress
-      }
-    );
+    // Post request with FormData (don't manually set Content-Type for multipart)
+    return this.httpClient.put<InterestAreaDto>(`${this.basePath}/v1/interestArea/update`, formData, {
+      withCredentials: this.configuration.withCredentials,
+      headers: headers,
+      observe: observe,
+      reportProgress: reportProgress
+    });
   }
 
 }

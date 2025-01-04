@@ -4,7 +4,7 @@ import { RouterLink, RouterOutlet } from '@angular/router';
 import {} from '@angular/common/http';
 import { MatButton } from '@angular/material/button';
 import { ToolbarComponent } from './components/elements/toolbar/toolbar.component';
-import { MapComponent } from './components/elements/map/observations/map.component';
+import { MapComponent } from './components/elements/map/publicMap/map.component';
 
 
 @Component({

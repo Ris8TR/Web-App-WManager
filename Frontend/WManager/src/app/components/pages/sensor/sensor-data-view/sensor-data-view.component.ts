@@ -27,6 +27,7 @@ export class SensorDataViewComponent implements OnInit {
 
   token = "";
   sensorList: SensorDto[] = [];
+  tempPassword: any;
 
   constructor(
     private sensorService: SensorService,

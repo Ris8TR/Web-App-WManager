@@ -186,7 +186,6 @@ public class UserService {
 
                 entityBuilder.addTextBody("data", objectMapper.writeValueAsString(interestAreaDto), ContentType.APPLICATION_JSON);
 
-                System.out.println(interestAreaDto.toString());
 
                 ClassLoader classLoader = getClass().getClassLoader();
                 URL resourceUrl = classLoader.getResource("shape");

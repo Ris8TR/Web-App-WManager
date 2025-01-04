@@ -110,6 +110,54 @@ export class SensorDataService {
         );
     }
 
+  /**
+   *
+   *
+   * @param interestAreaId
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getLastPublicSensorDataByInterestAreaId(interestAreaId: string, observe?: 'body', reportProgress?: boolean): Observable<SensorDataInterestAreaDto>;
+  public getLastPublicSensorDataByInterestAreaId(interestAreaId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorDataInterestAreaDto>>;
+  public getLastPublicSensorDataByInterestAreaId(interestAreaId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorDataInterestAreaDto>>;
+  public getLastPublicSensorDataByInterestAreaId(interestAreaId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (interestAreaId === null || interestAreaId === undefined) {
+      throw new Error('Required parameter interestAreaId was null or undefined when calling getLastPublicSensorDataByInterestAreaId.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<SensorDataInterestAreaDto>('get',`${this.basePath}/v1/SensorData/public/top-by-interestAreaId/${encodeURIComponent(String(interestAreaId))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
     /**
      *
      *

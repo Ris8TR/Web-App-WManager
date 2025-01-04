@@ -21,7 +21,7 @@ public interface InterestAreaService {
 
     List<InterestAreaDto> getInterestAreasByUserId(String userId);
 
-    InterestAreaDto update(InterestAreaDto InterestAreaDto);
+    InterestAreaDto update(InterestAreaDto InterestAreaDto, MultipartFile file) throws IOException;
 
     void deleteInterestArea(ObjectId id);
 }

@@ -36,8 +36,7 @@ public class InterestAreaController {
 
     @PostMapping(value = "/interestArea", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<InterestAreaDto> createInterestArea(HttpServletRequest request ,@RequestPart("data") NewInterestAreaDto data, @RequestPart(value = "file" , required = false) MultipartFile file) throws IOException {
-        System.out.println("sdad");
-        System.out.println(data);
+
         InterestAreaDto savedInterestArea = interestAreaService.save(data, file);
         return ResponseEntity.ok(savedInterestArea);
     }
@@ -73,12 +72,13 @@ public class InterestAreaController {
         return ResponseEntity.ok(interestAreas);
     }
 
-    @SecurityRequirement(name="Bearer Authentication")
+    @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/interestArea/update")
-    public ResponseEntity<InterestAreaDto> updateInterestArea(HttpServletRequest request , @RequestBody InterestAreaDto interestAreaDto) {
+    public ResponseEntity<InterestAreaDto> updateInterestArea(HttpServletRequest request, @RequestPart(value = "data") InterestAreaDto data,@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(interestAreaService.update(interestAreaDto));
+        return ResponseEntity.ok(interestAreaService.update(data, file));
     }
+
 
     @SecurityRequirement(name="Bearer Authentication")
     @DeleteMapping("/interestArea/{id}")

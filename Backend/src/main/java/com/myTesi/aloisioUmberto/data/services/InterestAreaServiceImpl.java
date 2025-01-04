@@ -163,7 +163,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
     @Override
-    public InterestAreaDto update(InterestAreaDto interestAreaDto) {
+    public InterestAreaDto update(InterestAreaDto interestAreaDto, MultipartFile file) throws IOException {
         String userId = isValidToken(interestAreaDto.getToken());
         assert userId != null;
         InterestArea interestArea = interestAreaRepository.findById(interestAreaDto.getId()).orElse(null);
@@ -177,7 +177,11 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         interestArea.setName(interestAreaDto.getName());
         interestArea.setDescription(interestAreaDto.getDescription());
         interestArea.setIsPublic(interestAreaDto.getIsPublic());
-        System.out.println(interestArea);
+        if (file != null) {
+            File convertedFile = convertMultipartFileToFile(file);
+            interestArea.setGeometry(extractGeometryFromShapefile(convertedFile));
+            convertedFile.delete();
+        }
         interestAreaRepository.save(interestArea);
 
         return interestAreaDto;

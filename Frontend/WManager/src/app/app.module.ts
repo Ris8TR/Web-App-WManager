@@ -12,12 +12,17 @@ import {ResetComponent} from "./components/pages/auth/reset/reset.component";
 import {SensorService} from "./service/sensor.service";
 import {routes} from "./app.routes";
 import {RouterModule} from "@angular/router";
+import {InterestAreaDataService} from "./service/InterestAreaDataService";
+import {
+  DeleteConfirmationDialogComponent
+} from "./components/actions/delete-confirmation-dialog/delete-confirmation-dialog.component";
+import {MatDialogModule} from "@angular/material/dialog";
 
 
 @NgModule({
   declarations: [],
-  imports: [BrowserModule, FormsModule,AppComponent,ToolbarComponent,LoginComponent,SigninComponent, ResetComponent,ToolbarComponent, RouterModule.forRoot(routes, { useHash: false }) ],
-  providers: [AuthService,UserService,SensorService, ToolbarComponent],
-  bootstrap: []
+  imports: [BrowserModule, FormsModule, AppComponent, ToolbarComponent, LoginComponent, SigninComponent, ResetComponent, ToolbarComponent, MatDialogModule, RouterModule.forRoot(routes, {useHash: false}), DeleteConfirmationDialogComponent],
+  providers: [AuthService,InterestAreaDataService,UserService,SensorService, ToolbarComponent],
+  bootstrap: [],
 })
 export class AppModule { }
