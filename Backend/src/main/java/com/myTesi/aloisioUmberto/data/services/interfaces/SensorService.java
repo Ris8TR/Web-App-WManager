@@ -4,6 +4,7 @@ import com.myTesi.aloisioUmberto.dto.New.NewSensorDto;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.SensorAndAreas;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
+import org.bson.types.ObjectId;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -31,4 +32,5 @@ public interface SensorService {
     List<SensorDto> findByInterestAreaId(String interestAreaId, String token);
     SensorDto update(SensorDto sensorDto);
 
+    void deleteSensorById(ObjectId id, String token);
 }

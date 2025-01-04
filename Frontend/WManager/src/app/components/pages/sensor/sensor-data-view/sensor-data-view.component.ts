@@ -9,6 +9,11 @@ import {CommonModule} from "@angular/common";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 import {Router, RouterOutlet} from "@angular/router";
 import {UserComponent} from "../../user/userMenu/user.component";
+import {InterestAreaDto} from "../../../../model/interestAreaDto";
+import {
+  DeleteConfirmationDialogComponent
+} from "../../../actions/delete-confirmation-dialog/delete-confirmation-dialog.component";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-sensor-data-view',
@@ -34,7 +39,9 @@ export class SensorDataViewComponent implements OnInit {
     private snackBar: MatSnackBar,
     private toolbar: ToolbarComponent,
     private cookieService: CookieService,
-    private router:Router
+    private router:Router,
+    private dialog: MatDialog
+
   ) { }
 
   ngOnInit() {
@@ -112,6 +119,26 @@ console.log(response)        },
   redirectToInterestAreaDataView() {
     this.router.navigate(['/Show-Areas']);
 
+  }
+
+  delete(sensorDto: SensorDto) {
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent);
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      if (result) {
+        // @ts-ignore
+        this.sensorService.deleteSensor(sensorDto.id).subscribe(() => {
+            sensorDto.isEditing = false;
+            this.loadData();
+            this.snackBar.open("Sensore eliminato", 'OK');
+          },
+            (error: any) => {
+            this.snackBar.open("Errore durante l'eliminazione.", 'OK');
+            console.log(error);
+          });
+      } else {
+        this.snackBar.open("Eliminazione annullata", 'OK');
+      }
+    });
   }
 }
 

@@ -16,27 +16,28 @@
         <th>Public?</th>
         <th>Interest Area ID</th>
         <th>Actions</th>
+        <th>Delete</th>
       </tr>
       </thead>
       <tbody>
       <tr *ngFor="let sensor of sensorList; let i = index">
         <td *ngIf="!sensor.isEditing">{{ sensor.companyName }}</td>
         <td *ngIf="sensor.isEditing">
-          <input [(ngModel)]="sensor.companyName" />
+          <input  type="text" class="form-control"  [(ngModel)]="sensor.companyName" />
         </td>
 
         <td>{{ sensor.id }}</td>
 
         <td *ngIf="!sensor.isEditing">{{ sensor.description }}</td>
         <td *ngIf="sensor.isEditing">
-          <input [(ngModel)]="sensor.description" />
+          <input  type="text" class="form-control"  [(ngModel)]="sensor.description" />
         </td>
 
         <td>{{ sensor.payloadType }}</td>
 
         <td *ngIf="!sensor.isEditing">{{ sensor.type }}</td>
         <td *ngIf="sensor.isEditing">
-          <input [(ngModel)]="sensor.type" />
+          <input  type="text" class="form-control"  [(ngModel)]="sensor.type" />
         </td>
 
         <td *ngIf="!sensor.isEditing"></td>
@@ -44,7 +45,7 @@
           <input
             [(ngModel)]="tempPassword"
             (ngModelChange)="sensor.password = tempPassword"
-            [type]="'password'"
+            [type]="'password'"  type="text" class="form-control"
             placeholder="Enter new password"
           />
         </td>
@@ -52,12 +53,12 @@
 
         <td *ngIf="sensor.isEditing">
           <mat-radio-group [(ngModel)]="sensor.isPublic">
-            <mat-radio-button [value]="true">Sì</mat-radio-button>
+            <mat-radio-button [value]="true">Yes</mat-radio-button>
             <mat-radio-button [value]="false">No</mat-radio-button>
           </mat-radio-group>
         </td>
         <td *ngIf="!sensor.isEditing">
-          <ng-container *ngIf="sensor.isPublic">Sì</ng-container>
+          <ng-container *ngIf="sensor.isPublic">Yes</ng-container>
           <ng-container *ngIf="!sensor.isPublic">No</ng-container>
         </td>
 
@@ -65,10 +66,13 @@
 
 
         <td>
-          <button *ngIf="!sensor.isEditing" (click)="startEdit(sensor)">Modifica</button>
-          <button *ngIf="sensor.isEditing" (click)="saveEdit(sensor)">Salva</button>
-          <button *ngIf="sensor.isEditing" (click)="cancelEdit(sensor)">Annulla</button>
+          <button style="margin: 4%" class="btn btn-primary" *ngIf="!sensor.isEditing" (click)="startEdit(sensor)">Modify</button>
+          <button style="margin: 4%" class="btn btn-primary" *ngIf="sensor.isEditing" (click)="saveEdit(sensor)">Save</button>
+          <button style="margin: 4%" class="btn btn-primary" *ngIf="sensor.isEditing" (click)="cancelEdit(sensor)">Cancel</button>
         </td>
+      <td>
+        <button  style="margin: 4%; background-color: darkred;  border-color: darkred" class="btn btn-primary" (click)="delete(sensor)">Delete</button>
+      </td>
       </tr>
       </tbody>
     </table>

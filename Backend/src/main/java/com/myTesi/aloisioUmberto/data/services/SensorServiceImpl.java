@@ -25,6 +25,7 @@ import com.myTesi.aloisioUmberto.dto.UserDto;
 import com.myTesi.aloisioUmberto.dto.enumetation.PayloadType;
 import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -428,6 +429,16 @@ public class SensorServiceImpl implements SensorService {
 
         Sensor updatedSensor = sensorRepository.save(existingSensor);
         return modelMapper.map(updatedSensor, SensorDto.class);
+    }
+
+    @Override
+    public void deleteSensorById(ObjectId id, String token) {
+        final String userId = isValidToken(token);
+        assert userId != null;
+        Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(String.valueOf(id), userId);
+        assert sensor.isPresent();
+        sensorRepository.deleteById(String.valueOf(sensor.get().getId()));
+
     }
 
 

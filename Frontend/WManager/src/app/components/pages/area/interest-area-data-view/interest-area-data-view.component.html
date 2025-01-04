@@ -24,23 +24,27 @@
         <!-- Name -->
         <td *ngIf="!interestArea.isEditing">{{ interestArea.name }}</td>
         <td *ngIf="interestArea.isEditing">
-          <input [(ngModel)]="interestArea.name" />
+          <input  type="text" class="form-control"  [(ngModel)]="interestArea.name" />
         </td>
 
         <!-- Description -->
         <td *ngIf="!interestArea.isEditing">{{ interestArea.description }}</td>
         <td *ngIf="interestArea.isEditing">
-          <input [(ngModel)]="interestArea.description" />
+          <input  type="text" class="form-control"  [(ngModel)]="interestArea.description" />
         </td>
 
         <!-- Type -->
         <td *ngIf="!interestArea.isEditing">{{ interestArea.type }}</td>
         <td *ngIf="interestArea.isEditing">
-          <input [(ngModel)]="interestArea.type" />
+          <input  type="text" class="form-control"  [(ngModel)]="interestArea.type" />
         </td>
 
         <!-- isPublic -->
-        <td *ngIf="!interestArea.isEditing">{{ interestArea.isPublic }}</td>
+
+        <td *ngIf="!interestArea.isEditing">
+          <ng-container *ngIf="interestArea.isPublic">Yes</ng-container>
+          <ng-container *ngIf="!interestArea.isPublic">No</ng-container>
+        </td>
         <td *ngIf="interestArea.isEditing">
           <mat-radio-group [(ngModel)]="interestArea.isPublic">
             <mat-radio-button [value]="true">Yes</mat-radio-button>
@@ -56,13 +60,13 @@
 
         <!-- Actions -->
         <td>
-          <button *ngIf="!interestArea.isEditing" (click)="startEdit(interestArea)">Modify</button>
-          <button *ngIf="interestArea.isEditing" (click)="saveEdit(interestArea)">Save</button>
-          <button *ngIf="interestArea.isEditing" (click)="cancelEdit(interestArea)">Cancel</button>
+          <button  style="margin: 4%" class="btn btn-primary" *ngIf="!interestArea.isEditing" (click)="startEdit(interestArea)">Modify</button>
+          <button style="margin: 4%" class="btn btn-primary" *ngIf="interestArea.isEditing" (click)="saveEdit(interestArea)">Save</button>
+          <button  style="margin: 4%" class="btn btn-primary" *ngIf="interestArea.isEditing" (click)="cancelEdit(interestArea)">Cancel</button>
         </td>
 
         <td>
-          <button (click)="delete(interestArea)">Delete</button>
+          <button  style="margin: 4%; background-color: darkred;  border-color: darkred" class="btn btn-primary" (click)="delete(interestArea)">Delete</button>
         </td>
       </tr>
       </tbody>

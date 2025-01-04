@@ -24,6 +24,7 @@ import { Configuration }                                     from '../configurat
 import {ToolbarComponent} from "../components/elements/toolbar/toolbar.component";
 import {SensorAndAreas} from "../model/sensorAndAreas";
 import {CookieService} from "ngx-cookie-service";
+import {ObjectId} from "../model/objectId";
 
 
 @Injectable()
@@ -654,6 +655,55 @@ export class SensorService {
     return this.httpClient.request<SensorDto>('put',`${this.basePath}/v1/sensors/update`,
       {
         body: body,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param id
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public deleteSensor(id: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<any>;
+  public deleteSensor(id: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+  public deleteSensor(id: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+  public deleteSensor(id: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (id === null || id === undefined) {
+      throw new Error('Required parameter id was null or undefined when calling deleteSensor.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (bearerAuth) required
+    if (this.cookieService.get("token")) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.cookieService.get("token")
+        : this.cookieService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<any>('delete',`${this.basePath}/v1/sensors/${encodeURIComponent(String(id))}`,
+      {
         withCredentials: this.configuration.withCredentials,
         headers: headers,
         observe: observe,

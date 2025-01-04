@@ -23,5 +23,5 @@ public interface InterestAreaService {
 
     InterestAreaDto update(InterestAreaDto InterestAreaDto, MultipartFile file) throws IOException;
 
-    void deleteInterestArea(ObjectId id);
+    void deleteInterestArea(ObjectId id, String token);
 }

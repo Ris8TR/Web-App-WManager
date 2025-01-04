@@ -194,8 +194,12 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
     @Override
-    public void deleteInterestArea(ObjectId id) {
-        interestAreaRepository.deleteById(id.toString());
+    public void deleteInterestArea(ObjectId id, String token) {
+        final String userId = isValidToken(token);
+        assert userId != null;
+        Optional<InterestArea> area = interestAreaRepository.findByIdAndUserId(String.valueOf(id), userId);
+        assert area.isPresent();
+        interestAreaRepository.deleteById(String.valueOf(area.get().getId()));
     }
 
     public List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId, String token) {

@@ -84,7 +84,7 @@ public class InterestAreaController {
     @DeleteMapping("/interestArea/{id}")
     public ResponseEntity<Void> deleteInterestArea(HttpServletRequest request , @PathVariable ObjectId id) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        interestAreaService.deleteInterestArea(id);
+        interestAreaService.deleteInterestArea(id, token);
         return ResponseEntity.noContent().build();
     }
 }

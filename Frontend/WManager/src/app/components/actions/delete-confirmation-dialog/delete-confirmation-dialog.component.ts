@@ -15,7 +15,7 @@ import {MatButton} from "@angular/material/button";
   template: `
     <h2 mat-dialog-title>Confirm Deletion</h2>
     <mat-dialog-content>
-      Are you sure you want to delete this area?
+      Are you sure you want to delete this?
     </mat-dialog-content>
     <mat-dialog-actions>
       <button mat-button (click)="onCancel()">Cancel</button>

@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,6 +55,15 @@ public class SensorController {
     public ResponseEntity<SensorDto> updateSensor(HttpServletRequest request , @RequestBody SensorDto sensorDto) {
         return ResponseEntity.ok(sensorService.update(sensorDto));
     }
+
+    @SecurityRequirement(name="Bearer Authentication")
+    @DeleteMapping("/sensors/{id}")
+    public ResponseEntity<Void> deleteSensor(HttpServletRequest request , @PathVariable ObjectId id) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
+        sensorService.deleteSensorById(id, token);
+        return ResponseEntity.noContent().build();
+    }
+
 
 
 
