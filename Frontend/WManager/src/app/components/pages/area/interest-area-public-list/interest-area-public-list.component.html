@@ -1,4 +1,4 @@
-<div class="interest-area-container">
+<div class="interest-area-container" *ngIf="interestAreaList.length > 0; else noAreas">
   <div *ngFor="let area of interestAreaList" class="interest-area-item" (click)="redirect(area)">
     <!-- Thumbnail -->
     <div class="thumbnail">
@@ -15,3 +15,10 @@
     </div>
   </div>
 </div>
+
+<ng-template #noAreas>
+  <div class="no-areas-message">
+    <h2>No public areas found</h2>
+    <p>It seems like there are no public areas available at the moment.</p>
+  </div>
+</ng-template>
