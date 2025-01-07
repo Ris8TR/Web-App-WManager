@@ -13,6 +13,7 @@
         <th>Type</th>
         <th>Public?</th>
         <th>Geometry</th>
+        <th>Preview</th>
         <th>Actions</th>
         <th>Delete</th>
       </tr>
@@ -52,11 +53,17 @@
           </mat-radio-group>
         </td>
 
-        <!-- Type -->
+        <!-- Geometry -->
         <td *ngIf="!interestArea.isEditing"></td>
         <td *ngIf="interestArea.isEditing">
-          <input type="file" id="file" name="file"  (change)="caricaFile($event)">
+          <input type="file" id="geometry" name="file" accept=".shp,.shx"  (change)="loadGeometry($event)">
         </td>
+
+        <td *ngIf="!interestArea.isEditing"></td>
+        <td *ngIf="interestArea.isEditing">
+          <input type="file" id="image" name="file" itemtype="image" accept=".jpg,.jpeg,.png" (change)="loadPreview($event)">
+        </td>
+
 
         <!-- Actions -->
         <td>

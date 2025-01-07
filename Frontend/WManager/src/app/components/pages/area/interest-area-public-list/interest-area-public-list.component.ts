@@ -9,6 +9,7 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {InterestAreaDto} from "../../../../model/interestAreaDto";
 import {NgForOf} from "@angular/common";
 import {InterestAreaDataService} from "../../../../service/InterestAreaDataService";
+import {ImageService} from "../../../../service/image.service";
 
 @Component({
   selector: 'app-interest-area-public-list',
@@ -21,6 +22,7 @@ import {InterestAreaDataService} from "../../../../service/InterestAreaDataServi
 })
 export class InterestAreaPublicListComponent implements OnInit {
   protected interestAreaList!: InterestAreaDto[];
+  protected image : string = "assets/default-thumbnail.jpg"
 
   constructor(
     private interestAreaService: InterestAreaService,

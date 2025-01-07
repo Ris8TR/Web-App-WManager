@@ -15,6 +15,7 @@ public class InterestAreaDto {
         private String name; // Nome dell'area di interesse
         private Boolean isPublic; // Nome dell'area di interesse
         private String geometry; // Geometria dell'area
+        private String preview; // Preview img dell'area
         private String Type; // tipo dell'area
         private String description; // descrizione dell'area
 

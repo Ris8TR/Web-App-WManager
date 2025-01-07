@@ -9,7 +9,11 @@ import java.io.IOException;
 @Service
 public interface ImageService {
 
-    public String insertInsertionImage(MultipartFile img, String userId)throws IOException;
+    public String processImage(MultipartFile img, String userId, Integer act)throws IOException;
 
     public Resource getImage(String UserId, String imagePath);
+
+    Resource getSensorImage(String userId, String imagePath);
+
+    Resource getAreaImage(String userId );
 }

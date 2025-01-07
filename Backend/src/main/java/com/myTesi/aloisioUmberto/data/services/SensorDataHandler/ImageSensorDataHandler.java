@@ -20,7 +20,7 @@ public class ImageSensorDataHandler implements SensorDataHandler {
     public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException {
         data.setPayloadType("image");
         System.out.println("dsdsw");
-        data.setPayload(imageService.insertInsertionImage(file,newSensorDataDTO.getSensorId()));
+        data.setPayload(imageService.processImage(file,newSensorDataDTO.getSensorId(), 1));
     }
 
 

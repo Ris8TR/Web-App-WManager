@@ -31,6 +31,10 @@ public class InterestArea {
     @Field
     private String geometry; // Geometria dell'area
 
+    @Field
+    private String preview; // Preview dell'area
+
+
     @NotNull
     @Field
     private String description; // Descrizione dell'area

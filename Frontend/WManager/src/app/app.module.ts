@@ -17,12 +17,13 @@ import {
   DeleteConfirmationDialogComponent
 } from "./components/actions/delete-confirmation-dialog/delete-confirmation-dialog.component";
 import {MatDialogModule} from "@angular/material/dialog";
+import {ImageService} from "./service/image.service";
 
 
 @NgModule({
   declarations: [],
   imports: [BrowserModule, FormsModule, AppComponent, ToolbarComponent, LoginComponent, SigninComponent, ResetComponent, ToolbarComponent, MatDialogModule, RouterModule.forRoot(routes, {useHash: false}), DeleteConfirmationDialogComponent],
-  providers: [AuthService,InterestAreaDataService,UserService,SensorService, ToolbarComponent],
+  providers: [AuthService,InterestAreaDataService,UserService,SensorService, ImageService, ToolbarComponent],
   bootstrap: [],
 })
 export class AppModule { }

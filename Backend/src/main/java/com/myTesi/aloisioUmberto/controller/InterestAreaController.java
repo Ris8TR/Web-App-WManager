@@ -74,9 +74,9 @@ public class InterestAreaController {
 
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/interestArea/update")
-    public ResponseEntity<InterestAreaDto> updateInterestArea(HttpServletRequest request, @RequestPart(value = "data") InterestAreaDto data,@RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+    public ResponseEntity<InterestAreaDto> updateInterestArea(HttpServletRequest request, @RequestPart(value = "data") InterestAreaDto data,@RequestPart(value = "geometry", required = false) MultipartFile geometry, @RequestPart(value = "preview", required = false) MultipartFile preview) throws IOException {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(interestAreaService.update(data, file));
+        return ResponseEntity.ok(interestAreaService.update(data, geometry, preview));
     }
 
 

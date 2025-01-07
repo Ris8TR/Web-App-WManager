@@ -16,8 +16,9 @@ export interface InterestAreaDto {
     name?: string;
     isPublic?: boolean;
     geometry?: string;
+    preview?: string;
     description?: string;
     type?: string;
-  token?: string;
-  isEditing?: boolean;
+    token?: string;
+    isEditing?: boolean;
 }

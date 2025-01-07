@@ -6,10 +6,12 @@ import com.myTesi.aloisioUmberto.core.modelMapper.InterestAreaMapper;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorDataMapper;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
+import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
+import com.myTesi.aloisioUmberto.data.services.interfaces.ImageService;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
@@ -53,6 +55,9 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     private final UserRepository userRepository;
     private final InterestAreaMapper interestAreaMapper = InterestAreaMapper.INSTANCE;
     private final SensorDataMapper sensorDataMapper = SensorDataMapper.INSTANCE;
+    private final SensorRepository sensorRepository;
+    private final SensorServiceImpl sensorServiceImpl;
+    private final ImageService imageService;
 
     public InterestAreaDto save(NewInterestAreaDto newInterestAreaDto, MultipartFile file) throws IOException {
 
@@ -163,7 +168,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
     @Override
-    public InterestAreaDto update(InterestAreaDto interestAreaDto, MultipartFile file) throws IOException {
+    public InterestAreaDto update(InterestAreaDto interestAreaDto, MultipartFile geometry, MultipartFile preview) throws IOException {
         String userId = isValidToken(interestAreaDto.getToken());
         assert userId != null;
         InterestArea interestArea = interestAreaRepository.findById(interestAreaDto.getId()).orElse(null);
@@ -177,11 +182,19 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         interestArea.setName(interestAreaDto.getName());
         interestArea.setDescription(interestAreaDto.getDescription());
         interestArea.setIsPublic(interestAreaDto.getIsPublic());
-        if (file != null) {
-            File convertedFile = convertMultipartFileToFile(file);
+        if (geometry != null) {
+            File convertedFile = convertMultipartFileToFile(geometry);
             interestArea.setGeometry(extractGeometryFromShapefile(convertedFile));
             convertedFile.delete();
         }
+        if (preview != null){
+            interestArea.setPreview(imageService.processImage(preview, String.valueOf(interestArea.getId()),2));
+        }
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println(" ");
+        System.out.println(interestArea);
         interestAreaRepository.save(interestArea);
 
         return interestAreaDto;

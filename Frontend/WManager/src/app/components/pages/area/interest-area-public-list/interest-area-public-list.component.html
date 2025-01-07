@@ -2,10 +2,7 @@
   <div *ngFor="let area of interestAreaList" class="interest-area-item" (click)="redirect(area)">
     <!-- Thumbnail -->
     <div class="thumbnail">
-      <img
-        [src]="'assets/default-thumbnail.jpg'"
-        alt="Thumbnail"
-      />
+      <img [src]=" area?.preview ? 'http://localhost:8010/v1/images/area/'+ area.id  : 'assets/default-thumbnail.jpg'" alt="Thumbnail" />
     </div>
     <!-- Info Section -->
     <div class="info">

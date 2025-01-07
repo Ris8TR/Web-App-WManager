@@ -32,7 +32,8 @@ import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 export class InterestAreaDataViewComponent implements  OnInit{
   token = "";
   interestAreaList: InterestAreaDto[] = [];
-  private file: any;
+  private geometryFile: any;
+  private previewFile: any;
 
 
   constructor(
@@ -68,9 +69,7 @@ export class InterestAreaDataViewComponent implements  OnInit{
   saveEdit(interestArea: InterestAreaDto) {
     this.toolbar.refreshToken().then(r => {
       interestArea.token = this.cookieService.get("token");
-      console.log(interestArea)
-      console.log(this.file)
-    this.interestAreaService.updateInterestArea(interestArea, this.file).subscribe(
+    this.interestAreaService.updateInterestArea(interestArea, this.geometryFile, this.previewFile).subscribe(
       () => {
         interestArea.isEditing = false;
         this.toolbar.loadInterestAreas()
@@ -88,11 +87,48 @@ export class InterestAreaDataViewComponent implements  OnInit{
     this.loadData();
   }
 
-  caricaFile(event: any) {
+  loadGeometry(event: any) {
     const fileInput = event.target;
     const files = fileInput.files;
-    this.file = files[0];
+
+    if (files && files.length > 0) {
+      const file = files[0];
+      const allowedTypes = ['image/jpeg', 'image/png'];
+
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Please select a JPG or PNG file.');
+        fileInput.value = '';
+        return;
+      }
+
+      this.geometryFile = file;
+      console.log('Geometry file loaded:', file.name);
+    } else {
+      alert('No file selected. Please select a valid JPG or PNG file.');
+    }
   }
+
+  loadPreview(event: any) {
+    const fileInput = event.target;
+    const files = fileInput.files;
+
+    if (files && files.length > 0) {
+      const file = files[0];
+      const allowedTypes = ['image/jpeg', 'image/png'];
+
+      if (!allowedTypes.includes(file.type)) {
+        alert('Invalid file type. Please select a JPG or PNG file.');
+        fileInput.value = '';
+        return;
+      }
+
+      this.previewFile = file;
+      console.log('Preview file loaded:', file.name);
+    } else {
+      alert('No file selected. Please select a valid JPG or PNG file.');
+    }
+  }
+
 
   delete(interestArea: InterestAreaDto) {
     const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent);

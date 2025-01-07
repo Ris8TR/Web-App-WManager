@@ -362,7 +362,7 @@ export class InterestAreaService {
 
 
 
-  public updateInterestArea(data: InterestAreaDto, file?: Blob, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+  public updateInterestArea(data: InterestAreaDto, geometry?: Blob,  preview?: Blob,  observe: any = 'body', reportProgress: boolean = false): Observable<any> {
 
     if (data === null || data === undefined) {
       throw new Error('Required parameter body was null or undefined when calling updateInterestArea.');
@@ -380,8 +380,11 @@ export class InterestAreaService {
     // FormData is used to send both JSON data and a file
     const formData = new FormData();
     formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' })); // JSON data
-    if (file) {
-      formData.append('file', file); // File data
+    if (geometry) {
+      formData.append('geometry', geometry); // Geometry data
+    }
+    if (preview) {
+      formData.append('preview', preview); // Preview data
     }
 
     // Post request with FormData (don't manually set Content-Type for multipart)
