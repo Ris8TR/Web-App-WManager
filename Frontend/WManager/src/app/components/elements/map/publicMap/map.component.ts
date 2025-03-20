@@ -83,6 +83,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     {label: '40', color: '#940056'},
     {label: '42', color: '#730073'}
   ];
+
+  radioOptions = [
+    { value: false, label: 'Latest' },
+    { value: true, label: 'Real-Time' }
+
+  ];
+
   private cachedData: Map<string, any> = new Map(); // Cache for sensor data
   private markerClusterGroup!: L.MarkerClusterGroup;
   private sensorCountPerMarker: { [key: string]: number } = {};
