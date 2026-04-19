@@ -260,14 +260,17 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> getAllSensor() {
-        List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
-        List<SensorDto> sensorDtoList = new ArrayList<>();
-        System.out.println(sensorDtoList);
+        // 1. Registra il tempo di inizio
+        long startTime = System.currentTimeMillis();
 
+        List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
+        // Conteggio iniziale dei sensori pubblici
+        int totalPublicSensors = sensors.size();
+
+        List<SensorDto> sensorDtoList = new ArrayList<>();
 
         for (Sensor sensor : sensors) {
             Optional<SensorData> sensorDataOptional = sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()));
-
 
             if (sensorDataOptional.isPresent()) {
                 SensorData sensorData = sensorDataOptional.get();
@@ -284,9 +287,24 @@ public class SensorServiceImpl implements SensorService {
                 sensorDto.setIsPublic(sensor.getIsPublic());
                 sensorDtoList.add(sensorDto);
             } else {
-               System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
+                System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
             }
         }
+
+        // 2. Registra il tempo di fine
+        long endTime = System.currentTimeMillis();
+
+        // 3. Calcola la differenza e ottieni il numero di record finali
+        long duration = endTime - startTime;
+        int finalCount = sensorDtoList.size();
+
+        // 4. Stampa i risultati
+        System.out.println("------------------------------------------");
+        System.out.println("REPORT ESECUZIONE getAllSensor:");
+        System.out.println("- Tempo impiegato: " + duration + " ms");
+        System.out.println("- Sensori pubblici totali trovati: " + totalPublicSensors);
+        System.out.println("- Record (DTO) restituiti con dati: " + finalCount);
+        System.out.println("------------------------------------------");
 
         return sensorDtoList;
     }

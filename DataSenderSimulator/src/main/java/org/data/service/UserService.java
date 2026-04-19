@@ -7,6 +7,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.content.ByteArrayBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -18,6 +19,7 @@ import org.data.dto.NewUserDto;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -35,6 +37,10 @@ import org.apache.http.entity.mime.MultipartEntityBuilder;
 
 import java.io.File;
 import java.util.Random;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.stream.Collectors;
+
 public class UserService {
 
     private static final String USER_CREATION_URL = "http://192.168.15.34:8010/v1/users";
@@ -186,24 +192,57 @@ public class UserService {
 
                 entityBuilder.addTextBody("data", objectMapper.writeValueAsString(interestAreaDto), ContentType.APPLICATION_JSON);
 
-
                 ClassLoader classLoader = getClass().getClassLoader();
                 URL resourceUrl = classLoader.getResource("shape");
 
                 if (resourceUrl != null) {
-                    File directory = new File(resourceUrl.getFile());
-                    File[] shapeFiles = directory.listFiles();
+                    // Caso 1: Esecuzione da file system (IDE)
+                    if (resourceUrl.getProtocol().equals("file")) {
+                        File directory = new File(resourceUrl.getFile());
+                        File[] shapeFiles = directory.listFiles();
 
-                    if (shapeFiles != null && shapeFiles.length > 0) {
-                        File file = shapeFiles[random.nextInt(shapeFiles.length)];
-                        entityBuilder.addPart("file", new FileBody(file, ContentType.DEFAULT_BINARY));
-                    } else {
-                        throw new IllegalStateException("No files found in the 'shape' directory.");
+                        if (shapeFiles != null && shapeFiles.length > 0) {
+                            File file = shapeFiles[random.nextInt(shapeFiles.length)];
+                            entityBuilder.addPart("file", new FileBody(file, ContentType.DEFAULT_BINARY));
+                        } else {
+                            throw new IllegalStateException("No files found in the 'shape' directory.");
+                        }
                     }
+                    // Caso 2: Esecuzione da JAR
+                    else if (resourceUrl.getProtocol().equals("jar")) {
+                        try {
+                            // Ottieni il percorso dentro il JAR
+                            String jarPath = resourceUrl.getPath().substring(5, resourceUrl.getPath().indexOf("!"));
+                            String resourcePath = resourceUrl.getPath().substring(resourceUrl.getPath().indexOf("!") + 2);
 
+                            try (JarFile jarFile = new JarFile(jarPath)) {
+                                // Lista tutti i file nella directory shape dentro il JAR
+                                List<JarEntry> shapeEntries = jarFile.stream()
+                                        .filter(entry -> entry.getName().startsWith(resourcePath + "/") && !entry.isDirectory())
+                                        .collect(Collectors.toList());
+
+                                if (!shapeEntries.isEmpty()) {
+                                    // Scegli un file random
+                                    JarEntry selectedEntry = shapeEntries.get(random.nextInt(shapeEntries.size()));
+                                    try (InputStream is = jarFile.getInputStream(selectedEntry)) {
+                                        byte[] content = is.readAllBytes();
+                                        // Usa ByteArrayBody invece di FileBody
+                                        entityBuilder.addPart("file", new ByteArrayBody(content,
+                                                ContentType.DEFAULT_BINARY,
+                                                selectedEntry.getName().substring(selectedEntry.getName().lastIndexOf("/") + 1)));
+                                    }
+                                } else {
+                                    throw new IllegalStateException("No files found in the 'shape' directory inside JAR.");
+                                }
+                            }
+                        } catch (IOException e) {
+                            throw new IllegalStateException("Failed to read shape directory from JAR", e);
+                        }
+                    }
                 } else {
                     throw new IllegalStateException("Directory 'shape' not found in resources.");
                 }
+
 
                 HttpEntity entity = entityBuilder.build();
                 HttpPost post = new HttpPost(INTEREST_AREA_URL);

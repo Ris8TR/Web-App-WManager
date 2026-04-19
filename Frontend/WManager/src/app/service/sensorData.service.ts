@@ -898,7 +898,7 @@ export class SensorDataService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<SensorDataInterestAreaDto>('post',`${this.basePath}/v1/SensorData/public/top`,
+        return this.httpClient.request<SensorDataInterestAreaDto>('get',`${this.basePath}/v1/SensorData/public/top`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

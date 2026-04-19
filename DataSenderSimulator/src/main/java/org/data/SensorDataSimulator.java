@@ -1,6 +1,7 @@
 package org.data;
 
 
+import lombok.Getter;
 import org.data.dto.InterestAreaDto;
 import org.data.dto.NewSensorDto;
 import org.data.dto.NewUserDto;
@@ -17,8 +18,9 @@ import java.util.concurrent.TimeUnit;
 
 public class SensorDataSimulator {
 
-    private static final int NUM_SENSORS_PER_USER = 10;
-    private static final int NUM_USERS = 5;
+    private static final int NUM_SENSORS_PER_USER = 1000;
+    private static final int NUM_USERS = 10;
+    @Getter
     private static final Map<String, List<NewSensorDto>> userSensorsMap = new HashMap<>();
 
     public static void main(String[] args) {
@@ -70,7 +72,4 @@ public class SensorDataSimulator {
     }
 
 
-    public static Map<String, List<NewSensorDto>> getUserSensorsMap() {
-        return userSensorsMap;
-    }
 }

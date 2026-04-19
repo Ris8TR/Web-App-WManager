@@ -176,9 +176,13 @@
 			<artifactId>jjwt</artifactId>
 			<version> 0.9.1</version>
 		</dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
 
 
-	</dependencies>
+    </dependencies>
 	<repositories>
 	<repository>
 		<id>geo-solutions</id>

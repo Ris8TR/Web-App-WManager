@@ -217,8 +217,34 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorDataInterestAreaDto getTopPublicSensorData() {
+        // 1. Registra il tempo di inizio
+        long startTime = System.currentTimeMillis();
+
+        // Recupero la lista dei sensori pubblici
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
-        return createSensorDataInterestAreaDtoForMultipleSensors(sensors, null, null);
+        int totalPublicSensors = (sensors != null) ? sensors.size() : 0;
+
+        // 2. Elaborazione (passando null come range temporale per avere i record "Top")
+        SensorDataInterestAreaDto result = createSensorDataInterestAreaDtoForMultipleSensors(sensors, null, null);
+
+        // 3. Calcolo statistiche finali
+        long duration = System.currentTimeMillis() - startTime;
+        int dataFoundCount = (result != null && result.getSensorData() != null) ? result.getSensorData().size() : 0;
+
+        // 4. Stampa del Report dettagliato
+        System.out.println("------------------------------------------");
+        System.out.println("REPORT ESECUZIONE (getTopPublicSensorData):");
+        System.out.println("- Tempo impiegato: " + duration + " ms");
+        System.out.println("- Record sensori pubblici analizzati: " + totalPublicSensors);
+        System.out.println("- Record SensorData (Top) ricavati: " + dataFoundCount);
+        System.out.println("");
+        // Specifichiamo che il range è null (prendendo l'ultimo dato disponibile in assoluto)
+        System.out.println("- [QUERY RANGE START]: NULL (No timeframe limit)");
+        System.out.println("- [QUERY RANGE END]  : NULL (No timeframe limit)");
+        System.out.println("- [STRATEGIA]         : Recupero dell'ultimo record disponibile");
+        System.out.println("------------------------------------------");
+
+        return result;
     }
 
     @Override
@@ -232,36 +258,59 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     @Override
-    public SensorDataInterestAreaDto getAllPublicSensorDataIn15Min() {
-        return getAllPublicSensorDataInTimeFrame(-15);
+    public SensorDataInterestAreaDto getAllPublicSensorDataIn15Min() { return getAllPublicSensorDataInTimeFrame(-15);
     }
 
     public SensorDataInterestAreaDto getAllSensorDataBySensorId5Min(String sensorId) {
+        long startTime = System.currentTimeMillis();
+
+        // Calcolo del range temporale
         Date now = new Date();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(now);
+
+        // ATTENZIONE: Qui è impostato a -5. Se i dati sono di 10 minuti fa, non li troverà.
+        // Se vuoi vedere quelli degli ultimi 15, cambia -5 in -15.
         calendar.add(Calendar.MINUTE, -5);
         Date fiveMinutesAgo = calendar.getTime();
 
-        Optional<SensorData> latestSensorData = sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now)
-                .stream()
+        // DEBUG: Verifichiamo cosa stiamo chiedendo al DB
+        System.out.println("--- DEBUG SEARCH ---");
+        System.out.println("Sensor ID: " + sensorId);
+        System.out.println("Cerca da: " + fiveMinutesAgo);
+        System.out.println("Cerca a : " + now);
+
+        // Recuperiamo la lista completa nel range
+        List<SensorData> allDataInRange = sensorDataRepository.findAllBySensorIdAndTimestampBetween(sensorId, fiveMinutesAgo, now);
+
+        System.out.println("Record trovati nel database: " + (allDataInRange != null ? allDataInRange.size() : 0));
+
+        // Cerchiamo il più recente tra quelli trovati
+        Optional<SensorData> latestSensorData = allDataInRange.stream()
                 .max(Comparator.comparing(SensorData::getTimestamp));
 
         List<SensorData> sensorDataList = new ArrayList<>();
         HashSet<String> uniqueKeys = new HashSet<>();
 
-        latestSensorData.ifPresent(data -> {
+        if (latestSensorData.isPresent()) {
+            SensorData data = latestSensorData.get();
+            System.out.println("Dato più recente trovato: " + data.getTimestamp());
             sensorDataList.add(data);
             uniqueKeys.addAll(getSensorKeys(data));
-        });
+        } else {
+            System.out.println("ATTENZIONE: Nessun SensorData trovato nel range degli ultimi 5 minuti.");
+        }
 
         SensorDataInterestAreaDto sensorDataInterestAreaDto = new SensorDataInterestAreaDto();
         sensorDataInterestAreaDto.setSensorData(sensorDataList);
         sensorDataInterestAreaDto.setSensorAreaTypes(uniqueKeys);
 
+        long duration = System.currentTimeMillis() - startTime;
+        System.out.println("Operazione completata in: " + duration + " ms");
+        System.out.println("---------------------");
+
         return sensorDataInterestAreaDto;
     }
-
 
 
     @Override
@@ -723,17 +772,45 @@ public class SensorDataServiceImpl implements SensorDataService {
             default -> null;
         };
     }
-
     private SensorDataInterestAreaDto getAllPublicSensorDataInTimeFrame(int minutesAgo) {
+        long startTime = System.currentTimeMillis();
+
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
-        if (sensors == null || sensors.isEmpty()) return null;
+        int totalPublicSensors = (sensors != null) ? sensors.size() : 0;
+
+        if (sensors == null || sensors.isEmpty()) {
+            return null;
+        }
+
+        // Forza il valore a essere positivo per poi sottrarlo
+        int positiveMinutes = Math.abs(minutesAgo);
 
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.MINUTE, minutesAgo);
+        Date toTime = new Date(); // Ora attuale
+        calendar.setTime(toTime);
+        calendar.add(Calendar.MINUTE, -positiveMinutes); // Sottrae sempre (va nel passato)
         Date fromTime = calendar.getTime();
-        Date toTime = new Date();
 
-        return createSensorDataInterestAreaDtoForMultipleSensors(sensors, fromTime, toTime);
+        // Adesso:
+        // fromTime = 11:15 (Passato)
+        // toTime   = 11:30 (Presente)
+
+        SensorDataInterestAreaDto result = createSensorDataInterestAreaDtoForMultipleSensors(sensors, fromTime, toTime);
+
+        long endTime = System.currentTimeMillis();
+        long duration = endTime - startTime;
+        int dataFoundCount = (result != null && result.getSensorData() != null) ? result.getSensorData().size() : 0;
+
+        System.out.println("------------------------------------------");
+        System.out.println("REPORT ESECUZIONE (FIXED):");
+        System.out.println("- Tempo impiegato: " + duration + " ms");
+        System.out.println("- Range richiesto: " + positiveMinutes + " minuti fa");
+        System.out.println("- Query Range: [ DA: " + fromTime + " ] -> [ A: " + toTime + " ]");
+        System.out.println("- Sensori processati: " + totalPublicSensors);
+        System.out.println("- Record dati ricavati: " + dataFoundCount);
+        System.out.println("------------------------------------------");
+
+        return result;
     }
 
 

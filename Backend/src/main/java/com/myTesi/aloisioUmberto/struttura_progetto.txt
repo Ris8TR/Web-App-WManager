@@ -1,0 +1,112 @@
+aloisioUmberto/
+├── config
+│   ├── interceptor
+│   │   ├── AppConfig.java
+│   │   ├── BucketService.java
+│   │   └── RateLimitInterceptor.java
+│   ├── EmailSender.java
+│   ├── FileUtil.java
+│   ├── JwtTokenProvider.java
+│   ├── ModelMapperConf.java
+│   ├── OpenApiConfig.java
+│   ├── RedisConfig.java
+│   └── SecurityConfig.java
+├── controller
+│   ├── AuthController.java
+│   ├── ForecastController.java
+│   ├── ImageController.java
+│   ├── InterestAreaController.java
+│   ├── SensorController.java
+│   ├── SensorDataController.java
+│   ├── UserController.java
+│   └── UserPreferenceController.java
+├── core
+│   ├── entitiesAuditTrailListener
+│   │   ├── InterestAreaListener.java
+│   │   ├── SensorDataListener.java
+│   │   ├── SensorListener.java
+│   │   └── UserListener.java
+│   ├── handler
+│   │   └── GlobalExceptionHandler.java
+│   ├── modelMapper
+│   │   ├── InterestAreaMapper.java
+│   │   ├── SensorDataMapper.java
+│   │   ├── SensorMapper.java
+│   │   └── UserMapper.java
+│   └── security
+│       └── JwtAuthenticationFilter.java
+├── data
+│   ├── dao
+│   │   ├── ColorBarRepository.java
+│   │   ├── InterestAreaRepository.java
+│   │   ├── SensorDataRepository.java
+│   │   ├── SensorRepository.java
+│   │   ├── UserPreferenceRepository.java
+│   │   └── UserRepository.java
+│   ├── entities
+│   │   ├── Bar
+│   │   │   ├── ColorBar.java
+│   │   │   └── ColorRange.java
+│   │   ├── InterestArea.java
+│   │   ├── Sensor.java
+│   │   ├── SensorData.java
+│   │   ├── User.java
+│   │   └── UserPreference.java
+│   └── services
+│       ├── interfaces
+│       │   ├── AuthService.java
+│       │   ├── ColorBarService.java
+│       │   ├── ImageService.java
+│       │   ├── InterestAreaService.java
+│       │   ├── SensorDataService.java
+│       │   ├── SensorService.java
+│       │   ├── UserPreferenceService.java
+│       │   └── UserService.java
+│       ├── SensorDataHandler
+│       │   ├── interfaces
+│       │   │   └── SensorDataHandler.java
+│       │   ├── GeoJsonSensorDataHandler.java
+│       │   ├── ImageSensorDataHandler.java
+│       │   ├── JsonSensorDataHandler.java
+│       │   ├── RasterSensorDataHandler.java
+│       │   └── ShapefileSensorDataHandler.java
+│       ├── AuthServiceImpl.java
+│       ├── ColorBarServiceImpl.java
+│       ├── CustomUserDetailsService.java
+│       ├── GeoService.java
+│       ├── ImageServiceImpl.java
+│       ├── InterestAreaServiceImpl.java
+│       ├── SensorDataServiceImpl.java
+│       ├── SensorServiceImpl.java
+│       ├── UserPreferenceServiceImpl.java
+│       └── UserServiceImpl.java
+├── dto
+│   ├── enumetation
+│   │   ├── PayloadType.java
+│   │   └── Role.java
+│   ├── Error
+│   │   └── ErrorService.java
+│   ├── New
+│   │   ├── NewForecastDto.java
+│   │   ├── NewInterestAreaDto.java
+│   │   ├── NewSensorDataDto.java
+│   │   ├── NewSensorDto.java
+│   │   ├── NewUserDto.java
+│   │   └── NewUserPreferenceDto.java
+│   ├── ColorBarDto.java
+│   ├── ColorRangeDto.java
+│   ├── DateDto.java
+│   ├── ForecastDto.java
+│   ├── InterestAreaDto.java
+│   ├── LoginDto.java
+│   ├── SensorAndAreas.java
+│   ├── SensorDataDto.java
+│   ├── SensorDataInterestAreaDto.java
+│   ├── SensorDto.java
+│   ├── TokenDto.java
+│   ├── UserDto.java
+│   └── UserPreferenceDto.java
+├── exception
+│   └── ManyRequestException.java
+├── JwtAuthConverter.java
+└── WebWApplication.java

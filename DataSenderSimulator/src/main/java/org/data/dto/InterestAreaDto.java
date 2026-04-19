@@ -13,6 +13,7 @@ public class InterestAreaDto {
         private String userId;
         private String name;
         private String token;
+        private Object preview;
         private Boolean isPublic;
         private String geometry;
         private String Type;

@@ -212,7 +212,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   private initMap(): void {
     if (!this.map){
     this.map = L.map('map').setView([41.8719, 12.5674], 5);}
-    this.map.setMaxZoom(13);
+    this.map.setMaxZoom(18);
     this.map.setMinZoom(5);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

@@ -58,6 +58,7 @@ public interface SensorDataService  {
     SensorDataInterestAreaDto getAllPublicSensorDataIn15Min();
 
 
+
     // <SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto);
     SensorDataInterestAreaDto getAllSensorDataBySensorBetweenDate(DateDto dateDto);
 

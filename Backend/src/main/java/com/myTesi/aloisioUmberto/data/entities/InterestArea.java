@@ -43,7 +43,7 @@ public class InterestArea {
 
 
     @Field
-    private byte[] shapefileData; // Dati del Shapefile
+    private byte[] shapefileData; // Geomertie o/e dati Shapefile
 
     private String Type; //Tipo di dato. Puo anche essere un enum volendo
 

@@ -144,10 +144,6 @@ public class SensorDataController {
     }
 
 
-
-
-
-
     @GetMapping("/SensorData/public/last/5")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPublicSensorDataIn5Min() {
         return ResponseEntity.ok(sensorDataService.getAllPublicSensorDataIn5Min());
@@ -163,7 +159,7 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getAllPublicSensorDataIn15Min());
     }
 
-    @PostMapping("/SensorData/public/top")
+    @GetMapping("/SensorData/public/top")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPublicSensorDataOnTop() {
         return ResponseEntity.ok(sensorDataService.getTopPublicSensorData());
     }
