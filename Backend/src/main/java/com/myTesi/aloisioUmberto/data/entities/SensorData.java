@@ -10,11 +10,13 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
 import java.util.Date;
+import java.util.Map;
 
 @CompoundIndex(def = "{'timestamp': 1, 'payloadType': 1}")
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "SensorData")
+@CompoundIndex(name = "sensor_timestamp_idx", def = "{'sensorId': 1, 'timestamp': -1}")
 @Data
 public class SensorData {
     @Id
@@ -33,7 +35,8 @@ public class SensorData {
     private Date savedOnTime; // Timestamp dei dati registrati
 
     @NotNull
-    private Object payload;
+    private Map<String, Object> payload;
+
 
     private String interestAreaID;
 

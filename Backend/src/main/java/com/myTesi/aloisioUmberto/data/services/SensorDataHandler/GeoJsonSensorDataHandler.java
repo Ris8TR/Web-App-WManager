@@ -1,5 +1,6 @@
 package com.myTesi.aloisioUmberto.data.services.SensorDataHandler;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class GeoJsonSensorDataHandler implements SensorDataHandler  {
 
@@ -24,18 +26,20 @@ public class GeoJsonSensorDataHandler implements SensorDataHandler  {
         data.setLatitude(newSensorDataDTO.getLatitude());
         data.setLongitude(newSensorDataDTO.getLongitude());
 
-
+        // 1. Costruzione dell'oggetto GeoJSON (come stavi facendo)
         Point point = new Point(new LngLatAlt(newSensorDataDTO.getLongitude(), newSensorDataDTO.getLatitude()));
-
         Feature feature = new Feature();
         feature.setGeometry(point);
         FeatureCollection featureCollection = new FeatureCollection();
         featureCollection.add(feature);
 
-        //TODO vale la pena trasformarlo in stringa?
-        String geoJsonString = objectMapper.writeValueAsString(featureCollection);
-        data.setPayload(geoJsonString);
-    }
+        // 2. CONVERSIONE DIRETTA IN MAPPA
+        // Usiamo convertValue invece di writeValueAsString.
+        // Questo trasforma il POJO FeatureCollection in una Map<String, Object>
+        Map<String, Object> geoJsonMap = objectMapper.convertValue(featureCollection, new TypeReference<>() {});
 
+        // 3. Salvataggio
+        data.setPayload(geoJsonMap);
+    }
 
 }

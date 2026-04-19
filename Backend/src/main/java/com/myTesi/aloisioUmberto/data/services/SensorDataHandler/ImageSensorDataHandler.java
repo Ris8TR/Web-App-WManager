@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 @AllArgsConstructor
 public class ImageSensorDataHandler implements SensorDataHandler {
@@ -19,12 +21,19 @@ public class ImageSensorDataHandler implements SensorDataHandler {
     @Override
     public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException {
         data.setPayloadType("image");
-        System.out.println("dsdsw");
-        data.setPayload(imageService.processImage(file,newSensorDataDTO.getSensorId(), 1));
+
+        // 1. Ottieni la stringa del path/URL dall'imageService
+        String imagePath = imageService.processImage(file, newSensorDataDTO.getSensorId(), 1);
+
+        // 2. Crea una mappa per contenere il path
+        Map<String, Object> imagePayload = new HashMap<>();
+        imagePayload.put("url", imagePath);
+
+        // 3. Imposta la mappa come payload
+        data.setPayload(imagePayload);
+
+        System.out.println("Immagine processata e salvata nel payload: " + imagePath);
     }
-
-
-
 }
 
 

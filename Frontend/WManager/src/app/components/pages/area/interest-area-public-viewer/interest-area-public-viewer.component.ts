@@ -1,38 +1,31 @@
-import {AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
-import {InterestAreaDto} from "../../../../model/interestAreaDto";
-import {InterestAreaDataService} from "../../../../service/InterestAreaDataService";
-import {NgClass, NgForOf, NgIf} from "@angular/common";
-import {FormsModule} from "@angular/forms";
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { InterestAreaDto } from "../../../../model/interestAreaDto";
+import { InterestAreaDataService } from "../../../../service/InterestAreaDataService";
+import { NgClass, NgForOf, NgIf } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 import * as L from "leaflet";
-import {InterestArea} from "../../../../model/interestArea";
-import {SensorDto} from "../../../../model/sensorDto";
-import {Subscription} from "rxjs";
-import {SensorData} from "../../../../model/sensorData";
-import {SensorDataService} from "../../../../service/sensorData.service";
-import {InterestAreaService} from "../../../../service/interestArea.service";
-import {SensorService} from "../../../../service/sensor.service";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {CookieService} from "ngx-cookie-service";
-import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
-import {ActivatedRoute} from "@angular/router";
-import {parse} from "terraformer-wkt-parser";
-import {DateDto} from "../../../../model/dateDto";
-import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAreaDto";
+import { SensorDto } from "../../../../model/sensorDto";
+import { Subscription } from "rxjs";
+import { SensorData } from "../../../../model/sensorData";
+import { SensorDataService } from "../../../../service/sensorData.service";
+import { InterestAreaService } from "../../../../service/interestArea.service";
+import { SensorService } from "../../../../service/sensor.service";
+import { MatSnackBar } from "@angular/material/snack-bar";
+import { CookieService } from "ngx-cookie-service";
+import { ToolbarComponent } from "../../../elements/toolbar/toolbar.component";
+import { ActivatedRoute } from "@angular/router";
+import { parse } from "terraformer-wkt-parser";
+import { DateDto } from "../../../../model/dateDto";
+import { SensorDataInterestAreaDto } from "../../../../model/SensorDataInterestAreaDto";
 
 @Component({
   selector: 'app-interest-area-public-viewer',
   standalone: true,
-  imports: [
-    NgIf,
-    ToolbarComponent,
-    FormsModule,
-    NgForOf,
-    NgClass
-  ],
+  imports: [NgIf, ToolbarComponent, FormsModule, NgForOf, NgClass],
   templateUrl: './interest-area-public-viewer.component.html',
   styleUrl: './interest-area-public-viewer.component.css'
 })
-export class InterestAreaPublicViewerComponent implements  OnInit {
+export class InterestAreaPublicViewerComponent implements OnInit {
   interestArea!: InterestAreaDto | null;
   @ViewChild('forecastInterval', { static: false }) forecastIntervalElement!: ElementRef<HTMLSelectElement>;
 
@@ -44,51 +37,33 @@ export class InterestAreaPublicViewerComponent implements  OnInit {
   public selectedSensorType: string = "CO2";
   sensorTypeList!: string[];
   public sensors: SensorDto[] = [];
-  public logStringResult: string = 'Login';
   public startDate?: string;
   public endDate?: string;
   public startHour?: string;
   public endHour?: string;
-  private cachedData: Map<string, [number, number, number][]> = new Map();
-  private drawnLayers: L.Layer[] = [];
-  private subscription: Subscription = new Subscription();
-
-  selectedForecastInterval: string | null = null;
-  isPanelVisible = true;
-
-  selectedLatestInterval: string = '';
-
-  temperatureScale = [
-    {label: '-10', color: '#0030ff'},
-    {label: '-8', color: '#0066ff'},
-    {label: '-6', color: '#00a4ff'},
-    {label: '-4', color: '#00d7ff'},
-    {label: '-2', color: '#00f9ed'},
-    {label: '0', color: '#00ebbd'},
-    {label: '2', color: '#00dc8d'},
-    {label: '4', color: '#00c951'},
-    {label: '6', color: '#01ba1c'},
-    {label: '8', color: '#21bd05'},
-    {label: '10', color: '#61cf03'},
-    {label: '12', color: '#93df01'},
-    {label: '14', color: '#cff000'},
-    {label: '16', color: '#ffff00'},
-    {label: '18', color: '#ffed00'},
-    {label: '20', color: '#ffd700'},
-    {label: '22', color: '#ffc400'},
-    {label: '24', color: '#ffaf00'},
-    {label: '26', color: '#ff9200'},
-    {label: '28', color: '#ff7100'},
-    {label: '30', color: '#ff4700'},
-    {label: '32', color: '#ff2300'},
-    {label: '34', color: '#ff0100'},
-    {label: '36', color: '#de0014'},
-    {label: '38', color: '#bd0033'},
-    {label: '40', color: '#940056'},
+  public temperatureScale = [
+    {label: '-10', color: '#0030ff'}, {label: '-8', color: '#0066ff'},
+    {label: '-6', color: '#00a4ff'}, {label: '-4', color: '#00d7ff'},
+    {label: '-2', color: '#00f9ed'}, {label: '0', color: '#00ebbd'},
+    {label: '2', color: '#00dc8d'}, {label: '4', color: '#00c951'},
+    {label: '6', color: '#01ba1c'}, {label: '8', color: '#21bd05'},
+    {label: '10', color: '#61cf03'}, {label: '12', color: '#93df01'},
+    {label: '14', color: '#cff000'}, {label: '16', color: '#ffff00'},
+    {label: '18', color: '#ffed00'}, {label: '20', color: '#ffd700'},
+    {label: '22', color: '#ffc400'}, {label: '24', color: '#ffaf00'},
+    {label: '26', color: '#ff9200'}, {label: '28', color: '#ff7100'},
+    {label: '30', color: '#ff4700'}, {label: '32', color: '#ff2300'},
+    {label: '34', color: '#ff0100'}, {label: '36', color: '#de0014'},
+    {label: '38', color: '#bd0033'}, {label: '40', color: '#940056'},
     {label: '42', color: '#730073'}
   ];
-  private sensorDataLocalList: Array<SensorData> | undefined;
 
+  // Cache per i punti della mappa: [lat, lng, valore]
+  private cachedData: Map<string, [number, number, number][]> = new Map();
+  private drawnLayers: L.Layer[] = [];
+
+  isPanelVisible = true;
+  private sensorDataLocalList: Array<SensorData> = [];
 
   constructor(
     private sensorDataService: SensorDataService,
@@ -99,16 +74,14 @@ export class InterestAreaPublicViewerComponent implements  OnInit {
     public toolbarComponent: ToolbarComponent,
     private route: ActivatedRoute,
     private interestAreaDataService: InterestAreaDataService
-  ) {
-  }
-
-
+  ) {}
 
   ngOnInit(): void {
     if (!this.map) this.initializeMap();
     this.interestAreaDataService.currentArea.subscribe((area) => {
       if (area) {
         this.interestArea = area;
+        this.id = area.id; // Imposta l'ID per le query successive
         if (this.interestArea && this.interestArea.geometry) {
           this.drawInterestArea(this.interestArea.geometry);
           this.loadSensors();
@@ -116,86 +89,7 @@ export class InterestAreaPublicViewerComponent implements  OnInit {
         }
       }
     });
-
-
-
   }
-
-
-
-
-
-
-  togglePanel(event: MouseEvent): void {
-    event.stopPropagation();
-    this.isPanelVisible = !this.isPanelVisible;
-  }
-
-
-
-
-  private drawInterestArea(geometry: string | undefined): void {
-    if (geometry) {
-      try {
-        // Rimuove eventuali punti e virgola finali
-        geometry = geometry.trim().replace(/;$/, '');
-
-        // Parse del WKT in GeoJSON
-        const geoJson = parse(geometry);
-
-        // Rimuove le geometrie già disegnate
-        this.removeDrawnAreas();
-
-        // Verifica il tipo di geometria e gestisce separatamente Polygon, MultiPolygon e LineString
-        if (geoJson && (geoJson.type === 'Polygon' || geoJson.type === 'MultiPolygon')) {
-          const polygon = L.geoJSON(geoJson, {
-            style: {
-              color: 'blue',    // Colore dei bordi del poligono
-              weight: 4,        // Spessore dei bordi
-              opacity: 0.7      // Opacità dei bordi
-            }
-          }).addTo(this.map!);
-
-          // Aggiungi il poligono all'array dei layer disegnati
-          this.drawnLayers.push(polygon);
-
-          // Centra la vista sul poligono
-          this.map!.fitBounds(polygon.getBounds());
-
-        } else if (geoJson && (geoJson.type === 'LineString' || geoJson.type === 'MultiLineString')) {
-          // @ts-ignore
-          const polyline = L.polyline(geoJson.coordinates, {
-            color: 'blue',   // Colore della linea
-            weight: 4,       // Spessore della linea
-            opacity: 0.7     // Opacità della linea
-          }).addTo(this.map!);
-
-          // Aggiungi la linea all'array dei layer disegnati
-          this.drawnLayers.push(polyline);
-
-          // Centra la vista sulla linea
-          this.map!.fitBounds(polyline.getBounds());
-
-        } else {
-          console.error('Tipo di geometria non valido o non supportato:', geoJson.type);
-        }
-      } catch (error) {
-        console.error('Errore durante il parsing WKT:', error);
-      }
-    }
-  }
-
-// Metodo per rimuovere le aree già disegnate
-  private removeDrawnAreas(): void {
-    if (this.drawnLayers.length > 0) {
-      this.drawnLayers.forEach(layer => {
-        this.map!.removeLayer(layer); // Rimuovi il layer dalla mappa
-      });
-      this.drawnLayers = []; // Svuota l'array
-    }
-  }
-
-
 
   private initializeMap(): void {
     this.map = L.map('map').setView([45.0, 7.0], 5);
@@ -204,345 +98,204 @@ export class InterestAreaPublicViewerComponent implements  OnInit {
       maxZoom: 14,
       minZoom: 5
     }).addTo(this.map);
-
     this.map.on('moveend', () => this.updateGrid());
   }
 
-  private loadSensors(): void {
-    this.sensorService.findByInterestAreaId(this.interestArea?.id!)
-      .subscribe(sensors => this.sensors = sensors);
-    if (this.sensors.length > 0) {
-      this.selectedSensor = this.sensors[0].id
-    }
-  }
+  // Helper per estrarre i dati per la mappa senza usare JSON.parse
+  private extractHeatData(sensorDataList: SensorData[]): [number, number, number][] {
+    const heatData: [number, number, number][] = [];
+    sensorDataList.forEach((data) => {
+      const lat = data.latitude;
+      const lng = data.longitude;
 
-  onSensorSelect(sensor: SensorDto): void {
-    if (sensor.type) this.selectedSensor = sensor.type;
+      // Accesso diretto al payload (già oggetto)
+      const value = data.payload ? (data.payload[this.selectedSensorType] || 0) : 0;
 
-    // Controlla se lo stesso sensore è stato selezionato
-    if (this.selectedSensor === sensor.id) {
-      this.selectedSensor = undefined;
-    } else {
-      this.selectedSensor = sensor.id;
-      const selectedSensorData = this.sensorDataLocalList?.find(data => data.sensorId === this.selectedSensor);
-      if (selectedSensorData?.latitude && selectedSensorData?.longitude) {
-        this.map!.setView([selectedSensorData.latitude, selectedSensorData.longitude], 14); // Imposta lo zoom a 14
-      } else {
-        this.snackBar.open("No data found for this sensor", "OK", {
-          duration: 2000
-        });
-        console.warn(`Latitudine e longitudine non trovate per il sensore con ID: ${this.selectedSensor}`);
+      if (lat != null && lng != null) {
+        heatData.push([lat, lng, value]);
       }
-    }
+    });
+    return heatData;
   }
-
 
   private loadAllSensorData(): void {
-    if (this.isRealTime){
-      if (!this.map) return;
-      this.sensorDataService.getLastPublicSensorDataByInterestAreaId(this.interestArea?.id!)
-        .subscribe((response: any) => {
-          let geoJson: any;
+    if (!this.map || !this.interestArea?.id) return;
 
-          const sensorDataList = response.sensorData; // Lista di dati sensori
-          const sensorAreaTypes = response.sensorAreaTypes; // Tipi di sensori unici
-          this.sensorTypeList = response.sensorAreaTypes;
+    this.sensorDataService.getLastPublicSensorDataByInterestAreaId(this.interestArea.id)
+      .subscribe((response: SensorDataInterestAreaDto) => {
+        if (response && response.sensorData) {
+          this.sensorTypeList = response.sensorAreaTypes || [];
           this.sensorDataLocalList = response.sensorData;
 
-          if (sensorDataList && sensorAreaTypes) {
-            const heatData: [number, number, number][] = [];
+          const heatData = this.extractHeatData(this.sensorDataLocalList);
+          this.cachedData.set(this.selectedSensorType, heatData);
+          this.updateGrid();
+        }
+      });
+  }
 
-            // Estrai le informazioni di geolocalizzazione e valore per ogni sensore
-            sensorDataList.forEach((data: any) => {
-              // Ottieni la latitudine, longitudine e il valore per il sensore
-              const lat = data.latitude;
-              const lng = data.longitude;
-              let value: number = 0;
+  onSensorTypeSelect(type: string) {
+    this.selectedSensorType = type;
+    if (this.sensorDataLocalList.length > 0) {
+      const heatData = this.extractHeatData(this.sensorDataLocalList);
+      this.cachedData.set(this.selectedSensorType, heatData);
+      this.updateGrid();
+    }
+  }
 
-              // Aggiungi il valore del sensore in base al tipo selezionato
-              try {
-                const payloadData = JSON.parse(data.payload);
-                value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
-              } catch (error) {
-                console.error("Errore nel parsing del payload:", error);
-              }
+  onLatestIntervalSelect(): void {
+    const latestElement = document.getElementById('latestInterval') as HTMLSelectElement | null;
+    if (!latestElement) return;
 
-              if (lat && lng) {
-                heatData.push([lat, lng, value]);
-              }
-            });
+    const interval = parseInt(latestElement.value, 10);
+    if (isNaN(interval)) return;
 
-            // Salva i dati nella cache per il tipo di sensore selezionato
-            this.cachedData.set(this.selectedSensorType, heatData);
-            this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-          } else {
-            console.error('Formato della risposta non valido:', response);
-          }
-        });
-    }else {
-      if (!this.map) return;
-      this.sensorDataService.getLastPublicSensorDataByInterestAreaId(this.interestArea?.id!)
-        .subscribe((response: any) => {
-          let geoJson: any;
-          console.log(response)
-          const sensorDataList = response.sensorData;
-          const sensorAreaTypes = response.sensorAreaTypes;
-          this.sensorTypeList = response.sensorAreaTypes;
+    const intervalObservable = this.getIntervalObservable(interval);
+    if (intervalObservable) {
+      intervalObservable.subscribe((response: any) => {
+        if (response && response.sensorData) {
           this.sensorDataLocalList = response.sensorData;
+          this.sensorTypeList = response.sensorAreaTypes;
 
-          if (sensorDataList && sensorAreaTypes) {
-            const heatData: [number, number, number][] = [];
-
-            // Estrai le informazioni di geolocalizzazione e valore per ogni sensore
-            sensorDataList.forEach((data: any) => {
-              // Ottieni la latitudine, longitudine e il valore per il sensore
-              const lat = data.latitude;
-              const lng = data.longitude;
-              let value: number = 0;
-
-              // Aggiungi il valore del sensore in base al tipo selezionato
-              try {
-                const payloadData = JSON.parse(data.payload);
-                value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
-              } catch (error) {
-                console.error("Errore nel parsing del payload:", error);
-              }
-
-              if (lat && lng) {
-                heatData.push([lat, lng, value]);
-              }
-            });
-
-            // Salva i dati nella cache per il tipo di sensore selezionato
-            this.cachedData.set(this.selectedSensorType, heatData);
-            this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-          } else {
-            console.error('Formato della risposta non valido:', response);
-          }
-        });
-
+          const heatData = this.extractHeatData(this.sensorDataLocalList);
+          this.cachedData.set(this.selectedSensorType, heatData);
+          this.updateGrid();
+        }
+      });
     }
   }
 
   onForecastIntervalSelect(): void {
-    const forecastElement = document.getElementById('forecastInterval') as HTMLSelectElement | null;
-    if (forecastElement) {
-      const selectedInterval = forecastElement.value;
-      console.log('Selected forecast interval:', selectedInterval);
-      forecastElement.value = ''; // Reset select element
-    } else {
-      console.warn('Forecast interval select element not found.');
+    // Recupera il valore dall'elemento ViewChild
+    const selectedInterval = this.forecastIntervalElement.nativeElement.value;
+
+    if (selectedInterval) {
+      console.log('Intervallo di previsione selezionato:', selectedInterval);
+      // Qui andrà la chiamata al servizio per i dati previsionali (forecast)
+      // Esempio: this.sensorDataService.getForecast(this.id, selectedInterval).subscribe(...)
+
+      this.snackBar.open(`Caricamento previsioni per +${selectedInterval} ore...`, "OK", { duration: 2000 });
     }
   }
 
+  // Corretto il problema TS2345 in processData
+  private processData(data: SensorDataInterestAreaDto): [number, number, number][] {
+    if (!data || !data.sensorData) return [];
 
-  onLatestIntervalSelect(): void {
-    this.cachedData.clear();
+    this.sensorTypeList = data.sensorAreaTypes || [];
+    this.sensorDataLocalList = data.sensorData;
 
-    let latestElement: HTMLSelectElement | null = document.getElementById('latestInterval') as HTMLSelectElement | null;
+    return this.extractHeatData(this.sensorDataLocalList);
+  }
 
-    if (latestElement) {
-      const selectedInterval = latestElement.value;
-      console.log('Selected observation interval:', selectedInterval);
+  private updateGrid(): void {
+    if (!this.map) return;
+    if (this.layerGroup) this.map.removeLayer(this.layerGroup);
+    this.layerGroup = L.layerGroup().addTo(this.map);
+    this.addPointsToMap(this.cachedData.get(this.selectedSensorType) || []);
+  }
 
-      const interval = parseInt(selectedInterval, 10);
+  private addPointsToMap(heatData: [number, number, number][]): void {
+    heatData.forEach(([lat, lng, value]) => {
+      L.circleMarker([lat, lng], {
+        radius: 8,
+        fillColor: this.getColor(value),
+        color: '#000',
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.8
+      }).bindPopup(`${this.selectedSensorType} value: ${value}`).addTo(this.layerGroup!);
+    });
+  }
 
-      if (!isNaN(interval)) {
-        let intervalObservable = this.getIntervalObservable(interval);
+  private getColor(value: number): string {
+    const min = 0, max = 100;
+    const ratio = Math.min(Math.max((value - min) / (max - min), 0), 1);
+    const r = Math.round(255 * ratio);
+    const b = Math.round(255 * (1 - ratio));
+    return `rgb(${r},0,${b})`;
+  }
 
-        if (intervalObservable) {
-          // @ts-ignore
-          intervalObservable.subscribe(
-            (response: any) => {
-              console.log('Data received from observable:', response);
-              if (response) {
-                const sensorDataList = response.sensorData;
-                const sensorAreaTypes = response.sensorAreaTypes;
-                this.sensorTypeList = sensorAreaTypes;
-                this.sensorDataLocalList = sensorDataList;
+  // --- RESTO DEI METODI (Logica UI e Geometria) ---
 
-                if (sensorDataList && sensorAreaTypes) {
-                  const heatData: [number, number, number][] = [];
+  togglePanel(event: MouseEvent): void {
+    event.stopPropagation();
+    this.isPanelVisible = !this.isPanelVisible;
+  }
 
-                  // Estrai i dati di geolocalizzazione e valore per ogni sensore
-                  sensorDataList.forEach((data: any) => {
-                    const lat = data.latitude;
-                    const lng = data.longitude;
-                    let value = 0;
+  private drawInterestArea(geometry: string | undefined): void {
+    if (!geometry || !this.map) return;
+    try {
+      const geoJson = parse(geometry.trim().replace(/;$/, ''));
+      this.removeDrawnAreas();
 
-                    try {
-                      const payloadData = JSON.parse(data.payload);
-                      value = payloadData[this.selectedSensorType] || 0;
-                    } catch (error) {
-                      console.error("Errore nel parsing del payload:", error);
-                    }
+      const layer = L.geoJSON(geoJson, {
+        style: { color: 'blue', weight: 4, opacity: 0.7 }
+      }).addTo(this.map);
 
-                    if (lat && lng) {
-                      heatData.push([lat, lng, value]);
-                    }
-                  });
+      this.drawnLayers.push(layer);
+      this.map.fitBounds((layer as L.FeatureGroup).getBounds());
+    } catch (error) {
+      console.error('Errore WKT:', error);
+    }
+  }
 
-                  // Salva i dati nella cache per il tipo di sensore selezionato
-                  this.cachedData.set(this.selectedSensorType, heatData);
-                  this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-                } else {
-                  console.error('Formato della risposta non valido:', response);
-                }
-              } else {
-                console.warn('No data returned from observable.');
-              }
-            },
-            ( error: any) => {
-              console.error('Error during observable subscription:', error);
-            }
-          );
-        } else {
-          console.warn('Interval observable is not available for interval:', interval);
-        }
-      } else {
-        console.warn('Invalid or unsupported interval value:', selectedInterval);
-      }
+  private removeDrawnAreas(): void {
+    this.drawnLayers.forEach(l => this.map?.removeLayer(l));
+    this.drawnLayers = [];
+  }
+
+  private loadSensors(): void {
+    if (!this.interestArea?.id) return;
+    this.sensorService.findByInterestAreaId(this.interestArea.id)
+      .subscribe(sensors => {
+        this.sensors = sensors;
+        if (this.sensors.length > 0) this.selectedSensor = this.sensors[0].id;
+      });
+  }
+
+  onSensorSelect(sensor: SensorDto): void {
+    if (this.selectedSensor === sensor.id) {
+      this.selectedSensor = undefined;
     } else {
-      console.warn('latestElement is not defined.');
+      this.selectedSensor = sensor.id;
+      const data = this.sensorDataLocalList.find(d => d.sensorId === this.selectedSensor);
+      if (data) {
+        this.map?.setView([data.latitude, data.longitude], 14);
+      } else {
+        this.snackBar.open("No data for this sensor", "OK", { duration: 2000 });
+      }
     }
   }
 
   private getIntervalObservable(interval: number) {
-    console.log(this.isRealTime);
+    if (!this.id) return null;
     if (this.isRealTime) {
       switch (interval) {
-        case 5:
-          console.log("RT 5");
-          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId5Min(this.id!);
-        case 10:
-          console.log("RT 10");
-          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId10Min(this.id!);
-        case 15:
-          console.log("RT 15");
-          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId15Min(this.id!);
-        default:
-          return null;
+        case 5: return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId5Min(this.id);
+        case 10: return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId10Min(this.id);
+        case 15: return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId15Min(this.id);
+        default: return null;
       }
-    } else {
-      console.log("L A");
-      return this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!);
     }
+    return this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id);
   }
 
-
-
   onDateRangeSubmit(): void {
-    this.cachedData.clear()
+    this.cachedData.clear();
     const now = new Date();
-    const formattedStartHour = this.startHour || now.getHours().toString().padStart(2, '0');
-    const formattedEndHour = this.endHour || now.getHours().toString().padStart(2, '0');
-
-    const defaultDate = now.toISOString().split('T')[0];
-
     const dateDto: DateDto = {
-      form: `${this.startDate || defaultDate}T${formattedStartHour}:${now.getMinutes().toString().padStart(2, '0')}:00`,
-      to: `${this.endDate || defaultDate}T${formattedEndHour}:${now.getMinutes().toString().padStart(2, '0')}:00`,
+      form: `${this.startDate || now.toISOString().split('T')[0]}T${this.startHour || '00'}:00:00`,
+      to: `${this.endDate || now.toISOString().split('T')[0]}T${this.endHour || '23'}:59:00`,
       sensorId: this.selectedSensor,
       interestAreaId: this.id!,
       token: this.cookieService.get('token')
     };
 
     this.sensorDataService.getAllPrivateSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
-      this.cachedData.set(this.selectedSensorType, this.processData(data));
+      const heatData = this.processData(data);
+      this.cachedData.set(this.selectedSensorType, heatData);
       this.updateGrid();
     });
-
   }
-
-
-  private updateGrid(): void {
-    if (this.layerGroup) this.map!.removeLayer(this.layerGroup);
-    this.layerGroup = L.layerGroup().addTo(this.map!);
-    this.addPointsToMap(this.cachedData.get(this.selectedSensorType) || []);
-  }
-
-  private addPointsToMap(heatData: [number, number, number][]): void {
-    heatData.forEach(([lat, lng, value]) => {
-      if (lat != null && lng != null && value != null) {
-        L.circleMarker([lat, lng], {
-          radius: 8,
-          fillColor: this.getColor(value),
-          color: '#000',
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        }).bindPopup(this.selectedSensorType + ` value: ${value}`).addTo(this.layerGroup!);
-      }
-    });
-  }
-
-  private getColor(value: number): string {
-    const min = 0, max = 100;
-    const ratio = (value - min) / (max - min);
-    const r = Math.round(255 * ratio);
-    const b = Math.round(255 * (1 - ratio));
-    return `rgb(${r},0,${b})`;
-  }
-
-  private processData(data: SensorDataInterestAreaDto): [number, number, number][] {
-    this.cachedData.clear()
-    if (!data || !data.sensorData || !Array.isArray(data.sensorData)) {
-      console.error("Dati non validi per processData:", data);
-      return [];
-    }
-
-    this.sensorTypeList = data.sensorAreaTypes || [];
-    this.sensorDataLocalList = data.sensorData;
-
-    console.log(data.sensorData)
-
-    return data.sensorData.map((sensorData) => {
-      const lat = sensorData.latitude;
-      const lng = sensorData.longitude;
-      let value: number | undefined;
-
-      try {
-        const payloadData = JSON.parse(sensorData.payload || "{}"); // Default a un oggetto vuoto
-        value = payloadData[this.selectedSensorType];
-        this.cachedData.set(this.selectedSensorType, payloadData);
-
-      } catch (error) {
-        console.error("Errore nel parsing del payload:", error);
-      }
-
-      console.log(`Processed point: lat=${lat}, lng=${lng}, value=${value}`);
-      return [lat, lng, value ?? 0]; // Default a 0 se value è undefined
-    });
-  }
-
-
-  onSensorTypeSelect(type: any) {
-    this.selectedSensorType = type;
-    const heatData: [number, number, number][] = [];  // Initialize outside the loop
-
-    this.sensorDataLocalList!.forEach((data: any) => {
-      const lat = data.latitude;
-      const lng = data.longitude;
-      let value: number = 0;
-
-      try {
-        const payloadData = JSON.parse(data.payload);
-        value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
-      } catch (error) {
-        console.error("Errore nel parsing del payload:", error);
-      }
-
-      if (lat && lng) {
-        heatData.push([lat, lng, value]);
-      }
-    });
-
-    this.cachedData.set(this.selectedSensorType, heatData);
-
-    this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-  }
-
-
-
-
 }

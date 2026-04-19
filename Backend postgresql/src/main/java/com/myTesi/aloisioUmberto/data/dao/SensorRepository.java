@@ -1,8 +1,10 @@
 package com.myTesi.aloisioUmberto.data.dao;
 
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
+import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,6 +18,8 @@ public interface SensorRepository extends JpaRepository<Sensor, String> {
     List<Sensor> findAllByIsPublic(Boolean isPublic);
     List<Sensor> findAllByInterestAreaIDAndIsPublicTrue(String interestAreaID);
     List<Sensor> findAllByIsPublicAndInterestAreaID(Boolean visibility, String interestAreaID);
+    @Query(value = "SELECT DISTINCT ON (sensor_id) * FROM sensor_data ORDER BY sensor_id, timestamp DESC", nativeQuery = true)
+    List<SensorData> findAllLatestData();
 
     List<Sensor> findAllByCompanyNameAndUserId(@NotNull String companyName, String userId);
     List<Sensor> findAllByUserId(String userId);

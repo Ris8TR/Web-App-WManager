@@ -1,219 +1,162 @@
-
-
-
-<div>
+<div class="map-container">
   <!-- Pannello laterale (sidebar) -->
-  <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; margin: 5%">
-    <!-- Tabs della sidebar -->
-    <div class="sidebar-tabs" (click)="$event.stopPropagation()">
+  <div id="sidebar" class="sidebar sidebar-left shadow-lg" [ngClass]="{'collapsed': !isPanelVisible}">
+
+    <!-- Tab per riaprire se chiuso -->
+    <div class="sidebar-tabs" *ngIf="!isPanelVisible" (click)="togglePanel($event)">
       <ul role="tablist">
-        <li id="topHome" class="active">
-            <span *ngIf="!isPanelVisible"  class="sidebar-close" (click)="togglePanel($event)">
-              <svg  class="svg-inline--fa fa-caret-left fa-w-6" aria-hidden="true" data-prefix="fa" data-icon="caret-left" role="img" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 192 512">
-                <path fill="currentColor"  transform="rotate(180, 128, 256)" d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"></path>
-              </svg>
-            </span>
+        <li class="active text-white bg-primary">
+          <span class="sidebar-open-btn">
+            <svg class="fa-icon" viewBox="0 0 192 512">
+              <path fill="currentColor" d="M0 384.662V127.338c0-17.818 21.543-26.741 34.142-14.142l128.662 128.662c7.81 7.81 7.81 20.474 0 28.284L34.142 398.804C21.543 411.404 0 402.48 0 384.662z"></path>
+            </svg>
+          </span>
         </li>
       </ul>
     </div>
 
     <!-- Contenuto della sidebar -->
-    <div   *ngIf="isPanelVisible"   class="sidebar-content overMap" (click)="$event.stopPropagation()">
-      <div class="sidebar-pane active" id="home">
-        <h1 class="sidebar-header">
-          Control Panel
-          <span class="sidebar-close" (click)="togglePanel($event)">
-          <!-- Icona di chiusura -->
-          <svg class="svg-inline--fa fa-caret-left fa-w-6" aria-hidden="true" data-prefix="fa" data-icon="caret-left" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512">
+    <div *ngIf="isPanelVisible" class="sidebar-content bg-dark text-white p-3 shadow">
+
+      <!-- Header della Sidebar -->
+      <div class="sidebar-header d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h5 mb-0">Control Panel</h2>
+        <span class="sidebar-close-btn pointer" (click)="togglePanel($event)">
+          <svg class="fa-icon" viewBox="0 0 192 512" style="width: 15px;">
             <path fill="currentColor" d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"></path>
           </svg>
         </span>
-        </h1>
       </div>
-
-
 
       <!-- Sezione della legenda -->
-      <div class="row text-center justify-content-center align-self-center">
-        <div class="col-md-12">
-          <div class="my-legend">
-            <div class="legend-title" style="font-size: 9px;color: #fff">{{selectedSensorType}} Color Bar</div>
-            <div class="legend-scale">
-              <ul class="legend-labels">
-                <!-- Scala della temperatura -->
-                <li *ngFor="let item of temperatureScale" style="color: #fff;font-size: 9px;">
-                  <span [style.background]="item.color"></span>{{ item.label }}
-                </li>
-              </ul>
-            </div>
-          </div>
-
+      <div class="my-legend mb-4 p-2 rounded bg-secondary-subtle text-dark">
+        <div class="legend-title small fw-bold mb-2 text-uppercase text-center border-bottom pb-1">
+          {{selectedSensorType}} Color Bar
         </div>
+        <div class="legend-scale">
+          <ul class="legend-labels d-flex flex-wrap list-unstyled justify-content-center m-0 p-0">
+            <li *ngFor="let item of temperatureScale" class="d-flex flex-column align-items-center me-1 mb-1">
+              <span class="legend-color-box" [style.background]="item.color" [title]="item.label"></span>
+              <span class="small-text">{{ item.label }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
 
+      <!-- Sezione Selezione Modalità -->
+      <div class="mode-selector mb-3 border-bottom pb-2">
+        <div class="form-check mb-1">
+          <input class="form-check-input" type="radio" name="mode" id="rtMode" [(ngModel)]="isRealTime" [value]="true" (ngModelChange)="onLatestIntervalSelect()">
+          <label class="form-check-label" for="rtMode">Real-Time</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="mode" id="ltMode" [(ngModel)]="isRealTime" [value]="false" (ngModelChange)="onLatestIntervalSelect()">
+          <label class="form-check-label" for="ltMode">Latest Data</label>
+        </div>
+      </div>
 
-          <h4  *ngIf="selectedSensor== undefined " class=" py-3 px-0 px-lg-3 rounded">Area Past Data</h4>
-          <h4  *ngIf="selectedSensor!= undefined " class=" py-3 px-0 px-lg-3 rounded">Sensor Past Data</h4>
+      <!-- Sezione Dati Passati -->
+      <div class="data-section mb-4">
+        <h6 class="text-primary fw-bold mb-2">
+          {{ selectedSensor ? 'Sensor' : 'Area' }} Past Data
+        </h6>
 
-
-          <!-- Sezione di selezione della data e ora -->
-          <div class="row text-center justify-content-center align-self-center" style="!important; margin-top: 2px " >
-            <div class="row" id="calendar" style="!important; margin-top: 2px ">
-              <div class="col">
-                <div class="form-group">
-                  <label for="startDate">Start Day</label>
-                  <input id="startDate" class="form-control" type="date" [(ngModel)]="startDate" />
-                </div>
-              </div>
-              <div class="col">
-                <div class="form-group">
-                  <label for="startHour">Start Hour</label>
-                  <input id="startHour" class="form-control" type="time" [(ngModel)]="startHour">
-                </div>
-              </div>
-            </div>
-            <div class="row" id="calendarEnd">
-              <div class="col">
-                <div class="form-group">
-                  <label for="endDate">End Day</label>
-                  <input id="endDate" class="form-control" type="date" [(ngModel)]="endDate" />
-                </div>
-              </div>
-              <div class="col">
-                <div class="form-group">
-                  <label for="endHour">End Hour</label>
-                  <input id="endHour" class="form-control" type="time" [(ngModel)]="endHour">
-                </div>
-              </div>
-            </div>
-            <!-- Bottone per confermare il range di date -->
-            <div class="row">
-              <div class="col">
-                <button type="button" class="btn btn-primary" style="margin-top:10px;" (click)="onDateRangeSubmit()">Submit</button>
-              </div>
-            </div>
-            <!-- Selettore per Latest data -->
-            <div *ngIf="isRealTime" class="row text-center justify-content-center align-self-center" style="margin: 5%">
-              <div class="col-md-12">
-                <label for="latestInterval">Observation Interval</label>
-                <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect()">
-                  <option value="5" selected>Select Observation Interval</option>
-                  <option value="5">5 Minutes</option>
-                  <option value="10">10 Minutes</option>
-                  <option value="15">15 Minutes</option>
-                </select>
-              </div>
-            </div>
-
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="small-text">Start Day</label>
+            <input class="form-control form-control-sm" type="date" [(ngModel)]="startDate">
+          </div>
+          <div class="col-6">
+            <label class="small-text">Start Hour</label>
+            <input class="form-control form-control-sm" type="time" [(ngModel)]="startHour">
           </div>
         </div>
 
-
-        <!-- Titolo dinamico -->
-        <h4  *ngIf="selectedSensor == undefined" class="py-3 px-0 px-lg-3 rounded">Area Forecast Data</h4>
-        <h4   *ngIf="selectedSensor != undefined"  class="py-3 px-0 px-lg-3 rounded">Sensor Forecast Data</h4>
-
-        <!-- Selettore per Forecast data -->
-        <div class="row text-center justify-content-center align-self-center" style="margin-right: 2%; margin-left: 2%">
-          <div class="col-md-12">
-            <label for="forecastInterval">Forecast data</label>
-            <select #forecastInterval id="forecastInterval" class="form-select" aria-label="Select Interval" (change)="onForecastIntervalSelect()">
-              <option value="" selected>Select Interval</option>
-              <option value="1">+1 Hour</option>
-              <option value="2">+2 Hours</option>
-              <option value="3">+3 Hours</option>
-              <option value="4">+4 Hours</option>
-              <option value="12">+12 Hours</option>
-              <option value="24">+24 Hours</option>
-              <option value="36">+36 Hours</option>
-              <option value="72">+72 Hours</option>
-            </select>
-
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="small-text">End Day</label>
+            <input class="form-control form-control-sm" type="date" [(ngModel)]="endDate">
           </div>
-      </div>
-      <div class="form-check" style="margin: 5%">
-        <input
-          class="form-check-input"
-          type="radio"
-          value="1"
-          name="flexRadioDefault"
-          id="flexRadioDefault1"
-          [(ngModel)]="isRealTime"
-          [value]="true"
-          (ngModelChange)="onLatestIntervalSelect()"
-        >
-        <label class="form-check-label" for="flexRadioDefault1">
-          Real-Time
-        </label>
-      </div>
-      <div class="form-check" style="margin: 5%">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault2"
-          [(ngModel)]="isRealTime"
-          [value]="false"
-          (ngModelChange)="onLatestIntervalSelect()"
-        >
-        <label class="form-check-label" for="flexRadioDefault2">
-          Latest
-        </label>
-      </div>
+          <div class="col-6">
+            <label class="small-text">End Hour</label>
+            <input class="form-control form-control-sm" type="time" [(ngModel)]="endHour">
+          </div>
+        </div>
 
-
-
-
-
-    </div>
-
-
-
-  </div>
-
-
-
-
-
-  <div class="row text-center justify-content-center align-self-center"  id="sensor-type-list" style="position: absolute; padding-bottom: 50px; left: 30px; bottom: -30px; min-height: 50px; z-index: 600;"  >
-    <ul class="d-flex" style="list-style-type: none; padding: 0; margin: 0; display: flex; flex-direction: row; gap: 10px;" >
-      <li *ngFor="let type of sensorTypeList">
-        <button type="button" class="btn" [ngClass]="{ 'btn-primary': selectedSensorType !== type, 'btn-success': selectedSensorType === type    }" (click)="onSensorTypeSelect(type)">
-          {{ type }}
+        <button type="button" class="btn btn-primary btn-sm w-100" (click)="onDateRangeSubmit()">
+          Query Historical Data
         </button>
-      </li>
-    </ul>
+      </div>
 
+      <!-- Sezione Intervalli (Solo se Real-Time) -->
+      <div *ngIf="isRealTime" class="interval-section mb-4">
+        <label for="latestInterval" class="small-text fw-bold">Observation Interval</label>
+        <select id="latestInterval" class="form-select form-select-sm" (change)="onLatestIntervalSelect()">
+          <option value="" disabled selected>Select Interval</option>
+          <option value="5">5 Minutes</option>
+          <option value="10">10 Minutes</option>
+          <option value="15">15 Minutes</option>
+        </select>
+      </div>
 
-
+      <!-- Sezione Forecast -->
+      <div class="forecast-section mb-4">
+        <h6 class="text-warning fw-bold mb-2">
+          {{ selectedSensor ? 'Sensor' : 'Area' }} Forecast Data
+        </h6>
+        <label for="forecastInterval" class="small-text">Select Prediction Time</label>
+        <select #forecastInterval id="forecastInterval" class="form-select form-select-sm" (change)="onForecastIntervalSelect()">
+          <option value="" selected>Select Interval</option>
+          <option value="1">+1 Hour</option>
+          <option value="12">+12 Hours</option>
+          <option value="24">+24 Hours</option>
+          <option value="72">+72 Hours</option>
+        </select>
+      </div>
+    </div>
   </div>
 
-  <!-- Contenitore per la mappa -->
-  <div id="map" style="height: 75vh; min-height: 80%; position: relative;">
-    <!-- Lista dei sensori caricati -->
-    <div id="sensor-list" class="sensor-list" style="position: absolute; top: 10px; right: 10px; z-index: 600;">
-      <ul style="list-style-type: none; padding: 0;">
-        <li *ngFor="let sensor of sensors" style="margin-bottom: 10px;">
-          <button
-            type="button"
-            class="btn"
-            [ngClass]="{
-              'btn-primary': selectedSensor !== sensor.id,
-              'btn-success': selectedSensor === sensor.id
-            }"
-            (click)="onSensorSelect(sensor)"
-          >
-            {{ sensor.companyName }} - {{ sensor.description }}
+  <!-- Barra filtri tipo sensore (Bottom Bar) -->
+  <div class="sensor-type-bar px-3 py-2 bg-dark rounded-pill shadow" *ngIf="sensorTypeList && sensorTypeList.length > 0">
+    <div class="d-flex gap-2">
+      <button *ngFor="let type of sensorTypeList"
+              type="button"
+              class="btn btn-sm rounded-pill px-3"
+              [ngClass]="selectedSensorType === type ? 'btn-success' : 'btn-outline-light'"
+              (click)="onSensorTypeSelect(type)">
+        {{ type }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Mappa Principale -->
+  <div id="map" class="main-map">
+
+    <!-- Lista Sensori Overlay (Top Right) -->
+    <div class="sensor-overlay-list p-2 bg-dark-subtle rounded shadow" *ngIf="sensors.length > 0">
+      <h6 class="small text-uppercase mb-2 text-center border-bottom pb-1">Sensors</h6>
+      <div class="scroll-container">
+        <div *ngFor="let sensor of sensors" class="mb-1">
+          <button type="button"
+                  class="btn btn-xs w-100 text-start text-truncate"
+                  [ngClass]="selectedSensor === sensor.id ? 'btn-success' : 'btn-primary'"
+                  (click)="onSensorSelect(sensor)"
+                  [title]="sensor.companyName">
+            {{ sensor.companyName }}
           </button>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
 
+    <!-- Informazioni Area (Bottom Right) -->
+    <div class="area-info-box p-3 bg-white shadow rounded border" *ngIf="interestArea">
+      <h3 class="h5 m-0 text-primary">{{ interestArea.name }}</h3>
+      <p class="small text-muted mb-1">{{ interestArea.description }}</p>
+      <div class="d-flex align-items-center justify-content-between mt-2">
+        <span class="badge bg-secondary">User ID: {{ interestArea.userId }}</span>
+        <img class="img-thumbnail mini-thumb" [src]="'assets/default-thumbnail.jpg'" alt="Area thumbnail" />
+      </div>
+    </div>
 
-
-  <h1>{{ interestArea!.name }}</h1>
-  <p>{{ interestArea!.description }}</p>
-  <p><strong>User ID:</strong> {{ interestArea!.userId }}</p>
-  <img style="max-height: 200px" [src]="'assets/default-thumbnail.jpg'" alt="Thumbnail" />
   </div>
-
 </div>

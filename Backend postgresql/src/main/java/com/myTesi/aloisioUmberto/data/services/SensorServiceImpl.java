@@ -285,33 +285,56 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> getAllSensor() {
+        // 1. Registra il tempo di inizio
+        long startTime = System.currentTimeMillis();
+
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
+        int totalPublicSensors = (sensors != null) ? sensors.size() : 0;
         List<SensorDto> sensorDtoList = new ArrayList<>();
-        System.out.println(sensorDtoList);
 
-
+        // 2. Ciclo di recupero dati (Strategia N+1)
         for (Sensor sensor : sensors) {
+            // Questa chiamata dentro il ciclo viene eseguita per OGNI sensore
             Optional<SensorData> sensorDataOptional = sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()));
-
 
             if (sensorDataOptional.isPresent()) {
                 SensorData sensorData = sensorDataOptional.get();
                 SensorDto sensorDto = new SensorDto();
+
                 sensorDto.setId(String.valueOf(sensor.getId()));
                 sensorDto.setDescription(sensor.getDescription());
                 sensorDto.setUserId(String.valueOf(sensor.getUserId()));
                 sensorDto.setPayloadType(sensor.getPayloadType());
                 sensorDto.setInterestAreaID(sensor.getInterestAreaID());
                 sensorDto.setCompanyName(sensor.getCompanyName());
+
+                // Imposta latitudine e longitudine come liste (come richiesto dal tuo DTO)
                 sensorDto.setLatitude(Collections.singletonList(sensorData.getLatitude()));
                 sensorDto.setLongitude(Collections.singletonList(sensorData.getLongitude()));
+
                 sensorDto.setTimestamp(String.valueOf(sensorData.getTimestamp()));
                 sensorDto.setIsPublic(sensor.getIsPublic());
+
                 sensorDtoList.add(sensorDto);
             } else {
-               System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
+                // Log opzionale per sensori senza dati
+                // System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
             }
         }
+
+        // 3. Calcolo statistiche finali
+        long duration = System.currentTimeMillis() - startTime;
+
+        // 4. Stampa del Report dettagliato
+        System.out.println("------------------------------------------");
+        System.out.println("REPORT ESECUZIONE (getAllSensor):");
+        System.out.println("- Tempo impiegato: " + duration + " ms");
+        System.out.println("- Record sensori pubblici analizzati: " + totalPublicSensors);
+        System.out.println("- Record SensorDto generati: " + sensorDtoList.size());
+        System.out.println("");
+        System.out.println("- [STRATEGIA]: Ciclo iterativo (N+1 Query)");
+        System.out.println("- [AVVISO]: Se il tempo è > 1000ms, considera l'ottimizzazione SQL.");
+        System.out.println("------------------------------------------");
 
         return sensorDtoList;
     }

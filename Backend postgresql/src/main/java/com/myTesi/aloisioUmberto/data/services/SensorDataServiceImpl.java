@@ -226,7 +226,6 @@ public class SensorDataServiceImpl implements SensorDataService {
         List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
         return createSensorDataInterestAreaDtoForMultipleSensors(sensors, null, null);
     }
-
     @Override
     public SensorDataInterestAreaDto getTopPublicSensorData() {
         // 1. Registra il tempo di inizio

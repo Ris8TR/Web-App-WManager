@@ -18,6 +18,7 @@ import {InterestAreaDto} from "../../../../model/interestAreaDto";
 import {saveOutputToFile} from "source-map-explorer/lib/output";
 import {control} from "leaflet";
 import zoom = control.zoom;
+import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAreaDto";
 
 @Component({
   selector: 'app-obsmap',
@@ -296,54 +297,52 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-
   private loadSensorData(): void {
-    if (!this.isRealTime) {
-      if (!this.map) return;
-      this.cachedData.clear()
-      this.sensorDataService.getAllPublicSensorDataOnTop()
-        .subscribe((response: any) => {
-          let geoJson: any;
-          const sensorDataList = response.sensorData; // Lista di dati sensori
-          const sensorAreaTypes = response.sensorAreaTypes; // Tipi di sensori unici
-          this.sensorTypeList = response.sensorAreaTypes;
+    // Se siamo in RealTime o la mappa non è pronta, usciamo
+    if (this.isRealTime || !this.map) return;
+
+    this.cachedData.clear();
+
+    // Chiamata al servizio per ottenere i dati "Top" (gli ultimi per ogni sensore)
+    this.sensorDataService.getAllPublicSensorDataOnTop().subscribe({
+      next: (response: SensorDataInterestAreaDto) => {
+        if (response && response.sensorData) {
+          // 1. Aggiorniamo le liste locali con i dati ricevuti
+          this.sensorTypeList = response.sensorAreaTypes || [];
           this.sensorDataLocalList = response.sensorData;
 
-          if (sensorDataList && sensorAreaTypes) {
-            const heatData: [number, number, number][] = [];
+          // 2. Estraiamo i punti per la mappa (usando l'accesso diretto al payload)
+          const heatData = this.extractHeatData(this.sensorDataLocalList);
 
-            // Estrai le informazioni di geolocalizzazione e valore per ogni sensore
-            sensorDataList.forEach((data: any) => {
-              // Ottieni la latitudine, longitudine e il valore per il sensore
-              const lat = data.latitude;
-              const lng = data.longitude;
-              let value: number = 0;
+          // 3. Salviamo nella cache e aggiorniamo la visualizzazione
+          this.cachedData.set(this.selectedSensorType, heatData);
+          this.updateGrid();
 
-              // Aggiungi il valore del sensore in base al tipo selezionato
-              try {
-                const payloadData = JSON.parse(data.payload);
-                value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
-              } catch (error) {
-                console.error("Errore nel parsing del payload:", error);
-              }
-
-              if (lat && lng) {
-                heatData.push([lat, lng, value]);
-              }
-            });
-
-            // Salva i dati nella cache per il tipo di sensore selezionato
-            this.cachedData.set(this.selectedSensorType, heatData);
-            this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-          } else {
-            console.error('Formato della risposta non valido:', response);
-          }
-        });
-
-    }
+          console.log(`Caricati ${heatData.length} sensori pubblici.`);
+        } else {
+          console.error('Formato della risposta non valido:', response);
+        }
+      },
+      error: (err) => {
+        console.error('Errore durante il caricamento dei dati sensori:', err);
+      }
+    });
   }
 
+  private extractHeatData(sensorDataList: SensorData[]): [number, number, number][] {
+    const heatData: [number, number, number][] = [];
+    sensorDataList.forEach((data) => {
+      const lat = data.latitude;
+      const lng = data.longitude;
+      // Accesso diretto al payload
+      const value = data.payload ? (data.payload[this.selectedSensorType] || 0) : 0;
 
+      if (lat != null && lng != null) {
+        heatData.push([lat, lng, value]);
+      }
+    });
+    return heatData;
+  }
   onLatestIntervalSelect(): void {
     this.cachedData.clear();
 

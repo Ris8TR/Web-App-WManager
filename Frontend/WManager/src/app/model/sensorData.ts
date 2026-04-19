@@ -17,7 +17,7 @@ export interface SensorData {
     dataType: string;
     sensorId: string;
     date?: Date;
-    payload?: string;
+  payload?: { [key: string]: any };
     timestamp?: Date;
     type?: string;
     latitude: number;

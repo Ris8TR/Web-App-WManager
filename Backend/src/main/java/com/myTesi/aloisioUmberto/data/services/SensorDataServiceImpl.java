@@ -25,6 +25,10 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -63,56 +67,90 @@ public class SensorDataServiceImpl implements SensorDataService {
     private InterestAreaRepository interestAreaRepository;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     public void SensorDataService(RedisTemplate<String, Object> redisTemplate,
                                   SensorDataRepository sensorDataRepository) {
         this.redisTemplate = redisTemplate;
         this.sensorDataRepository = sensorDataRepository;
+        final MongoTemplate mongoTemplate;
     }
 
+    @Override
     public SensorData saveSensorData(NewSensorDataDto newSensorDataDto) {
-        SensorData sensorData = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDto);
+        // 1. Validazione e Sicurezza (Sostituiti assert con eccezioni reali)
         String userId = isValidToken(newSensorDataDto.getToken());
-        assert userId != null;
-        Optional<User> user = userDao.findById(userId);
-        assert user.isPresent();
-        Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDto.getSensorId(), userId);
-        assert sensor.isPresent();
+        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token non valido");
 
-        if (BCrypt.checkpw(newSensorDataDto.getSensorPassword(), user.get().getSensorPassword())) {
-            try {
-                sensorData.setSensorId(sensor.get().getId().toString());
-                sensor.get().setInterestAreaID(sensorData.getInterestAreaID());
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
 
-                // Aggiornamento delle coordinate
-                if (!sensor.get().getLongitude().isEmpty() && !sensor.get().getLatitude().isEmpty()) {
-                    Double currentLongitude = sensor.get().getLongitude().getFirst();
-                    Double currentLatitude = sensor.get().getLatitude().getFirst();
+        Sensor sensor = sensorRepository.findByIdAndUserId(newSensorDataDto.getSensorId(), userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensore non trovato o non appartenente all'utente"));
 
-                    if (!currentLongitude.equals(sensorData.getLongitude()) ||
-                            !currentLatitude.equals(sensorData.getLatitude())) {
-
-                        // Aggiunta dei nuovi dati alla posizione 0
-                        sensor.get().getLongitude().addFirst(sensorData.getLongitude());
-                        sensor.get().getLatitude().addFirst(sensorData.getLatitude());
-                    }
-                } else {
-                    // Inizializza liste e aggiungi il primo valore se vuote
-                    sensor.get().setLongitude(new ArrayList<>(List.of(sensorData.getLongitude())));
-                    sensor.get().setLatitude(new ArrayList<>(List.of(sensorData.getLatitude())));
-                }
-
-                sensorRepository.save(sensor.get());
-            } catch (DataIntegrityViolationException e) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "|Error|", e);
-            }
-        } else {
-            throw new RuntimeException("Invalid credentials");
+        if (!BCrypt.checkpw(newSensorDataDto.getSensorPassword(), user.getSensorPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenziali sensore errate");
         }
 
+        // 2. Mappatura iniziale (Il payload viene ignorato dal mapper come impostato prima)
+        SensorData sensorData = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDto);
+        sensorData.setSensorId(sensor.getId().toString());
+        sensorData.setInterestAreaID(sensor.getInterestAreaID());
         sensorData.setTimestamp(newSensorDataDto.getTimestamp());
         sensorData.setSavedOnTime(Date.from(Instant.now()));
+
+        // 3. Gestione del Payload (CONVERSIONE IN MAPPA)
+        // Se il DTO ha un Object, lo convertiamo in Map per MongoDB
+        Map<String, Object> payloadMap = new HashMap<>();
+        Object rawPayload = newSensorDataDto.getPayload();
+
+        if (rawPayload instanceof Map) {
+            // Se è già una mappa (es. inviata come JSON via REST)
+            payloadMap = (Map<String, Object>) rawPayload;
+        } else if (rawPayload != null) {
+            // Se è una stringa o altro formato, usiamo il parsing manuale che avevi fatto
+            try {
+                String payloadString = rawPayload.toString().replaceAll("[{}]", "");
+                String[] entries = payloadString.split(",");
+                for (String entry : entries) {
+                    String[] keyValue = entry.split("=");
+                    if (keyValue.length == 2) {
+                        payloadMap.put(keyValue[0].trim(), parseValue(keyValue[1].trim()));
+                    }
+                }
+            } catch (Exception e) {
+                // Loggare l'errore o gestire payload malformati
+            }
+        }
+        sensorData.setPayload(payloadMap);
+
+        // 4. Aggiornamento Storico Posizioni nel Sensore
+        try {
+            if (sensor.getLongitude() != null && !sensor.getLongitude().isEmpty() &&
+                    sensor.getLatitude() != null && !sensor.getLatitude().isEmpty()) {
+
+                Double currentLongitude = sensor.getLongitude().getFirst();
+                Double currentLatitude = sensor.getLatitude().getFirst();
+
+                if (!currentLongitude.equals(sensorData.getLongitude()) ||
+                        !currentLatitude.equals(sensorData.getLatitude())) {
+
+                    sensor.getLongitude().addFirst(sensorData.getLongitude());
+                    sensor.getLatitude().addFirst(sensorData.getLatitude());
+                }
+            } else {
+                sensor.setLongitude(new ArrayList<>(List.of(sensorData.getLongitude())));
+                sensor.setLatitude(new ArrayList<>(List.of(sensorData.getLatitude())));
+            }
+
+            sensorRepository.save(sensor);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Errore integrità dati", e);
+        }
+
+        // 5. Salvataggio finale dello storico dati
         return sensorDataRepository.save(sensorData);
     }
 
@@ -131,58 +169,63 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
-        SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
+        // 1. Recupero e Validazione (Usa if invece di assert per produzione)
         String userId = isValidToken(newSensorDataDTO.getToken());
-        assert userId != null;
-        Optional<User> user = userDao.findById(userId);
-        Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(newSensorDataDTO.getSensorId(), userId);
-        assert  sensor.isPresent();
-        if (BCrypt.checkpw(newSensorDataDTO.getSensorPassword(), user.get().getSensorPassword())) {
-            try {
-            data.setSensorId(sensor.get().getId().toString());
-            //TODO Aggiungere verifica area di interesse
-            data.setInterestAreaID(sensor.get().getInterestAreaID());
-            sensorRepository.save(sensor.get());
-            } catch (DataIntegrityViolationException e) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "|Error|", e);
-            }
-        }else {
+        if (userId == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        Sensor sensor = sensorRepository.findByIdAndUserId(newSensorDataDTO.getSensorId(), userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor not found"));
+
+        // 2. Controllo Password
+        if (!BCrypt.checkpw(newSensorDataDTO.getSensorPassword(), user.getSensorPassword())) {
             throw new RuntimeException("Invalid credentials");
         }
+
+        // 3. Mappatura Dati
+        SensorData data = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDTO);
+        data.setSensorId(sensor.getId().toString());
+        data.setInterestAreaID(sensor.getInterestAreaID());
         data.setTimestamp(newSensorDataDTO.getTimestamp());
         data.setSavedOnTime(Date.from(Instant.now()));
 
+        // 4. Gestione Payload (Ottimizzata per MongoDB)
         if (file != null && !file.isEmpty()) {
-            SensorDataHandler handler = getHandlerForType(String.valueOf(sensor.get().getType()));
+            SensorDataHandler handler = getHandlerForType(String.valueOf(sensor.getType()));
             if (handler != null) {
                 handler.handle(data, newSensorDataDTO, file);
             }
         } else {
-            HashMap<String, Object> payload = new HashMap<>();
+            // EVITIAMO ObjectMapper e la conversione in String.
+            // Salviamo direttamente la Map così Mongo crea un oggetto BSON nativo.
+            Map<String, Object> payloadMap = new HashMap<>();
 
-            // Rimuove le parentesi graffe
-            String payloadString = newSensorDataDTO.getPayload().toString().replaceAll("[{}]", "");
-
-            //parsing del json
-            String[] entries = payloadString.split(", ");
-            for (String entry : entries) {
-                String[] keyValue = entry.split("=");
-                String key = keyValue[0].trim();
-                Object value = parseValue(keyValue[1].trim());
-                payload.put(key, value);
+            try {
+                // Se getPayload() è già una mappa o un oggetto, usalo direttamente.
+                // Se è una stringa strana, il tuo parsing manuale va bene ma puliamolo:
+                String rawPayload = newSensorDataDTO.getPayload().toString().replaceAll("[{}]", "");
+                String[] entries = rawPayload.split(",");
+                for (String entry : entries) {
+                    String[] keyValue = entry.split("=");
+                    if (keyValue.length == 2) {
+                        payloadMap.put(keyValue[0].trim(), parseValue(keyValue[1].trim()));
+                    }
+                }
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Payload format error");
             }
 
-            // Conversione finale
-            ObjectMapper objectMapper = new ObjectMapper();
-            String jsonPayload = objectMapper.writeValueAsString(payload);
-
-            data.setPayload(jsonPayload);
+            data.setPayload(payloadMap);
         }
 
-        sensorDataRepository.save(data);
-        // TODO: Aggiornamento della posizione del sensore dovrebbe andare qui
-        System.out.println(data);
-        return data;
+        SensorData savedData = sensorDataRepository.save(data);
+
+
+        sensorRepository.save(sensor);
+
+        return savedData;
     }
 
     @Override
@@ -217,34 +260,54 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorDataInterestAreaDto getTopPublicSensorData() {
-        // 1. Registra il tempo di inizio
         long startTime = System.currentTimeMillis();
 
-        // Recupero la lista dei sensori pubblici
+        // 1. Recupera i sensori (usa findAllByIsPublic come definito nel tuo repository)
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
-        int totalPublicSensors = (sensors != null) ? sensors.size() : 0;
 
-        // 2. Elaborazione (passando null come range temporale per avere i record "Top")
-        SensorDataInterestAreaDto result = createSensorDataInterestAreaDtoForMultipleSensors(sensors, null, null);
+        if (sensors == null || sensors.isEmpty()) {
+            System.out.println("Nessun sensore pubblico trovato.");
+            return new SensorDataInterestAreaDto();
+        }
 
-        // 3. Calcolo statistiche finali
-        long duration = System.currentTimeMillis() - startTime;
-        int dataFoundCount = (result != null && result.getSensorData() != null) ? result.getSensorData().size() : 0;
+        List<String> publicSensorIds = sensors.stream()
+                .map(s -> s.getId().toString())
+                .collect(Collectors.toList());
 
-        // 4. Stampa del Report dettagliato
+        // 2. Costruzione Aggregation
+        Aggregation aggregation = Aggregation.newAggregation(
+                // Filtro per ID sensore
+                Aggregation.match(Criteria.where("sensorId").in(publicSensorIds)),
+                // Ordino per timestamp decrescente (dal più nuovo)
+                Aggregation.sort(Sort.Direction.DESC, "timestamp"),
+                // Raggruppo per sensore e prendo l'intero documento ($$ROOT) del primo record trovato
+                Aggregation.group("sensorId").first("$$ROOT").as("ultimoRecord"),
+                // Rendi il documento "ultimoRecord" la radice del risultato
+                Aggregation.replaceRoot("ultimoRecord")
+        );
+
+        // 3. Esecuzione (Usa SensorData.class per il nome collezione automatico)
+        List<SensorData> results = mongoTemplate.aggregate(aggregation, SensorData.class, SensorData.class).getMappedResults();
+
+        // 4. Calcolo tipi area
+        HashSet<String> areaTypes = new HashSet<>();
+        for (Sensor s : sensors) {
+            if (s.getType() != null) {
+                areaTypes.add(s.getType().toString());
+            }
+        }
+
+        SensorDataInterestAreaDto dto = new SensorDataInterestAreaDto();
+        dto.setSensorData(results);
+        dto.setSensorAreaTypes(areaTypes);
+
         System.out.println("------------------------------------------");
-        System.out.println("REPORT ESECUZIONE (getTopPublicSensorData):");
-        System.out.println("- Tempo impiegato: " + duration + " ms");
-        System.out.println("- Record sensori pubblici analizzati: " + totalPublicSensors);
-        System.out.println("- Record SensorData (Top) ricavati: " + dataFoundCount);
-        System.out.println("");
-        // Specifichiamo che il range è null (prendendo l'ultimo dato disponibile in assoluto)
-        System.out.println("- [QUERY RANGE START]: NULL (No timeframe limit)");
-        System.out.println("- [QUERY RANGE END]  : NULL (No timeframe limit)");
-        System.out.println("- [STRATEGIA]         : Recupero dell'ultimo record disponibile");
+        System.out.println("REPORT ESECUZIONE (Aggregation):");
+        System.out.println("- Tempo impiegato: " + (System.currentTimeMillis() - startTime) + " ms");
+        System.out.println("- Record trovati: " + results.size());
         System.out.println("------------------------------------------");
 
-        return result;
+        return dto;
     }
 
     @Override

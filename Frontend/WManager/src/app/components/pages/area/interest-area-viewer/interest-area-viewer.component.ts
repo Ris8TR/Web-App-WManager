@@ -30,7 +30,7 @@ import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAre
   ],
   providers: [
     { provide: LocationStrategy, useClass: PathLocationStrategy },
-    { provide: APP_BASE_HREF, useValue: '/' } // Imposta il base href
+    { provide: APP_BASE_HREF, useValue: '/' }
   ],
   templateUrl: './interest-area-viewer.component.html',
   styleUrl: './interest-area-viewer.component.css'
@@ -529,36 +529,36 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
   private processData(data: SensorDataInterestAreaDto): [number, number, number][] {
-    this.cachedData.clear()
+    // 1. Validazione iniziale
     if (!data || !data.sensorData || !Array.isArray(data.sensorData)) {
       console.error("Dati non validi per processData:", data);
       return [];
     }
 
+    // 2. Aggiornamento liste locali
     this.sensorTypeList = data.sensorAreaTypes || [];
     this.sensorDataLocalList = data.sensorData;
 
-    console.log(data.sensorData)
-
-    return data.sensorData.map((sensorData) => {
+    // 3. Trasformazione dei dati in "triplette" [lat, lng, valore]
+    const heatData: [number, number, number][] = data.sensorData.map((sensorData) => {
       const lat = sensorData.latitude;
       const lng = sensorData.longitude;
-      let value: number | undefined;
 
-      try {
-        const payloadData = JSON.parse(sensorData.payload || "{}"); // Default a un oggetto vuoto
-        value = payloadData[this.selectedSensorType];
-        this.cachedData.set(this.selectedSensorType, payloadData);
+      // ACCESSO DIRETTO: Il payload è già un oggetto, NON serve JSON.parse
+      // Se il payload esiste, prendi il valore del tipo selezionato, altrimenti 0
+      const value = sensorData.payload ? (sensorData.payload[this.selectedSensorType] ?? 0) : 0;
 
-      } catch (error) {
-        console.error("Errore nel parsing del payload:", error);
-      }
-
-      console.log(`Processed point: lat=${lat}, lng=${lng}, value=${value}`);
-      return [lat, lng, value ?? 0]; // Default a 0 se value è undefined
+      return [lat, lng, value];
     });
-  }
 
+    // 4. SALVATAGGIO IN CACHE
+    // Salviamo l'intero array di punti per il tipo selezionato (es: "CO2")
+    this.cachedData.set(this.selectedSensorType, heatData);
+
+    console.log(`Processati ${heatData.length} punti per ${this.selectedSensorType}`);
+
+    return heatData;
+  }
 
   onSensorTypeSelect(type: any) {
     this.selectedSensorType = type;

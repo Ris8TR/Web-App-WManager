@@ -19,6 +19,7 @@ public interface SensorDataMapper {
     SensorDataDto sensorDataToSensorDataDto(SensorData sensorData);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "payload", ignore = true)
     SensorData newSensorDataDtoToSensorData(NewSensorDataDto newSensorDataDto);
 
     default String map(ObjectId value) {

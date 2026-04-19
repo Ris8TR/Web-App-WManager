@@ -3,11 +3,14 @@ package com.myTesi.aloisioUmberto.data.dao;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface SensorDataRepository extends JpaRepository<SensorData, String> {
@@ -40,4 +43,14 @@ public interface SensorDataRepository extends JpaRepository<SensorData, String> 
 
     Optional<SensorData> findTopBySensorId(String sensorId);
     List<SensorData> findAllByInterestAreaIDAndSensorId(String interestAreaId, String sensorId);
+
+        @Query(value = """
+        SELECT DISTINCT ON (sensor_id) *
+        FROM sensor_data
+        WHERE sensor_id IN :sensorIds
+        ORDER BY sensor_id, timestamp DESC
+        """, nativeQuery = true)
+        List<SensorData> findLatestDataForSensors(@Param("sensorIds") List<UUID> sensorIds);
+
+
 }
