@@ -1,45 +1,95 @@
-<div class="mainContainer">
-    <div class="container">
-      <div class="form-container">
-        <h2>Load Data</h2>
+<section class="dashboard-wrapper d-flex align-items-center justify-content-center">
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-10 col-lg-7 col-xl-5">
 
-        <form (ngSubmit)="loadData()">
-          <div class="form-group">
-            <label for="latitude">latitude*:</label>
-            <input type="number" id="latitude" name="latitude" [(ngModel)]="data.latitude">
-          </div>
-          <div class="form-group">
-            <label for="longitude">longitude*:</label>
-            <input type="number" id="longitude" name="longitude" [(ngModel)]="data.longitude">
-          </div>
-          <div class="form-group">
-            <label for="dataType">data Type*:</label>
-            <input type="text" id="dataType" name="dataType" [(ngModel)]="data.payloadType">
-          </div>7<div class="form-group">
+        <!-- Card principale -->
+        <div class="login-card shadow-lg animate-fade-in">
 
-          <label for="dataType">Sensor Id*:</label>
-          <input type="text" id="sensorId" name="dataType" [(ngModel)]="data.sensorId">
+          <div class="text-center mb-4">
+            <div class="icon-circle mb-3">
+              <i class="fas fa-upload text-primary"></i>
+            </div>
+            <h3 class="fw-bold text-white">Load Sensor Data</h3>
+            <p class="text-muted small">Enter coordinates and upload your payload file</p>
+          </div>
+
+          <form (ngSubmit)="loadData()">
+
+            <!-- Riga: Latitudine e Longitudine -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label-custom">Latitude*</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <input type="number" name="latitude" class="form-control-custom"
+                         [(ngModel)]="data.latitude" placeholder="0.0000">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">Longitude*</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-map-pin"></i>
+                  <input type="number" name="longitude" class="form-control-custom"
+                         [(ngModel)]="data.longitude" placeholder="0.0000">
+                </div>
+              </div>
+            </div>
+
+            <!-- Riga: Data Type e Sensor ID -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label-custom">Data Type*</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-file-code"></i>
+                  <input type="text" name="payloadType" class="form-control-custom"
+                         [(ngModel)]="data.payloadType" placeholder="JSON/CSV">
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">Sensor ID*</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-fingerprint"></i>
+                  <input type="text" name="sensorId" class="form-control-custom"
+                         [(ngModel)]="data.sensorId" placeholder="ID">
+                </div>
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group mb-3">
+              <label class="form-label-custom">Sensor Password*</label>
+              <div class="input-group-custom">
+                <i class="fas fa-key"></i>
+                <input type="password" name="sensorPassword" class="form-control-custom"
+                       [(ngModel)]="data.sensorPassword" placeholder="••••••••">
+              </div>
+            </div>
+
+            <!-- Carica File (Zona Drop-style) -->
+            <div class="form-group mb-4">
+              <label class="form-label-custom">Payload File*</label>
+              <div class="file-upload-wrapper">
+                <input type="file" (change)="caricaFile($event)" class="file-input">
+                <div class="file-dummy">
+                  <i class="fas fa-cloud-upload-alt mb-2"></i>
+                  <span class="small" *ngIf="!file">Click to select payload file</span>
+                  <span class="small text-success" *ngIf="file">{{ file.name }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottone di invio -->
+            <div class="text-center">
+              <button type="submit" class="btn-login-submit w-100" [disabled]="!formValido()">
+                <i class="fas fa-paper-plane me-2"></i> Upload Data
+              </button>
+            </div>
+
+          </form>
         </div>
-
-          <div class="form-group">
-            <label for="dataType">Sensor Password*:</label>
-            <input type="text" id="password" name="dataType" [(ngModel)]="data.sensorPassword">
-          </div>
-
-
-          <div class="form-group">
-            <label for="file">Carica file payload:</label>
-            <input type="file" id="file" name="file"  (change)="caricaFile($event)">
-          </div>
-
-
-
-          <div style="display: flex">
-
-          <button type="submit" style="margin-top: 10%" (click)="loadData()" [disabled]="!formValido()">Upload data</button>
-          </div>
-        </form>
 
       </div>
     </div>
   </div>
+</section>

@@ -1,63 +1,106 @@
-<div class="row">
-  <app-user class="col-sm-2"></app-user>
-  <div class="col">
-    <div class="container-fluid">
-    <div id="page-content-wrapper">
-      <div class="container-fluid">
-        <form (ngSubmit)="loadData()" class="example-form centered-form">
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Company Name*:</label>
-            <input type="text" class="form-control form-control-lg"
-                   placeholder="Name:" id="company" name="company" [(ngModel)]="data.companyName" required />
+<div class="dashboard-wrapper d-flex">
+  <!-- Sidebar componente utente -->
+  <app-user class="sidebar-component"></app-user>
+
+  <main class="content-wrapper flex-grow-1 d-flex align-items-center justify-content-center">
+    <div class="container py-4">
+      <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8 col-xl-6">
+
+          <div class="login-card shadow-lg animate-fade-in">
+
+            <div class="text-center mb-4">
+              <div class="icon-circle mb-3">
+                <i class="fas fa-microchip text-primary"></i>
+              </div>
+              <h3 class="fw-bold text-white">Create New Sensor</h3>
+              <p class="text-muted small">Register a new device to a specific area</p>
+            </div>
+
+            <form (ngSubmit)="loadData()">
+
+              <div class="row g-3 mb-3">
+                <!-- Company Name -->
+                <div class="col-md-6">
+                  <label class="form-label-custom">Company Name*</label>
+                  <div class="input-group-custom">
+                    <i class="fas fa-building"></i>
+                    <input type="text" class="form-control-custom" placeholder="e.g. EcoTech Ltd"
+                           name="company" [(ngModel)]="data.companyName" required />
+                  </div>
+                </div>
+
+                <!-- Type -->
+                <div class="col-md-6">
+                  <label class="form-label-custom">Sensor Type*</label>
+                  <div class="input-group-custom">
+                    <i class="fas fa-tag"></i>
+                    <input type="text" class="form-control-custom" placeholder="e.g. CO2, Temp"
+                           name="type" [(ngModel)]="data.type" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="mb-3">
+                <label class="form-label-custom">Description*</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-align-left"></i>
+                  <input class="form-control-custom" placeholder="Brief description..."
+                         name="description" [(ngModel)]="data.description" required />
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <!-- Payload Type -->
+                <div class="col-md-6">
+                  <label class="form-label-custom">Payload Type*</label>
+                  <div class="input-group-custom">
+                    <i class="fas fa-file-code"></i>
+                    <select class="form-control-custom select-custom" name="payloadType" [(ngModel)]="data.payloadType" required>
+                      <option [ngValue]="undefined" disabled selected>Format...</option>
+                      <option *ngFor="let type of fileTypes" [value]="type">{{ type }}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Password -->
+                <div class="col-md-6">
+                  <label class="form-label-custom">Sensor Password*</label>
+                  <div class="input-group-custom">
+                    <i class="fas fa-key"></i>
+                    <input type="password" class="form-control-custom" placeholder="Security key"
+                           name="password" [(ngModel)]="data.password" required />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Selezione Area di Interesse -->
+              <div class="mb-4">
+                <label class="form-label-custom">Select Interest Area*</label>
+                <div class="area-selection-box">
+                  <mat-radio-group [(ngModel)]="data.interestAreaId" name="interestArea" required>
+                    <div class="area-grid">
+                      <mat-radio-button *ngFor="let area of interestAreaNames" [value]="area.id" class="modern-radio">
+                        <span class="area-name-label">{{ area.name }}</span>
+                      </mat-radio-button>
+                    </div>
+                  </mat-radio-group>
+                </div>
+              </div>
+
+              <!-- Submit -->
+              <div class="text-center">
+                <button type="submit" class="btn-login-submit w-100" [disabled]="!controllo()">
+                  <i class="fas fa-plus-circle me-2"></i> Register Sensor
+                </button>
+              </div>
+
+            </form>
           </div>
 
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Description*:</label>
-            <input class="form-control form-control-lg"
-                   placeholder="Description:" id="description" name="description" [(ngModel)]="data.description" required />
-          </div>
-
-
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Password*:</label>
-            <input class="form-control form-control-lg"
-                   placeholder="Password:" type="password" id="password" name="password" [(ngModel)]="data.password" required>
-          </div>
-
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Type*:</label>
-            <input class="form-control form-control-lg" id="type" name="type"  placeholder="Type:"[(ngModel)]="data.type" required>
-          </div>
-
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Payload Type*:</label>
-            <select class="form-control form-control-lg"
-                    id="payloadType"
-                    name="type"
-                    [(ngModel)]="data.payloadType"
-                    required>
-              <option *ngFor="let type of fileTypes" [value]="type">{{ type }}</option>
-            </select>
-          </div>
-
-
-
-          <div class="full-width">
-            <label style="color: black">Seleziona Area di Interesse*</label>
-            <mat-radio-group [(ngModel)]="data.interestAreaId" name="interestArea" required>
-              <mat-radio-button *ngFor="let area of interestAreaNames" [value]="area.id" class="white-text">
-                {{ area.name }}
-              </mat-radio-button>
-            </mat-radio-group>
-          </div>
-
-
-
-          <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
-                  style="padding-left: 2.5rem; padding-right: 2.5rem;" [disabled]="!controllo()">Create Sensor</button>
-        </form>
+        </div>
       </div>
     </div>
-    </div>
-  </div>
+  </main>
 </div>

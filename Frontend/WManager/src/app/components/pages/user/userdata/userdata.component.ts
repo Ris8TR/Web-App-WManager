@@ -46,4 +46,8 @@ export class UserdataComponent implements OnInit {
       console.warn("No cookie.");
     }
   }
+
+  protected openResetPasswordModal() {
+
+  }
 }

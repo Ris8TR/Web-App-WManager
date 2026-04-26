@@ -1,19 +1,60 @@
-<div class="row">
-  <app-user class="col-sm-2"></app-user>
-  <div class="col-sm-4" >
-    <div class="container-fluid" style="margin: 20%">
-      <div >
-        <h3 class="form-label" style="color: black">Name:</h3>
-        <h5 class="form-label" style="color: black">{{ userDto.firstName }}</h5>
-      </div>
-      <div style="margin-top: 5%;">
-        <h3 class="form-label" style="color: black">Last Name:</h3>
-        <h5 class="form-label" style="color: black">{{ userDto.lastName }}</h5>
-      </div>
-      <div style="margin-top: 5%" >
-        <h3 class="form-label" style="color: black">Email:</h3>
-        <h5 class="form-label" style="color: black">{{ userDto.email }}</h5>
+<div class="dashboard-wrapper d-flex">
+  <!-- Sidebar componente utente -->
+  <app-user class="sidebar-component"></app-user>
+
+  <main class="content-wrapper flex-grow-1 d-flex align-items-center justify-content-center">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 col-xl-5">
+
+          <div class="login-card profile-card shadow-lg animate-fade-in">
+
+            <!-- Intestazione Profilo -->
+            <div class="text-center mb-5">
+              <div class="profile-avatar-container mb-3">
+                <i class="fas fa-user-astronaut"></i>
+              </div>
+              <h2 class="fw-bold text-white mb-0">Account Details</h2>
+              <p class="text-muted small">Personal information and security</p>
+            </div>
+
+            <!-- Dettagli Utente -->
+            <div class="profile-details">
+
+              <div class="info-item mb-4">
+                <div class="info-label">
+                  <i class="fas fa-id-card me-2"></i> Name
+                </div>
+                <div class="info-value">{{ userDto.firstName }}</div>
+              </div>
+
+              <div class="info-item mb-4">
+                <div class="info-label">
+                  <i class="fas fa-signature me-2"></i> Last Name
+                </div>
+                <div class="info-value">{{ userDto.lastName }}</div>
+              </div>
+
+              <div class="info-item mb-4">
+                <div class="info-label">
+                  <i class="fas fa-envelope me-2"></i> Email Address
+                </div>
+                <div class="info-value">{{ userDto.email }}</div>
+              </div>
+
+            </div>
+
+            <!-- Azioni veloci (Opzionale) -->
+            <div class="text-center mt-5">
+              <button class="btn btn-outline-info btn-sm rounded-pill px-4" (click)="openResetPasswordModal()">
+                <i class="fas fa-key me-2"></i>Change Password
+              </button>
+            </div>
+
+          </div>
+
+        </div>
       </div>
     </div>
-  </div>
+  </main>
 </div>

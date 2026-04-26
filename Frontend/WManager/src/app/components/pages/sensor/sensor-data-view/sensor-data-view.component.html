@@ -1,80 +1,124 @@
-<div class="row" style="display: flex; height: 100vh;">
+<div class="dashboard-wrapper d-flex">
   <!-- Barra laterale sinistra -->
-  <app-user style="flex: 0 0 250px; border-right: 1px solid #ddd; ;"></app-user>
+  <app-user class="sidebar-component"></app-user>
 
-  <!-- Contenitore della tabella -->
-  <div class="table-container" style="flex: 1; padding: 10px;">
-    <table class="table table-striped table-bordered">
-      <thead>
-      <tr>
-        <th>Company Name</th>
-        <th>ID</th>
-        <th>Description</th>
-        <th>Payload Type</th>
-        <th>Type</th>
-        <th>Password</th>
-        <th>Public?</th>
-        <th>Interest Area ID</th>
-        <th>Actions</th>
-        <th>Delete</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let sensor of sensorList; let i = index">
-        <td *ngIf="!sensor.isEditing">{{ sensor.companyName }}</td>
-        <td *ngIf="sensor.isEditing">
-          <input  type="text" class="form-control"  [(ngModel)]="sensor.companyName" />
-        </td>
+  <!-- Contenitore Principale -->
+  <main class="content-area flex-grow-1 p-4">
+    <div class="glass-card animate-fade-in">
 
-        <td>{{ sensor.id }}</td>
+      <header class="card-header-custom d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 class="text-white fw-bold m-0"><i class="fas fa-microchip text-primary me-2"></i>My Sensors</h3>
+          <p class="text-muted small m-0">Manage and monitor your registered hardware devices</p>
+        </div>
+        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="loadData()">
+          <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+      </header>
 
-        <td *ngIf="!sensor.isEditing">{{ sensor.description }}</td>
-        <td *ngIf="sensor.isEditing">
-          <input  type="text" class="form-control"  [(ngModel)]="sensor.description" />
-        </td>
+      <div class="table-responsive-custom">
+        <table class="modern-table">
+          <thead>
+          <tr>
+            <th>Company & Type</th>
+            <th>Sensor ID</th>
+            <th>Description</th>
+            <th>Config</th>
+            <th>Security</th>
+            <th>Visibility</th>
+            <th class="text-center">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let sensor of sensorList" [class.row-editing]="sensor.isEditing">
 
-        <td>{{ sensor.payloadType }}</td>
+            <!-- Company & Type -->
+            <td>
+              <div *ngIf="!sensor.isEditing">
+                <div class="fw-bold text-white">{{ sensor.companyName }}</div>
+                <div class="tiny-text text-primary-light">{{ sensor.type }}</div>
+              </div>
+              <div *ngIf="sensor.isEditing" class="edit-group">
+                <input type="text" class="table-input mb-1" [(ngModel)]="sensor.companyName" placeholder="Company">
+                <input type="text" class="table-input" [(ngModel)]="sensor.type" placeholder="Type">
+              </div>
+            </td>
 
-        <td *ngIf="!sensor.isEditing">{{ sensor.type }}</td>
-        <td *ngIf="sensor.isEditing">
-          <input  type="text" class="form-control"  [(ngModel)]="sensor.type" />
-        </td>
+            <!-- ID -->
+            <td>
+              <code class="sensor-id"
+                    [matTooltip]="sensor.id!"
+                    matTooltipPosition="above"
+                    style="cursor: help;">
+                {{ sensor.id | slice:0:8 }}...
+              </code>
+            </td>
+            <!-- Description -->
+            <td>
+              <span *ngIf="!sensor.isEditing" class="small text-white-50">{{ sensor.description }}</span>
+              <input *ngIf="sensor.isEditing" type="text" class="table-input" [(ngModel)]="sensor.description">
+            </td>
 
-        <td *ngIf="!sensor.isEditing"></td>
-        <td *ngIf="sensor.isEditing">
-          <input
-            [(ngModel)]="tempPassword"
-            (ngModelChange)="sensor.password = tempPassword"
-            [type]="'password'"  type="text" class="form-control"
-            placeholder="Enter new password"
-          />
-        </td>
+            <!-- Config (Payload & Area) -->
+            <td>
+              <div class="small">
+                <span class="text-muted">Format:</span> {{ sensor.payloadType }}<br>
+                <span class="text-muted">Area:</span> {{ sensor.interestAreaID || 'None' }}
+              </div>
+            </td>
 
+            <!-- Password -->
+            <td>
+              <div *ngIf="!sensor.isEditing" class="text-muted">••••••••</div>
+              <div *ngIf="sensor.isEditing">
+                <input type="password" class="table-input" placeholder="New Pwd"
+                       [(ngModel)]="tempPassword" (ngModelChange)="sensor.password = tempPassword">
+              </div>
+            </td>
 
-        <td *ngIf="sensor.isEditing">
-          <mat-radio-group [(ngModel)]="sensor.isPublic">
-            <mat-radio-button [value]="true">Yes</mat-radio-button>
-            <mat-radio-button [value]="false">No</mat-radio-button>
-          </mat-radio-group>
-        </td>
-        <td *ngIf="!sensor.isEditing">
-          <ng-container *ngIf="sensor.isPublic">Yes</ng-container>
-          <ng-container *ngIf="!sensor.isPublic">No</ng-container>
-        </td>
+            <!-- Visibility -->
+            <td>
+              <div *ngIf="!sensor.isEditing">
+                  <span class="badge" [ngClass]="sensor.isPublic ? 'bg-success-glass' : 'bg-secondary-glass'">
+                    {{ sensor.isPublic ? 'Public' : 'Private' }}
+                  </span>
+              </div>
+              <div *ngIf="sensor.isEditing">
+                <mat-radio-group [(ngModel)]="sensor.isPublic" class="small-radio-group">
+                  <mat-radio-button [value]="true" class="tiny-radio">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false" class="tiny-radio">No</mat-radio-button>
+                </mat-radio-group>
+              </div>
+            </td>
 
-        <td>{{ sensor.interestAreaID }}</td>
+            <!-- Actions -->
+            <td class="text-center">
+              <div class="d-flex gap-2 justify-content-center">
+                <!-- Edit/Save Buttons -->
+                <ng-container *ngIf="!sensor.isEditing">
+                  <button class="btn-action btn-edit" (click)="startEdit(sensor)" title="Modify">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn-action btn-delete" (click)="delete(sensor)" title="Delete">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </ng-container>
 
+                <ng-container *ngIf="sensor.isEditing">
+                  <button class="btn-action btn-save" (click)="saveEdit(sensor)" title="Save">
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button class="btn-action btn-cancel" (click)="cancelEdit(sensor)" title="Cancel">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </ng-container>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <td>
-          <button style="margin: 4%" class="btn btn-primary" *ngIf="!sensor.isEditing" (click)="startEdit(sensor)">Modify</button>
-          <button style="margin: 4%" class="btn btn-primary" *ngIf="sensor.isEditing" (click)="saveEdit(sensor)">Save</button>
-          <button style="margin: 4%" class="btn btn-primary" *ngIf="sensor.isEditing" (click)="cancelEdit(sensor)">Cancel</button>
-        </td>
-      <td>
-        <button  style="margin: 4%; background-color: darkred;  border-color: darkred" class="btn btn-primary" (click)="delete(sensor)">Delete</button>
-      </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+    </div>
+  </main>
 </div>

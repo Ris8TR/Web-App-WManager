@@ -1,96 +1,100 @@
-<div>
-  <!-- Pannello laterale (sidebar) -->
-  <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; max-height: 80vh; margin-left: 5%; margin-bottom:20%; margin-top:8%">
-    <!-- Tabs della sidebar -->
-    <div class="sidebar-tabs" (click)="$event.stopPropagation()">
-      <ul role="tablist">
-        <li id="topHome" class="active">
-            <span *ngIf="!isPanelVisible"  class="sidebar-close" (click)="togglePanel($event)">
-              <svg  class="svg-inline--fa fa-caret-left fa-w-6" aria-hidden="true" data-prefix="fa" data-icon="caret-left" role="img" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 192 512">
-                <path fill="currentColor"  transform="rotate(180, 128, 256)" d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"></path>
-              </svg>
-            </span>
-        </li>
-      </ul>
-    </div>
+<div class="dashboard-wrapper">
 
-    <!-- Contenuto della sidebar -->
-    <div   *ngIf="isPanelVisible"   class="sidebar-content overMap" (click)="$event.stopPropagation()">
-      <div class="sidebar-pane active" id="home">
-        <h1 class="sidebar-header">
+  <!-- BOTTONE PER RIAPRIRE (Sempre presente nel DOM, visibile solo se panel chiuso) -->
+  <button class="sidebar-open-trigger shadow-lg"
+          *ngIf="!isPanelVisible"
+          (click)="togglePanel($event)"
+          title="Open Control Panel">
+    <i class="fas fa-sliders-h"></i>
+  </button>
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="modern-sidebar" [ngClass]="{'collapsed': !isPanelVisible}">
+
+    <div *ngIf="isPanelVisible" class="sidebar-inner">
+
+      <header class="sidebar-header">
+        <span class="d-flex align-items-center">
+          <i class="fas fa-cog fa-spin me-2 text-primary"></i>
           Control Panel
-          <span class="sidebar-close" (click)="togglePanel($event)">
-          <!-- Icona di chiusura -->
-          <svg class="svg-inline--fa fa-caret-left fa-w-6" aria-hidden="true" data-prefix="fa" data-icon="caret-left" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512">
-            <path fill="currentColor" d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"></path>
-          </svg>
         </span>
-        </h1>
-      </div>
+        <button class="close-btn" (click)="togglePanel($event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
 
+      <div class="sidebar-scroll-content">
 
-      <!-- Sezione della legenda -->
-      <div class="row text-center justify-content-center align-self-center">
-        <div class="col-md-12">
-          <div class="my-legend" style="margin: 1%">
-            <div class="legend-title" style="font-size: 9px; color: #fff">{{selectedSensorType}} Color Bar</div>
-            <div class="legend-scale">
-              <ul class="legend-labels">
-                <!-- Scala della temperatura -->
-                <li *ngFor="let item of temperatureScale" style="color: #fff; font-size: 9px;">
-                  <span [style.background]="item.color"></span>{{ item.label }}
-                </li>
-              </ul>
+        <!-- SEZIONE 1: LEGENDA -->
+        <section class="sidebar-section">
+          <label class="section-label">{{selectedSensorType}} Color Scale</label>
+          <div class="legend-container">
+            <div class="legend-bar">
+              <span *ngFor="let item of temperatureScale"
+                    [style.background]="item.color"
+                    [title]="item.label"></span>
+            </div>
+            <div class="d-flex justify-content-between mt-1">
+              <span class="tiny-text">Low</span>
+              <span class="tiny-text">High</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- SEZIONE 2: SELEZIONE TIPO SENSORE -->
+        <section class="sidebar-section">
+          <label class="section-label">Select Sensor</label>
+          <div class="sensor-grid">
+            <div *ngFor="let sensor of sensorOptions" class="sensor-chip">
+              <input type="radio"
+                     [id]="'sensor-' + sensor.value"
+                     name="sensorType"
+                     [value]="sensor.value"
+                     [(ngModel)]="selectedSensorType"
+                     (change)="onSensorTypeSelect(sensor.value)"> <!-- TRIGGER CAMBIO MAPPA -->
+              <label [for]="'sensor-' + sensor.value">{{ sensor.label }}</label>
+            </div>
+          </div>
+        </section>
+
+        <!-- SEZIONE 3: MODALITÀ DATI -->
+        <section class="sidebar-section">
+          <label class="section-label">Visualization Mode</label>
+          <div class="mode-toggle-container">
+            <div class="custom-toggle">
+              <button [class.active]="isRealTime"
+                      (click)="isRealTime = true; onLatestIntervalSelect()">
+                Real-Time
+              </button>
+              <button [class.active]="!isRealTime"
+                      (click)="isRealTime = false; onLatestIntervalSelect()">
+                Latest
+              </button>
             </div>
           </div>
 
-          <h4 class=" py-3 px-0 px-lg-3 rounded">Past Data</h4>
-          <div class="row">
-            <h6 style="color: white; padding-right: 80% ">Select Type:</h6>
-            <div class="col-2 justify-content-md-center">
-
-              <!-- Sezione checkbox per selezionare un sensore -->
-              <div>
-                <mat-radio-group id= "type" [(ngModel)]="selectedSensorType">
-                  <div *ngFor="let sensor of sensorOptions">
-                    <mat-radio-button value="{{ sensor.value }}" class="custom-radio" (click)="onSensorTypeSelect(sensor.value)">
-                      {{ sensor.label }}
-                    </mat-radio-button>
-                  </div>
-                </mat-radio-group>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      <div class="form-check" style="margin-top: 5%; padding-left: 1px">
-        <mat-radio-group id="types" [(ngModel)]="isRealTime" (change)="onLatestIntervalSelect()">
-          <div *ngFor="let option of radioOptions">
-            <mat-radio-button [value]="option.value" class="custom-radio">
-              {{ option.label }}
-            </mat-radio-button>
-          </div>
-        </mat-radio-group>
-        <!-- Selettore per Latest data -->
-        <div *ngIf="isRealTime" class="row text-center justify-content-center align-self-center" style="margin: 5%">
-          <div class="col-md-12">
-            <label for="latestInterval">Latest data</label>
-            <select id="latestInterval" class="form-select" aria-label="Select Interval" (change)="onLatestIntervalSelect()">
-              <option value="" selected>Select Interval</option>
-              <option value="5">-5 Minutes</option>
-              <option value="10">-10 Minutes</option>
-              <option value="15">-15 Minutes</option>
+          <!-- Selettore Intervallo -->
+          <div *ngIf="isRealTime" class="mt-3 animate-fade-in">
+            <label class="small-text text-muted mb-2 d-block">Time Window</label>
+            <select class="modern-select"
+                    [(ngModel)]="selectedInterval"
+                    (change)="onLatestIntervalSelect()"> <!-- TRIGGER AGGIORNAMENTO DATI -->
+              <option value="5">Last 5 Minutes</option>
+              <option value="10">Last 10 Minutes</option>
+              <option value="15">Last 15 Minutes</option>
+              <option value="30">Last 30 Minutes</option>
             </select>
           </div>
-        </div>
+        </section>
+
+
+
       </div>
     </div>
-  </div>
+  </aside>
+
+  <!-- Mappa -->
+  <main class="map-container">
+    <div id="map"></div>
+  </main>
 </div>
-
-  <div class="col-lg justify-content-md-center">
-    <div id="map" style="height: 75vh; min-height: 70%;"></div>
-  </div>
-

@@ -26,6 +26,8 @@ public interface SensorDataService  {
     SensorDataInterestAreaDto getTopSensorDataByInterestAreaId(String interestAreaId, String token);
     SensorDataInterestAreaDto getTopPublicSensorData();
 
+    SensorDataInterestAreaDto getAllSensorDataBySensorId5Min(String sensorId);
+
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 5m by sensorId
     SensorDataInterestAreaDto getAllSensorDataBySensorId5Min(String sensorId, String token);
     // Metodo per ottenere i sensorDatadto  di un sensore negli ultimi 10m by sensorId

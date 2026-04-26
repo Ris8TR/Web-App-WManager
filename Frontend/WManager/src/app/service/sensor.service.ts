@@ -670,10 +670,10 @@ export class SensorService {
    * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
    * @param reportProgress flag to report request and response progress.
    */
-  public deleteSensor(id: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<any>;
-  public deleteSensor(id: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
-  public deleteSensor(id: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
-  public deleteSensor(id: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+  public deleteSensor(id: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+  public deleteSensor(id: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+  public deleteSensor(id: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+  public deleteSensor(id: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
     if (id === null || id === undefined) {
       throw new Error('Required parameter id was null or undefined when calling deleteSensor.');

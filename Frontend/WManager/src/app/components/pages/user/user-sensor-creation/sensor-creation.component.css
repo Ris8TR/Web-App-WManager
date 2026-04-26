@@ -1,41 +1,125 @@
-/* Applica questo stile al body per riempire la pagina e centrare il contenuto */
-body, html {
-  height: 100%;
-  margin: 0;
-}
-
-/* Contenitore principale del form */
-.centered-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center; /* Centra orizzontalmente */
-  justify-content: center; /* Centra verticalmente */
-  height: 100vh; /* Imposta l'altezza del form per occupare l'intera altezza della finestra */
-}
-
-.full-width {
+/* Layout Generale (Background scuro globale) */
+.dashboard-wrapper {
+  background: radial-gradient(circle at center, #1e222d 0%, #11141d 100%);
+  min-height: 100vh;
   width: 100%;
-  max-width: 400px; /* Limita la larghezza del form per evitare che sia troppo largo */
 }
 
-.button-container {
+/* Card Glass */
+.login-card {
+  background: rgba(30, 34, 45, 0.85);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 35px;
+}
+
+.icon-circle {
+  width: 55px; height: 55px;
+  background: rgba(13, 110, 253, 0.1);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto; font-size: 1.4rem;
+}
+
+/* Input Customizzati */
+.form-label-custom {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #8a8d98;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.input-group-custom {
+  position: relative;
   display: flex;
-  justify-content: center;
-  margin-top: 20px;
+  align-items: center;
 }
 
-.container,
-.container-fluid,
-.container-xxl,
-.container-xl,
-.container-lg,
-.container-md,
-.container-sm {
-  --bs-gutter-x: 1.5rem;
-  --bs-gutter-y: 0;
-  width: 100%;
-  padding-right: calc(var(--bs-gutter-x) * 0.5);
-  padding-left: calc(var(--bs-gutter-x) * 0.5);
-  margin-right: auto;
-  margin-left: auto;
+.input-group-custom i {
+  position: absolute;
+  left: 15px;
+  color: #0dcaf0; /* Ciano */
+  z-index: 5;
 }
+
+.form-control-custom {
+  width: 100%;
+  padding: 10px 15px 10px 42px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white !important;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.form-control-custom:focus {
+  border-color: #0d6efd;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.15);
+  outline: none;
+}
+
+/* Area Selection Box */
+.area-selection-box {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.area-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+/* Fix per Angular Material Radio */
+::ng-deep .modern-radio .mdc-label {
+  color: #adb5bd !important;
+  font-size: 0.85rem !important;
+}
+
+::ng-deep .modern-radio.mat-mdc-radio-checked .mdc-label {
+  color: white !important;
+  font-weight: bold;
+}
+
+::ng-deep .mat-mdc-radio-button.mat-primary {
+  --mdc-radio-selected-focus-icon-color: #0d6efd;
+  --mdc-radio-selected-hover-icon-color: #0d6efd;
+  --mdc-radio-selected-icon-color: #0d6efd;
+  --mdc-radio-selected-pressed-icon-color: #0d6efd;
+}
+
+/* Bottone Submit (Gradiente Dashboard) */
+.btn-login-submit {
+  background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+}
+
+.btn-login-submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+}
+
+.btn-login-submit:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.animate-fade-in { animation: fadeIn 0.6s ease-out; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }

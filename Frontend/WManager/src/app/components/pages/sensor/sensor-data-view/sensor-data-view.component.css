@@ -1,43 +1,108 @@
-/* Stile per la barra laterale */
-app-user {
-  background-color: #f8f9fa; /* Colore di sfondo per la barra */
-  height: 100%; /* Occupare l'intera altezza */
-  box-sizing: border-box;
-}
-
-/* Contenitore della tabella */
-.table-container {
-  overflow-x: auto; /* Scroll orizzontale per tabelle lunghe */
-  padding: 10px;
-  height: 100%; /* Occupare l'intera altezza */
-  box-sizing: border-box;
-}
-
-/* Stile generale della tabella */
-table {
+/* Layout Generale */
+.dashboard-wrapper {
+  background: radial-gradient(circle at center, #1e222d 0%, #11141d 100%);
+  min-height: 100vh;
   width: 100%;
-  border-collapse: collapse;
 }
 
-thead th, tbody td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
+.sidebar-component {
+  flex: 0 0 260px;
 }
 
-tbody td {
-  color: black;
+.content-area {
+  overflow-y: auto;
 }
 
-thead th {
-  background-color: #f2f2f2;
-  color: black;
+/* Card Glass */
+.glass-card {
+  background: rgba(30, 34, 45, 0.8);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  padding: 25px;
+  min-height: 80vh;
 }
 
-input, button {
-  color: black;
+/* Tabella Moderna */
+.modern-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 8px;
+  color: white;
 }
 
-.table-striped tbody tr:nth-child(odd) {
-  background-color: #f9f9f9;
+.modern-table thead th {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 15px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #8a8d98;
+  border-bottom: 2px solid rgba(13, 110, 253, 0.2);
 }
+
+.modern-table tbody tr {
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s;
+}
+
+.modern-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: scale(1.005);
+}
+
+.modern-table td {
+  padding: 15px;
+  vertical-align: middle;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Edit Mode styling */
+.row-editing {
+  background: rgba(13, 110, 253, 0.05) !important;
+  border-left: 3px solid #0d6efd;
+}
+
+.table-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.table-input:focus {
+  border-color: #0d6efd;
+  outline: none;
+}
+
+/* Badges */
+.bg-success-glass { background: rgba(25, 135, 84, 0.2); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.2); }
+.bg-secondary-glass { background: rgba(108, 117, 125, 0.2); color: #adb5bd; border: 1px solid rgba(173, 181, 189, 0.2); }
+.badge { padding: 5px 10px; border-radius: 12px; font-weight: normal; }
+
+/* Bottoni Azione */
+.btn-action {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  transition: 0.2s;
+  background: rgba(255, 255, 255, 0.05);
+  color: #adb5bd;
+}
+
+.btn-edit:hover { color: #0d6efd; background: rgba(13, 110, 253, 0.1); }
+.btn-delete:hover { color: #dc3545; background: rgba(220, 53, 69, 0.1); }
+.btn-save { color: #2ecc71; background: rgba(46, 204, 113, 0.1); }
+.btn-cancel { color: #ffc107; background: rgba(255, 193, 7, 0.1); }
+
+.sensor-id { color: #0dcaf0; font-family: monospace; font-size: 0.8rem; }
+.tiny-text { font-size: 0.65rem; }
+.text-primary-light { color: #0dcaf0; }
+
+/* Fix per Angular Material in tabella */
+::ng-deep .tiny-radio .mdc-label { color: #adb5bd !important; font-size: 0.75rem !important; }

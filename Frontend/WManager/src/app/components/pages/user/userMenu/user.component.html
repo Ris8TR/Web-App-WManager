@@ -1,52 +1,69 @@
-<!--<div class="row">-->
-  <div class="col-sm-2" >
-    <div class="d-flex flex-column flex-shrink-0 p-3 sidebar">
-      <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none sidebar-brand">
-        <span class="fs-4">Menu</span>
-      </a>
-      <hr>
-      <ul class="nav nav-pills flex-column mb-auto">
+<aside class="user-sidebar-container shadow-lg">
+  <div class="user-sidebar-inner d-flex flex-column h-100">
+
+    <!-- Header Sidebar -->
+    <div class="sidebar-user-header p-4 text-center">
+      <div class="brand-icon mb-2">
+        <i class="fas fa-user-shield text-info"></i>
+      </div>
+      <h6 class="text-white fw-bold mb-0 text-uppercase tracking-wider">User Console</h6>
+      <hr class="border-secondary opacity-25">
+    </div>
+
+    <!-- Navigazione -->
+    <nav class="sidebar-nav px-3 flex-grow-1">
+      <ul class="nav nav-pills flex-column gap-2">
         <li class="nav-item">
-          <a (click)="redirectToUserData()" class="nav-link text-white text-center text-md-start">
-            <i class="fas fa-home"></i>
-            <span class="ms-2 d-none d-md-inline">Home</span>
+          <a (click)="redirectToUserData()" class="nav-link-custom" active-link>
+            <i class="fas fa-id-badge"></i>
+            <span>Profile Home</span>
           </a>
         </li>
-        <li>
-          <a (click)="redirectToUserModify()" class="nav-link text-white text-center text-md-start">
-            <i class="bi bi-wrench"></i>
-            <span class="ms-2 d-none d-md-inline">Modify Data</span>
+        <li class="nav-item">
+          <a (click)="redirectToUserModify()" class="nav-link-custom">
+            <i class="fas fa-user-edit"></i>
+            <span>Modify Account</span>
           </a>
         </li>
-        <li>
-          <a (click)="redirectToUserSendData()" class="nav-link text-white text-center text-md-start">
-            <i class="bi bi-send"></i>
-            <span class="ms-2 d-none d-md-inline">Send data</span>
+        <li class="nav-item">
+          <a (click)="redirectToUserSendData()" class="nav-link-custom">
+            <i class="fas fa-paper-plane"></i>
+            <span>Send Sensor Data</span>
           </a>
         </li>
-        <li>
-          <a (click)="redirectToUserCreateSensor()" class="nav-link text-white text-center text-md-start">
-            <i class="bi bi-diagram-2"></i>
-            <span class="ms-2 d-none d-md-inline">Create Sensor</span>
+        <li class="nav-item">
+          <a (click)="redirectToUserCreateSensor()" class="nav-link-custom">
+            <i class="fas fa-plus-square"></i>
+            <span>Register Sensor</span>
           </a>
         </li>
-        <li>
-          <a (click)="redirectToSensorDataView()" class="nav-link text-white text-center text-md-start">
-            <i class="bi bi-view-stacked"></i>
-            <span class="ms-2 d-none d-md-inline">Show My Sensors</span>
+
+        <li class="section-divider mt-3 mb-2">
+          <span class="small-label">Monitoring</span>
+        </li>
+
+        <li class="nav-item">
+          <a (click)="redirectToSensorDataView()" class="nav-link-custom">
+            <i class="fas fa-microchip"></i>
+            <span>My Sensors</span>
           </a>
         </li>
-        <li>
-          <a (click)="redirectToInterestAreaDataView()" class="nav-link text-white text-center text-md-start">
-            <i class="bi bi-view-stacked"></i>
-            <span class="ms-2 d-none d-md-inline">Show Interest Area</span>
+        <li class="nav-item">
+          <a (click)="redirectToInterestAreaDataView()" class="nav-link-custom">
+            <i class="fas fa-layer-group"></i>
+            <span>Interest Areas</span>
           </a>
         </li>
       </ul>
+    </nav>
 
-
+    <!-- Footer Logout (Opzionale ma consigliato per UX) -->
+    <div class="sidebar-footer p-3">
+      <button class="btn btn-logout w-100" (click)="logout()">
+        <i class="fas fa-power-off me-2"></i>
+        <span>Sign Out</span>
+      </button>
     </div>
+
   </div>
-
-<!--</div>-->
-
+</aside>

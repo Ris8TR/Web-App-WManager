@@ -1,48 +1,44 @@
-import {AfterViewInit, Component, OnDestroy, OnInit} from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import * as L from 'leaflet';
 import { HttpClient } from '@angular/common/http';
 import { ToolbarComponent } from '../../toolbar/toolbar.component';
-
 import 'leaflet.markercluster';
 import { SensorDto } from '../../../../model/sensorDto';
 import { UserService } from '../../../../service/user.service';
-import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
-import {NgForOf, NgIf} from "@angular/common";
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {SensorDataService} from "../../../../service/sensorData.service";
-import {SensorData} from "../../../../model/sensorData";
-import {parse} from "terraformer-wkt-parser";
-import {InterestAreaService} from "../../../../service/interestArea.service";
-import {InterestArea} from "../../../../model/interestArea";
-import {InterestAreaDto} from "../../../../model/interestAreaDto";
-import {saveOutputToFile} from "source-map-explorer/lib/output";
-import {control} from "leaflet";
-import zoom = control.zoom;
-import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAreaDto";
+import { MatRadioButton, MatRadioGroup } from "@angular/material/radio";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
+import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { SensorDataService } from "../../../../service/sensorData.service";
+import { SensorData } from "../../../../model/sensorData";
+import { parse } from "terraformer-wkt-parser";
+import { InterestAreaService } from "../../../../service/interestArea.service";
+import { InterestArea } from "../../../../model/interestArea";
+import { InterestAreaDto } from "../../../../model/interestAreaDto";
+import { SensorDataInterestAreaDto } from "../../../../model/SensorDataInterestAreaDto";
 
 @Component({
   selector: 'app-obsmap',
   standalone: true,
-  imports: [ToolbarComponent, MatRadioButton, MatRadioGroup, NgForOf, NgIf, ReactiveFormsModule, FormsModule,
-// TODO: `HttpClientModule` should not be imported into a component directly.
-// Please refactor the code to add `provideHttpClient()` call to the provider list in the
-// application bootstrap logic and remove the `HttpClientModule` import from this component.
-  ],
+  imports: [MatRadioButton, MatRadioGroup, NgForOf, NgIf, ReactiveFormsModule, FormsModule, NgClass],
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']
 })
 export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   protected isRealTime = false;
 
-  constructor(private http: HttpClient,     private interestAreaService: InterestAreaService, private userService: UserService, private sensorDataService: SensorDataService) {
-  }
+  constructor(
+    private http: HttpClient,
+    private interestAreaService: InterestAreaService,
+    private userService: UserService,
+    private sensorDataService: SensorDataService
+  ) { }
 
   private map!: L.Map;
   sensorOptions = [
-    {label: 'Temperature', value: 'temperature', selected: false},
-    {label: 'CO2', value: 'CO2', selected: false},
-    {label: 'Humidity', value: 'humidity', selected: false},
-    {label: 'Pression', value: 'ap', selected: false},
+    { label: 'Temperature', value: 'temperature', selected: false },
+    { label: 'CO2', value: 'CO2', selected: false },
+    { label: 'Humidity', value: 'humidity', selected: false },
+    { label: 'Pression', value: 'ap', selected: false },
   ];
   public selectedSensorType: string = "CO2";
   selectedLatestInterval: string | null = null;
@@ -50,50 +46,86 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   sensorTypeList!: string[];
   private drawnLayers: L.Layer[] = [];
   interestAreas: InterestAreaDto[] | undefined;
-
   private sensorDataLocalList: Array<SensorData> | undefined;
-
-
   private layerGroup: L.LayerGroup | undefined;
+  private markerClusterGroup!: L.MarkerClusterGroup;
+  private sensorCountPerMarker: { [key: string]: number } = {};
+  private cachedData: Map<string, any> = new Map();
+  private sensorGeoJsonLayer!: L.GeoJSON;
+  isPanelVisible = true;
+
+  private sensorRanges: { [key: string]: { min: number; max: number } } = {
+    temperature: { min: -10, max: 40 },
+    CO2: { min: 300, max: 2000 },
+    humidity: { min: 0, max: 100 },
+    ap: { min: 950, max: 1050 }
+  };
+
   temperatureScale = [
-    {label: '-10', color: '#0030ff'},
-    {label: '-8', color: '#0066ff'},
-    {label: '-6', color: '#00a4ff'},
-    {label: '-4', color: '#00d7ff'},
-    {label: '-2', color: '#00f9ed'},
-    {label: '0', color: '#00ebbd'},
-    {label: '2', color: '#00dc8d'},
-    {label: '4', color: '#00c951'},
-    {label: '6', color: '#01ba1c'},
-    {label: '8', color: '#21bd05'},
-    {label: '10', color: '#61cf03'},
-    {label: '12', color: '#93df01'},
-    {label: '14', color: '#cff000'},
-    {label: '16', color: '#ffff00'},
-    {label: '18', color: '#ffed00'},
-    {label: '20', color: '#ffd700'},
-    {label: '22', color: '#ffc400'},
-    {label: '24', color: '#ffaf00'},
-    {label: '26', color: '#ff9200'},
-    {label: '28', color: '#ff7100'},
-    {label: '30', color: '#ff4700'},
-    {label: '32', color: '#ff2300'},
-    {label: '34', color: '#ff0100'},
-    {label: '36', color: '#de0014'},
-    {label: '38', color: '#bd0033'},
-    {label: '40', color: '#940056'},
-    {label: '42', color: '#730073'}
+    { label: '-10', color: '#0030ff' }, { label: '-8', color: '#0066ff' },
+    { label: '-6', color: '#00a4ff' }, { label: '-4', color: '#00d7ff' },
+    { label: '-2', color: '#00f9ed' }, { label: '0', color: '#00ebbd' },
+    { label: '2', color: '#00dc8d' }, { label: '4', color: '#00c951' },
+    { label: '6', color: '#01ba1c' }, { label: '8', color: '#21bd05' },
+    { label: '10', color: '#61cf03' }, { label: '12', color: '#93df01' },
+    { label: '14', color: '#cff000' }, { label: '16', color: '#ffff00' },
+    { label: '18', color: '#ffed00' }, { label: '20', color: '#ffd700' },
+    { label: '22', color: '#ffc400' }, { label: '24', color: '#ffaf00' },
+    { label: '26', color: '#ff9200' }, { label: '28', color: '#ff7100' },
+    { label: '30', color: '#ff4700' }, { label: '32', color: '#ff2300' },
+    { label: '34', color: '#ff0100' }, { label: '36', color: '#de0014' },
+    { label: '38', color: '#bd0033' }, { label: '40', color: '#940056' },
+    { label: '42', color: '#730073' }
   ];
 
   radioOptions = [
     { value: false, label: 'Latest' },
     { value: true, label: 'Real-Time' }
-
   ];
 
-  private cachedData: Map<string, any> = new Map(); // Cache for sensor data
-  private markerClusterGroup!: L.MarkerClusterGroup;
-  private sensorCountPerMarker: { [key: string]: number } = {};
+  ngOnInit(): void { }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.initMap();
+      this.map.invalidateSize();  // forza il ricalcolo delle dimensioni
+      this.loadInterestAreas();
+      this.loadSensorData();
+    }, 15);
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) this.map.remove();
+  }
+
+  private initMap(): void {
+    if (!this.map) {
+      this.map = L.map('map', {
+        preferCanvas: true,
+      }).setView([41.8719, 12.5674], 5);
+      this.map.setMaxZoom(18);
+      this.map.setMinZoom(5);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(this.map);
+      this.layerGroup = L.layerGroup().addTo(this.map);
+      this.markerClusterGroup = L.markerClusterGroup({
+        chunkedLoading: true, // <--- Elabora i marker a blocchi, evitando il freeze
+        chunkInterval: 200,   // Millisecondi tra un blocco e l'altro
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        iconCreateFunction: this.createClusterIcon.bind(this)
+      }).addTo(this.map);
+      this.map.on('zoomend', this.onZoomEnd.bind(this));
+    }
+  }
+
+  private onZoomEnd = () => {
+    if (this.markerClusterGroup) this.markerClusterGroup.refreshClusters();
+  };
+
+
 
   private createGreenMarkerIcon(sensorCount: number): L.DivIcon {
     const markerIconDiv = document.createElement('div');
@@ -107,155 +139,200 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     markerIconDiv.style.color = 'white';
     markerIconDiv.style.fontSize = '14px';
     markerIconDiv.innerText = sensorCount.toString();
+    return L.divIcon({ className: 'custom-marker-icon', html: markerIconDiv });
+  }
 
-    return L.divIcon({
-      className: 'custom-marker-icon', // Classe opzionale per lo styling vediamo se serve e funziona (per ora no)
-      html: markerIconDiv
+  private loadSensorData(): void {
+    if (this.isRealTime || !this.map) return;
+    this.cachedData.clear();
+    this.sensorDataService.getAllPublicSensorDataOnTop().subscribe({
+      next: (response: SensorDataInterestAreaDto) => {
+        if (response && response.sensorData) {
+          this.sensorTypeList = response.sensorAreaTypes || [];
+          this.sensorDataLocalList = response.sensorData;
+          this.buildGeoJsonLayer(this.sensorDataLocalList);
+          const heatData = this.extractHeatData(this.sensorDataLocalList);
+          this.cachedData.set(this.selectedSensorType, heatData);
+          console.log(`Caricati ${heatData.length} sensori pubblici.`);
+        } else {
+          console.error('Formato della risposta non valido:', response);
+        }
+      },
+      error: (err) => console.error('Errore durante il caricamento dei dati sensori:', err)
     });
   }
 
+  private buildGeoJsonLayer(sensorDataList: SensorData[]): void {
+    if (!this.map || !this.markerClusterGroup) return;
 
-  ngOnDestroy(): void {
-    if (this.map) {
-      this.map.remove();
+    // --- PULIZIA TOTALE DI OGNI LAYER POSSIBILE ---
+    this.markerClusterGroup.clearLayers();
+    if (this.layerGroup) this.layerGroup.clearLayers();
+    if (this.sensorGeoJsonLayer) this.map.removeLayer(this.sensorGeoJsonLayer);
+
+    const markers: L.CircleMarker[] = [];
+
+    sensorDataList.forEach(data => {
+      if (data.latitude == null || data.longitude == null) return;
+
+      const val = data.payload ? (data.payload[this.selectedSensorType] ?? 0) : 0;
+      const color = this.getColorForValue(val);
+
+      const marker = L.circleMarker([data.latitude, data.longitude], {
+        radius: 8,
+        fillColor: color,
+        color: "#ffffff",
+        weight: 1.5,
+        fillOpacity: 0.9,
+        className: 'sensor-dot' // Classe CSS per stile extra
+      });
+
+      marker.bindPopup(`
+            <div style="text-align:center; padding:5px">
+                <div style="font-size:12px; color:#666">Sensore ${data.sensorId}</div>
+                <div style="font-size:16px; font-weight:bold; color:${color}">
+                    ${this.selectedSensorType}: ${val}
+                </div>
+            </div>
+        `);
+
+      markers.push(marker);
+    });
+
+    this.markerClusterGroup.addLayers(markers);
+  }
+
+// Icona Cluster stilizzata e dinamica
+  private createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
+    const count = cluster.getChildCount();
+
+    // Logica colori e dimensioni basata sulla densità
+    let color = '#2ecc71'; // Verde (poco denso)
+    let size = 35;
+
+    if (count > 50) { color = '#f1c40f'; size = 42; }  // Giallo
+    if (count > 200) { color = '#e67e22'; size = 50; } // Arancione
+    if (count > 500) { color = '#e74c3c'; size = 60; } // Rosso (molto denso)
+
+    // Usiamo lo stile inline solo per le variabili dinamiche, evitando errori di validazione
+    return L.divIcon({
+      html: `<div class="custom-cluster-icon" style="background-color: ${color}; width: ${size}px; height: ${size}px;">
+                <span>${count}</span>
+               </div>`,
+      className: '', // Importante: toglie lo stile predefinito di Leaflet
+      iconSize: L.point(size, size)
+    });
+  }
+
+// Scala cromatica professionale (HSL)
+  public selectedInterval: number = 5;
+  private getColorForValue(value: number): string {
+    const range = this.sensorRanges[this.selectedSensorType] || { min: 0, max: 100 };
+    let ratio = (value - range.min) / (range.max - range.min);
+    ratio = Math.min(Math.max(ratio, 0), 1);
+
+    // Scala da Blu (240) a Rosso (0)
+    const hue = (1 - ratio) * 240;
+    return `hsl(${hue}, 80%, 45%)`;
+  }
+
+
+  private extractHeatData(sensorDataList: SensorData[]): [number, number, number][] {
+    const heatData: [number, number, number][] = [];
+    for (const data of sensorDataList) {
+      const lat = data.latitude;
+      const lng = data.longitude;
+      const value = data.payload ? (data.payload[this.selectedSensorType] || 0) : 0;
+      if (lat != null && lng != null) heatData.push([lat, lng, value]);
+    }
+    return heatData;
+  }
+
+
+  onSensorTypeSelect(type: any): void {
+    if (this.selectedSensorType === type) return;
+
+    this.selectedSensorType = type;
+
+    if (this.sensorDataLocalList) {
+      // Richiama buildGeoJsonLayer che ora pulisce tutto prima di ridisegnare
+      this.buildGeoJsonLayer(this.sensorDataLocalList);
     }
   }
 
-  onSensorTypeSelect(type: any) {
-    this.selectedSensorType = type;
-    const heatData: [number, number, number][] = [];  // Initialize outside the loop
+  onSensorTypeChange(): void {
+    let typeElement = document.getElementById('type') as HTMLSelectElement | null;
+    if (typeElement) this.onSensorTypeSelect(typeElement.value);
+  }
+  onLatestIntervalSelect(): void {
+    this.cachedData.clear();
 
-    this.sensorDataLocalList!.forEach((data: any) => {
-      const lat = data.latitude;
-      const lng = data.longitude;
-      let value: number = 0;
+    // 1. Controlla se selectedInterval ha un valore
+    if (this.selectedInterval) {
+      const interval = parseInt(this.selectedInterval.toString(), 10);
 
-      try {
-        const payloadData = JSON.parse(data.payload);
-        value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
-      } catch (error) {
-        console.error("Errore nel parsing del payload:", error);
+      if (!isNaN(interval)) {
+        // 2. Chiama l'observable usando la variabile del componente
+        let intervalObservable = this.getIntervalObservable(interval);
+
+        if (intervalObservable) {
+          intervalObservable.subscribe({
+            next: (response: any) => {
+              if (response) {
+                console.log('Dati ricevuti per intervallo:', interval, response);
+
+                const sensorDataList = response.sensorData;
+                const sensorAreaTypes = response.sensorAreaTypes;
+
+                this.sensorTypeList = sensorAreaTypes;
+                this.sensorDataLocalList = sensorDataList;
+
+                // 3. Aggiorna la mappa
+                this.buildGeoJsonLayer(sensorDataList);
+
+                const heatData = this.extractHeatData(sensorDataList);
+                this.cachedData.set(this.selectedSensorType, heatData);
+
+                this.updateGrid();
+              } else {
+                console.warn('Nessun dato restituito dall\'observable.');
+              }
+            },
+            error: (error: any) => console.error('Errore durante la sottoscrizione:', error)
+          });
+        }
       }
+    } else {
+      console.warn("Nessun intervallo selezionato.");
+    }
+  }
 
-      if (lat && lng) {
-        heatData.push([lat, lng, value]);
+
+  private getIntervalObservable(interval: number) {
+    if (this.isRealTime) {
+      switch (interval) {
+        case 5: return this.sensorDataService.getAllPublicSensorDataIn5Min();
+        case 10: return this.sensorDataService.getAllPublicSensorDataIn10Min();
+        case 15: return this.sensorDataService.getAllPublicSensorDataIn15Min();
+        default: return null;
       }
-    });
-
-    this.cachedData.set(this.selectedSensorType, heatData);
-
-    this.updateGrid();  // Aggiorna la mappa con i nuovi dati
+    } else {
+      return this.sensorDataService.getAllPublicSensorDataOnTop();
+    }
   }
-
-
-  onSensorTypeChange() {
-    let typeElement: HTMLSelectElement | null = document.getElementById('type') as HTMLSelectElement | null;
-    this.selectedSensorType = String(typeElement);
-    const heatData: [number, number, number][] = [];  // Initialize outside the loop
-
-    this.sensorDataLocalList!.forEach((data: any) => {
-      const lat = data.latitude;
-      const lng = data.longitude;
-      let value: number = 0;
-
-      try {
-        const payloadData = JSON.parse(data.payload);
-        value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
-      } catch (error) {
-        console.error("Errore nel parsing del payload:", error);
-      }
-
-      if (lat && lng) {
-        heatData.push([lat, lng, value]);
-      }
-    });
-
-    this.cachedData.set(this.selectedSensorType, heatData);
-
-    this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-  }
-
-
-
-  togglePanel(event: MouseEvent): void {
-    event.stopPropagation();
-    this.isPanelVisible = !this.isPanelVisible;
-  }
-
-
-
-  private createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
-    const childCount = cluster.getChildCount();
-    const size = childCount < 10 ? 'small' : childCount < 100 ? 'medium' : 'large';
-    const iconSize = size === 'small' ? '30px' : size === 'medium' ? '40px' : '50px';
-    const fontSize = size === 'small' ? '14px' : size === 'medium' ? '18px' : '22px';
-
-    const markerIconDiv = document.createElement('div');
-    markerIconDiv.style.width = iconSize;
-    markerIconDiv.style.height = iconSize;
-    markerIconDiv.style.borderRadius = '50%';
-    markerIconDiv.style.backgroundColor = 'green';
-    markerIconDiv.style.display = 'flex';
-    markerIconDiv.style.justifyContent = 'center';
-    markerIconDiv.style.alignItems = 'center';
-    markerIconDiv.style.color = 'white';
-    markerIconDiv.style.fontSize = fontSize;
-    markerIconDiv.innerText = childCount.toString();
-
-    return L.divIcon({
-      className: 'custom-cluster-icon', // Classe opzionale per lo styling vediamo se serve e funziona (per ora no)
-      html: markerIconDiv
-    });
-  }
-
-
-
-  private initMap(): void {
-    if (!this.map){
-    this.map = L.map('map').setView([41.8719, 12.5674], 5);}
-    this.map.setMaxZoom(18);
-    this.map.setMinZoom(5);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(this.map);
-
-    this.layerGroup = L.layerGroup().addTo(this.map); // Initialize layer group
-
-    this.markerClusterGroup = L.markerClusterGroup({
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      maxClusterRadius: 40,
-      iconCreateFunction: this.createClusterIcon
-    }).addTo(this.map);
-
-    this.map.on('zoomend', this.onZoomEnd);
-  }
-
-
-
 
   private updateGrid(): void {
     if (!this.layerGroup) {
       this.layerGroup = L.layerGroup().addTo(this.map);
     }
-    this.layerGroup.clearLayers(); // Safely clear existing layers
+    this.layerGroup.clearLayers();
     const heatData = this.cachedData.get(this.selectedSensorType);
-    if (heatData) {
-      this.addPointsToMap(heatData);
-    }
+    if (heatData) this.addPointsToMap(heatData);
   }
 
-
-
-
   private addPointsToMap(heatData: [number, number, number][]): void {
-    if (!this.layerGroup) {
-      console.error("Layer group is not initialized.");
-      return;
-    }
-    heatData.forEach(dataPoint => {
-      const [lat, lng, value] = dataPoint;
+    if (!this.layerGroup) return;
+    for (const [lat, lng, value] of heatData) {
       const marker = L.circleMarker([lat, lng], {
         radius: 8,
         fillColor: this.getColorScale()(value),
@@ -263,238 +340,54 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         weight: 1,
         opacity: 1,
         fillOpacity: 0.8
-      }).addTo(this.layerGroup!);
-      marker.bindPopup(this.selectedSensorType + ` value: ${value}`);
-    });
+      }).addTo(this.layerGroup);
+      marker.bindPopup(`${this.selectedSensorType} value: ${value}`);
+    }
   }
-
 
   private getColorScale() {
     return (value: number) => {
-      const min = 0, max = 100; // Adjust these values based on your data range
-      const ratio = (value - min) / (max - min);
+      const range = this.sensorRanges[this.selectedSensorType] || { min: 0, max: 100 };
+      let ratio = (value - range.min) / (range.max - range.min);
+      ratio = Math.min(Math.max(ratio, 0), 1);
       const r = Math.round(255 * ratio);
-      const g = 0;
       const b = Math.round(255 * (1 - ratio));
-      return `rgb(${r},${g},${b})`;
+      return `rgb(${r},0,${b})`;
     };
   }
 
-
-  private onZoomEnd = () => {
-    if (this.markerClusterGroup) {
-      this.markerClusterGroup.refreshClusters();
-    }
-  };
-  isPanelVisible= true;
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.initMap();
-      this.loadInterestAreas();
-      this.loadSensorData();
-    }, 15);
+  togglePanel(event: MouseEvent): void {
+    event.stopPropagation();
+    this.isPanelVisible = !this.isPanelVisible;
   }
 
-
-  private loadSensorData(): void {
-    // Se siamo in RealTime o la mappa non è pronta, usciamo
-    if (this.isRealTime || !this.map) return;
-
-    this.cachedData.clear();
-
-    // Chiamata al servizio per ottenere i dati "Top" (gli ultimi per ogni sensore)
-    this.sensorDataService.getAllPublicSensorDataOnTop().subscribe({
-      next: (response: SensorDataInterestAreaDto) => {
-        if (response && response.sensorData) {
-          // 1. Aggiorniamo le liste locali con i dati ricevuti
-          this.sensorTypeList = response.sensorAreaTypes || [];
-          this.sensorDataLocalList = response.sensorData;
-
-          // 2. Estraiamo i punti per la mappa (usando l'accesso diretto al payload)
-          const heatData = this.extractHeatData(this.sensorDataLocalList);
-
-          // 3. Salviamo nella cache e aggiorniamo la visualizzazione
-          this.cachedData.set(this.selectedSensorType, heatData);
-          this.updateGrid();
-
-          console.log(`Caricati ${heatData.length} sensori pubblici.`);
-        } else {
-          console.error('Formato della risposta non valido:', response);
-        }
-      },
-      error: (err) => {
-        console.error('Errore durante il caricamento dei dati sensori:', err);
-      }
-    });
-  }
-
-  private extractHeatData(sensorDataList: SensorData[]): [number, number, number][] {
-    const heatData: [number, number, number][] = [];
-    sensorDataList.forEach((data) => {
-      const lat = data.latitude;
-      const lng = data.longitude;
-      // Accesso diretto al payload
-      const value = data.payload ? (data.payload[this.selectedSensorType] || 0) : 0;
-
-      if (lat != null && lng != null) {
-        heatData.push([lat, lng, value]);
-      }
-    });
-    return heatData;
-  }
-  onLatestIntervalSelect(): void {
-    this.cachedData.clear();
-
-    let latestElement: HTMLSelectElement | null = document.getElementById('latestInterval') as HTMLSelectElement | null;
-
-    if (latestElement) {
-      const selectedInterval = latestElement.value;
-      console.log('Selected observation interval:', selectedInterval);
-
-      const interval = parseInt(selectedInterval, 10);
-
-      if (!isNaN(interval)) {
-        let intervalObservable = this.getIntervalObservable(interval);
-
-        if (intervalObservable) {
-          // @ts-ignore
-          intervalObservable.subscribe(
-            (response: any) => {
-              console.log('Data received from observable:', response);
-              if (response) {
-                const sensorDataList = response.sensorData;
-                const sensorAreaTypes = response.sensorAreaTypes;
-                this.sensorTypeList = sensorAreaTypes;
-                this.sensorDataLocalList = sensorDataList;
-
-                if (sensorDataList && sensorAreaTypes) {
-                  const heatData: [number, number, number][] = [];
-
-                  // Estrai i dati di geolocalizzazione e valore per ogni sensore
-                  sensorDataList.forEach((data: any) => {
-                    const lat = data.latitude;
-                    const lng = data.longitude;
-                    let value = 0;
-
-                    try {
-                      const payloadData = JSON.parse(data.payload);
-                      value = payloadData[this.selectedSensorType] || 0;
-                    } catch (error) {
-                      console.error("Errore nel parsing del payload:", error);
-                    }
-
-                    if (lat && lng) {
-                      heatData.push([lat, lng, value]);
-                    }
-                  });
-
-                  // Salva i dati nella cache per il tipo di sensore selezionato
-                  this.cachedData.set(this.selectedSensorType, heatData);
-                  this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-                } else {
-                  console.error('Formato della risposta non valido:', response);
-                }
-              } else {
-                console.warn('No data returned from observable.');
-              }
-            },
-            ( error: any) => {
-              console.error('Error during observable subscription:', error);
-            }
-          );
-        } else {
-          console.warn('Interval observable is not available for interval:', interval);
-        }
-      } else {
-        console.warn('Invalid or unsupported interval value:', selectedInterval);
-      }
-    } else {
-      console.warn('latestElement is not defined.');
-    }
-  }
-
-  private getIntervalObservable(interval: number) {
-    if (this.isRealTime) {
-      switch (interval) {
-        case 5:
-          console.log("RT 5");
-          return this.sensorDataService.getAllPublicSensorDataIn5Min();
-        case 10:
-          console.log("RT 10");
-          return this.sensorDataService.getAllPublicSensorDataIn10Min();
-        case 15:
-          console.log("RT 15");
-          return this.sensorDataService.getAllPublicSensorDataIn15Min();
-        default:
-          return null;
-      }
-    } else {
-      console.log("L A");
-      return this.sensorDataService.getAllPublicSensorDataOnTop();
-    }
-  }
-
-
-
-
-  ngOnInit(): void {
-
-  }
-
-  private loadInterestAreas() {
+  private loadInterestAreas(): void {
     this.interestAreaService.getAllPublicInterestArea().subscribe(areas => {
-      this.interestAreas=areas
-      if (this.interestAreas) {
-        this.drawInterestArea(this.interestAreas);
-      }
+      this.interestAreas = areas;
+      if (this.interestAreas) this.drawInterestArea(this.interestAreas);
     });
   }
 
   private drawInterestArea(areas: InterestAreaDto[]): void {
     try {
       this.removeDrawnAreas();
-
       areas.forEach(area => {
-        let geometry = area.geometry?.trim().replace(/;$/, ''); // Rimuove eventuali punti e virgola finali
-
-        // Parse del WKT in GeoJSON
+        let geometry = area.geometry?.trim().replace(/;$/, '');
         const geoJson = parse(geometry!);
-
-        // Verifica il tipo di geometria e gestisce separatamente Polygon, MultiPolygon e LineString
         if (geoJson && (geoJson.type === 'Polygon' || geoJson.type === 'MultiPolygon')) {
           const polygon = L.geoJSON(geoJson, {
-            style: {
-              color: 'blue',    // Colore dei bordi del poligono
-              weight: 4,        // Spessore dei bordi
-              opacity: 0.7      // Opacità dei bordi
-            }
-          })
-            .bindPopup(`Area di interesse: ${area.name}`)
-            .addTo(this.map!);
-
-          // Aggiungi il poligono all'array dei layer disegnati
+            style: { color: 'blue', weight: 4, opacity: 0.7 }
+          }).bindPopup(`Area di interesse: ${area.name}`).addTo(this.map!);
           this.drawnLayers.push(polygon);
-
         } else if (geoJson && (geoJson.type === 'LineString' || geoJson.type === 'MultiLineString')) {
-          // @ts-ignore
-          const polyline = L.polyline(geoJson.coordinates, {
-            color: 'blue',   // Colore della linea
-            weight: 4,       // Spessore della linea
-            opacity: 0.7     // Opacità della linea
-          })
-            .bindPopup(`Area di interesse: ${area.name}`)
-            .addTo(this.map!);
-
-          // Aggiungi la linea all'array dei layer disegnati
+          const polyline = L.geoJSON(geoJson, {
+            style: { color: 'blue', weight: 4, opacity: 0.7 }
+          }).bindPopup(`Area di interesse: ${area.name}`).addTo(this.map!);
           this.drawnLayers.push(polyline);
-
         } else {
           console.error('Tipo di geometria non valido o non supportato:', geoJson?.type);
         }
       });
-
-      // Centra la vista su tutte le geometrie disegnate
       if (this.drawnLayers.length > 0) {
         const bounds = L.featureGroup(this.drawnLayers).getBounds();
         this.map!.fitBounds(bounds);
@@ -504,13 +397,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-// Metodo per rimuovere le aree già disegnate
   private removeDrawnAreas(): void {
-    if (this.drawnLayers.length > 0) {
-      this.drawnLayers.forEach(layer => {
-        this.map!.removeLayer(layer); // Rimuovi il layer dalla mappa
-      });
-      this.drawnLayers = []; // Svuota l'array
-    }
+    this.drawnLayers.forEach(layer => this.map!.removeLayer(layer));
+    this.drawnLayers = [];
   }
 }

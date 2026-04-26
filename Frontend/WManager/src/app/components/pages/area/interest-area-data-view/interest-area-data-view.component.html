@@ -1,82 +1,120 @@
-<div class="row" style="display: flex; height: 100vh;">
+<div class="dashboard-wrapper d-flex">
   <!-- Barra laterale sinistra -->
-  <app-user style="flex: 0 0 250px; border-right: 1px solid #ddd;"></app-user>
+  <app-user class="sidebar-component"></app-user>
 
-  <!-- Contenitore della tabella -->
-  <div class="table-container" style="flex: 1; padding: 10px;">
-    <table>
-      <thead>
-      <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Description</th>
-        <th>Type</th>
-        <th>Public?</th>
-        <th>Geometry</th>
-        <th>Preview</th>
-        <th>Actions</th>
-        <th>Delete</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let interestArea of interestAreaList; let i = index">
-        <td>{{ interestArea.id }}</td>
+  <!-- Contenitore Principale -->
+  <main class="content-area flex-grow-1 p-4">
+    <div class="glass-card animate-fade-in">
 
-        <!-- Name -->
-        <td *ngIf="!interestArea.isEditing">{{ interestArea.name }}</td>
-        <td *ngIf="interestArea.isEditing">
-          <input  type="text" class="form-control"  [(ngModel)]="interestArea.name" />
-        </td>
+      <header class="card-header-custom d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 class="text-white fw-bold m-0"><i class="fas fa-map-marked-alt text-primary me-2"></i>My Interest Areas</h3>
+          <p class="text-muted small m-0">Manage geographic boundaries and area metadata</p>
+        </div>
+        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="loadData()">
+          <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+      </header>
 
-        <!-- Description -->
-        <td *ngIf="!interestArea.isEditing">{{ interestArea.description }}</td>
-        <td *ngIf="interestArea.isEditing">
-          <input  type="text" class="form-control"  [(ngModel)]="interestArea.description" />
-        </td>
+      <div class="table-responsive-custom">
+        <table class="modern-table">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name & Type</th>
+            <th>Description</th>
+            <th>Visibility</th>
+            <th>Assets (Files)</th>
+            <th class="text-center">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let area of interestAreaList" [class.row-editing]="area.isEditing">
 
-        <!-- Type -->
-        <td *ngIf="!interestArea.isEditing">{{ interestArea.type }}</td>
-        <td *ngIf="interestArea.isEditing">
-          <input  type="text" class="form-control"  [(ngModel)]="interestArea.type" />
-        </td>
+            <!-- ID con Tooltip -->
+            <td>
+              <code class="sensor-id" [matTooltip]="area.id!" matTooltipPosition="above" style="cursor: help;">
+                {{ area.id | slice:0:8 }}...
+              </code>
+            </td>
 
-        <!-- isPublic -->
+            <!-- Name & Type -->
+            <td>
+              <div *ngIf="!area.isEditing">
+                <div class="fw-bold text-white">{{ area.name }}</div>
+                <div class="tiny-text text-primary-light">{{ area.type }}</div>
+              </div>
+              <div *ngIf="area.isEditing" class="edit-group">
+                <input type="text" class="table-input mb-1" [(ngModel)]="area.name" placeholder="Name">
+                <input type="text" class="table-input" [(ngModel)]="area.type" placeholder="Type">
+              </div>
+            </td>
 
-        <td *ngIf="!interestArea.isEditing">
-          <ng-container *ngIf="interestArea.isPublic">Yes</ng-container>
-          <ng-container *ngIf="!interestArea.isPublic">No</ng-container>
-        </td>
-        <td *ngIf="interestArea.isEditing">
-          <mat-radio-group [(ngModel)]="interestArea.isPublic">
-            <mat-radio-button [value]="true">Yes</mat-radio-button>
-            <mat-radio-button [value]="false">No</mat-radio-button>
-          </mat-radio-group>
-        </td>
+            <!-- Description -->
+            <td class="description-cell">
+              <span *ngIf="!area.isEditing" class="small text-white-50">{{ area.description || 'No description' }}</span>
+              <textarea *ngIf="area.isEditing" class="table-input" [(ngModel)]="area.description" rows="2"></textarea>
+            </td>
 
-        <!-- Geometry -->
-        <td *ngIf="!interestArea.isEditing"></td>
-        <td *ngIf="interestArea.isEditing">
-          <input type="file" id="geometry" name="file" accept=".shp,.shx"  (change)="loadGeometry($event)">
-        </td>
+            <!-- Visibility -->
+            <td>
+              <div *ngIf="!area.isEditing">
+                  <span class="badge" [ngClass]="area.isPublic ? 'bg-success-glass' : 'bg-secondary-glass'">
+                    {{ area.isPublic ? 'Public' : 'Private' }}
+                  </span>
+              </div>
+              <div *ngIf="area.isEditing">
+                <mat-radio-group [(ngModel)]="area.isPublic" class="small-radio-group">
+                  <mat-radio-button [value]="true" class="tiny-radio">Yes</mat-radio-button>
+                  <mat-radio-button [value]="false" class="tiny-radio">No</mat-radio-button>
+                </mat-radio-group>
+              </div>
+            </td>
 
-        <td *ngIf="!interestArea.isEditing"></td>
-        <td *ngIf="interestArea.isEditing">
-          <input type="file" id="image" name="file" itemtype="image" accept=".jpg,.jpeg,.png" (change)="loadPreview($event)">
-        </td>
+            <!-- Geometry & Preview (Assets) -->
+            <td>
+              <div *ngIf="!area.isEditing" class="text-muted small">
+                <i class="fas fa-file-alt me-1"></i> Assets Locked
+              </div>
+              <div *ngIf="area.isEditing" class="d-flex flex-column gap-2">
+                <div class="file-upload-mini">
+                  <label class="tiny-label">Geometry</label>
+                  <input type="file" (change)="loadGeometry($event)" accept=".shp,.shx">
+                </div>
+                <div class="file-upload-mini">
+                  <label class="tiny-label">Preview</label>
+                  <input type="file" (change)="loadPreview($event)" accept=".jpg,.jpeg,.png">
+                </div>
+              </div>
+            </td>
 
+            <!-- Actions -->
+            <td class="text-center">
+              <div class="d-flex gap-2 justify-content-center">
+                <ng-container *ngIf="!area.isEditing">
+                  <button class="btn-action btn-edit" (click)="startEdit(area)" title="Modify">
+                    <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="btn-action btn-delete" (click)="delete(area)" title="Delete">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </ng-container>
 
-        <!-- Actions -->
-        <td>
-          <button  style="margin: 4%" class="btn btn-primary" *ngIf="!interestArea.isEditing" (click)="startEdit(interestArea)">Modify</button>
-          <button style="margin: 4%" class="btn btn-primary" *ngIf="interestArea.isEditing" (click)="saveEdit(interestArea)">Save</button>
-          <button  style="margin: 4%" class="btn btn-primary" *ngIf="interestArea.isEditing" (click)="cancelEdit(interestArea)">Cancel</button>
-        </td>
+                <ng-container *ngIf="area.isEditing">
+                  <button class="btn-action btn-save" (click)="saveEdit(area)" title="Save">
+                    <i class="fas fa-check"></i>
+                  </button>
+                  <button class="btn-action btn-cancel" (click)="cancelEdit(area)" title="Cancel">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </ng-container>
+              </div>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <td>
-          <button  style="margin: 4%; background-color: darkred;  border-color: darkred" class="btn btn-primary" (click)="delete(interestArea)">Delete</button>
-        </td>
-      </tr>
-      </tbody>
-    </table>
-  </div>
+    </div>
+  </main>
 </div>

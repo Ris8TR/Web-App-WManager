@@ -4,7 +4,7 @@ import {FormsModule} from "@angular/forms";
 import {InterestAreaService} from "../../../../service/interestArea.service";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {CookieService} from "ngx-cookie-service";
-import {NgForOf, NgIf} from "@angular/common";
+import {NgClass, NgForOf, NgIf, SlicePipe} from "@angular/common";
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 import {UserComponent} from "../../user/userMenu/user.component";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
@@ -12,6 +12,7 @@ import {
   DeleteConfirmationDialogComponent
 } from "../../../actions/delete-confirmation-dialog/delete-confirmation-dialog.component";
 import {MatDialog, MatDialogModule} from "@angular/material/dialog";
+import {MatTooltip} from "@angular/material/tooltip";
 
 @Component({
   selector: 'app-interest-area-data-view',
@@ -24,7 +25,10 @@ import {MatDialog, MatDialogModule} from "@angular/material/dialog";
     MatRadioButton,
     MatDialogModule,
     DeleteConfirmationDialogComponent,
-    MatRadioGroup
+    MatRadioGroup,
+    SlicePipe,
+    MatTooltip,
+    NgClass
   ],
   templateUrl: './interest-area-data-view.component.html',
   styleUrl: './interest-area-data-view.component.css'
@@ -86,25 +90,19 @@ export class InterestAreaDataViewComponent implements  OnInit{
     interestArea.isEditing = false;
     this.loadData();
   }
-
   loadGeometry(event: any) {
     const fileInput = event.target;
     const files = fileInput.files;
 
     if (files && files.length > 0) {
       const file = files[0];
-      const allowedTypes = ['image/jpeg', 'image/png'];
-
-      if (!allowedTypes.includes(file.type)) {
-        alert('Invalid file type. Please select a JPG or PNG file.');
+      // Se è uno shapefile, solitamente accettiamo .zip o i file singoli .shp
+      if (!file.name.endsWith('.shp') && !file.name.endsWith('.zip')) {
+        alert('Invalid file type. Please select a .shp or .zip file.');
         fileInput.value = '';
         return;
       }
-
       this.geometryFile = file;
-      console.log('Geometry file loaded:', file.name);
-    } else {
-      alert('No file selected. Please select a valid JPG or PNG file.');
     }
   }
 

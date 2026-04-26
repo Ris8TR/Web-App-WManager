@@ -73,7 +73,8 @@ export class InterestAreaCreationComponent {
   }
 
 
-
-
+  protected goBack() {
+    this.router.navigate(['/']);
+  }
 }
 

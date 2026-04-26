@@ -36,86 +36,113 @@
 <!--  </div>-->
 <!--</div>-->
 
+<section class="login-wrapper">
+  <div class="container py-5">
+    <div class="row justify-content-center align-items-center min-vh-100">
 
-<section class="vh-80">
-  <div class="container-fluid h-custom" styles="offset">
-    <div class="row d-flex justify-content-center align-items-center">
+      <div class="col-lg-6 col-xl-5">
+        <div class="login-card shadow-lg animate-fade-in">
 
-      <div class="col-md-8 col-lg-6 col-xl-3" style="margin-top: 6rem; margin-bottom: 6rem" >
-        <form id="registrationUser">
-          <!-- Email input -->
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" for="formName" style="color: black">Name:</label>
-            <input type="email" id="formName" class="form-control form-control-lg"
-                   placeholder="Name:" [(ngModel)]="newUser.firstName" name="registerFirstName" />
+          <div class="text-center mb-4">
+            <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+            <h4 class="fw-bold text-white">Create Account</h4>
+            <p class="text-muted small">Join the Tech4You monitoring network</p>
           </div>
 
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" for="formLastName" style="color: black">Last Name:</label>
-            <input id="formLastName" class="form-control form-control-lg"
-                   placeholder="Last Name:" [(ngModel)]="newUser.lastName" name="registerLastName" />
-          </div>
+          <form id="registrationUser">
+            <div class="row">
+              <!-- Name -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label-custom">Name</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-user"></i>
+                  <input style="margin-left: 3%"  type="text" class="form-control-custom" placeholder="John"
+                         [(ngModel)]="newUser.firstName" name="registerFirstName" />
+                </div>
+              </div>
 
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" for="formEmail" style="color: black">Email:</label>
+              <!-- Last Name -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label-custom">Last Name</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-signature"></i>
+                  <input style="margin-left: 3%"  type="text" class="form-control-custom" placeholder="Doe"
+                         [(ngModel)]="newUser.lastName" name="registerLastName" />
+                </div>
+              </div>
+            </div>
 
-            <input type="email" id="formEmail" class="form-control form-control-lg"
-                   placeholder="Email:" [(ngModel)]="newUser.email" name="registerMail" />
-          </div>
+            <!-- Email -->
+            <div class="mb-3">
+              <label class="form-label-custom">Email Address</label>
+              <div class="input-group-custom">
+                <i class="fas fa-envelope"></i>
+                <input style="margin-left: 3%"  type="email" class="form-control-custom" placeholder="john.doe@example.com"
+                       [(ngModel)]="newUser.email" name="registerMail" />
+              </div>
+            </div>
 
-          <div data-mdb-input-init class="form-outline mb-3">
-            <label class="form-label" for="formPassword"  style="color: black">Password</label>
+            <div class="row">
+              <!-- Password -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label-custom">Password</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-lock"></i>
+                  <input style="margin-left: 3%" type="password" class="form-control-custom" placeholder="••••••••"
+                         [(ngModel)]="newUser.password" name="registerPassword" />
+                </div>
+              </div>
 
-            <input type="password" id="formPassword" class="form-control form-control-lg"
-                   placeholder="Password:" [(ngModel)]="newUser.password" name="registerPassword" />
-          </div>
+              <!-- Repeat Password -->
+              <div class="col-md-6 mb-3">
+                <label class="form-label-custom">Repeat Password</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-shield-alt"></i>
+                  <input style="margin-left: 3%" type="password" class="form-control-custom" placeholder="••••••••"
+                         [(ngModel)]="passwordCheckUser" name="registerConfirmPassword" />
+                </div>
+              </div>
+            </div>
 
-          <div data-mdb-input-init class="form-outline mb-3">
-            <label class="form-label" for="formPassword2"  style="color: black">Repeat Password:</label>
+            <!-- Sensor Password -->
+            <div class="mb-4">
+              <label class="form-label-custom d-flex justify-content-between">
+                Sensor Password
+                <span class="text-info" title="Dedicated password for hardware access"><i class="fas fa-info-circle"></i></span>
+              </label>
+              <div class="input-group-custom">
+                <i class="fas fa-microchip"></i>
+                <input style="margin-left: 3%" type="password" class="form-control-custom" placeholder="Dedicated sensor password"
+                       [(ngModel)]="newUser.sensorPassword" name="registerSensorPassword" />
+              </div>
+            </div>
 
-            <input type="password" id="formPassword2" class="form-control form-control-lg"
-                   placeholder="Repeat password" [(ngModel)]="passwordCheckUser" name="registerConfirmPassword" />
-          </div>
+            <div class="text-center">
+              <button type="button" class="btn-login-submit w-100 mb-3" (click)="userSignIn()">
+                Create Account <i class="fas fa-arrow-right ms-2"></i>
+              </button>
+              <p class="text-white-50 small">
+                Already have an account? <a href="login" class="register-link">Log In</a>
+              </p>
+            </div>
+          </form>
 
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" for="formSensorPassword" style="color: black">Sensor Password:</label>
+        </div>
+      </div>
 
-            <input type="email" id="formSensorPassword" class="form-control form-control-lg"
-                   placeholder="Select a Sensor only Password:" [(ngModel)]="newUser.sensorPassword" name="registerConfirmPassword" name="registerFirstName" />
-          </div>
+    </div>
+  </div>
 
-          <div class="text-center text-lg-start mt-4 pt-2">
-            <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
-                     style="padding-left: 2.5rem; padding-right: 2.5rem;" (click)="userSignIn()" >Sign In</button>
-          </div>
-
-        </form>
+  <!-- Footer -->
+  <footer class="modern-footer">
+    <div class="container-fluid d-flex flex-column flex-md-row justify-content-between align-items-center px-4">
+      <div class="text-muted small">Copyright © 2024 Tech4You. All rights reserved.</div>
+      <div class="social-links d-none d-md-block">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-google"></i></a>
+        <a href="#"><i class="fab fa-linkedin-in"></i></a>
       </div>
     </div>
-  </div>
-  <div
-    class="d-flex flex-column flex-md-row text-center text-md-start justify-content-between py-4 px-4 px-xl-5 bg-primary">
-    <!-- Copyright -->
-    <div class="text-white mb-3 mb-md-0">
-      Copyright © 2020. All rights reserved.
-    </div>
-    <!-- Copyright -->
-
-    <!-- Right -->
-    <div>
-      <a href="#!" class="text-white me-4">
-        <i class="fab fa-facebook-f"></i>
-      </a>
-      <a href="#!" class="text-white me-4">
-        <i class="fab fa-twitter"></i>
-      </a>
-      <a href="#!" class="text-white me-4">
-        <i class="fab fa-google"></i>
-      </a>
-      <a href="#!" class="text-white">
-        <i class="fab fa-linkedin-in"></i>
-      </a>
-    </div>
-    <!-- Right -->
-  </div>
+  </footer>
 </section>

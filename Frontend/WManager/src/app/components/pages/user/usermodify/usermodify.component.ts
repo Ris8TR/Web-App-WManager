@@ -1,36 +1,60 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {UserComponent} from "../userMenu/user.component";
-import {FormsModule} from "@angular/forms";
-import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
-import {NgForOf} from "@angular/common";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {CookieService} from "ngx-cookie-service";
-import {Router} from "@angular/router";
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
-
 
 @Component({
   selector: 'app-usermodify',
   standalone: true,
   imports: [
+    CommonModule,
     UserComponent,
-    FormsModule,
-    MatRadioButton,
-    MatRadioGroup,
-    NgForOf
+    FormsModule
   ],
   templateUrl: './usermodify.component.html',
   styleUrl: './usermodify.component.css'
 })
-export class UsermodifyComponent implements  OnInit{
+export class UsermodifyComponent implements OnInit {
+
+  // Inizializziamo l'oggetto per evitare errori "undefined" nel template
+  protected userDto: any = {
+    firstName: '',
+    lastName: '',
+    password: ''
+  };
 
   constructor(
     private toolbar: ToolbarComponent,
+    private router: Router
   ) { }
 
-
   ngOnInit(): void {
-    this.toolbar.refreshToken()
+    this.toolbar.refreshToken();
+    this.loadUserData();
   }
 
+  private loadUserData() {
+    // Qui dovresti caricare i dati dell'utente dal tuo Service
+    // Esempio placeholder:
+    const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+    this.userDto = { ...savedUser, password: '' };
+  }
+
+  protected redirectToUserData() {
+    // Torna alla visualizzazione profilo
+    this.router.navigate(['/profile']);
+  }
+
+  protected onUpdateData() {
+    if (this.userDto.firstName && this.userDto.lastName) {
+      console.log('Aggiornamento dati in corso...', this.userDto);
+
+      // Qui chiamerai il tuo UserService.update(this.userDto)...
+      // Esempio di successo:
+      // alert('Profilo aggiornato con successo!');
+      // this.redirectToUserData();
+    }
+  }
 }

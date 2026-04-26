@@ -51,6 +51,10 @@ export class UserComponent implements OnInit{
     this.router.navigate(['/Show-Areas']);
 
   }
+
+  protected logout() {
+
+  }
 }
 
 

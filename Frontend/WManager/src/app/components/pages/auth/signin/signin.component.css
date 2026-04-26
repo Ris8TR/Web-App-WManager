@@ -1,0 +1,108 @@
+/* Stessi stili della Login Page */
+.login-wrapper {
+  background: radial-gradient(circle at center, #1e222d 0%, #11141d 100%);
+  min-height: 100vh;
+  position: relative;
+  font-family: 'Inter', sans-serif;
+}
+
+.login-card {
+  background: rgba(30, 34, 45, 0.85);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 40px;
+}
+
+/* Stile per i gruppi di input con icone */
+.form-label-custom {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: #8a8d98;
+  margin-bottom: 8px;
+}
+
+.input-group-custom {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-group-custom i {
+  position: absolute;
+  left: 15px;
+  color: #0dcaf0; /* Colore Ciano della dashboard */
+  z-index: 5;
+  font-size: 0.9rem;
+}
+
+.form-control-custom {
+  width: 100%;
+  padding: 10px 15px 10px 42px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: white;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.form-control-custom:focus {
+  border-color: #0d6efd;
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.2);
+  outline: none;
+}
+
+/* Bottone con gradiente dashboard */
+.btn-login-submit {
+  background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  transition: all 0.3s;
+}
+
+.btn-login-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(13, 110, 253, 0.4);
+}
+
+.register-link {
+  color: #0dcaf0;
+  text-decoration: none;
+}
+
+/* Footer moderno */
+.modern-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 15px 0;
+  background: rgba(17, 20, 29, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.social-links a {
+  color: #6c757d;
+  margin-left: 20px;
+  transition: 0.3s;
+}
+
+.social-links a:hover { color: #0dcaf0; }
+
+/* Animazione */
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

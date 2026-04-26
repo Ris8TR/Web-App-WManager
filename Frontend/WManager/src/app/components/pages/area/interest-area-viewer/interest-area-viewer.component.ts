@@ -16,6 +16,7 @@ import {Subscription, timeout} from "rxjs";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {SensorData} from "../../../../model/sensorData";
 import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAreaDto";
+import {style} from "@angular/animations";
 
 
 @Component({
@@ -36,7 +37,7 @@ import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAre
   styleUrl: './interest-area-viewer.component.css'
 })
 export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, OnInit {
-  @ViewChild('forecastInterval', { static: false }) forecastIntervalElement!: ElementRef<HTMLSelectElement>;
+  @ViewChild('forecastInterval', {static: false}) forecastIntervalElement!: ElementRef<HTMLSelectElement>;
 
   private map: L.Map | undefined;
   selectedSensor!: string | undefined;
@@ -132,9 +133,9 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
     this.interestAreaService.getInterestArea(this.id!).subscribe(area => {
       this.interestArea = area;
-      this.toolbarComponent.inArea=true;
-      this.toolbarComponent.isObservation=true;
-      this.toolbarComponent.areaName=area.name;
+      this.toolbarComponent.inArea = true;
+      this.toolbarComponent.isObservation = true;
+      this.toolbarComponent.areaName = area.name;
 
       // Disegna l'area d'interesse sulla mappa
       if (this.interestArea && this.interestArea.geometry) {
@@ -155,7 +156,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   ngOnDestroy(): void {
     if (this.map) this.map.remove();
     this.subscription.unsubscribe();
-    this.toolbarComponent.inArea=false;
+    this.toolbarComponent.inArea = false;
 
   }
 
@@ -163,8 +164,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     event.stopPropagation();
     this.isPanelVisible = !this.isPanelVisible;
   }
-
-
 
 
   private drawInterestArea(geometry: string): void {
@@ -279,11 +278,8 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
   }
 
 
-
-
-
   private loadAllSensorData(): void {
-    if (this.isRealTime){
+    if (this.isRealTime) {
       if (!this.map) return;
       this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!)
         .subscribe((response: any) => {
@@ -324,7 +320,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
             console.error('Formato della risposta non valido:', response);
           }
         });
-    }else {
+    } else {
       if (!this.map) return;
       this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!)
         .subscribe((response: SensorDataInterestAreaDto) => {
@@ -436,7 +432,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
                 console.warn('No data returned from observable.');
               }
             },
-              ( error: any) => {
+            (error: any) => {
               console.error('Error during observable subscription:', error);
             }
           );
@@ -472,7 +468,6 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
       return this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!);
     }
   }
-
 
 
   onDateRangeSubmit(): void {
@@ -560,33 +555,44 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     return heatData;
   }
 
-  onSensorTypeSelect(type: any) {
+  onSensorTypeSelect(type: string): void {
+    // 1. Aggiorna lo stato
     this.selectedSensorType = type;
-    const heatData: [number, number, number][] = [];  // Initialize outside the loop
 
-    this.sensorDataLocalList!.forEach((data: any) => {
-      const lat = data.latitude;
-      const lng = data.longitude;
-      let value: number = 0;
+    // 2. Controllo di sicurezza: se non ci sono dati, svuota e ferma
+    if (!this.sensorDataLocalList || this.sensorDataLocalList.length === 0) {
+      this.cachedData.set(type, []);
+      this.updateGrid();
+      return;
+    }
 
-      try {
-        const payloadData = JSON.parse(data.payload);
-        value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
-      } catch (error) {
-        console.error("Errore nel parsing del payload:", error);
-      }
+    // 3. Trasformazione dei dati (usiamo .map e .filter per pulizia)
+    const heatData: [number, number, number][] = this.sensorDataLocalList
+      .map(data => {
+        try {
+          // Gestiamo sia il caso in cui payload sia già oggetto, sia stringa JSON
+          const payloadData = typeof data.payload === 'string'
+            ? JSON.parse(data.payload)
+            : data.payload;
 
-      if (lat && lng) {
-        heatData.push([lat, lng, value]);
-      }
-    });
+          const value = payloadData[type] ?? 0; // Nullish coalescing per evitare undefined
 
-    this.cachedData.set(this.selectedSensorType, heatData);
+          if (data.latitude && data.longitude) {
+            return [data.latitude, data.longitude, value] as [number, number, number];
+          }
+        } catch (error) {
+          console.error(`Errore parsing payload per sensore ${data.id}:`, error);
+        }
+        return null;
+      })
+      .filter((item): item is [number, number, number] => item !== null); // Rimuove i fallimenti
 
-    this.updateGrid();  // Aggiorna la mappa con i nuovi dati
+    // 4. Salvataggio in cache
+    this.cachedData.set(type, heatData);
+
+    // 5. Aggiornamento visivo
+    this.updateGrid();
+
+    console.log(`Mappa aggiornata per: ${type} (${heatData.length} punti)`);
   }
-
-
-
-
 }

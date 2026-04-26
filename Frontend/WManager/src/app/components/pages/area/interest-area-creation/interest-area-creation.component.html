@@ -1,37 +1,82 @@
-<div class="mainContainer" style="margin-top: 20%">
-  <div class="container">
-    <div class="form-container">
-      <h2 style="color: black">Create interest area</h2>
+<section class="login-wrapper d-flex align-items-center justify-content-center">
+  <div class="container py-5">
+    <div class="row justify-content-center">
 
-      <form (ngSubmit)="loadData()">
+      <div class="col-md-8 col-lg-5">
+        <!-- Card stile Dashboard -->
+        <div class="login-card shadow-lg animate-fade-in">
 
-        <div class="form-group">
-          <label for="dataType">Nome area di interesse*:</label>
-          <input type="text" id="dataType" name="dataType" [(ngModel)]="data.name">
+          <div class="text-center mb-4">
+            <div class="icon-circle mb-3">
+              <i class="fas fa-layer-group text-primary"></i>
+            </div>
+            <h3 class="fw-bold text-white">Create Interest Area</h3>
+            <p class="text-muted small">Define a new geographic zone for monitoring</p>
+          </div>
+
+          <form (ngSubmit)="loadData()">
+
+            <!-- Nome Area -->
+            <div class="form-group mb-3">
+              <label class="form-label-custom" for="name">Area Name*</label>
+              <div class="input-group-custom">
+                <i class="fas fa-tag"></i>
+                <input style="margin-left: 3%"  type="text" id="name" name="name"
+                       class="form-control-custom" placeholder="e.g. Pollino National Park"
+                       [(ngModel)]="data.name" required>
+              </div>
+            </div>
+
+            <!-- Descrizione -->
+            <div class="form-group mb-3">
+              <label class="form-label-custom" for="description">Description</label>
+              <div   class="input-group-custom">
+                <i class="fas fa-align-left"></i>
+                <textarea style="margin-left: 3%"  id="description" name="description"
+                          class="form-control-custom fixed-height-textarea"
+                          placeholder="Brief description of the area..."
+                          [(ngModel)]="data.description"></textarea>
+              </div>
+            </div>
+
+            <!-- Tipo -->
+            <div class="form-group mb-3">
+              <label class="form-label-custom" for="type">Category/Type</label>
+              <div class="input-group-custom">
+                <i class="fas fa-folder"></i>
+                <input style="margin-left: 3%"  type="text" id="type" name="type"
+                       class="form-control-custom" placeholder="e.g. Forest, Urban, Coast"
+                       [(ngModel)]="data.type">
+              </div>
+            </div>
+
+            <!-- File Upload (Shapefile) -->
+            <div class="form-group mb-4">
+              <label class="form-label-custom" for="file">Shapefile (GIS Data)</label>
+              <div class="file-upload-wrapper">
+                <input type="file" id="file" name="file" class="file-input" (change)="caricaFile($event)">
+                <div class="file-dummy">
+                  <i class="fas fa-file-upload mb-2"></i>
+                  <span class="small">Click to upload .shp or .zip file</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pulsante Submit -->
+            <div class="text-center">
+              <button type="submit" class="btn-login-submit w-100" [disabled]="!formValido()">
+                <i class="fas fa-cloud-upload-alt me-2"></i> Create & Load Data
+              </button>
+              <button type="button" class="btn btn-link text-muted btn-sm mt-3 w-100" (click)="goBack()">
+                Cancel
+              </button>
+            </div>
+
+          </form>
+
         </div>
-        <div class="form-group">
-          <label for="dataType">Descrizione:</label>
-          <input type="text" id="description" name="description" [(ngModel)]="data.description">
-        </div>
-        <div class="form-group">
-          <label for="dataType">Tipo:</label>
-          <input type="text" id="type" name="type" [(ngModel)]="data.type">
-        </div>
-
-        <div class="form-group">
-          <label for="file">Carica shapefile:</label>
-          <input type="file" id="file" name="file"  (change)="caricaFile($event)">
-        </div>
-
-
-
-        <div style="display: flex">
-
-          <button type="submit" style="margin-top: 10%; color: white" >Carica dato</button>
-        </div>
-      </form>
+      </div>
 
     </div>
   </div>
-</div>
-[disabled]="!formValido()"
+</section>

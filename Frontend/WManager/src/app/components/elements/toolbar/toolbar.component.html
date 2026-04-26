@@ -1,71 +1,96 @@
-<div class="container-fluid">
-  <!-- Navigation-->
-  <nav class="navbar navbar-expand-lg bg-secondary text-uppercase" id="mainNav">
-    <div class="container">
-      <a class="navbar-brand" href="/observation">
-        <img src="assets/img/logo-tech4you.png" style="height: 3rem">
+<header class="main-navbar-wrapper sticky-top">
+  <nav class="navbar navbar-expand-lg navbar-dark navbar-glass">
+    <div class="container-fluid px-lg-5">
+
+      <!-- Brand / Logo -->
+      <a class="navbar-brand d-flex align-items-center" href="/observation">
+        <img src="assets/img/logo-tech4you.png" class="navbar-logo" alt="Tech4You">
       </a>
-      <button class="navbar-toggler text-uppercase font-weight-bold bg-primary text-white rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-        Menu
+
+      <!-- Mobile Toggle -->
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar" aria-label="Toggle navigation">
         <i class="fas fa-bars"></i>
       </button>
-      <div class="collapse navbar-collapse" id="navbarResponsive">
-        <ul class="navbar-nav mr-auto">
-          <li *ngIf="!inArea" class="nav-item mx-0 mx-lg-1 dropdown">
-            <a class="nav-link py-3 px-0 px-lg-3 dropdown-toggle" id="NavbarObs" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Public Observations
-            </a>
-            <div class="dropdown-menu" aria-labelledby="NavbarObs">
-              <a class="dropdown-item" (click)="redirectToGroundStations()">Ground Stations</a>
-              <a class="dropdown-item" (click)="redirectToWebcams()">Webcams</a>
-            </div>
-          </li><!--
-            <li *ngIf="!inArea" class="nav-item mx-0 mx-lg-1">
-              <a class="nav-link py-3 px-0 px-lg-3 rounded" href="/forecast">Public Forecast</a>
-            </li>
-            -->
 
-          <li *ngIf="!inArea" class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" href="/PublicInterestAreaList">Public Interest Areas</a>
-          </li>
+      <div class="collapse navbar-collapse" id="mainNavbar">
 
-          <li *ngIf="inArea" class=" mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" style="color: white !important;">{{ areaName }}</a>
-          </li>
-          <li *ngIf="inArea" class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="setObservation()">Private Observations</a>
-          </li>
-          <li *ngIf="inArea" class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="setForecast()">Private Forecast</a>
-          </li>
-          <!-- Interest Areas Dropdown (now identical to Observations) -->
-          <li  *ngIf="logStringResult !== 'Login'" class="nav-item mx-0 mx-lg-1 dropdown">
-            <a class="nav-link py-3 px-0 px-lg-3 dropdown-toggle" id="NavbarInterest" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Interest Areas
-            </a>
-            <div class="dropdown-menu" aria-labelledby="NavbarInterest">
-              <a class="dropdown-item" *ngFor="let interestArea of interestAreaNames" (click)="redirectToInterestArea(interestArea.id!)">
-                {{ interestArea.name }}
+        <!-- Link di Sinistra (Public & Areas) -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+          <!-- Se non siamo in un'area specifica -->
+          <ng-container *ngIf="!inArea">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle modern-link" id="NavbarObs" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-satellite me-1"></i> Public Observations
               </a>
-              <a class="dropdown-item" (click)="redirectToCreateArea()">Create new area</a>
-            </div>
+              <ul class="dropdown-menu dropdown-glass shadow-lg" aria-labelledby="NavbarObs">
+                <li><a class="dropdown-item" (click)="redirectToGroundStations()"><i class="fas fa-broadcast-tower me-2"></i>Ground Stations</a></li>
+                <li><a class="dropdown-item" (click)="redirectToWebcams()"><i class="fas fa-video me-2"></i>Webcams</a></li>
+              </ul>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link modern-link" href="/PublicInterestAreaList">
+                <i class="fas fa-globe-europe me-1"></i> Public Areas
+              </a>
+            </li>
+          </ng-container>
+
+          <!-- Se siamo dentro un'area specifica -->
+          <ng-container *ngIf="inArea">
+            <li class="nav-item px-3 border-start border-end border-secondary d-flex align-items-center">
+              <span class="area-active-label"><i class="fas fa-map-marker-alt text-primary me-2"></i>{{ areaName }}</span>
+            </li>
+            <li class="nav-item px-2">
+              <a class="nav-link modern-link" (click)="setObservation()">Private Observations</a>
+            </li>
+            <li class="nav-item px-2">
+              <a class="nav-link modern-link" (click)="setForecast()">Private Forecast</a>
+            </li>
+          </ng-container>
+
+          <!-- Interest Areas Dropdown (Solo per Loggati) -->
+          <li *ngIf="logStringResult !== 'Login'" class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle modern-link" id="NavbarInterest" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-layer-group me-1"></i> My Areas
+            </a>
+            <ul class="dropdown-menu dropdown-glass shadow-lg" aria-labelledby="NavbarInterest">
+              <li *ngFor="let interestArea of interestAreaNames">
+                <a class="dropdown-item" (click)="redirectToInterestArea(interestArea.id!)">{{ interestArea.name }}</a>
+              </li>
+              <li><hr class="dropdown-divider border-secondary"></li>
+              <li><a class="dropdown-item text-info" (click)="redirectToCreateArea()"><i class="fas fa-plus-circle me-2"></i>Create New Area</a></li>
+            </ul>
           </li>
         </ul>
-        <ul class="navbar-nav ms-auto">
-          <li *ngIf="logStringResult !== 'Login'" class="nav-item mx-0 mx-lg-1">
-            <button type="button" class="btn btn-light" style="margin-right: 10px;" (click)="redirectToUser()">
-              {{ logStringResult }}
+
+        <!-- Azioni di Destra (User Profile & Login) -->
+        <div class="navbar-user-actions d-flex align-items-center gap-3">
+
+          <ng-container *ngIf="logStringResult !== 'Login'; else guestMode">
+            <!-- Bottone Profilo -->
+            <button type="button" class="btn-profile-navbar" (click)="redirectToUser()">
+              <i class="fas fa-user-circle me-2"></i>
+              <span>{{ logStringResult }}</span>
             </button>
-          </li>
-          <li *ngIf="logStringResult !== 'Login'" class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" (click)="logOut()">Log out</a>
-          </li>
-          <li *ngIf="logStringResult == 'Login'" class="nav-item mx-0 mx-lg-1">
-            <a class="nav-link py-3 px-0 px-lg-3 rounded" routerLink="/login">Login</a>
-          </li>
-        </ul>
+
+            <!-- Bottone Logout -->
+            <button class="btn-logout-navbar" (click)="logOut()" title="Sign Out">
+              <i class="fas fa-power-off"></i>
+            </button>
+          </ng-container>
+
+          <ng-template #guestMode>
+            <a routerLink="/login" class="btn-login-navbar px-4">
+              <i class="fas fa-sign-in-alt me-2"></i> Login
+            </a>
+          </ng-template>
+
+        </div>
       </div>
     </div>
   </nav>
+
+  <!-- Outlet dell'applicazione -->
   <router-outlet></router-outlet>
-</div>
+</header>

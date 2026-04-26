@@ -1,33 +1,73 @@
-<div class="row">
-  <app-user class="col-sm-2"></app-user>
-  <div class="col" style="max-width: 25%; margin: 6%" >
-    <div id="page-content-wrapper">
-      <div class="container-fluid">
-        <form class="example-form centered-form">
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Name*:</label>
-            <input type="email" class="form-control form-control-lg"
-                   placeholder="First Name:" id="first" name="first"  required />
-          </div>
+<div class="dashboard-wrapper d-flex">
+  <!-- Sidebar componente utente -->
+  <app-user class="sidebar-component"></app-user>
 
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Last Name*:</label>
-            <input class="form-control form-control-lg"
-                   placeholder="Last Name:" id="last" name="last"  required />
-          </div>
+  <main class="content-wrapper flex-grow-1 d-flex align-items-center justify-content-center">
+    <div class="container">
+      <div class="row justify-content-center">
 
-          <div data-mdb-input-init class="form-outline mb-4">
-            <label class="form-label" style="color: black">Password*:</label>
-            <input class="form-control form-control-lg"
-                   placeholder="Password:" type="password" id="dataType" name="password"  required/>
-          </div>
+        <div class="col-md-10 col-lg-6 col-xl-5">
+          <div class="login-card shadow-lg animate-fade-in">
 
-          <button type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
-                  style="padding-left: 2.5rem; padding-right: 2.5rem;" >Carica dato</button>
-        </form>
+            <!-- Intestazione -->
+            <div class="text-center mb-4">
+              <div class="icon-circle mb-3">
+                <i class="fas fa-user-edit text-primary"></i>
+              </div>
+              <h3 class="fw-bold text-white">Update Profile</h3>
+              <p class="text-muted small">Modify your personal account information</p>
+            </div>
+
+            <form (ngSubmit)="onUpdateData()">
+
+              <!-- Nome -->
+              <div class="form-group mb-3">
+                <label class="form-label-custom">First Name*</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-user"></i>
+                  <input type="text" class="form-control-custom"
+                         placeholder="Enter your name" id="first" name="first"
+                         [(ngModel)]="userDto.firstName" required />
+                </div>
+              </div>
+
+              <!-- Cognome -->
+              <div class="form-group mb-3">
+                <label class="form-label-custom">Last Name*</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-signature"></i>
+                  <input type="text" class="form-control-custom"
+                         placeholder="Enter your last name" id="last" name="last"
+                         [(ngModel)]="userDto.lastName" required />
+                </div>
+              </div>
+
+              <!-- Password -->
+              <div class="form-group mb-4">
+                <label class="form-label-custom">New Password*</label>
+                <div class="input-group-custom">
+                  <i class="fas fa-lock"></i>
+                  <input type="password" class="form-control-custom"
+                         placeholder="Confirm or enter new password" id="password" name="password"
+                         [(ngModel)]="userDto.password" required />
+                </div>
+              </div>
+
+              <!-- Azioni -->
+              <div class="text-center">
+                <button type="submit" class="btn-login-submit w-100 mb-2">
+                  <i class="fas fa-save me-2"></i> Save Changes
+                </button>
+                <button type="button" class="btn btn-link text-muted btn-sm" (click)="redirectToUserData()">
+                  Discard Changes
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+
       </div>
     </div>
-  </div>
+  </main>
 </div>
-
-
