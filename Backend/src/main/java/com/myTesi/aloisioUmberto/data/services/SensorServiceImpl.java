@@ -1,8 +1,5 @@
 package com.myTesi.aloisioUmberto.data.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.exc.StreamReadException;
-import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.core.modelMapper.InterestAreaMapper;
@@ -14,451 +11,318 @@ import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.entities.Sensor;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
-import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorService;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDto;
-import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.SensorAndAreas;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
-import com.myTesi.aloisioUmberto.dto.UserDto;
 import com.myTesi.aloisioUmberto.dto.enumetation.PayloadType;
-import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
 import java.io.IOException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SensorServiceImpl implements SensorService {
 
-    @Autowired
     private final SensorRepository sensorRepository;
     private final ColorBarRepository colorBarRepository;
     private final SensorDataRepository sensorDataRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userDao;
+    private final InterestAreaRepository interestAreaRepository;
+    private final ModelMapper modelMapper;
+    private final PasswordEncoder passwordEncoder;
+
+
     private final SensorMapper sensorMapper = SensorMapper.INSTANCE;
     private final InterestAreaMapper interestAreaMapper = InterestAreaMapper.INSTANCE;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Autowired
-    private ModelMapper modelMapper;
-    @Autowired
-    private InterestAreaRepository interestAreaRepository;
-
-
-    private String isValidToken(String token) {
-        if (jwtTokenProvider.validateToken(token))
+    /**
+     * Helper per validare il token e restituire l'ID utente.
+     */
+    private String getValidatedUserId(String token) {
+        if (token != null && jwtTokenProvider.validateToken(token)) {
             return jwtTokenProvider.getUserIdFromUserToken(token);
-        return null;
-
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
     }
 
+    /**
+     * Helper per recuperare l'utente e validare le credenziali.
+     */
+    private User validateUserCredentials(String userId, String rawPassword) {
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        if (!BCrypt.checkpw(rawPassword, user.getSensorPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid sensor credentials");
+        }
+        return user;
+    }
 
     @Override
+    @Transactional
     public SensorDto save(MultipartFile file) throws IOException {
-        if (file != null && !file.isEmpty()) {
-            try {
-                // Parse del file JSON
-                ObjectMapper objectMapper = new ObjectMapper();
-                Map data = objectMapper.readValue(file.getInputStream(), Map.class);
-
-                String companyName = Objects.requireNonNull(data.get("companyName")).toString();
-                String token = Objects.requireNonNull(data.get("token")).toString();
-                String password = Objects.requireNonNull(data.get("password")).toString();
-                String interestAreaId = Objects.requireNonNull(data.get("interestAreaId")).toString();
-                String description = Objects.requireNonNull(data.get("description")).toString();
-                String isPublic = Objects.requireNonNull(data.get("isPublic")).toString();
-                String payloadType = Objects.requireNonNull(data.get("payloadType")).toString();
-                String userId = isValidToken(token);
-                if (userId == null) {
-                    throw new IllegalArgumentException("Invalid user ID");
-                }
-                Optional<User> user = userDao.findById(userId);
-                if (user.isPresent() && BCrypt.checkpw(password, user.get().getSensorPassword())) {
-                    boolean exists = sensorRepository.existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(
-                            companyName, userId, interestAreaId, description);
-
-                    if (exists) {
-                        throw new RuntimeException("A sensor with this data already exists");
-                    }
-
-                    Sensor newSensor = new Sensor();
-                    newSensor.setCompanyName(companyName);
-                    newSensor.setUserId(userId);
-                    newSensor.setPassword(BCrypt.hashpw(password, BCrypt.gensalt(10)));
-                    newSensor.setInterestAreaID(interestAreaId);
-                    newSensor.setDescription(description);
-                    newSensor.setIsPublic(Boolean.valueOf(isPublic));
-                    newSensor.setInterestAreaID(interestAreaId);
-                    newSensor.setPayloadType(PayloadType.valueOf(payloadType));
-
-                    sensorRepository.save(newSensor);
-
-                    SensorDto sensorDto = modelMapper.map(newSensor, SensorDto.class);
-                    sensorDto.setId(newSensor.getId().toString());
-                    return sensorDto;
-
-                } else {
-                    throw new RuntimeException("Invalid user credentials");
-                }
-
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Error during JSON file parsing", e);
-            } catch (IOException e) {
-                throw new RuntimeException("Error during file reading", e);
-            }
-        } else {
-            throw new RuntimeException("The uploaded file is empty");
+        if (file == null || file.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The uploaded file is empty");
         }
+
+        Map<String, Object> data = objectMapper.readValue(file.getInputStream(), Map.class);
+
+        String token = String.valueOf(data.get("token"));
+        String userId = getValidatedUserId(token);
+        String password = String.valueOf(data.get("password"));
+
+        validateUserCredentials(userId, password);
+
+        String companyName = String.valueOf(data.get("companyName"));
+        String interestAreaId = String.valueOf(data.get("interestAreaId"));
+        String description = String.valueOf(data.get("description"));
+
+        if (sensorRepository.existsByCompanyNameAndUserIdAndInterestAreaIDAndDescription(
+                companyName, userId, interestAreaId, description)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A sensor with this data already exists");
+        }
+
+        Sensor newSensor = new Sensor();
+        newSensor.setCompanyName(companyName);
+        newSensor.setUserId(userId);
+        newSensor.setPassword(passwordEncoder.encode(password));
+        newSensor.setInterestAreaID(interestAreaId);
+        newSensor.setDescription(description);
+        newSensor.setIsPublic(Boolean.valueOf(String.valueOf(data.get("isPublic"))));
+        newSensor.setPayloadType(PayloadType.valueOf(String.valueOf(data.get("payloadType"))));
+
+        Sensor saved = sensorRepository.save(newSensor);
+        SensorDto dto = modelMapper.map(saved, SensorDto.class);
+        dto.setId(saved.getId().toString());
+        return dto;
     }
 
-
-
     @Override
+    @Transactional
     public SensorDto saveDto(NewSensorDto newSensorDto) {
-        Sensor sensor = new Sensor();
         String email = jwtTokenProvider.getEmailFromUserToken(newSensorDto.getToken());
-        Optional<User> user = userDao.findUserByEmail(email);
-        assert user.isPresent();
-        System.out.println(newSensorDto);
-        System.out.println(user);
-        if (BCrypt.checkpw(newSensorDto.getPassword(), user.get().getSensorPassword())) {
-            sensor.setPassword(BCrypt.hashpw(newSensorDto.getPassword(), BCrypt.gensalt(10)));
-            sensor.setDescription(newSensorDto.getDescription());
-            sensor.setPayloadType(newSensorDto.getPayloadType());
-            sensor.setType(newSensorDto.getType());
-            sensor.setUserId(String.valueOf(user.get().getId()));
-            sensor.setCompanyName(newSensorDto.getCompanyName());
-            sensor.setIsPublic(newSensorDto.getIsPublic());
-            sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
-            ColorBar colorBar = new ColorBar();
-            colorBar.setUserId(newSensorDto.getUserId());
-            colorBar.setName("ColorBar"+newSensorDto.getUserId());
+        User user = userDao.findUserByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
 
-            //TODO TEST
-            List<ColorRange> ranges = new ArrayList<>();
-            ranges.add(new ColorRange(0, 10, "#FF0000"));
-            ranges.add(new ColorRange(11, 20, "#00FF00"));
-            ranges.add(new ColorRange(21, 30, "#0000FF"));
-
-            colorBar.setColorRanges(ranges);
-            //colorBar.setColorRanges(newSensorDto.getRanges());
-            colorBarRepository.save(colorBar);
-            try {
-                sensor.setColorBarId(String.valueOf(colorBar.getId()));
-                colorBar.addSensor(String.valueOf(sensor.getId()));
-                sensorRepository.save(sensor);  // Salva una sola volta dopo aver completato le modifiche necessarie
-                colorBarRepository.save(colorBar);
-
-                SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor);
-                sensorDto.setId(sensor.getId().toString());
-                sensorDto.setDescription(sensor.getDescription());
-                sensorDto.setUserId(String.valueOf(user.get().getId()));
-                sensorDto.setInterestAreaID(sensor.getInterestAreaID());
-                return sensorDto;
-            } catch (DataIntegrityViolationException e) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "QUALCOSA NON E' ANDATO PER IL VERSO GIUSTO", e);
-            }
-
+        if (!BCrypt.checkpw(newSensorDto.getPassword(), user.getSensorPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
         }
-        throw new RuntimeException("Invalid credentials");
 
+        // Creazione ColorBar
+        ColorBar colorBar = new ColorBar();
+        colorBar.setUserId(String.valueOf(user.getId()));
+        colorBar.setName("ColorBar_" + user.getId());
+
+        // Setup Range Predefiniti
+        colorBar.setColorRanges(Arrays.asList(
+                new ColorRange(0, 10, "#FF0000"),
+                new ColorRange(11, 20, "#00FF00"),
+                new ColorRange(21, 30, "#0000FF")
+        ));
+
+        ColorBar savedBar = colorBarRepository.save(colorBar);
+
+        // Creazione Sensore
+        Sensor sensor = new Sensor();
+        sensor.setPassword(passwordEncoder.encode(newSensorDto.getPassword()));
+        sensor.setDescription(newSensorDto.getDescription());
+        sensor.setPayloadType(newSensorDto.getPayloadType());
+        sensor.setType(newSensorDto.getType());
+        sensor.setUserId(String.valueOf(user.getId()));
+        sensor.setCompanyName(newSensorDto.getCompanyName());
+        sensor.setIsPublic(newSensorDto.getIsPublic());
+        sensor.setInterestAreaID(newSensorDto.getInterestAreaId());
+        sensor.setColorBarId(String.valueOf(savedBar.getId()));
+
+        Sensor savedSensor = sensorRepository.save(sensor);
+
+        // Aggiornamento riferimento circolare ColorBar -> Sensor
+        savedBar.addSensor(String.valueOf(savedSensor.getId()));
+        colorBarRepository.save(savedBar);
+
+        SensorDto sensorDto = sensorMapper.sensorToSensorDto(savedSensor);
+        sensorDto.setId(savedSensor.getId().toString());
+        sensorDto.setUserId(String.valueOf(user.getId()));
+        return sensorDto;
     }
 
     @Override
     public List<SensorDto> findPublicByCompanyName(String companyName) {
-
-        List<Sensor> sensors = sensorRepository.findAllByCompanyNameAndIsPublic(companyName, true);
-
-        if (sensors == null || sensors.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return sensors.stream()
+        return sensorRepository.findAllByCompanyNameAndIsPublic(companyName, true)
+                .stream()
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Optional<SensorDto> findPublicById(String id) {
-
-        Optional<Sensor> sensor = sensorRepository.findByUserIdAndIsPublic(id, true);
-        if (sensor.isPresent()) {
-            SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor.get());
-            return Optional.ofNullable(sensorDto);
-        }
-        return Optional.empty();    }
+        return sensorRepository.findByUserIdAndIsPublic(id, true)
+                .map(sensorMapper::sensorToSensorDto);
+    }
 
     @Override
     public List<SensorDto> findPublicByType(String type) {
-        List<Sensor> sensors = sensorRepository.findAllByTypeAndIsPublic(type, true);
-        if (sensors == null || sensors.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return sensors.stream()
+        return sensorRepository.findAllByTypeAndIsPublic(type, true)
+                .stream()
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());
     }
-
-
 
     @Override
     public Optional<SensorDto> findById(String id, String token) {
-        String userId = isValidToken(token);
-        if (userId == null) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        Optional<User> user = userDao.findById(userId);
-        assert user.isPresent();
-        Optional<Sensor> sensor = sensorRepository.findById(id);
-        if (sensor.isPresent() && sensor.get().getUserId().equals(userId)) {
-            SensorDto sensorDto = sensorMapper.sensorToSensorDto(sensor.get());
-            return Optional.ofNullable(sensorDto);
-        }
-        return Optional.empty();
+        String userId = getValidatedUserId(token);
+        return sensorRepository.findById(id)
+                .filter(s -> s.getUserId().equals(userId))
+                .map(sensorMapper::sensorToSensorDto);
     }
-
-
 
     @Override
     public List<SensorDto> findByCompanyName(String companyName, String token) {
-        String userId = isValidToken(token);
-        if (userId == null) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        Optional<User> user = userDao.findById(userId);
-        assert user.isPresent();
-        List<Sensor> sensors = sensorRepository.findAllByCompanyNameAndUserId(companyName, userId);
-
-        if (sensors == null || sensors.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return sensors.stream()
+        String userId = getValidatedUserId(token);
+        return sensorRepository.findAllByCompanyNameAndUserId(companyName, userId)
+                .stream()
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());
     }
-
-
 
     @Override
     public List<SensorDto> getAllSensor() {
-        // 1. Registra il tempo di inizio
         long startTime = System.currentTimeMillis();
-
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
-        // Conteggio iniziale dei sensori pubblici
-        int totalPublicSensors = sensors.size();
 
-        List<SensorDto> sensorDtoList = new ArrayList<>();
+        List<SensorDto> sensorDtoList = sensors.stream()
+                .map(sensor -> {
+                    return sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()))
+                            .map(data -> {
+                                SensorDto dto = new SensorDto();
+                                dto.setId(String.valueOf(sensor.getId()));
+                                dto.setDescription(sensor.getDescription());
+                                dto.setUserId(sensor.getUserId());
+                                dto.setPayloadType(sensor.getPayloadType());
+                                dto.setInterestAreaID(sensor.getInterestAreaID());
+                                dto.setCompanyName(sensor.getCompanyName());
+                                dto.setLatitude(Collections.singletonList(data.getLatitude()));
+                                dto.setLongitude(Collections.singletonList(data.getLongitude()));
+                                dto.setTimestamp(String.valueOf(data.getTimestamp()));
+                                dto.setIsPublic(sensor.getIsPublic());
+                                return dto;
+                            }).orElse(null);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-        for (Sensor sensor : sensors) {
-            Optional<SensorData> sensorDataOptional = sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()));
-
-            if (sensorDataOptional.isPresent()) {
-                SensorData sensorData = sensorDataOptional.get();
-                SensorDto sensorDto = new SensorDto();
-                sensorDto.setId(String.valueOf(sensor.getId()));
-                sensorDto.setDescription(sensor.getDescription());
-                sensorDto.setUserId(String.valueOf(sensor.getUserId()));
-                sensorDto.setPayloadType(sensor.getPayloadType());
-                sensorDto.setInterestAreaID(sensor.getInterestAreaID());
-                sensorDto.setCompanyName(sensor.getCompanyName());
-                sensorDto.setLatitude(Collections.singletonList(sensorData.getLatitude()));
-                sensorDto.setLongitude(Collections.singletonList(sensorData.getLongitude()));
-                sensorDto.setTimestamp(String.valueOf(sensorData.getTimestamp()));
-                sensorDto.setIsPublic(sensor.getIsPublic());
-                sensorDtoList.add(sensorDto);
-            } else {
-                System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
-            }
-        }
-
-        // 2. Registra il tempo di fine
-        long endTime = System.currentTimeMillis();
-
-        // 3. Calcola la differenza e ottieni il numero di record finali
-        long duration = endTime - startTime;
-        int finalCount = sensorDtoList.size();
-
-        // 4. Stampa i risultati
-        System.out.println("------------------------------------------");
-        System.out.println("REPORT ESECUZIONE getAllSensor:");
-        System.out.println("- Tempo impiegato: " + duration + " ms");
-        System.out.println("- Sensori pubblici totali trovati: " + totalPublicSensors);
-        System.out.println("- Record (DTO) restituiti con dati: " + finalCount);
-        System.out.println("------------------------------------------");
-
+        log.info("getAllSensor: processati {} sensori in {} ms", sensors.size(), (System.currentTimeMillis() - startTime));
         return sensorDtoList;
     }
 
-
-
     @Override
     public List<SensorDto> findByUserId(String token) {
-        String userId = isValidToken(token);
-        if (userId == null) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        System.out.println(userId);
-        List<Sensor> sensors = sensorRepository.findAllByUserId(userId);
-        if (sensors == null || sensors.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return sensors.stream()
+        String userId = getValidatedUserId(token);
+        return sensorRepository.findAllByUserId(userId)
+                .stream()
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());
     }
 
-
-
-
     @Override
     public SensorAndAreas findAndAreaByUserId(String token) {
-        String userId = isValidToken(token);
-        if (userId == null) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
+        String userId = getValidatedUserId(token);
 
-        Optional<User> userOpt = userDao.findById(userId);
-        if (userOpt.isEmpty()) {
-            throw new IllegalArgumentException("User not found");
+        if (!userDao.existsById(userId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
 
         List<Sensor> sensors = sensorRepository.findAllByUserId(userId);
-        if (sensors.isEmpty()) {
-            throw new IllegalArgumentException("No sensors found for the user");
-        }
-
-        List<SensorDto> sensorDtos = sensorMapper.sensorsToSensorDtos(sensors);
-        List<InterestAreaDto> interestAreaDtos = interestAreaRepository.findAllByUserId(userId)
+        List<InterestAreaDto> areas = interestAreaRepository.findAllByUserId(userId)
                 .stream()
                 .map(interestAreaMapper::interestAreaToInterestAreaDto)
                 .collect(Collectors.toList());
 
-        SensorAndAreas sensorAndAreas = new SensorAndAreas();
-        sensorAndAreas.setSensorDtoList(sensorDtos);
-        sensorAndAreas.setAreaDtoList(interestAreaDtos);
-        return sensorAndAreas;
+        SensorAndAreas result = new SensorAndAreas();
+        result.setSensorDtoList(sensorMapper.sensorsToSensorDtos(sensors));
+        result.setAreaDtoList(areas);
+        return result;
     }
-
 
     @Override
     public List<SensorDto> findByTypeAndUser(String type, String token) {
-        String userId = isValidToken(token);
-        if (userId == null) {
-            throw new IllegalArgumentException("Invalid user ID");
-        }
-        System.out.println(userId);
-        List<Sensor> sensors = sensorRepository.findAllByUserIdAndType(userId, type);
-        if (sensors == null || sensors.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return sensors.stream()
+        String userId = getValidatedUserId(token);
+        return sensorRepository.findAllByUserIdAndType(userId, type)
+                .stream()
                 .map(sensorMapper::sensorToSensorDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<SensorDto> findByInterestAreaId(String interestAreaId, String token) {
-        Optional<InterestArea> interestArea = interestAreaRepository.findById(interestAreaId);
+        InterestArea area = interestAreaRepository.findById(interestAreaId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interest area not found"));
 
-        if (interestArea.isEmpty()) {
-            throw new IllegalArgumentException("Interest area not found");
-        }
-
-        InterestArea area = interestArea.get();
-
-        Boolean isPublic = area.getIsPublic();
-        if (isPublic == null) {
-            isPublic = false;
-        }
-        if (isPublic) {
-            // L'area è pubblica, restituisci solo i sensori pubblici senza autenticazione
-            List<Sensor> publicSensors = sensorRepository.findAllByInterestAreaIDAndIsPublicTrue(interestAreaId);
-            if (publicSensors.isEmpty()) {
-                return Collections.emptyList();
-            }
-            return publicSensors.stream()
-                    .map(sensorMapper::sensorToSensorDto)
-                    .collect(Collectors.toList());
-        } else {
-            // L'area non è pubblica, verifica il token e restituisci i sensori associati all'utente
-            String userId = isValidToken(token);
-            if (userId == null) {
-                throw new IllegalArgumentException("Invalid user ID");
-            }
-
-            Optional<User> user = userDao.findById(userId);
-            assert user.isPresent();
-
-            List<Sensor> userSensors = sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId);
-            if (userSensors.isEmpty()) {
-                return Collections.emptyList();
-            }
-            return userSensors.stream()
+        if (Boolean.TRUE.equals(area.getIsPublic())) {
+            return sensorRepository.findAllByInterestAreaIDAndIsPublicTrue(interestAreaId)
+                    .stream()
                     .map(sensorMapper::sensorToSensorDto)
                     .collect(Collectors.toList());
         }
+
+        String userId = getValidatedUserId(token);
+        return sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId)
+                .stream()
+                .map(sensorMapper::sensorToSensorDto)
+                .collect(Collectors.toList());
     }
 
-
     @Override
+    @Transactional
     public SensorDto update(SensorDto sensorDto) {
-        String userId = isValidToken(sensorDto.getToken());
-        if (userId == null) {
-            throw new RuntimeException("Invalid token");
-        }
+        String userId = getValidatedUserId(sensorDto.getToken());
 
         Sensor existingSensor = sensorRepository.findById(sensorDto.getId())
-                .orElseThrow(() -> new RuntimeException("Sensor not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor not found"));
 
-        if (!Objects.equals(sensorDto.getUserId(), existingSensor.getUserId())) {
-            throw new RuntimeException("Invalid credentials");
+        if (!existingSensor.getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permission to update this sensor");
         }
+
         existingSensor.setIsPublic(sensorDto.getIsPublic());
         existingSensor.setType(String.valueOf(sensorDto.getType()));
         existingSensor.setDescription(sensorDto.getDescription());
         existingSensor.setCompanyName(sensorDto.getCompanyName());
         existingSensor.setInterestAreaID(sensorDto.getInterestAreaID());
         existingSensor.setColorBarId(sensorDto.getColorBarId());
-        if (!Objects.equals(sensorDto.getPassword(), "")) {
-            existingSensor.setPassword(BCrypt.hashpw(sensorDto.getPassword(), BCrypt.gensalt(10)));;
+
+        if (sensorDto.getPassword() != null && !sensorDto.getPassword().isBlank()) {
+            existingSensor.setPassword(passwordEncoder.encode(sensorDto.getPassword()));
         }
 
-        Sensor updatedSensor = sensorRepository.save(existingSensor);
-        return modelMapper.map(updatedSensor, SensorDto.class);
+        Sensor updated = sensorRepository.save(existingSensor);
+        return modelMapper.map(updated, SensorDto.class);
     }
 
     @Override
+    @Transactional
     public void deleteSensorById(ObjectId id, String token) {
-        final String userId = isValidToken(token);
-        assert userId != null;
-        Optional<Sensor> sensor = sensorRepository.findByIdAndUserId(String.valueOf(id), userId);
-        assert sensor.isPresent();
-        sensorRepository.deleteById(String.valueOf(sensor.get().getId()));
+        String userId = getValidatedUserId(token);
+        Sensor sensor = sensorRepository.findByIdAndUserId(id.toString(), userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor not found or access denied"));
 
+        sensorRepository.deleteById(sensor.getId().toString());
     }
-
-
 }
-

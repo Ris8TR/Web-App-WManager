@@ -1,93 +1,80 @@
-<div>
-  <!-- Pannello laterale (sidebar) -->
-  <!-- Pannello laterale (sidebar) -->
-  <div id="sidebar" class="sidebar sidebar-left leaflet-touch" (click)="$event.stopPropagation()" style="display: block; margin-left: 5%; margin-bottom:20%; margin-top:8%">
-    <!-- Tabs della sidebar -->
-    <div class="sidebar-tabs" (click)="$event.stopPropagation()">
-      <ul role="tablist">
-        <li id="topHome" class="active">
-            <span *ngIf="!isPanelVisible"  class="sidebar-close" (click)="togglePanel($event)">
-              <svg  class="svg-inline--fa fa-caret-left fa-w-6" aria-hidden="true" data-prefix="fa" data-icon="caret-left" role="img" xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 192 512">
-                <path fill="currentColor"  transform="rotate(180, 128, 256)" d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"></path>
-              </svg>
-            </span>
-        </li>
-      </ul>
+<div class="dashboard-wrapper">
+
+  <!-- TRIGGER PER APRIRE (Visibile quando la sidebar è chiusa) -->
+  <button class="sidebar-open-trigger shadow-lg" *ngIf="!isPanelVisible" (click)="togglePanel($event)">
+    <i class="fas fa-sliders-h"></i>
+  </button>
+
+  <!-- SIDEBAR MODERNA -->
+  <aside id="sidebar" class="modern-sidebar" [ngClass]="{'collapsed': !isPanelVisible}">
+
+    <div *ngIf="isPanelVisible" class="sidebar-inner shadow-2xl">
+
+      <!-- Header Sidebar -->
+      <header class="sidebar-header border-bottom border-secondary mb-3 pb-2 d-flex justify-content-between align-items-center">
+        <h5 class="m-0 fw-bold"><i class="fas fa-cog me-2 text-primary"></i>Control Panel</h5>
+        <button class="btn btn-link text-white p-0" (click)="togglePanel($event)">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+
+      <div class="sidebar-scroll-content">
+
+        <!-- SEZIONE 1: LEGENDA (Migliorata) -->
+        <section class="sidebar-section mb-4">
+          <label class="section-label small-caps mb-2">{{selectedSensorType}} Color Scale</label>
+          <div class="legend-glass p-2 rounded">
+            <div class="legend-bar">
+              <span *ngFor="let item of temperatureScale"
+                    [style.background]="item.color"
+                    [title]="item.label"
+                    class="color-step"></span>
+            </div>
+            <div class="d-flex justify-content-between mt-1 px-1">
+              <span class="tiny-text opacity-75">Min</span>
+              <span class="tiny-text opacity-75">Max</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- SEZIONE 2: SELEZIONE TIPO SENSORE (Modern Chips) -->
+        <section class="sidebar-section mb-4">
+          <label class="section-label small-caps mb-2">Sensor Category</label>
+          <div class="sensor-chip-grid">
+            <div *ngFor="let sensor of sensorOptions" class="sensor-chip">
+              <input type="radio" [id]="'sensor-' + sensor.value" name="sensorType"
+                     [value]="sensor.value" [(ngModel)]="selectedSensorType"
+                     (change)="onSensorTypeChange($event)">
+              <label [for]="'sensor-' + sensor.value" class="chip-label">
+                {{ sensor.label }}
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- SEZIONE 3: FORECAST (Dropdown Moderno) -->
+        <section class="sidebar-section mb-4">
+          <label class="section-label small-caps mb-2">Forecast Horizon</label>
+          <div class="forecast-container bg-dark-25 p-3 rounded">
+            <select id="forecastInterval" class="modern-select" (change)="onForecastIntervalSelect($event)">
+              <option value="" selected>Select Time Window...</option>
+              <option value="1">+1 Hour</option>
+              <option value="2">+2 Hours</option>
+              <option value="3">+3 Hours</option>
+              <option value="12">+12 Hours</option>
+              <option value="24">+24 Hours</option>
+              <option value="72">+72 Hours</option>
+            </select>
+            <p class="mt-2 mb-0 tiny-text text-muted">Updates the map with predicted data.</p>
+          </div>
+        </section>
+
+      </div>
     </div>
+  </aside>
 
-    <!-- Contenuto della sidebar -->
-    <div   *ngIf="isPanelVisible"   class="sidebar-content overMap" (click)="$event.stopPropagation()">
-      <div class="sidebar-pane active" id="home">
-        <h1 class="sidebar-header">
-          Control Panel
-          <span class="sidebar-close" (click)="togglePanel($event)">
-          <!-- Icona di chiusura -->
-          <svg class="svg-inline--fa fa-caret-left fa-w-6" aria-hidden="true" data-prefix="fa" data-icon="caret-left" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512">
-            <path fill="currentColor" d="M192 127.338v257.324c0 17.818-21.543 26.741-34.142 14.142L29.196 270.142c-7.81-7.81-7.81-20.474 0-28.284l128.662-128.662c12.599-12.6 34.142-3.676 34.142 14.142z"></path>
-          </svg>
-        </span>
-        </h1>
-      </div>
-
-
-      <!-- Sezione della legenda -->
-      <div class="row text-center justify-content-center align-self-center">
-        <div class="col-md-12">
-          <div class="my-legend" style="margin: 1%">
-            <div class="legend-title" style="font-size: 9px; color: #fff">{{selectedSensorType}} Color Bar</div>
-            <div class="legend-scale">
-              <ul class="legend-labels">
-                <!-- Scala della temperatura -->
-                <li *ngFor="let item of temperatureScale" style="color: #fff; font-size: 9px;">
-                  <span [style.background]="item.color"></span>{{ item.label }}
-                </li>
-              </ul>
-            </div>
-          </div>
-          <h4 class=" py-3 px-0 px-lg-3 rounded">Past Data</h4>
-          <div class="row">
-            <h6 style="color: white; padding-right: 80% ">Select Type:</h6>
-            <div class="col-2 justify-content-md-center">
-              <!-- Sezione checkbox per selezionare un sensore -->
-              <div>
-                <mat-radio-group [(ngModel)]="selectedSensorType" (change)="onSensorTypeChange($event)">
-                  <div *ngFor="let sensor of sensorOptions">
-                    <mat-radio-button value="{{ sensor.value }}" class="custom-radio">
-                      {{ sensor.label }}
-                    </mat-radio-button>
-                  </div>
-                </mat-radio-group>
-              </div>
-            </div>
-          </div>
-
-              <!-- Selettore per Forecast data -->
-              <div class="row text-center justify-content-center align-self-center" style="margin: 5%">
-                <div class="col-md-12">
-                  <label for="forecastInterval">Forecast data</label>
-                  <select id="forecastInterval" class="form-select" aria-label="Select Interval" (change)="onForecastIntervalSelect($event)">
-                    <option value="" selected>Select Interval</option>
-                    <option value="1">+1 Hour</option>
-                    <option value="2">+2 Hours</option>
-                    <option value="3">+3 Hours</option>
-                    <option value="4">+4 Hours</option>
-                    <option value="12">+12 Hours</option>
-                    <option value="24">+24 Hours</option>
-                    <option value="36">+36 Hours</option>
-                    <option value="72">+72 Hours</option>
-                  </select>
-                </div>
-              </div>
-        </div>
-
-            </div>
-
-        </div>
-        </div>
-      </div>
-
-
-  <div class="col-lg justify-content-md-center">
-    <div id="map" style="height: 800px; min-height: 70%;"></div>
-  </div>
-
+  <!-- CONTENITORE MAPPA -->
+  <main class="map-view-container">
+    <div id="map" class="full-map"></div>
+  </main>
+</div>

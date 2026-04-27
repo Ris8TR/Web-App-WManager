@@ -5,14 +5,14 @@ import { FormsModule } from '@angular/forms';
 import 'leaflet.heat';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import {NgForOf, NgIf} from "@angular/common";
+import {NgClass, NgForOf, NgIf} from "@angular/common";
 import {MatCheckbox} from "@angular/material/checkbox";
 import {MatRadioButton, MatRadioGroup} from "@angular/material/radio";
 
 @Component({
   selector: 'app-forecast',
   standalone: true,
-  imports: [FormsModule, MatFormFieldModule, MatSelectModule, NgForOf, NgIf, MatCheckbox, MatRadioGroup, MatRadioButton],
+  imports: [FormsModule, MatFormFieldModule, MatSelectModule, NgForOf, NgIf, MatCheckbox, MatRadioGroup, MatRadioButton, NgClass],
   templateUrl: './forecast.component.html',
   styleUrls: ['./forecast.component.css']
 })

@@ -61,21 +61,21 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     ap: { min: 950, max: 1050 }
   };
 
-  temperatureScale = [
-    { label: '-10', color: '#0030ff' }, { label: '-8', color: '#0066ff' },
-    { label: '-6', color: '#00a4ff' }, { label: '-4', color: '#00d7ff' },
-    { label: '-2', color: '#00f9ed' }, { label: '0', color: '#00ebbd' },
-    { label: '2', color: '#00dc8d' }, { label: '4', color: '#00c951' },
-    { label: '6', color: '#01ba1c' }, { label: '8', color: '#21bd05' },
-    { label: '10', color: '#61cf03' }, { label: '12', color: '#93df01' },
-    { label: '14', color: '#cff000' }, { label: '16', color: '#ffff00' },
-    { label: '18', color: '#ffed00' }, { label: '20', color: '#ffd700' },
-    { label: '22', color: '#ffc400' }, { label: '24', color: '#ffaf00' },
-    { label: '26', color: '#ff9200' }, { label: '28', color: '#ff7100' },
-    { label: '30', color: '#ff4700' }, { label: '32', color: '#ff2300' },
-    { label: '34', color: '#ff0100' }, { label: '36', color: '#de0014' },
-    { label: '38', color: '#bd0033' }, { label: '40', color: '#940056' },
-    { label: '42', color: '#730073' }
+  public temperatureScale = [
+    {label: '-10', color: '#0030ff'}, {label: '-8', color: '#0066ff'},
+    {label: '-6', color: '#00a4ff'}, {label: '-4', color: '#00d7ff'},
+    {label: '-2', color: '#00f9ed'}, {label: '0', color: '#00ebbd'},
+    {label: '2', color: '#00dc8d'}, {label: '4', color: '#00c951'},
+    {label: '6', color: '#01ba1c'}, {label: '8', color: '#21bd05'},
+    {label: '10', color: '#61cf03'}, {label: '12', color: '#93df01'},
+    {label: '14', color: '#cff000'}, {label: '16', color: '#ffff00'},
+    {label: '18', color: '#ffed00'}, {label: '20', color: '#ffd700'},
+    {label: '22', color: '#ffc400'}, {label: '24', color: '#ffaf00'},
+    {label: '26', color: '#ff9200'}, {label: '28', color: '#ff7100'},
+    {label: '30', color: '#ff4700'}, {label: '32', color: '#ff2300'},
+    {label: '34', color: '#ff0100'}, {label: '36', color: '#de0014'},
+    {label: '38', color: '#bd0033'}, {label: '40', color: '#940056'},
+    {label: '42', color: '#730073'}
   ];
 
   radioOptions = [

@@ -25,18 +25,19 @@
 
       <div class="sidebar-scroll-content">
 
-        <!-- SEZIONE 1: LEGENDA -->
-        <section class="sidebar-section">
-          <label class="section-label">{{selectedSensorType}} Color Scale</label>
-          <div class="legend-container">
+        <!-- Legenda (Semplificata) -->
+        <section class="control-section mb-4">
+          <div class="section-title text-uppercase small fw-bold text-muted mb-2">{{selectedSensorType}} Scale</div>
+          <div class="legend-gradient-container">
             <div class="legend-bar">
-              <span *ngFor="let item of temperatureScale"
-                    [style.background]="item.color"
-                    [title]="item.label"></span>
+            <span *ngFor="let item of temperatureScale"
+                  [style.background]="item.color"
+                  [title]="item.label"
+                  class="color-step"></span>
             </div>
-            <div class="d-flex justify-content-between mt-1">
-              <span class="tiny-text">Low</span>
-              <span class="tiny-text">High</span>
+            <div class="d-flex justify-content-between mt-1 px-1">
+              <span class="tiny-text">{{temperatureScale[0]!.label}}</span>
+              <span class="tiny-text">{{temperatureScale[temperatureScale.length-1]!.label}}</span>
             </div>
           </div>
         </section>
@@ -51,7 +52,7 @@
                      name="sensorType"
                      [value]="sensor.value"
                      [(ngModel)]="selectedSensorType"
-                     (change)="onSensorTypeSelect(sensor.value)"> <!-- TRIGGER CAMBIO MAPPA -->
+                     (click)="onSensorTypeSelect(sensor.value)"> <!-- TRIGGER CAMBIO MAPPA -->
               <label [for]="'sensor-' + sensor.value">{{ sensor.label }}</label>
             </div>
           </div>

@@ -25,7 +25,7 @@
                   <label class="form-label-custom">Latitude*</label>
                   <div class="input-group-custom">
                     <i class="fas fa-map-marker-alt"></i>
-                    <input type="number" step="any" class="form-control-custom"
+                    <input style="margin-left: 3%" type="number" step="any" class="form-control-custom"
                            placeholder="0.0000" name="latitude" [(ngModel)]="data.latitude" required />
                   </div>
                 </div>
@@ -33,7 +33,7 @@
                   <label class="form-label-custom">Longitude*</label>
                   <div class="input-group-custom">
                     <i class="fas fa-map-pin"></i>
-                    <input type="number" step="any" class="form-control-custom"
+                    <input style="margin-left: 3%" type="number" step="any" class="form-control-custom"
                            placeholder="0.0000" name="longitude" [(ngModel)]="data.longitude" required />
                   </div>
                 </div>
@@ -44,7 +44,7 @@
                 <label class="form-label-custom">Target Sensor*</label>
                 <div class="input-group-custom">
                   <i class="fas fa-microchip"></i>
-                  <select name="sensorId" [(ngModel)]="data.sensorId" class="form-control-custom select-custom">
+                  <select style="margin-left: 3%" name="sensorId" [(ngModel)]="data.sensorId" class="form-control-custom select-custom">
                     <option [ngValue]="undefined" disabled selected>Select an endpoint...</option>
                     <option *ngFor="let area of endPointsInfo" [value]="area.id">
                       {{area.description}} ({{area.companyName}})
@@ -58,7 +58,7 @@
                 <label class="form-label-custom">Sensor Security Password*</label>
                 <div class="input-group-custom">
                   <i class="fas fa-key"></i>
-                  <input type="password" class="form-control-custom"
+                  <input style="margin-left: 3%" type="password" class="form-control-custom"
                          placeholder="Enter sensor auth password" name="sensorPassword" [(ngModel)]="data.sensorPassword" required />
                 </div>
               </div>
@@ -69,8 +69,8 @@
                 <div class="file-upload-wrapper">
                   <input type="file" id="file" name="file" class="file-input" (change)="caricaFile($event)">
                   <div class="file-dummy">
-                    <i class="fas fa-file-code mb-2"></i>
-                    <span class="small">Click or drag payload file here</span>
+                    <i style="align-content: center; margin-top: 8%; margin-left: 15%" class="fas fa-file-code mb-2"></i>
+                    <span style="align-content: center; margin-left: 10%" class="small">Click or drag payload file here</span>
                   </div>
                 </div>
               </div>

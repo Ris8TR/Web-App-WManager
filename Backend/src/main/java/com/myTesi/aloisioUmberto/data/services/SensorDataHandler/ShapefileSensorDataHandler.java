@@ -18,6 +18,7 @@ import java.util.Map;
 
 import static com.myTesi.aloisioUmberto.data.services.InterestAreaServiceImpl.getBytes;
 
+
 public class ShapefileSensorDataHandler implements SensorDataHandler {
     @Override
     public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException {

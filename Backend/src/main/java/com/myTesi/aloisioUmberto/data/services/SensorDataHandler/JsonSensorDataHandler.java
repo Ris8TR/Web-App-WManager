@@ -20,10 +20,10 @@ public class JsonSensorDataHandler implements SensorDataHandler {
     public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException {
         data.setPayloadType("json");
 
-        // 1. Leggi il contenuto del file
+        // 1. Leggo il contenuto del file
         String fileContent = new String(file.getBytes());
 
-        // 2. Parsa il file direttamente in una Mappa
+        // 2. Parsa il file in una Mappa
         Map<String, Object> newSensorDataMap;
         try {
             newSensorDataMap = objectMapper.readValue(fileContent, new TypeReference<Map<String, Object>>() {});
@@ -32,8 +32,8 @@ public class JsonSensorDataHandler implements SensorDataHandler {
             throw new IllegalArgumentException("Il file non contiene un JSON valido", e);
         }
 
-        // 3. PASSA LA MAPPA DIRETTAMENTE!
-        // Non trasformarla in stringa. MongoDB la convertirà in un oggetto BSON nativo.
+        // 3. Passo la mappa direttamente
+        //  MongoDB la convertirà in un oggetto BSON nativo.
         data.setPayload(newSensorDataMap);
     }
 

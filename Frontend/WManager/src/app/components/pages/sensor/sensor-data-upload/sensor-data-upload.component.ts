@@ -9,11 +9,12 @@ import { NewSensorDataDto } from '../../../../model/newSensorDataDto';
 import { FormsModule } from '@angular/forms';
 import { SensorDataService } from '../../../../service/sensorData.service';
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {NgIf} from "@angular/common";
 
 @Component({
   selector: 'app-sensor-data-upload',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, NgIf],
   templateUrl: './sensor-data-upload.component.html',
   styleUrl: './sensor-data-upload.component.css'
 })

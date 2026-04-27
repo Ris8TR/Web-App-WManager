@@ -732,6 +732,69 @@ export class SensorDataService {
         );
     }
 
+
+  /**
+   *
+   *
+   * @param body
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllPublicSensorDataBySensorBetweenDate(body: DateDto, observe?: 'body', reportProgress?: boolean): Observable<SensorDataInterestAreaDto>;
+  public getAllPublicSensorDataBySensorBetweenDate(body: DateDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorDataInterestAreaDto>>;
+  public getAllPublicSensorDataBySensorBetweenDate(body: DateDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorDataInterestAreaDto>>;
+  public getAllPublicSensorDataBySensorBetweenDate(body: DateDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (body === null || body === undefined) {
+      throw new Error('Required parameter body was null or undefined when calling getAllPrivateSensorDataBySensorBetweenDate.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // authentication (bearerAuth) required
+    if (this.CookiesService.get("token")) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.CookiesService.get("token")
+        : this.CookiesService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+      'application/json'
+    ];
+    const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected != undefined) {
+      headers = headers.set('Content-Type', httpContentTypeSelected);
+    }
+
+    return this.httpClient.request<SensorDataInterestAreaDto>('post',`${this.basePath}/v1/SensorData/public/date/sensor`,
+      {
+        body: body,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
     /**
      *
      *

@@ -232,17 +232,16 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public SensorDataInterestAreaDto getAllSensorDataBySensorBetweenDate(DateDto dateDto) {
-        String userId = getUserIdFromValidToken(dateDto.getToken());
 
         Date fromDateUTC = adjustToUTC(dateDto.getForm());
         Date toDateUTC = adjustToUTC(dateDto.getTo());
 
         List<String> sensorIds = new ArrayList<>();
         if (dateDto.getSensorId() != null) {
-            Sensor sensor = findSensorForUser(dateDto.getSensorId(), dateDto.getInterestAreaId(), userId);
-            sensorIds.add(sensor.getId().toString());
+            Optional<Sensor> sensor = sensorRepository.findById(dateDto.getSensorId());
+            sensorIds.add(sensor.get().getId().toString());
         } else {
-            List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(dateDto.getInterestAreaId(), userId);
+            List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndIsPublicTrue(dateDto.getInterestAreaId());
             sensorIds = sensors.stream().map(s -> s.getId().toString()).collect(Collectors.toList());
         }
 
@@ -348,6 +347,26 @@ public class SensorDataServiceImpl implements SensorDataService {
 
         return buildDtoFromList(dataList);
     }
+
+    @Override
+    public SensorDataInterestAreaDto getAllPrivateSensorDataBySensorBetweenDate(DateDto dateDto,  String token) {
+        String userId = getUserIdFromValidToken(token);
+
+        Date fromDateUTC = adjustToUTC(dateDto.getForm());
+        Date toDateUTC = adjustToUTC(dateDto.getTo());
+
+        List<String> sensorIds = new ArrayList<>();
+        if (dateDto.getSensorId() != null) {
+            Sensor sensor = findSensorForUser(dateDto.getSensorId(), dateDto.getInterestAreaId(), userId);
+            sensorIds.add(sensor.getId().toString());
+        } else {
+            List<Sensor> sensors = sensorRepository.findAllByInterestAreaIDAndUserId(dateDto.getInterestAreaId(), userId);
+            sensorIds = sensors.stream().map(s -> s.getId().toString()).collect(Collectors.toList());
+        }
+
+        return getLatestForSensorList(sensorIds, fromDateUTC, toDateUTC);
+    }
+
 
     /**
      * Recupera tutti i SensorData (non solo l'ultimo) per una lista di sensori e intervallo.

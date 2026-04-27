@@ -77,4 +77,6 @@ public interface SensorDataService  {
     SensorDataInterestAreaDto getAllSensorDataProcessedByInterestArea(String interestAreaId, String token);
 
     SensorDataInterestAreaDto getTopPublicSensorDataByInterestAreaId(String interestAreaId);
+
+    SensorDataInterestAreaDto getAllPrivateSensorDataBySensorBetweenDate(DateDto dateDto, String token);
 }

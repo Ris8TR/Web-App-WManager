@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -36,6 +37,7 @@ public class UserServiceImpl implements UserService {
     private final SensorDataRepository sensorDataRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserMapper userMapper = UserMapper.INSTANCE;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void save(User user) {
@@ -59,9 +61,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto saveDto(NewUserDto newUserDto) {
         User user = userMapper.newUserDtoToUser(newUserDto);
-        user.setPassword(BCrypt.hashpw(user.getPassword(), BCrypt.gensalt(10)));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(Role.USER);
-        user.setSensorPassword(BCrypt.hashpw(newUserDto.getSensorPassword(), BCrypt.gensalt(10)));
+        user.setSensorPassword(passwordEncoder.encode(newUserDto.getSensorPassword()));
         try {
             userDao.save(user);
             return userMapper.userToUserDto(user);

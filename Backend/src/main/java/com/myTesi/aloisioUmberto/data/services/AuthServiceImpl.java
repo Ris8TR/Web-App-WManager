@@ -18,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -34,6 +35,8 @@ public class AuthServiceImpl implements AuthService {
     private final ModelMapper modelMapper = new ModelMapper();
     private final EmailSender emailSender;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
+
 
 
     @Override
@@ -84,7 +87,7 @@ public class AuthServiceImpl implements AuthService {
         if (jwtTokenProvider.validateToken(token)) {
             if (jwtTokenProvider.getTypeFromToken(token).equals("user")) {
                 Optional<User> user = userDao.findUserByEmail(jwtTokenProvider.getEmailFromUserToken(token));
-                user.get().setPassword(BCrypt.hashpw(pass, BCrypt.gensalt(10)));
+                user.get().setPassword(passwordEncoder.encode(pass));
                 userDao.save(user.get());
                 return true;
             }

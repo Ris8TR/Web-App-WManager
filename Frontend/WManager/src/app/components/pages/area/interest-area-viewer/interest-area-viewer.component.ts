@@ -59,6 +59,7 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
   selectedForecastInterval: string | null = null;
   isPanelVisible = true;
+  public selectedInterval: any = '5';
 
   selectedLatestInterval: string = '';
 
@@ -279,33 +280,35 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
 
 
   private loadAllSensorData(): void {
-    if (this.isRealTime) {
-      if (!this.map) return;
-      this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!)
-        .subscribe((response: any) => {
-          let geoJson: any;
+    if (!this.map) return;
 
-          const sensorDataList = response.sensorData; // Lista di dati sensori
-          const sensorAreaTypes = response.sensorAreaTypes; // Tipi di sensori unici
-          this.sensorTypeList = response.sensorAreaTypes;
-          this.sensorDataLocalList = response.sensorData;
+    // Entrambi i rami chiamavano la stessa funzione con la stessa logica,
+    // quindi centralizziamo la sottoscrizione.
+    this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!)
+      .subscribe({
+        next: (response: any) => {
+          if (response && response.sensorData && response.sensorAreaTypes) {
 
-          if (sensorDataList && sensorAreaTypes) {
+            this.sensorTypeList = response.sensorAreaTypes;
+            this.sensorDataLocalList = response.sensorData;
+
             const heatData: [number, number, number][] = [];
 
-            // Estrai le informazioni di geolocalizzazione e valore per ogni sensore
-            sensorDataList.forEach((data: any) => {
-              // Ottieni la latitudine, longitudine e il valore per il sensore
+            response.sensorData.forEach((data: any) => {
               const lat = data.latitude;
               const lng = data.longitude;
-              let value: number = 0;
+              let value = 0;
 
-              // Aggiungi il valore del sensore in base al tipo selezionato
               try {
-                const payloadData = JSON.parse(data.payload);
-                value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
+                // FIX: Controlla se payload è già un oggetto o se è una stringa da parsare
+                const payloadData = typeof data.payload === 'string'
+                  ? JSON.parse(data.payload)
+                  : data.payload;
+
+                // Recupera il valore. Usa l'operatore ?? per gestire lo 0 come valore valido
+                value = payloadData[this.selectedSensorType] ?? 0;
               } catch (error) {
-                console.error("Errore nel parsing del payload:", error);
+                console.error(`Errore nel recupero payload per sensore ${data.id}:`, error);
               }
 
               if (lat && lng) {
@@ -313,55 +316,16 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
               }
             });
 
-            // Salva i dati nella cache per il tipo di sensore selezionato
+            // Salva in cache e aggiorna la mappa
             this.cachedData.set(this.selectedSensorType, heatData);
-            this.updateGrid();  // Aggiorna la mappa con i nuovi dati
+            this.updateGrid();
+
           } else {
-            console.error('Formato della risposta non valido:', response);
+            console.error('Formato della risposta non valido o dati mancanti:', response);
           }
-        });
-    } else {
-      if (!this.map) return;
-      this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!)
-        .subscribe((response: SensorDataInterestAreaDto) => {
-          let geoJson: any;
-          const sensorDataList = response.sensorData;
-          const sensorAreaTypes = response.sensorAreaTypes;
-          this.sensorTypeList = response.sensorAreaTypes;
-          this.sensorDataLocalList = response.sensorData;
-
-          if (sensorDataList && sensorAreaTypes) {
-            const heatData: [number, number, number][] = [];
-
-            // Estrai le informazioni di geolocalizzazione e valore per ogni sensore
-            sensorDataList.forEach((data: any) => {
-              // Ottieni la latitudine, longitudine e il valore per il sensore
-              const lat = data.latitude;
-              const lng = data.longitude;
-              let value: number = 0;
-
-              // Aggiungi il valore del sensore in base al tipo selezionato
-              try {
-                const payloadData = JSON.parse(data.payload);
-                value = payloadData[this.selectedSensorType] || 0; // Usa il tipo selezionato
-              } catch (error) {
-                console.error("Errore nel parsing del payload:", error);
-              }
-
-              if (lat && lng) {
-                heatData.push([lat, lng, value]);
-              }
-            });
-
-            // Salva i dati nella cache per il tipo di sensore selezionato
-            this.cachedData.set(this.selectedSensorType, heatData);
-            this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-          } else {
-            console.error('Formato della risposta non valido:', response);
-          }
-        });
-
-    }
+        },
+        error: (err) => console.error("Errore nel caricamento dati sensori:", err)
+      });
   }
 
   onForecastIntervalSelect(): void {
@@ -375,76 +339,70 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     }
   }
 
-
   onLatestIntervalSelect(): void {
     this.cachedData.clear();
 
-    let latestElement: HTMLSelectElement | null = document.getElementById('latestInterval') as HTMLSelectElement | null;
+    // 1. Usa la variabile collegata a [(ngModel)] invece di getElementById
+    // Assicurati di avere 'selectedInterval' definita nel tuo .ts
+    const interval = parseInt(this.selectedInterval?.toString(), 10);
 
-    if (latestElement) {
-      const selectedInterval = latestElement.value;
-      console.log('Selected observation interval:', selectedInterval);
-
-      const interval = parseInt(selectedInterval, 10);
-
-      if (!isNaN(interval)) {
-        let intervalObservable = this.getIntervalObservable(interval);
-
-        if (intervalObservable) {
-          // @ts-ignore
-          intervalObservable.subscribe(
-            (response: any) => {
-              console.log('Data received from observable:', response);
-              if (response) {
-                const sensorDataList = response.sensorData;
-                const sensorAreaTypes = response.sensorAreaTypes;
-                this.sensorTypeList = sensorAreaTypes;
-                this.sensorDataLocalList = sensorDataList;
-
-                if (sensorDataList && sensorAreaTypes) {
-                  const heatData: [number, number, number][] = [];
-
-                  // Estrai i dati di geolocalizzazione e valore per ogni sensore
-                  sensorDataList.forEach((data: any) => {
-                    const lat = data.latitude;
-                    const lng = data.longitude;
-                    let value = 0;
-
-                    try {
-                      const payloadData = JSON.parse(data.payload);
-                      value = payloadData[this.selectedSensorType] || 0;
-                    } catch (error) {
-                      console.error("Errore nel parsing del payload:", error);
-                    }
-
-                    if (lat && lng) {
-                      heatData.push([lat, lng, value]);
-                    }
-                  });
-
-                  // Salva i dati nella cache per il tipo di sensore selezionato
-                  this.cachedData.set(this.selectedSensorType, heatData);
-                  this.updateGrid();  // Aggiorna la mappa con i nuovi dati
-                } else {
-                  console.error('Formato della risposta non valido:', response);
-                }
-              } else {
-                console.warn('No data returned from observable.');
-              }
-            },
-            (error: any) => {
-              console.error('Error during observable subscription:', error);
-            }
-          );
-        } else {
-          console.warn('Interval observable is not available for interval:', interval);
-        }
-      } else {
-        console.warn('Invalid or unsupported interval value:', selectedInterval);
-      }
-    } else {
-      console.warn('latestElement is not defined.');
+    if (isNaN(interval)) {
+      console.warn('Intervallo non valido o non selezionato:', this.selectedInterval);
+      return;
     }
+
+    const intervalObservable = this.getIntervalObservable(interval);
+    if (!intervalObservable) {
+      console.warn('Observable non disponibile per l\'intervallo:', interval);
+      return;
+    }
+
+    // 2. Usa la sintassi moderna del subscribe { next, error }
+    intervalObservable.subscribe({
+      next: (response: any) => {
+        console.log('Dati ricevuti:', response);
+
+        if (!response || !response.sensorData) {
+          console.warn('Risposta vuota o non valida dal server');
+          return;
+        }
+
+        const sensorDataList = response.sensorData;
+        this.sensorTypeList = response.sensorAreaTypes;
+        this.sensorDataLocalList = sensorDataList;
+
+        const heatData: [number, number, number][] = [];
+
+        sensorDataList.forEach((data: any) => {
+          const lat = data.latitude;
+          const lng = data.longitude;
+          let value = 0;
+
+          try {
+            // 3. FIX ERRORE: Controlla se è già un oggetto o se va parsato
+            const payloadData = typeof data.payload === 'string'
+              ? JSON.parse(data.payload)
+              : data.payload;
+
+            // Recupera il valore usando selectedSensorType
+            value = payloadData[this.selectedSensorType] ?? 0;
+          } catch (error) {
+            console.error("Errore nel recupero dati payload per sensore:", data.id, error);
+          }
+
+          if (lat && lng) {
+            heatData.push([lat, lng, value]);
+          }
+        });
+
+        // 4. Aggiorna cache e mappa
+        this.cachedData.set(this.selectedSensorType, heatData);
+        this.updateGrid();
+      },
+      error: (error: any) => {
+        console.error('Errore durante il recupero dei dati:', error);
+      }
+    });
   }
 
   private getIntervalObservable(interval: number) {

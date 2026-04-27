@@ -292,7 +292,7 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       token: this.cookieService.get('token')
     };
 
-    this.sensorDataService.getAllPrivateSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
+    this.sensorDataService.getAllPublicSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
       const heatData = this.processData(data);
       this.cachedData.set(this.selectedSensorType, heatData);
       this.updateGrid();

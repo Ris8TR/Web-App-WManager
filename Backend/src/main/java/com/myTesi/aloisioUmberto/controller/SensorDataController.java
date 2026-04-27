@@ -140,7 +140,7 @@ public class SensorDataController {
     @PostMapping("/SensorData/private/date/sensor")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPrivateSensorDataBySensorBetweenDate(HttpServletRequest request ,@RequestBody DateDto date) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
-        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorBetweenDate(date));
+        return ResponseEntity.ok(sensorDataService.getAllPrivateSensorDataBySensorBetweenDate(date, token));
     }
 
 
@@ -169,6 +169,11 @@ public class SensorDataController {
         return ResponseEntity.ok(sensorDataService.getTopPublicSensorDataByInterestAreaId(interestAreaId));
     }
 
+    @SecurityRequirement(name="Bearer Authentication")
+    @PostMapping("/SensorData/public/date/sensor")
+    public ResponseEntity<SensorDataInterestAreaDto> getAllPublicSensorDataBySensorBetweenDate(@RequestBody DateDto date) {
+        return ResponseEntity.ok(sensorDataService.getAllSensorDataBySensorBetweenDate(date));
+    }
 
     /*
     @GetMapping("/SensorData/{id}")
