@@ -413,6 +413,17 @@ public class SensorDataServiceImpl implements SensorDataService {
         return getLatestForSensorList(sensorIds, from, to);
     }
 
+
+    @Override
+    public List<SensorData> getRawDataForSensor(String sensorId, int minutesAgo) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, -minutesAgo);
+        Date startDate = cal.getTime();
+
+
+        return sensorDataRepository.findAllBySensorIdAndTimestampAfterOrderByTimestampAsc(sensorId, startDate);
+    }
+
     // ------------------------------------------------------------------------
     //  Metodi autorizzati che verificano token e recuperano sensori
     // ------------------------------------------------------------------------

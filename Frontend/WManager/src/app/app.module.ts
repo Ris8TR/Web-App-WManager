@@ -18,12 +18,14 @@ import {
 } from "./components/actions/delete-confirmation-dialog/delete-confirmation-dialog.component";
 import {MatDialogModule} from "@angular/material/dialog";
 import {ImageService} from "./service/image.service";
+import {AnalyticService} from "./service/analytic.service";
+import {TrendChartModalComponent} from "./components/elements/trend-chart-modal/trend-chart-modal.component";
 
 
 @NgModule({
   declarations: [],
-  imports: [BrowserModule, FormsModule, AppComponent, ToolbarComponent, LoginComponent, SigninComponent, ResetComponent, ToolbarComponent, MatDialogModule, RouterModule.forRoot(routes, {useHash: false}), DeleteConfirmationDialogComponent],
-  providers: [AuthService,InterestAreaDataService,UserService,SensorService, ImageService, ToolbarComponent],
+  imports: [BrowserModule, FormsModule, AppComponent, ToolbarComponent, LoginComponent, SigninComponent, ResetComponent, ToolbarComponent, TrendChartModalComponent, MatDialogModule, RouterModule.forRoot(routes, {useHash: false}), DeleteConfirmationDialogComponent],
+  providers: [AuthService,InterestAreaDataService,UserService,SensorService, ImageService, ToolbarComponent, AnalyticService],
   bootstrap: [],
 })
 export class AppModule { }

@@ -1,34 +1,31 @@
-import {AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { CommonModule, DecimalPipe, LocationStrategy, PathLocationStrategy, APP_BASE_HREF } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
+import { Subscription } from "rxjs";
 import * as L from 'leaflet';
-import {SensorDataService} from "../../../../service/sensorData.service";
-import {APP_BASE_HREF, LocationStrategy, NgClass, NgForOf, NgIf, PathLocationStrategy} from "@angular/common";
-import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
-import {SensorDto} from "../../../../model/sensorDto";
-import {SensorService} from "../../../../service/sensor.service";
-import {CookieService} from "ngx-cookie-service";
-import {DateDto} from "../../../../model/dateDto";
-import {FormsModule} from "@angular/forms";
-import {ActivatedRoute} from "@angular/router";
-import {InterestAreaService} from "../../../../service/interestArea.service";
-import {InterestArea} from "../../../../model/interestArea";
-import {parse} from 'terraformer-wkt-parser';
-import {Subscription, timeout} from "rxjs";
-import {MatSnackBar} from "@angular/material/snack-bar";
-import {SensorData} from "../../../../model/sensorData";
-import {SensorDataInterestAreaDto} from "../../../../model/SensorDataInterestAreaDto";
-import {style} from "@angular/animations";
+import Chart from 'chart.js/auto';
+import { parse } from 'terraformer-wkt-parser';
+import { MatSnackBar } from "@angular/material/snack-bar";
 
+import { ToolbarComponent } from "../../../elements/toolbar/toolbar.component";
+import { SensorService } from "../../../../service/sensor.service";
+import { SensorDataService } from "../../../../service/sensorData.service";
+import { InterestAreaService } from "../../../../service/interestArea.service";
+import { AnalyticService } from "../../../../service/analytic.service";
+import { CookieService } from "ngx-cookie-service";
+
+import { SensorDto } from "../../../../model/sensorDto";
+import { InterestArea } from "../../../../model/interestArea";
+import { SensorData } from "../../../../model/sensorData";
+import { DateDto } from "../../../../model/dateDto";
+import {TrendChartModalComponent} from "../../../elements/trend-chart-modal/trend-chart-modal.component";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-interest-area-viewer',
   standalone: true,
-  imports: [
-    NgIf,
-    ToolbarComponent,
-    FormsModule,
-    NgForOf,
-    NgClass
-  ],
+  imports: [CommonModule, FormsModule, ToolbarComponent, DecimalPipe],
   providers: [
     { provide: LocationStrategy, useClass: PathLocationStrategy },
     { provide: APP_BASE_HREF, useValue: '/' }
@@ -36,112 +33,84 @@ import {style} from "@angular/animations";
   templateUrl: './interest-area-viewer.component.html',
   styleUrl: './interest-area-viewer.component.css'
 })
-export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, OnInit {
-  @ViewChild('forecastInterval', {static: false}) forecastIntervalElement!: ElementRef<HTMLSelectElement>;
+export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('forecastInterval') forecastIntervalElement!: ElementRef<HTMLSelectElement>;
+  @ViewChild('trendChart') trendChartCanvas!: ElementRef<HTMLCanvasElement>;
 
+  // --- Map & Layers ---
   private map: L.Map | undefined;
-  selectedSensor!: string | undefined;
-  interestArea: InterestArea | undefined;
-  isRealTime: boolean = false;
-  id: string | null | undefined;
   private layerGroup: L.LayerGroup | undefined;
-  public selectedSensorType: string = "CO2";
-  sensorTypeList!: Array<string> | undefined;
+  private drawnLayers: L.Layer[] = [];
+  private subscription: Subscription = new Subscription();
+
+  // --- State Management ---
+  id: string | null | undefined;
+  interestArea: InterestArea | undefined;
+  selectedSensor: string | undefined;
   public sensors: SensorDto[] = [];
+  public selectedSensorType: string = "CO2";
+  public sensorTypeList: string[] = [];
   public logStringResult: string = 'Login';
+  isRealTime = false;
+  isPanelVisible = true;
+
+  // --- Analytics State ---
+  public showTrend = false;
+  public showAnomalies = false;
+  public predictionValue: number | null = null;
+  protected isForecast = false;
+  protected isObservation = false;
+  private trendChart: Chart | undefined;
+
+  // --- Data Storage ---
+  private sensorDataLocalList: SensorData[] = [];
+  private sensorTrendLocalList: SensorData[] = [];
+  private cachedData = new Map<string, [number, number, number][]>();
+
+  // --- UI Configuration ---
+  public selectedInterval: string = '5';
   public startDate?: string;
   public endDate?: string;
   public startHour?: string;
   public endHour?: string;
-  private cachedData: Map<string, [number, number, number][]> = new Map();
-  private drawnLayers: L.Layer[] = [];
-  private subscription: Subscription = new Subscription();
-
-  selectedForecastInterval: string | null = null;
-  isPanelVisible = true;
-  public selectedInterval: any = '5';
-
-  selectedLatestInterval: string = '';
-
-  isForecast: boolean = this.toolbarComponent.isForecast;
-  isObservation: boolean = this.toolbarComponent.isObservation;
 
   temperatureScale = [
-    {label: '-10', color: '#0030ff'},
-    {label: '-8', color: '#0066ff'},
-    {label: '-6', color: '#00a4ff'},
-    {label: '-4', color: '#00d7ff'},
-    {label: '-2', color: '#00f9ed'},
-    {label: '0', color: '#00ebbd'},
-    {label: '2', color: '#00dc8d'},
-    {label: '4', color: '#00c951'},
-    {label: '6', color: '#01ba1c'},
-    {label: '8', color: '#21bd05'},
-    {label: '10', color: '#61cf03'},
-    {label: '12', color: '#93df01'},
-    {label: '14', color: '#cff000'},
-    {label: '16', color: '#ffff00'},
-    {label: '18', color: '#ffed00'},
-    {label: '20', color: '#ffd700'},
-    {label: '22', color: '#ffc400'},
-    {label: '24', color: '#ffaf00'},
-    {label: '26', color: '#ff9200'},
-    {label: '28', color: '#ff7100'},
-    {label: '30', color: '#ff4700'},
-    {label: '32', color: '#ff2300'},
-    {label: '34', color: '#ff0100'},
-    {label: '36', color: '#de0014'},
-    {label: '38', color: '#bd0033'},
-    {label: '40', color: '#940056'},
-    {label: '42', color: '#730073'}
+    { label: '-10', color: '#0030ff' }, { label: '0', color: '#00ebbd' },
+    { label: '20', color: '#ffed00' }, { label: '40', color: '#940056' }
   ];
-  private sensorDataLocalList: Array<SensorData> | undefined;
-
 
   constructor(
     private sensorDataService: SensorDataService,
     private interestAreaService: InterestAreaService,
     private sensorService: SensorService,
     private snackBar: MatSnackBar,
+    private dialog: MatDialog,
     private cookieService: CookieService,
     public toolbarComponent: ToolbarComponent,
-    private route: ActivatedRoute
-  ) {
-  }
+    private analyticsService: AnalyticService
+  ) {}
+
+  // ========================================================================
+  //  LIFECYCLE
+  // ========================================================================
 
   ngOnInit(): void {
     this.subscription = this.interestAreaService.currentId$.subscribe(id => {
       this.id = id;
       this.reloadComponentData();
-    })
+    });
 
-    this.subscription.add(
-      this.toolbarComponent.isForecast$.subscribe(value => {
-        this.isForecast = value;
-      })
-    );
+    this.subscription.add(this.toolbarComponent.isForecast$.subscribe(v => this.isForecast = v));
+    this.subscription.add(this.toolbarComponent.isObservation$.subscribe(v => this.isObservation = v));
 
-    this.subscription.add(
-      this.toolbarComponent.isObservation$.subscribe(value => {
-        this.isObservation = value;
-      })
-    );
-
-    if (this.id == null) {
-      this.snackBar.open("Selezionare un'area di interesse", "ok")
-      return
-    }
+    if (!this.id) this.snackBar.open("Selezionare un'area di interesse", "ok");
 
     this.interestAreaService.getInterestArea(this.id!).subscribe(area => {
       this.interestArea = area;
       this.toolbarComponent.inArea = true;
       this.toolbarComponent.isObservation = true;
       this.toolbarComponent.areaName = area.name;
-
-      // Disegna l'area d'interesse sulla mappa
-      if (this.interestArea && this.interestArea.geometry) {
-        this.drawInterestArea(this.interestArea.geometry);
-      }
+      if (this.interestArea?.geometry) this.drawInterestArea(this.interestArea.geometry);
     });
   }
 
@@ -158,7 +127,376 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     if (this.map) this.map.remove();
     this.subscription.unsubscribe();
     this.toolbarComponent.inArea = false;
+  }
 
+  // ========================================================================
+  //  DATA MANAGEMENT
+  // ========================================================================
+
+  private reloadComponentData(): void {
+    if (!this.id) return;
+    this.cachedData.clear();
+    this.interestAreaService.getInterestArea(this.id!).subscribe(area => this.interestArea = area);
+    this.loadSensors();
+    this.loadAllSensorData();
+    if (this.interestArea?.geometry) this.drawInterestArea(this.interestArea.geometry);
+  }
+
+  private loadSensors(): void {
+    this.sensorService.findByInterestAreaId(this.id!).subscribe(sensors => {
+      this.sensors = sensors;
+      if (sensors.length > 0) this.selectedSensor = sensors[0].id;
+    });
+  }
+
+  private loadAllSensorData(): void {
+    if (!this.map || !this.id) return;
+    this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!).subscribe({
+      next: (res: any) => {
+        if (res?.sensorData) {
+          this.sensorDataLocalList = res.sensorData;
+          this.sensorTypeList = res.sensorAreaTypes;
+          this.updateGrid();
+        }
+      },
+      error: (err) => console.error("Errore caricamento dati:", err)
+    });
+  }
+
+  // ========================================================================
+  //  MAP RENDERING LOGIC
+  // ========================================================================
+
+  private updateGrid(): void {
+    if (!this.map || !this.selectedSensor) return;
+    if (this.layerGroup) this.layerGroup.clearLayers();
+
+    const token = this.cookieService.get('token');
+    const authHeader = `Bearer ${token}`;
+    const sensorId = this.selectedSensor;
+    const key = this.selectedSensorType;
+
+    // 1. Draw Base Layer (Trend or Standard)
+    if (this.showTrend) {
+      this.analyticsService.getSensorTrend(sensorId, authHeader, key).subscribe({
+        next: (dataList: any[]) => {
+          this.sensorTrendLocalList = dataList;
+          const heatData = this.sensorDataLocalList
+            .filter(d => d.latitude && d.longitude)
+            .map((d): [number, number, number] => [ // <--- Aggiungi il tipo di ritorno qui
+              d.latitude!,
+              d.longitude!,
+              (d.payload as any)?.[this.selectedSensorType] ?? 0
+            ]);
+
+          this.addPointsToMap(heatData, true);
+          this.updateTrendChart();
+          if (this.showAnomalies) this.renderAnomaliesOverlay(authHeader);
+        },
+        error: (err) => console.error("Errore trend:", err)
+      });
+    } else {
+      this.sensorTrendLocalList = [];
+      this.processAndMapLocalData();
+      if (this.showAnomalies) this.renderAnomaliesOverlay(authHeader);
+    }
+
+    // 2. Always update chart if sensor is active
+    this.updateTrendChart();
+  }
+
+  private processAndMapLocalData(): void {
+    const heatData = this.sensorDataLocalList
+      .filter(d => d.latitude && d.longitude)
+      .map((d): [number, number, number] => [ // <--- Aggiungi il tipo di ritorno qui
+        d.latitude!,
+        d.longitude!,
+        (d.payload as any)?.[this.selectedSensorType] ?? 0
+      ]);
+
+    this.addPointsToMap(heatData, false);
+  }
+
+  private addPointsToMap(heatData: [number, number, number][], isTrend: boolean): void {
+    heatData.forEach(([lat, lng, value]) => {
+      const marker = L.circleMarker([lat, lng], {
+        radius: isTrend ? 10 : 6,
+        fillColor: isTrend ? '#0dcaf0' : this.getColor(value),
+        color: isTrend ? '#ffffff' : '#000',
+        weight: 1,
+        opacity: 1,
+        fillOpacity: 0.7
+      }).addTo(this.layerGroup!);
+      marker.bindPopup(`${this.selectedSensorType}: ${value.toFixed(2)}`);
+    });
+  }
+
+  private renderAnomaliesOverlay(authHeader: string): void {
+    if (!this.selectedSensor) return;
+    this.analyticsService.getAnomalies(this.selectedSensor, authHeader, this.selectedSensorType, 3.0)
+      .subscribe({
+        next: (anomalies) => {
+          anomalies?.forEach(a => {
+            if (a.latitude && a.longitude) this.addAnomalyMarker(a.latitude, a.longitude, (a.payload as any)[this.selectedSensorType]);
+          });
+        },
+        error: (err) => console.error("Errore anomalie:", err)
+      });
+  }
+
+  private addAnomalyMarker(lat: number, lng: number, value: any): void {
+    const icon = L.divIcon({
+      className: 'anomaly-pulse',
+      html: `<div style="background:#ff0000; width:18px; height:18px; border-radius:50%; border:2px solid white; box-shadow: 0 0 10px #ff0000;"></div>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9]
+    });
+    L.marker([lat, lng], { icon }).addTo(this.layerGroup!)
+      .bindPopup(`<b style="color:red">ANOMALIA RILEVATA</b><br>Valore: ${value}`);
+  }
+
+  // ========================================================================
+  //  CHARTS & ANALYTICS
+  // ========================================================================
+
+  private updateTrendChart(): void {
+    const canvas = this.trendChartCanvas?.nativeElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 1. Selezione sorgente dati
+    const dataSource = this.showTrend ? this.sensorTrendLocalList : this.sensorDataLocalList;
+
+    if (!dataSource || dataSource.length === 0) {
+      if (this.trendChart) { this.trendChart.destroy(); this.trendChart = undefined; }
+      return;
+    }
+
+    // 2. Filtro e Ordinamento per il sensore selezionato
+    const targetId = String(this.selectedSensor || '').trim();
+    const sensorSpecificData = dataSource
+      .filter(d => String(d.sensorId || '').trim() === targetId)
+      .sort((a, b) => new Date(a.timestamp!).getTime() - new Date(b.timestamp!).getTime());
+
+    if (sensorSpecificData.length === 0) {
+      if (this.trendChart) { this.trendChart.destroy(); this.trendChart = undefined; }
+      return;
+    }
+
+    // 3. Preparazione Label
+    const historyLabels = sensorSpecificData.map(d =>
+      new Date(d.timestamp!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    );
+
+    // 4. CALCOLO MEDIA MOBILE (Smoothing)
+    // Questo risolve il problema delle fluttuazioni eccessive
+    const windowSize = 30;// Ogni 5 punti calcola la media. Aumenta a 8-10 per più morbidezza.
+    const historyValues = sensorSpecificData.map((d, index, arr) => {
+      const rawValue = (d.payload as any)?.[this.selectedSensorType] ?? 0;
+
+      if (index < windowSize - 1) return rawValue; // Non medi messi i primi punti per non sballare l'inizio
+
+      const slice = arr.slice(index - windowSize + 1, index + 1);
+      const sum = slice.reduce((acc, curr) => acc + ((curr.payload as any)?.[this.selectedSensorType] ?? 0), 0);
+      return sum / windowSize;
+    });
+
+    // 5. Preparazione Dataset Forecast
+    let finalLabels = [...historyLabels];
+    let forecastDataset: any = null;
+
+    if (this.isForecast && this.predictionValue !== null) {
+      finalLabels.push('Forecast');
+      const fValues = new Array(historyValues.length).fill(null);
+      // Collega il forecast all'ultimo valore SMUSSO (per continuità visiva)
+      fValues[historyValues.length - 1] = historyValues[historyValues.length - 1];
+      fValues.push(this.predictionValue);
+
+      forecastDataset = {
+        label: 'Previsione',
+        data: fValues,
+        borderColor: '#ff4d4d',
+        borderDash: [5, 5],
+        backgroundColor: 'transparent',
+        fill: false,
+        tension: 0.4,
+        pointRadius: 5,
+        pointBackgroundColor: '#ff4d4d',
+        order: 1
+      };
+    }
+
+    // 6. Rendering Finale
+    if (this.trendChart) this.trendChart.destroy();
+
+    this.trendChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: finalLabels,
+        datasets: [
+          {
+            label: this.selectedSensorType,
+            data: historyValues,
+            borderColor: '#0dcaf0',
+            backgroundColor: 'rgba(13, 202, 240, 0.2)',
+            fill: true,
+            tension: 0.4,
+            pointRadius: historyValues.length <= 1 ? 8 : 3,
+            pointBackgroundColor: '#0dcaf0',
+            order: 2
+          },
+          ...(forecastDataset ? [forecastDataset] : [])
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            display: true,
+            labels: { color: '#8a8d98', font: { size: 10 } }
+          },
+          tooltip: { enabled: true }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#8a8d98', font: { size: 10 } },
+            grid: { display: false }
+          },
+          y: {
+            ticks: { color: '#8a8d98', font: { size: 10 } },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            grace: '15%' // Evita che i punti tocchino i bordi superiore/inferiore
+          }
+        }
+      }
+    });
+  }
+
+  private loadPrediction(): void {
+    const token = this.cookieService.get('token');
+    if (!this.selectedSensor) return;
+    this.analyticsService.getPrediction(this.selectedSensor, `Bearer ${token}`, this.selectedSensorType)
+      .subscribe({
+        next: (res) => {
+          this.predictionValue = res['predictedValue'];
+          this.updateTrendChart();
+        },
+        error: (err) => console.error("Errore predizione:", err)
+      });
+  }
+
+  // ========================================================================
+  //  UI ACTIONS
+  // ========================================================================
+
+  onSensorSelect(sensor: SensorDto): void {
+    if (this.selectedSensor === sensor.id) {
+      this.selectedSensor = undefined;
+    } else {
+      this.selectedSensor = sensor.id;
+      const data = this.sensorDataLocalList.find(d => d.sensorId === sensor.id);
+      if (data?.latitude && data?.longitude) this.map?.setView([data.latitude, data.longitude], 14);
+    }
+    this.updateGrid();
+    if (this.isForecast && this.selectedSensor) this.loadPrediction();
+  }
+
+  onSensorTypeSelect(type: string): void {
+    this.selectedSensorType = type;
+    this.updateGrid();
+    if (this.isForecast && this.selectedSensor) this.loadPrediction();
+
+  }
+
+  onTrendToggle(): void { this.updateGrid(); }
+  onAnomalyToggle(): void { this.updateGrid(); }
+  onForecastIntervalSelect(): void { if (this.selectedSensor) this.loadPrediction(); }
+
+  onLatestIntervalSelect(): void {
+    this.cachedData.clear();
+    const interval = parseInt(this.selectedInterval?.toString(), 10);
+    if (isNaN(interval)) return;
+
+    const obs = this.getIntervalObservable(interval);
+    if (obs) {
+      obs.subscribe({
+        next: (res: any) => {
+          if (res?.sensorData) {
+            this.sensorDataLocalList = res.sensorData;
+            this.sensorTypeList = res.sensorAreaTypes;
+            this.updateGrid();
+          }
+        },
+        error: (err) => console.error("Errore refresh:", err)
+      });
+    }
+  }
+
+  private getIntervalObservable(interval: number) {
+    if (!this.id) return null;
+    if (this.isRealTime) {
+      if (interval === 5) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId5Min(this.id);
+      if (interval === 10) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId10Min(this.id);
+      if (interval === 15) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId15Min(this.id);
+      return null;
+    }
+    return this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id);
+  }
+
+  onDateRangeSubmit(): void {
+    this.cachedData.clear();
+    const defaultDate = new Date().toISOString().split('T')[0];
+    const dateDto: DateDto = {
+      form: `${this.startDate || defaultDate}T${this.startHour || '00'}:00:00`,
+      to: `${this.endDate || defaultDate}T${this.endHour || '23'}:59:59`,
+      sensorId: this.selectedSensor,
+      interestAreaId: this.id!,
+      token: this.cookieService.get('token')
+    };
+
+    this.sensorDataService.getAllPrivateSensorDataBySensorBetweenDate(dateDto).subscribe({
+      next: (data) => {
+        this.sensorDataLocalList = data.sensorData!;
+        this.updateGrid();
+        if (this.isForecast && this.selectedSensor) this.loadPrediction();
+      },
+      error: (err) => this.snackBar.open("Errore nel recupero dati", "OK", { duration: 3000 })
+    });
+  }
+
+  // ========================================================================
+  //  HELPERS
+  // ========================================================================
+
+  private initializeMap(): void {
+    this.map = L.map('map').setView([45.0, 7.0], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(this.map);
+    this.map.on('moveend', () => this.updateGrid());
+  }
+
+  private drawInterestArea(geometry: string): void {
+    try {
+      const geoJson = parse(geometry.trim().replace(/;$/, ''));
+      this.removeDrawnAreas();
+      if (geoJson && (geoJson.type === 'Polygon' || geoJson.type === 'MultiPolygon')) {
+        const polygon = L.geoJSON(geoJson, { style: { color: 'blue', weight: 4, opacity: 0.7 } }).addTo(this.map!);
+        this.drawnLayers.push(polygon);
+        this.map!.fitBounds(polygon.getBounds());
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  private removeDrawnAreas(): void {
+    this.drawnLayers.forEach(l => this.map?.removeLayer(l));
+    this.drawnLayers = [];
+  }
+
+  private getColor(value: number): string {
+    const ratio = Math.min(Math.max((value - 0) / 100, 0), 1);
+    return `rgb(${Math.round(255 * ratio)}, 0, ${Math.round(255 * (1 - ratio))})`;
   }
 
   togglePanel(event: MouseEvent): void {
@@ -166,391 +504,19 @@ export class InterestAreaViewerComponent implements AfterViewInit, OnDestroy, On
     this.isPanelVisible = !this.isPanelVisible;
   }
 
+  openChartModal(): void {
+    if (!this.trendChart || !this.trendChart.data) return;
 
-  private drawInterestArea(geometry: string): void {
-    try {
-      // Rimuove eventuali punti e virgola finali
-      geometry = geometry.trim().replace(/;$/, '');
-
-      // Parse del WKT in GeoJSON
-      const geoJson = parse(geometry);
-
-      // Rimuove le geometrie già disegnate
-      this.removeDrawnAreas();
-
-      // Verifica il tipo di geometria e gestisce separatamente Polygon, MultiPolygon e LineString
-      if (geoJson && (geoJson.type === 'Polygon' || geoJson.type === 'MultiPolygon')) {
-        const polygon = L.geoJSON(geoJson, {
-          style: {
-            color: 'blue',    // Colore dei bordi del poligono
-            weight: 4,        // Spessore dei bordi
-            opacity: 0.7      // Opacità dei bordi
-          }
-        }).addTo(this.map!);
-
-        // Aggiungi il poligono all'array dei layer disegnati
-        this.drawnLayers.push(polygon);
-
-        // Centra la vista sul poligono
-        this.map!.fitBounds(polygon.getBounds());
-
-      } else if (geoJson && (geoJson.type === 'LineString' || geoJson.type === 'MultiLineString')) {
-        // @ts-ignore
-        const polyline = L.polyline(geoJson.coordinates, {
-          color: 'blue',   // Colore della linea
-          weight: 4,       // Spessore della linea
-          opacity: 0.7     // Opacità della linea
-        }).addTo(this.map!);
-
-        // Aggiungi la linea all'array dei layer disegnati
-        this.drawnLayers.push(polyline);
-
-        // Centra la vista sulla linea
-        this.map!.fitBounds(polyline.getBounds());
-
-      } else {
-        console.error('Tipo di geometria non valido o non supportato:', geoJson.type);
-      }
-    } catch (error) {
-      console.error('Errore durante il parsing WKT:', error);
-    }
-  }
-
-// Metodo per rimuovere le aree già disegnate
-  private removeDrawnAreas(): void {
-    if (this.drawnLayers.length > 0) {
-      this.drawnLayers.forEach(layer => {
-        this.map!.removeLayer(layer); // Rimuovi il layer dalla mappa
-      });
-      this.drawnLayers = []; // Svuota l'array
-    }
-  }
-
-  private reloadComponentData(): void {
-    if (!this.id) return;
-    this.cachedData.clear();
-    this.interestAreaService.getInterestArea(this.id!).subscribe(area => {
-      this.interestArea = area;
-    });
-    this.loadSensors();
-    this.loadAllSensorData();
-    if (this.interestArea != null) {
-      this.drawInterestArea(this.interestArea!.geometry);
-    }
-  }
-
-  private initializeMap(): void {
-    this.map = L.map('map').setView([45.0, 7.0], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 14,
-      minZoom: 5
-    }).addTo(this.map);
-
-    this.map.on('moveend', () => this.updateGrid());
-  }
-
-  private loadSensors(): void {
-    this.sensorService.findByInterestAreaId(this.id!)
-      .subscribe(sensors => this.sensors = sensors);
-    if (this.sensors.length > 0) {
-      this.selectedSensor = this.sensors[0].id
-    }
-  }
-
-  onSensorSelect(sensor: SensorDto): void {
-    if (sensor.type) this.selectedSensor = sensor.type;
-
-    // Controlla se lo stesso sensore è stato selezionato
-    if (this.selectedSensor === sensor.id) {
-      this.selectedSensor = undefined;
-    } else {
-      this.selectedSensor = sensor.id;
-      const selectedSensorData = this.sensorDataLocalList?.find(data => data.sensorId === this.selectedSensor);
-      if (selectedSensorData?.latitude && selectedSensorData?.longitude) {
-        this.map!.setView([selectedSensorData.latitude, selectedSensorData.longitude], 14); // Imposta lo zoom a 14
-      } else {
-        this.snackBar.open("No data found for this sensor", "OK", {
-          duration: 2000
-        });
-        console.warn(`Latitudine e longitudine non trovate per il sensore con ID: ${this.selectedSensor}`);
-      }
-    }
-  }
-
-
-  private loadAllSensorData(): void {
-    if (!this.map) return;
-
-    // Entrambi i rami chiamavano la stessa funzione con la stessa logica,
-    // quindi centralizziamo la sottoscrizione.
-    this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!)
-      .subscribe({
-        next: (response: any) => {
-          if (response && response.sensorData && response.sensorAreaTypes) {
-
-            this.sensorTypeList = response.sensorAreaTypes;
-            this.sensorDataLocalList = response.sensorData;
-
-            const heatData: [number, number, number][] = [];
-
-            response.sensorData.forEach((data: any) => {
-              const lat = data.latitude;
-              const lng = data.longitude;
-              let value = 0;
-
-              try {
-                // FIX: Controlla se payload è già un oggetto o se è una stringa da parsare
-                const payloadData = typeof data.payload === 'string'
-                  ? JSON.parse(data.payload)
-                  : data.payload;
-
-                // Recupera il valore. Usa l'operatore ?? per gestire lo 0 come valore valido
-                value = payloadData[this.selectedSensorType] ?? 0;
-              } catch (error) {
-                console.error(`Errore nel recupero payload per sensore ${data.id}:`, error);
-              }
-
-              if (lat && lng) {
-                heatData.push([lat, lng, value]);
-              }
-            });
-
-            // Salva in cache e aggiorna la mappa
-            this.cachedData.set(this.selectedSensorType, heatData);
-            this.updateGrid();
-
-          } else {
-            console.error('Formato della risposta non valido o dati mancanti:', response);
-          }
-        },
-        error: (err) => console.error("Errore nel caricamento dati sensori:", err)
-      });
-  }
-
-  onForecastIntervalSelect(): void {
-    const forecastElement = document.getElementById('forecastInterval') as HTMLSelectElement | null;
-    if (forecastElement) {
-      const selectedInterval = forecastElement.value;
-      console.log('Selected forecast interval:', selectedInterval);
-      forecastElement.value = ''; // Reset select element
-    } else {
-      console.warn('Forecast interval select element not found.');
-    }
-  }
-
-  onLatestIntervalSelect(): void {
-    this.cachedData.clear();
-
-    // 1. Usa la variabile collegata a [(ngModel)] invece di getElementById
-    // Assicurati di avere 'selectedInterval' definita nel tuo .ts
-    const interval = parseInt(this.selectedInterval?.toString(), 10);
-
-    if (isNaN(interval)) {
-      console.warn('Intervallo non valido o non selezionato:', this.selectedInterval);
-      return;
-    }
-
-    const intervalObservable = this.getIntervalObservable(interval);
-    if (!intervalObservable) {
-      console.warn('Observable non disponibile per l\'intervallo:', interval);
-      return;
-    }
-
-    // 2. Usa la sintassi moderna del subscribe { next, error }
-    intervalObservable.subscribe({
-      next: (response: any) => {
-        console.log('Dati ricevuti:', response);
-
-        if (!response || !response.sensorData) {
-          console.warn('Risposta vuota o non valida dal server');
-          return;
-        }
-
-        const sensorDataList = response.sensorData;
-        this.sensorTypeList = response.sensorAreaTypes;
-        this.sensorDataLocalList = sensorDataList;
-
-        const heatData: [number, number, number][] = [];
-
-        sensorDataList.forEach((data: any) => {
-          const lat = data.latitude;
-          const lng = data.longitude;
-          let value = 0;
-
-          try {
-            // 3. FIX ERRORE: Controlla se è già un oggetto o se va parsato
-            const payloadData = typeof data.payload === 'string'
-              ? JSON.parse(data.payload)
-              : data.payload;
-
-            // Recupera il valore usando selectedSensorType
-            value = payloadData[this.selectedSensorType] ?? 0;
-          } catch (error) {
-            console.error("Errore nel recupero dati payload per sensore:", data.id, error);
-          }
-
-          if (lat && lng) {
-            heatData.push([lat, lng, value]);
-          }
-        });
-
-        // 4. Aggiorna cache e mappa
-        this.cachedData.set(this.selectedSensorType, heatData);
-        this.updateGrid();
-      },
-      error: (error: any) => {
-        console.error('Errore durante il recupero dei dati:', error);
+    this.dialog.open(TrendChartModalComponent, {
+      width: '90vw',
+      height: '80vh',
+      maxWidth: '1200px',
+      panelClass: 'trend-modal-container',
+      data: {
+        labels: this.trendChart.data.labels,
+        datasets: this.trendChart.data.datasets,
+        sensorType: this.selectedSensorType
       }
     });
-  }
-
-  private getIntervalObservable(interval: number) {
-    console.log(this.isRealTime);
-    if (this.isRealTime) {
-      switch (interval) {
-        case 5:
-          console.log("RT 5");
-          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId5Min(this.id!);
-        case 10:
-          console.log("RT 10");
-          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId10Min(this.id!);
-        case 15:
-          console.log("RT 15");
-          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId15Min(this.id!);
-        default:
-          return null;
-      }
-    } else {
-      console.log("L A");
-      return this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id!);
-    }
-  }
-
-
-  onDateRangeSubmit(): void {
-    this.cachedData.clear()
-    const now = new Date();
-    const formattedStartHour = this.startHour || now.getHours().toString().padStart(2, '0');
-    const formattedEndHour = this.endHour || now.getHours().toString().padStart(2, '0');
-
-    const defaultDate = now.toISOString().split('T')[0];
-
-    const dateDto: DateDto = {
-      form: `${this.startDate || defaultDate}T${formattedStartHour}:${now.getMinutes().toString().padStart(2, '0')}:00`,
-      to: `${this.endDate || defaultDate}T${formattedEndHour}:${now.getMinutes().toString().padStart(2, '0')}:00`,
-      sensorId: this.selectedSensor,
-      interestAreaId: this.id!,
-      token: this.cookieService.get('token')
-    };
-
-    this.sensorDataService.getAllPrivateSensorDataBySensorBetweenDate(dateDto).subscribe(data => {
-      this.cachedData.set(this.selectedSensorType, this.processData(data));
-      this.updateGrid();
-    });
-
-  }
-
-
-  private updateGrid(): void {
-    if (this.layerGroup) this.map!.removeLayer(this.layerGroup);
-    this.layerGroup = L.layerGroup().addTo(this.map!);
-    this.addPointsToMap(this.cachedData.get(this.selectedSensorType) || []);
-  }
-
-  private addPointsToMap(heatData: [number, number, number][]): void {
-    heatData.forEach(([lat, lng, value]) => {
-      if (lat != null && lng != null && value != null) {
-        L.circleMarker([lat, lng], {
-          radius: 8,
-          fillColor: this.getColor(value),
-          color: '#000',
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        }).bindPopup(this.selectedSensorType + ` value: ${value}`).addTo(this.layerGroup!);
-      }
-    });
-  }
-
-  private getColor(value: number): string {
-    const min = 0, max = 100;
-    const ratio = (value - min) / (max - min);
-    const r = Math.round(255 * ratio);
-    const b = Math.round(255 * (1 - ratio));
-    return `rgb(${r},0,${b})`;
-  }
-
-  private processData(data: SensorDataInterestAreaDto): [number, number, number][] {
-    // 1. Validazione iniziale
-    if (!data || !data.sensorData || !Array.isArray(data.sensorData)) {
-      console.error("Dati non validi per processData:", data);
-      return [];
-    }
-
-    // 2. Aggiornamento liste locali
-    this.sensorTypeList = data.sensorAreaTypes || [];
-    this.sensorDataLocalList = data.sensorData;
-
-    // 3. Trasformazione dei dati in "triplette" [lat, lng, valore]
-    const heatData: [number, number, number][] = data.sensorData.map((sensorData) => {
-      const lat = sensorData.latitude;
-      const lng = sensorData.longitude;
-
-      // ACCESSO DIRETTO: Il payload è già un oggetto, NON serve JSON.parse
-      // Se il payload esiste, prendi il valore del tipo selezionato, altrimenti 0
-      const value = sensorData.payload ? (sensorData.payload[this.selectedSensorType] ?? 0) : 0;
-
-      return [lat, lng, value];
-    });
-
-    // 4. SALVATAGGIO IN CACHE
-    // Salviamo l'intero array di punti per il tipo selezionato (es: "CO2")
-    this.cachedData.set(this.selectedSensorType, heatData);
-
-    console.log(`Processati ${heatData.length} punti per ${this.selectedSensorType}`);
-
-    return heatData;
-  }
-
-  onSensorTypeSelect(type: string): void {
-    // 1. Aggiorna lo stato
-    this.selectedSensorType = type;
-
-    // 2. Controllo di sicurezza: se non ci sono dati, svuota e ferma
-    if (!this.sensorDataLocalList || this.sensorDataLocalList.length === 0) {
-      this.cachedData.set(type, []);
-      this.updateGrid();
-      return;
-    }
-
-    // 3. Trasformazione dei dati (usiamo .map e .filter per pulizia)
-    const heatData: [number, number, number][] = this.sensorDataLocalList
-      .map(data => {
-        try {
-          // Gestiamo sia il caso in cui payload sia già oggetto, sia stringa JSON
-          const payloadData = typeof data.payload === 'string'
-            ? JSON.parse(data.payload)
-            : data.payload;
-
-          const value = payloadData[type] ?? 0; // Nullish coalescing per evitare undefined
-
-          if (data.latitude && data.longitude) {
-            return [data.latitude, data.longitude, value] as [number, number, number];
-          }
-        } catch (error) {
-          console.error(`Errore parsing payload per sensore ${data.id}:`, error);
-        }
-        return null;
-      })
-      .filter((item): item is [number, number, number] => item !== null); // Rimuove i fallimenti
-
-    // 4. Salvataggio in cache
-    this.cachedData.set(type, heatData);
-
-    // 5. Aggiornamento visivo
-    this.updateGrid();
-
-    console.log(`Mappa aggiornata per: ${type} (${heatData.length} punti)`);
   }
 }

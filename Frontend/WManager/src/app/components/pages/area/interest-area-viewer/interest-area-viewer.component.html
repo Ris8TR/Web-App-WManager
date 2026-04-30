@@ -87,6 +87,21 @@
           </div>
         </section>
 
+        <!-- NUOVA SEZIONE: ANALYTICS INTELLIGENCE -->
+        <section class="sidebar-section animate-fade-in">
+          <label class="section-label text-info">Intelligence Engine</label>
+          <div class="analytics-controls bg-dark-25 p-2 rounded">
+            <div class="form-check form-switch mb-2">
+              <input class="form-switch input-switch" type="checkbox" id="switchTrend" [(ngModel)]="showTrend">
+              <label class="form-check-label tiny-text text-white" for="switchTrend">Show Smooth Trend</label>
+            </div>
+            <div class="form-check form-switch mb-2">
+              <input class="form-switch input-switch" type="checkbox" id="switchAnomalies" [(ngModel)]="showAnomalies">
+              <label class="form-check-label tiny-text text-white" for="switchAnomalies">Highlight Anomalies</label>
+            </div>
+          </div>
+        </section>
+
       </div>
     </div>
   </aside>
@@ -118,6 +133,25 @@
                     [class.active-sensor]="selectedSensor === sensor.id">
               {{ sensor.companyName }}
             </button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Overlay Grafico con tasto Espandi -->
+      <div class="chart-overlay-container" *ngIf="selectedSensor && isForecast">
+        <div class="chart-card bg-dark-glass shadow-lg">
+          <div class="chart-header d-flex justify-content-between align-items-center p-2 border-bottom border-secondary">
+            <span class="tiny-text fw-bold text-info">TREND PREDICTION</span>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-success tiny-text" *ngIf="predictionValue">Next: {{predictionValue | number:'1.1-1'}}</span>
+              <button class="btn btn-sm btn-outline-info border-0 p-0" (click)="openChartModal()">
+                <i class="fas fa-expand-alt"></i>
+              </button>
+            </div>
+          </div>
+          <div class="chart-body p-2">
+            <canvas #trendChart id="trendChart" height="150"></canvas>
           </div>
         </div>
       </div>

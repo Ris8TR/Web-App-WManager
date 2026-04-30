@@ -41,4 +41,7 @@ public interface SensorDataRepository extends MongoRepository<SensorData, String
     List<SensorData> findAllByInterestAreaIDAndSensorId(String interestAreaId,String sensorId);
 
     List<SensorData> findAllBySensorIdInAndTimestampBetween(List<String> sensorIds, Date tenMinutesAgo, Date now);
+
+    List<SensorData> findAllBySensorIdAndTimestampAfterOrderByTimestampAsc(String sensorId, Date after);
+
 }

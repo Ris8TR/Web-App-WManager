@@ -1,0 +1,181 @@
+src/
+├── app
+│   ├── components
+│   │   ├── actions
+│   │   │   └── delete-confirmation-dialog
+│   │   │       ├── delete-confirmation-dialog.component.css
+│   │   │       ├── delete-confirmation-dialog.component.html
+│   │   │       └── delete-confirmation-dialog.component.ts
+│   │   ├── elements
+│   │   │   ├── map
+│   │   │   │   ├── forecast
+│   │   │   │   │   ├── forecast.component.css
+│   │   │   │   │   ├── forecast.component.html
+│   │   │   │   │   └── forecast.component.ts
+│   │   │   │   ├── publicMap
+│   │   │   │   │   ├── map.component.css
+│   │   │   │   │   ├── map.component.html
+│   │   │   │   │   └── map.component.ts
+│   │   │   │   ├── station
+│   │   │   │   │   ├── station.component.css
+│   │   │   │   │   ├── station.component.html
+│   │   │   │   │   └── station.component.ts
+│   │   │   │   └── webcam
+│   │   │   │       ├── webcam.component.css
+│   │   │   │       ├── webcam.component.html
+│   │   │   │       └── webcam.component.ts
+│   │   │   └── toolbar
+│   │   │       ├── toolbar.component.css
+│   │   │       ├── toolbar.component.html
+│   │   │       └── toolbar.component.ts
+│   │   └── pages
+│   │       ├── area
+│   │       │   ├── interest-area-creation
+│   │       │   │   ├── interest-area-creation.component.css
+│   │       │   │   ├── interest-area-creation.component.html
+│   │       │   │   └── interest-area-creation.component.ts
+│   │       │   ├── interest-area-data-view
+│   │       │   │   ├── interest-area-data-view.component.css
+│   │       │   │   ├── interest-area-data-view.component.html
+│   │       │   │   └── interest-area-data-view.component.ts
+│   │       │   ├── interest-area-public-list
+│   │       │   │   ├── interest-area-public-list.component.css
+│   │       │   │   ├── interest-area-public-list.component.html
+│   │       │   │   └── interest-area-public-list.component.ts
+│   │       │   ├── interest-area-public-viewer
+│   │       │   │   ├── interest-area-public-viewer.component.css
+│   │       │   │   ├── interest-area-public-viewer.component.html
+│   │       │   │   └── interest-area-public-viewer.component.ts
+│   │       │   └── interest-area-viewer
+│   │       │       ├── interest-area-viewer.component.css
+│   │       │       ├── interest-area-viewer.component.html
+│   │       │       └── interest-area-viewer.component.ts
+│   │       ├── auth
+│   │       │   ├── login
+│   │       │   │   ├── login.component.css
+│   │       │   │   ├── login.component.html
+│   │       │   │   └── login.component.ts
+│   │       │   ├── reset
+│   │       │   │   ├── reset.component.css
+│   │       │   │   ├── reset.component.html
+│   │       │   │   └── reset.component.ts
+│   │       │   └── signin
+│   │       │       ├── signin.component.css
+│   │       │       ├── signin.component.html
+│   │       │       └── signin.component.ts
+│   │       ├── Errors
+│   │       │   ├── badRequest
+│   │       │   │   ├── bad.component.css
+│   │       │   │   ├── bad.component.html
+│   │       │   │   └── bad.component.ts
+│   │       │   ├── not-authorized
+│   │       │   │   ├── not-authorized.component.css
+│   │       │   │   ├── not-authorized.component.html
+│   │       │   │   └── not-authorized.component.ts
+│   │       │   ├── not-found
+│   │       │   │   ├── not-found.component.css
+│   │       │   │   ├── not-found.component.html
+│   │       │   │   └── not-found.component.ts
+│   │       │   └── refused
+│   │       │       ├── refused.component.css
+│   │       │       ├── refused.component.html
+│   │       │       └── refused.component.ts
+│   │       ├── sensor
+│   │       │   ├── sensor-data-upload
+│   │       │   │   ├── sensor-data-upload.component.css
+│   │       │   │   ├── sensor-data-upload.component.html
+│   │       │   │   └── sensor-data-upload.component.ts
+│   │       │   └── sensor-data-view
+│   │       │       ├── sensor-data-view.component.css
+│   │       │       ├── sensor-data-view.component.html
+│   │       │       └── sensor-data-view.component.ts
+│   │       └── user
+│   │           ├── user-send-data
+│   │           │   ├── user-send-data.component.css
+│   │           │   ├── user-send-data.component.html
+│   │           │   └── user-send-data.component.ts
+│   │           ├── user-sensor-creation
+│   │           │   ├── sensor-creation.component.css
+│   │           │   ├── sensor-creation.component.html
+│   │           │   └── sensor-creation.component.ts
+│   │           ├── userdata
+│   │           │   ├── userdata.component.css
+│   │           │   ├── userdata.component.html
+│   │           │   ├── userdata.component.spec.ts
+│   │           │   └── userdata.component.ts
+│   │           ├── userMenu
+│   │           │   ├── user.component.css
+│   │           │   ├── user.component.html
+│   │           │   └── user.component.ts
+│   │           └── usermodify
+│   │               ├── usermodify.component.css
+│   │               ├── usermodify.component.html
+│   │               ├── usermodify.component.spec.ts
+│   │               └── usermodify.component.ts
+│   ├── model
+│   │   ├── enum
+│   │   │   └── FileType.ts
+│   │   ├── colorRange.ts
+│   │   ├── dateDto.ts
+│   │   ├── interestArea.ts
+│   │   ├── interestAreaDto.ts
+│   │   ├── InterestAreaInfo .ts
+│   │   ├── loginDto.ts
+│   │   ├── models.ts
+│   │   ├── newForecastDto.ts
+│   │   ├── newInterestAreaDto.ts
+│   │   ├── newSensorDataDto.ts
+│   │   ├── newSensorDto.ts
+│   │   ├── newUserDto.ts
+│   │   ├── newUserPreferenceDto.ts
+│   │   ├── objectId.ts
+│   │   ├── sensorAndAreas.ts
+│   │   ├── sensorData.ts
+│   │   ├── sensorDataDto.ts
+│   │   ├── SensorDataInterestAreaDto.ts
+│   │   ├── sensorDto.ts
+│   │   ├── serviceError.ts
+│   │   ├── tokenDto.ts
+│   │   ├── userDto.ts
+│   │   ├── userPreferenceDto.ts
+│   │   ├── v1ForecastBody.ts
+│   │   └── v1SensorDataBody.ts
+│   ├── service
+│   │   ├── api.ts
+│   │   ├── auth.service.ts
+│   │   ├── forecast.service.ts
+│   │   ├── image.service.ts
+│   │   ├── interestArea.service.ts
+│   │   ├── InterestAreaDataService.ts
+│   │   ├── sensor.service.ts
+│   │   ├── sensorData.service.ts
+│   │   ├── user.service.ts
+│   │   └── userPreference.service.ts
+│   ├── api.module.ts
+│   ├── app.component.css
+│   ├── app.component.html
+│   ├── app.component.ts
+│   ├── app.config.ts
+│   ├── app.module.ts
+│   ├── app.routes.ts
+│   ├── configuration.ts
+│   ├── encoder.ts
+│   ├── index.ts
+│   ├── variables.ts
+│   └── wellknown.d.ts
+├── assets
+│   ├── css
+│   │   └── styles.css
+│   ├── img
+│   │   ├── avataaars.svg
+│   │   └── logo-tech4you.png
+│   ├── js
+│   │   └── scripts.js
+│   ├── .gitkeep
+│   ├── default-thumbnail.jpg
+│   └── favicon.ico
+├── favicon.ico
+├── index.html
+├── leaflet.heat.d.ts
+├── main.ts
+└── styles.css

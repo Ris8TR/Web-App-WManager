@@ -206,6 +206,10 @@ html, body {
   text-align: center;
 }
 
+.leaflet-heatmap-layer {
+  z-index: 1 !important;
+}
+
 .tiny-text { font-size: 0.6rem; color: #8a8d98; }
 
 /* Animazione di caricamento */

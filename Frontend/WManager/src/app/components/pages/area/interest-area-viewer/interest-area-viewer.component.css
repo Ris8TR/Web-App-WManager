@@ -128,3 +128,56 @@
 
 .animate-fade-in { animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ... (codice precedente invariato) ... */
+
+/* Nuovi controlli Analytics */
+.input-switch {
+  cursor: pointer;
+  width: 2.5em !important;
+  height: 1.25em !important;
+}
+
+.analytics-controls .tiny-text {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+/* Overlay Grafico */
+.chart-overlay-container {
+  position: absolute;
+  bottom: 100px; /* Sopra il sensor-dock */
+  right: 20px;
+  width: 300px;
+  z-index: 100000;
+  pointer-events: auto;
+}
+
+.chart-card {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.chart-header {
+  font-size: 0.7rem;
+}
+
+/* Animazione Anomalia (Pulse) */
+@keyframes pulse-red {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.5); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.anomaly-pulse {
+  animation: pulse-red 1.5s infinite ease-in-out;
+}
+
+.trend-modal-container {
+     z-index: 9999999 !important;
+   }
+
+.cdk-overlay-container {
+  z-index: 9999999;
+}

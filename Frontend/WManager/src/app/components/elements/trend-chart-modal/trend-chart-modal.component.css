@@ -1,0 +1,7 @@
+.trend-modal-container {
+  z-index: 9999999 !important;
+}
+
+.cdk-overlay-container {
+  z-index: 9999999;
+}

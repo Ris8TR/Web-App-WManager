@@ -7,4 +7,18 @@ body {
     color: white
 }
 
+.cdk-overlay-container {
+  z-index: 9999999 !important;
+}
 
+.cdk-overlay-backdrop {
+  z-index: 9999998 !important;
+}
+
+.cdk-global-overlay-wrapper {
+  z-index: 9999999 !important;
+}
+
+.trend-modal-container {
+  z-index: 9999999 !important;
+}

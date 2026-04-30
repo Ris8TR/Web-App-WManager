@@ -30,14 +30,14 @@
           <div class="section-title text-uppercase small fw-bold text-muted mb-2">{{selectedSensorType}} Scale</div>
           <div class="legend-gradient-container">
             <div class="legend-bar">
-            <span *ngFor="let item of temperatureScale"
+            <span *ngFor="let item of TEMPERATURE_SCALE"
                   [style.background]="item.color"
                   [title]="item.label"
                   class="color-step"></span>
             </div>
             <div class="d-flex justify-content-between mt-1 px-1">
-              <span class="tiny-text">{{temperatureScale[0]!.label}}</span>
-              <span class="tiny-text">{{temperatureScale[temperatureScale.length-1]!.label}}</span>
+              <span class="tiny-text">{{TEMPERATURE_SCALE[0]!.label}}</span>
+              <span class="tiny-text">{{TEMPERATURE_SCALE[TEMPERATURE_SCALE.length-1]!.label}}</span>
             </div>
           </div>
         </section>
@@ -46,7 +46,7 @@
         <section class="sidebar-section">
           <label class="section-label">Select Sensor</label>
           <div class="sensor-grid">
-            <div *ngFor="let sensor of sensorOptions" class="sensor-chip">
+            <div *ngFor="let sensor of SENSOR_OPTIONS" class="sensor-chip">
               <input type="radio"
                      [id]="'sensor-' + sensor.value"
                      name="sensorType"
