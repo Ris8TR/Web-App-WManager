@@ -29,7 +29,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
@@ -51,7 +50,6 @@ public class SensorDataServiceImpl implements SensorDataService {
     private final SensorDataMapper sensorDataMapper = SensorDataMapper.INSTANCE;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtAuthConverter jwtAuthConverter;
-    private final RedisTemplate<String, Object> redisTemplate;
     private final InterestAreaRepository interestAreaRepository;
     private final ModelMapper modelMapper;
     private final MongoTemplate mongoTemplate;

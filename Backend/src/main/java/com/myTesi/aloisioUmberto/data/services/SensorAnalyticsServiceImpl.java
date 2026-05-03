@@ -18,10 +18,6 @@ public class SensorAnalyticsServiceImpl implements SensorAnalyticsService {
     private final SensorDataService sensorDataService;
 
 
-    // ========================================================================
-    //  STAGE 1: DATA CLEANING & IMPUTATION (Interpolazione)
-    // ========================================================================
-
     /**
      * Algorithm: Linear Interpolation
      * Purpose: Estimates a missing value between two known data points.
@@ -45,9 +41,6 @@ public class SensorAnalyticsServiceImpl implements SensorAnalyticsService {
         return y1 + ((double) (targetTimestamp - x1) * (y2 - y1) / (x2 - x1));
     }
 
-    // ========================================================================
-    //  STAGE 2: SMOOTHING & ANOMALY DETECTION (Pulizia e Sicurezza)
-    // ========================================================================
 
     /**
      * Algorithm: Simple Moving Average (SMA)
@@ -66,15 +59,7 @@ public class SensorAnalyticsServiceImpl implements SensorAnalyticsService {
                 .orElse(0.0);
     }
 
-    /**
-     * Algorithm: Z-Score Anomaly Detection
-     * Purpose: Identifies statistical outliers.
-     *
-     * @param dataList List of sensor readings.
-     * @param key The payload key to analyze.
-     * @param threshold The number of standard deviations (e.g., 3.0) to trigger an anomaly.
-     * @return A list of data points flagged as anomalies.
-     */
+
     public List<SensorData> detectAnomalies(List<SensorData> dataList, String key, double threshold) {
         if (dataList == null || dataList.size() < 2) return Collections.emptyList();
 
@@ -96,9 +81,6 @@ public class SensorAnalyticsServiceImpl implements SensorAnalyticsService {
                 .collect(Collectors.toList());
     }
 
-    // ========================================================================
-    //  STAGE 3: DYNAMICS & PREDICTION (Analisi Avanzata)
-    // ========================================================================
 
     /**
      * Algorithm: Rate of Change (First-order Derivative)
@@ -157,9 +139,6 @@ public class SensorAnalyticsServiceImpl implements SensorAnalyticsService {
         return m * n + b;
     }
 
-    // ========================================================================
-    //  PRIVATE HELPERS
-    // ========================================================================
 
     /**
      * Safely extracts a double value from the sensor data payload.
