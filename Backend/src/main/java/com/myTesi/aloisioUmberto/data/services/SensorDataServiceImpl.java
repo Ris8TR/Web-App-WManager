@@ -365,6 +365,19 @@ public class SensorDataServiceImpl implements SensorDataService {
         return getLatestForSensorList(sensorIds, fromDateUTC, toDateUTC);
     }
 
+    @Override
+    public List<SensorData> getRawDataForPublicSensor(String sensorId, int minutesAgo) {
+        Sensor sensor = sensorRepository.findById(sensorId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensore non trovato"));
+        if (!sensor.getIsPublic()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accesso negato: il sensore non è pubblico");
+        }
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, -minutesAgo);
+        Date startDate = cal.getTime();
+        return sensorDataRepository.findAllBySensorIdAndTimestampAfterOrderByTimestampAsc(sensorId, startDate);
+    }
+
 
     /**
      * Recupera tutti i SensorData (non solo l'ultimo) per una lista di sensori e intervallo.

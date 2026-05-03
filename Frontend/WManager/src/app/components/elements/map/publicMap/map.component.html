@@ -90,6 +90,14 @@
 
 
       </div>
+      <div class="mode-toggle-container" style="margin: 20%">
+        <div class="custom-toggle">
+          <!-- Il testo cambia in base allo stato -->
+          <button [class.active]="isHeatMap" (click)="onHeatmapToggle()">
+            {{ isHeatMap ?  'Disable Layer': 'Show Layer' }}
+          </button>
+        </div>
+      </div>
     </div>
   </aside>
 

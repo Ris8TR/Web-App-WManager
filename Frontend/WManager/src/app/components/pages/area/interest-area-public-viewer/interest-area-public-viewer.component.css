@@ -1,202 +1,108 @@
 @import url("https://unpkg.com/leaflet@1.9.3/dist/leaflet.css");
 
-/* POSIZIONAMENTO TASTO APERTURA */
-.sidebar-open-trigger {
-  position: absolute;
-  top: 85px; /* Sotto l'header */
-  left: 20px;
-  width: 50px;
-  height: 50px;
-  background: #0d6efd;
-  color: white;
-  border: none;
-  border-radius: 12px;
-  z-index: 9999; /* Sopra tutto, anche sopra la mappa */
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-  transition: transform 0.2s, background 0.2s;
+/* Layout Base */
+.dashboard-wrapper {
+  position: relative;
+  width: 100%;
+  height: 86vh;
+  background: #11141d;
+  overflow: hidden;
+  font-family: 'Inter', system-ui, sans-serif;
 }
 
-.sidebar-open-trigger:hover {
-  background: #0b5ed7;
-  transform: scale(1.05);
+.map-container {
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
-/* SIDEBAR REVISIONATA */
+#map { width: 100%; height: 100%; }
+
+/* Sidebar Moderna Floating */
 .modern-sidebar {
+  margin-top: 5%;
   position: absolute;
-  top: 80px;
+  top: 20px;
   left: 20px;
   bottom: 20px;
-  width: 320px;
-  background: rgba(30, 34, 45, 0.98);
+  width: 340px;
+  background: rgba(30, 34, 45, 0.9);
   backdrop-filter: blur(15px);
   border-radius: 16px;
-  z-index: 10000;
+  z-index: 1000;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-  transition: all 0.3s ease;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 .modern-sidebar.collapsed {
-  transform: translateX(-350px);
+  transform: translateX(-380px);
   opacity: 0;
-  pointer-events: none;
 }
 
-.sidebar-inner {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+.sidebar-open-trigger {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 48px;
+  height: 48px;
+  margin-top: 5%;
+  background: #0d6efd;
   color: white;
+  border-radius: 12px;
+  z-index: 1001;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(13, 110, 253, 0.4);
 }
+
+.sidebar-inner { height: 100%; display: flex; flex-direction: column; color: white; }
 
 .sidebar-header {
-  padding: 18px;
+
+  padding: 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0,0,0,0.2);
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  border-radius: 16px 16px 0 0;
 }
 
-.close-btn {
-  background: none;
-  border: none;
-  color: #8a8d98;
-  cursor: pointer;
-  font-size: 1.1rem;
-}
+.sidebar-scroll-content { padding: 20px; overflow-y: auto; flex: 1; }
 
-.close-btn:hover { color: white; }
-
-.sidebar-scroll-content {
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.sidebar-section { margin-bottom: 25px; }
+/* Sezioni UI */
+.sidebar-section { margin-bottom: 28px; }
 
 .section-label {
+  display: block;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
-  color: #6c757d;
+  color: #8a8d98;
   margin-bottom: 12px;
-  display: block;
 }
 
-/* Layout Generale */
-.map-wrapper {
-  position: relative;
-  width: 100%;
-  height: calc(100vh - 80px); /* Sottrae l'altezza della navbar se presente */
-  overflow: hidden;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: #11141d;
-}
-
-.main-map {
-  height: 100% !important;
-  width: 100% !important;
-  background-color: #e5e3df; /* Colore di backup mentre carica */
-  border-radius: 20px;
-  box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.05);
-}
-
-/* Sidebar Glassmorphism */
-.sidebar {
-  position: absolute;
-  top: 15px;
-  left: 15px;
-  bottom: 15px;
-  width: 320px;
-  z-index: 1000;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar.collapsed {
-  width: 0;
-  left: -20px;
-}
-
-.sidebar-inner {
-  height: 100%;
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-  background-color: rgba(33, 37, 41, 0.9);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-toggle-tab {
-  position: absolute;
-  left: 15px;
-  top: 20px;
-  background: #0d6efd;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
-
-/* Legenda Sottile */
-.legend-bar {
-  display: flex;
-  height: 8px;
-  border-radius: 4px;
-  overflow: hidden;
-}
-.color-step {
-  flex: 1;
-}
+/* Legenda */
+.legend-bar { display: flex; height: 8px; border-radius: 4px; overflow: hidden; }
+.legend-bar span { flex: 1; }
 .tiny-text { font-size: 0.65rem; color: #adb5bd; }
 
-/* Form Elements */
-.custom-input {
-  background-color: rgba(255,255,255,0.1) !important;
-  border: none !important;
+/* Input & Select */
+.modern-input, .modern-select {
+  background: rgba(0, 0, 0, 0.25) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
   color: white !important;
   font-size: 0.85rem !important;
 }
-.custom-input:focus {
-  background-color: rgba(255,255,255,0.2) !important;
-  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
-}
 
-.bg-black-25 { background: rgba(0,0,0,0.25); }
+.bg-dark-25 { background: rgba(0,0,0,0.25); }
 
-/* Floating Sensor Dock */
+/* Bottom Dock */
 .sensor-dock {
   position: absolute;
-  bottom: 30px;
+  bottom: 25px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 1000;
-}
-
-/* Overlays Destra */
-.right-overlays {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: 250px;
+  z-index: 900;
 }
 
 .bg-dark-glass {
@@ -204,31 +110,74 @@
   backdrop-filter: blur(8px);
 }
 
-.area-info-card {
-  border-left: 4px solid #0d6efd;
-  border-radius: 8px;
+/* Right Overlay List */
+.sensor-list-overlay {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 260px;
+  z-index: 900;
 }
 
-/* Media Query per Mobile */
-@media (max-width: 768px) {
-  .sidebar {
-    width: calc(100% - 30px);
-  }
-  .sensor-dock {
-    width: 90%;
-    bottom: 10px;
-  }
-  .right-overlays {
-    display: none; /* Nascondiamo gli extra su mobile per pulizia */
-  }
+.overlay-card { border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; }
+
+.active-sensor {
+  background: rgba(25, 135, 84, 0.3) !important;
+  border-left: 4px solid #198754 !important;
 }
 
-/* Animazione di caricamento */
-.animate-fade-in {
-  animation: fadeIn 1s ease-out;
+.animate-fade-in { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ... (codice precedente invariato) ... */
+
+/* Nuovi controlli Analytics */
+.input-switch {
+  cursor: pointer;
+  width: 2.5em !important;
+  height: 1.25em !important;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+.analytics-controls .tiny-text {
+  margin-left: 10px;
+  cursor: pointer;
+}
+
+/* Overlay Grafico */
+.chart-overlay-container {
+  position: absolute;
+  bottom: 100px; /* Sopra il sensor-dock */
+  right: 20px;
+  width: 300px;
+  z-index: 100000;
+  pointer-events: auto;
+}
+
+.chart-card {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.chart-header {
+  font-size: 0.7rem;
+}
+
+/* Animazione Anomalia (Pulse) */
+@keyframes pulse-red {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.5); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
+.anomaly-pulse {
+  animation: pulse-red 1.5s infinite ease-in-out;
+}
+
+.trend-modal-container {
+  z-index: 9999999 !important;
+}
+
+.cdk-overlay-container {
+  z-index: 9999999;
 }

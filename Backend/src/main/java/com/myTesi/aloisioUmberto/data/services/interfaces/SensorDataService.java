@@ -80,4 +80,6 @@ public interface SensorDataService  {
     SensorDataInterestAreaDto getTopPublicSensorDataByInterestAreaId(String interestAreaId);
 
     SensorDataInterestAreaDto getAllPrivateSensorDataBySensorBetweenDate(DateDto dateDto, String token);
+
+    List<SensorData> getRawDataForPublicSensor(String sensorId, int i);
 }

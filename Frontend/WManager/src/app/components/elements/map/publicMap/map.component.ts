@@ -100,12 +100,16 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   // --- MAP INITIALIZATION ---
   private initMap(): void {
     this.map = L.map('map', { preferCanvas: true }).setView([41.8719, 12.5674], 5);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(this.map);
-    // Dopo la creazione della mappa, definisci un pane
+
+
     this.map.createPane('heatmapPane');
-    this.map.getPane('heatmapPane')!.style.zIndex = '100';
+    const heatmapPane = this.map.getPane('heatmapPane')!;
+    heatmapPane.style.zIndex = '650';
+    heatmapPane.style.pointerEvents = 'none';
 
     this.layerGroup.addTo(this.map);
   }
@@ -146,6 +150,17 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  onHeatmapToggle(): void {
+    this.isHeatMap = !this.isHeatMap;
+    this.updateMapVisuals();
+  }
+
+  onHeatmapSelected(): void {
+    this.isHeatMap = !this.isHeatMap
+    console.log(this.isHeatMap)
+    this.updateMapVisuals()
+  }
+
   onSensorTypeSelect(type: string): void {
     if (this.selectedSensorType === type) return;
     this.selectedSensorType = type;
@@ -157,8 +172,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const heatData = this.extractHeatData(this.sensorDataLocalList);
     this.cachedData.set(this.selectedSensorType, heatData);
+    if (this.isHeatMap) {
+      this.drawHeatmap(heatData);
+    } else if (this.heatLayer) {
+      this.map.removeLayer(this.heatLayer);
+      this.heatLayer = null;
+    }
 
-    this.drawHeatmap(heatData);
     this.drawMarkers(this.sensorDataLocalList);
 
   }
@@ -176,13 +196,15 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   // --- VISUALIZATION LOGIC ---
 
  private drawHeatmap(heatData: [number, number, number][]): void {
-   /*if (this.heatLayer) this.map.removeLayer(this.heatLayer);
+    if (this.heatLayer) this.map.removeLayer(this.heatLayer);
     this.heatLayer = L.heatLayer(heatData, {
       radius: 40,
       blur: 80,
       maxZoom: 8,
-      gradient: this.getHeatmapGradient()
-    }).addTo(this.map);*/
+      gradient: this.getHeatmapGradient(),
+      pane: 'heatmapPane'
+
+    }).addTo(this.map);
   }
 
   private drawMarkers(sensorDataList: SensorData[]): void {
@@ -282,7 +304,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.drawnLayers = [];
   }
 
-  // --- UI HELPERS ---
+  protected isHeatMap: boolean = false;
+
+
   onSensorTypeChange(): void {
     const el = document.getElementById('type') as HTMLSelectElement;
     if (el) this.onSensorTypeSelect(el.value);

@@ -1,131 +1,161 @@
-<div class="map-wrapper">
-  <!-- Sidebar -->
-  <aside id="sidebar" class="sidebar shadow-lg" [ngClass]="{'collapsed': !isPanelVisible}">
+<div class="dashboard-wrapper">
 
-    <button class="sidebar-open-trigger shadow-lg"
-            *ngIf="!isPanelVisible"
-            (click)="togglePanel($event)"
-            title="Open Control Panel">
-      <i class="fas fa-sliders-h"></i>
-    </button>
+  <!-- BOTTONE PER RIAPRIRE (visibile se panel chiuso) -->
+  <button class="sidebar-open-trigger shadow-lg" *ngIf="!isPanelVisible" (click)="togglePanel($event)">
+    <i class="fas fa-sliders-h"></i>
+  </button>
 
-    <!-- Contenuto Sidebar -->
-    <div *ngIf="isPanelVisible" class="sidebar-inner bg-dark-glass text-white">
+  <!-- Sidebar Modernizzata -->
+  <aside id="sidebar" class="modern-sidebar" [ngClass]="{'collapsed': !isPanelVisible}">
 
-      <header class="sidebar-header border-bottom border-secondary mb-3 pb-2 d-flex justify-content-between align-items-center">
-        <h5 class="m-0 fw-bold"><i class="fas fa-sliders-h me-2"></i>Control Panel</h5>
-        <button class="btn btn-link text-white p-0" (click)="togglePanel($event)">
-          <i class="fas fa-times"></i>
-        </button>
+    <div *ngIf="isPanelVisible" class="sidebar-inner">
+
+      <header class="sidebar-header">
+        <span class="fw-bold"><i class="fas fa-chart-line me-2 text-info"></i>Control Panel</span>
+        <button class="close-btn" (click)="togglePanel($event)"><i class="fas fa-times"></i></button>
       </header>
 
-      <!-- Legenda (Semplificata) -->
-      <section class="control-section mb-4">
-        <div class="section-title text-uppercase small fw-bold text-muted mb-2">{{selectedSensorType}} Scale</div>
-        <div class="legend-gradient-container">
-          <div class="legend-bar">
-            <span *ngFor="let item of temperatureScale"
-                  [style.background]="item.color"
-                  [title]="item.label"
-                  class="color-step"></span>
-          </div>
-          <div class="d-flex justify-content-between mt-1 px-1">
-            <span class="tiny-text">{{temperatureScale[0]!.label}}</span>
-            <span class="tiny-text">{{temperatureScale[temperatureScale.length-1]!.label}}</span>
-          </div>
-        </div>
-      </section>
+      <div class="sidebar-scroll-content">
 
-      <!-- Selezione Modalità (Real-Time vs Data) -->
-      <section class="control-section mb-4">
-        <div class="mode-switch-group bg-dark rounded p-1 d-flex">
-          <button class="btn btn-sm flex-fill rounded"
-                  [class.btn-primary]="isRealTime" [class.btn-dark]="!isRealTime"
-                  (click)="isRealTime = true; onLatestIntervalSelect()">Real-Time</button>
-          <button class="btn btn-sm flex-fill rounded"
-                  [class.btn-primary]="!isRealTime" [class.btn-dark]="isRealTime"
-                  (click)="isRealTime = false; onLatestIntervalSelect()">Latest Data</button>
-        </div>
-      </section>
+        <!-- SEZIONE 1: LEGENDA -->
+        <section class="sidebar-section">
+          <label class="section-label">{{selectedSensorType}} Scale</label>
+          <div class="legend-container">
+            <div class="legend-bar">
+              <span *ngFor="let item of temperatureScale" [style.background]="item.color" [title]="item.label"></span>
+            </div>
+            <div class="d-flex justify-content-between mt-1 px-1">
+              <span class="tiny-text">Low</span>
+              <span class="tiny-text">High</span>
+            </div>
+          </div>
+        </section>
 
-      <!-- Intervallo Real-Time (Visibile solo se RT) -->
-      <div *ngIf="isRealTime" class="control-section mb-4 animate__animated animate__fadeIn">
-        <label class="small fw-bold text-primary mb-1">Update Interval</label>
-        <select class="form-select form-select-sm bg-secondary text-white border-0" (change)="onLatestIntervalSelect()">
-          <option value="5">Every 5 Minutes</option>
-          <option value="10">Every 10 Minutes</option>
-          <option value="15">Every 15 Minutes</option>
-        </select>
+        <!-- SEZIONE 2: MODALITÀ (Radio Toggles) -->
+        <section class="sidebar-section">
+          <label class="section-label">Data Mode</label>
+          <div class="mode-switch-group bg-dark-25 rounded p-1 d-flex">
+            <button class="btn btn-sm flex-fill rounded"style="color: white"
+                    [class.btn-info]="isRealTime" [class.btn-transparent]="!isRealTime"
+                    (click)="isRealTime = true; onLatestIntervalSelect()">Real-Time</button>
+            <button class="btn btn-sm flex-fill rounded" style="color: white"
+                    [class.btn-info]="!isRealTime" [class.btn-transparent]="isRealTime"
+                    (click)="isRealTime = false; onLatestIntervalSelect()">Latest</button>
+          </div>
+        </section>
+
+        <!-- SEZIONE 3: PAST DATA (Solo se loggato e non Real-Time) -->
+        <section class="sidebar-section" *ngIf="isObservation && logStringResult == 'Login'">
+          <label class="section-label text-warning">Historical Query</label>
+          <div class="historical-card bg-dark-25 p-3 rounded">
+            <div class="row g-2 mb-2">
+              <div class="col-12"><span class="tiny-label">START</span></div>
+              <div class="col-7"><input type="date" class="form-control form-control-sm modern-input" [(ngModel)]="startDate"></div>
+              <div class="col-5"><input type="time" class="form-control form-control-sm modern-input" [(ngModel)]="startHour"></div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-12"><span class="tiny-label">END</span></div>
+              <div class="col-7"><input type="date" class="form-control form-control-sm modern-input" [(ngModel)]="endDate"></div>
+              <div class="col-5"><input type="time" class="form-control form-control-sm modern-input" [(ngModel)]="endHour"></div>
+            </div>
+            <button class="btn btn-primary btn-sm w-100 fw-bold" (click)="onDateRangeSubmit()">Fetch History</button>
+          </div>
+        </section>
+
+        <!-- SEZIONE 4: OBSERVATION INTERVAL (Solo se Real-Time) -->
+        <section class="sidebar-section animate-fade-in" *ngIf="isRealTime">
+          <label class="section-label">Refresh Every</label>
+          <select id="latestInterval" class="modern-select" (change)="onLatestIntervalSelect()">
+            <option value="5" selected>5 Minutes</option>
+            <option value="10">10 Minutes</option>
+            <option value="15">15 Minutes</option>
+          </select>
+        </section>
+
+
+        <!-- SEZIONE 5: FORECAST DATA -->
+        <!--
+        <section class="sidebar-section" >
+          <label class="section-label text-success">Predictions</label>
+          <div class="forecast-card bg-dark-25 p-3 rounded">
+            <p class="tiny-text mb-2 text-white-50">Select window for {{ selectedSensor ? 'Sensor' : 'Area' }}</p>
+            <select class="modern-select" (change)="onForecastIntervalSelect()">
+              <option value="">Select forecast...</option>
+              <option value="1">+1 Hour</option>
+              <option value="12">+12 Hours</option>
+              <option value="24">+24 Hours</option>
+              <option value="72">+72 Hours</option>
+            </select>
+          </div>
+        </section>
+        -->
+
+        <!-- NUOVA SEZIONE: ANALYTICS INTELLIGENCE -->
+        <section class="sidebar-section animate-fade-in">
+          <label class="section-label text-info">Intelligence Engine</label>
+          <div class="analytics-controls bg-dark-25 p-2 rounded">
+            <div class="form-check form-switch mb-2">
+              <input class="form-switch input-switch" type="checkbox" id="switchTrend" [(ngModel)]="showTrend"  (change)="updateTrendChart()">
+              <label class="form-check-label tiny-text text-white" for="switchTrend">Show Smooth Trend</label>
+            </div>
+
+          </div>
+        </section>
+
       </div>
-
-      <!-- Query Storica -->
-      <section class="control-card bg-black-25 p-3 rounded mb-4">
-        <h6 class="text-info small fw-bold text-uppercase mb-3">Historical Query</h6>
-        <div class="row g-2 mb-2">
-          <div class="col-12"><label class="tiny-text opacity-75">START</label></div>
-          <div class="col-7"><input type="date" class="form-control form-control-sm custom-input" [(ngModel)]="startDate"></div>
-          <div class="col-5"><input type="time" class="form-control form-control-sm custom-input" [(ngModel)]="startHour"></div>
-        </div>
-        <div class="row g-2 mb-3">
-          <div class="col-12"><label class="tiny-text opacity-75">END</label></div>
-          <div class="col-7"><input type="date" class="form-control form-control-sm custom-input" [(ngModel)]="endDate"></div>
-          <div class="col-5"><input type="time" class="form-control form-control-sm custom-input" [(ngModel)]="endHour"></div>
-        </div>
-        <button class="btn btn-info btn-sm w-100 fw-bold" (click)="onDateRangeSubmit()">
-          Fetch History
-        </button>
-      </section>
-
-      <!-- Forecast -->
-      <section class="control-card bg-black-25 p-3 rounded">
-        <h6 class="text-warning small fw-bold text-uppercase mb-2">Forecast Prediction</h6>
-        <select class="form-select form-select-sm bg-secondary text-white border-0" (change)="onForecastIntervalSelect()">
-          <option value="">Select forecast window...</option>
-          <option value="1">+1 Hour</option>
-          <option value="12">+12 Hours</option>
-          <option value="24">+24 Hours</option>
-        </select>
-      </section>
-
     </div>
   </aside>
 
-  <!-- Mappa -->
-  <div id="map" class="main-map">
+  <!-- MAPPA -->
+  <main class="map-container">
+    <div id="map">
 
-    <!-- Filtri Sensori (Floating Bottom Bar) -->
-    <div class="sensor-dock animate__animated animate__slideInUp">
-      <div class="btn-group shadow-lg bg-dark p-1 rounded-pill">
-        <button *ngFor="let type of sensorTypeList"
-                (click)="onSensorTypeSelect(type)"
-                class="btn btn-sm rounded-pill px-4"
-                [ngClass]="selectedSensorType === type ? 'btn-success' : 'btn-outline-light border-0'">
-          {{ type }}
-        </button>
-      </div>
-    </div>
-
-    <!-- Overlay destra (Sensori e Info) -->
-    <div class="right-overlays">
-      <div class="card bg-dark-glass text-white shadow-sm sensor-list-card" *ngIf="sensors.length > 0">
-        <div class="card-header border-secondary small py-1 px-2 fw-bold">ACTIVE SENSORS</div>
-        <div class="list-group list-group-flush overflow-auto" style="max-height: 200px;">
-          <button *ngFor="let sensor of sensors"
-                  (click)="onSensorSelect(sensor)"
-                  class="list-group-item list-group-item-action bg-transparent text-white border-secondary small py-1">
-            <i class="fas fa-microchip me-2" [class.text-success]="selectedSensor === sensor.id"></i>
-            {{ sensor.companyName }}
+      <!-- Dock Bottom: Filtri Tipo Sensore -->
+      <div class="sensor-dock">
+        <div class="btn-group bg-dark-glass p-1 rounded-pill shadow-lg">
+          <button *ngFor="let type of sensorTypeList"
+                  (click)="onSensorTypeSelect(type)"
+                  class="btn btn-sm rounded-pill px-4"
+                  [ngClass]="selectedSensorType === type ? 'btn-success' : 'btn-outline-light border-0'">
+            {{ type }}
           </button>
         </div>
       </div>
 
-      <div class="card area-info-card shadow-lg" *ngIf="interestArea">
-        <div class="card-body p-3">
-          <h6 class="fw-bold text-primary mb-1">{{ interestArea.name }}</h6>
-          <p class="small text-muted m-0">{{ interestArea.description }}</p>
+      <!-- Overlay Destra: Lista Sensori Attivi -->
+      <div class="sensor-list-overlay" *ngIf="sensors.length > 0">
+        <div class="overlay-card bg-dark-glass text-white shadow">
+          <header class="p-2 border-bottom border-secondary small fw-bold">ACTIVE SENSORS</header>
+          <div class="list-group list-group-flush overflow-auto" style="max-height: 250px;">
+            <button *ngFor="let sensor of sensors"
+                    (click)="onSensorSelect(sensor)"
+                    class="list-group-item list-group-item-action bg-transparent text-white border-secondary small"
+                    [class.active-sensor]="selectedSensor === sensor.id">
+              {{ sensor.companyName }}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-  </div>
+
+      <!-- Overlay Grafico con tasto Espandi -->
+      <div class="chart-overlay-container" *ngIf="selectedSensor ">
+        <div class="chart-card bg-dark-glass shadow-lg">
+          <div class="chart-header d-flex justify-content-between align-items-center p-2 border-bottom border-secondary">
+            <span class="tiny-text fw-bold text-info">DATA HISTORY</span>
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge bg-success tiny-text" *ngIf="predictionValue">Next: {{predictionValue | number:'1.1-1'}}</span>
+              <button class="btn btn-sm btn-outline-info border-0 p-0" (click)="openChartModal()">
+                <i class="fas fa-expand-alt"></i>
+              </button>
+            </div>
+          </div>
+          <div class="chart-body p-2">
+            <canvas #trendChart id="trendChart" height="150"></canvas>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
 </div>

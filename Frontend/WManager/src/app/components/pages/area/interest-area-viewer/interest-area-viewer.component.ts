@@ -411,8 +411,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
 
   }
 
-  onTrendToggle(): void { this.updateGrid(); }
-  onAnomalyToggle(): void { this.updateGrid(); }
+
   onForecastIntervalSelect(): void { if (this.selectedSensor) this.loadPrediction(); }
 
   onLatestIntervalSelect(): void {

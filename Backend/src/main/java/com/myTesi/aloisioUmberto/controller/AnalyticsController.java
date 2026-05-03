@@ -41,6 +41,18 @@ public class AnalyticsController {
         return ResponseEntity.ok(rawData); // Per semplicità restituiamo i dati, ma idealmente restituisci un DTO con il trend
     }
 
+
+    @GetMapping("/sensor/public/{sensorId}/trend")
+    public ResponseEntity<List<SensorData>> getPublicSensorTrend(
+            @PathVariable String sensorId,
+            @RequestParam String key) {
+
+        List<SensorData> rawData = sensorDataService.getRawDataForPublicSensor(sensorId, 60);
+
+
+        return ResponseEntity.ok(rawData);
+    }
+
     /**
      * Endpoint per identificare le anomalie.
      */

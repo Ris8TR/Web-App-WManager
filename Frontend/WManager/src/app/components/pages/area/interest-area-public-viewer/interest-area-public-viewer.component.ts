@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { InterestAreaDto } from "../../../../model/interestAreaDto";
 import { InterestAreaDataService } from "../../../../service/InterestAreaDataService";
-import { NgClass, NgForOf, NgIf } from "@angular/common";
+import {DecimalPipe, NgClass, NgForOf, NgIf} from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import * as L from "leaflet";
 import { SensorDto } from "../../../../model/sensorDto";
@@ -17,17 +17,22 @@ import { ActivatedRoute } from "@angular/router";
 import { parse } from "terraformer-wkt-parser";
 import { DateDto } from "../../../../model/dateDto";
 import { SensorDataInterestAreaDto } from "../../../../model/SensorDataInterestAreaDto";
+import Chart from "chart.js/auto";
+import {TrendChartModalComponent} from "../../../elements/trend-chart-modal/trend-chart-modal.component";
+import {MatDialog} from "@angular/material/dialog";
+import {AnalyticService} from "../../../../service/analytic.service";
 
 @Component({
   selector: 'app-interest-area-public-viewer',
   standalone: true,
-  imports: [NgIf, ToolbarComponent, FormsModule, NgForOf, NgClass],
+  imports: [NgIf, ToolbarComponent, FormsModule, NgForOf, NgClass, DecimalPipe],
   templateUrl: './interest-area-public-viewer.component.html',
   styleUrl: './interest-area-public-viewer.component.css'
 })
 export class InterestAreaPublicViewerComponent implements OnInit {
   interestArea!: InterestAreaDto | null;
-  @ViewChild('forecastInterval', { static: false }) forecastIntervalElement!: ElementRef<HTMLSelectElement>;
+  @ViewChild('forecastInterval', {static: false}) forecastIntervalElement!: ElementRef<HTMLSelectElement>;
+  @ViewChild('trendChart') trendChartCanvas!: ElementRef<HTMLCanvasElement>;
 
   private map: L.Map | undefined;
   selectedSensor!: string | undefined;
@@ -58,6 +63,19 @@ export class InterestAreaPublicViewerComponent implements OnInit {
     {label: '42', color: '#730073'}
   ];
 
+  // --- Analytics State ---
+  public showTrend = false;
+  public showAnomalies = false;
+  public predictionValue: number | null = null;
+  protected isForecast = false;
+  protected isObservation = false;
+  private trendChart: Chart | undefined;
+
+  public logStringResult: string = 'Login';
+  // --- Data Storage ---
+  private sensorTrendLocalList: SensorData[] = [];
+
+
   // Cache per i punti della mappa: [lat, lng, valore]
   private cachedData: Map<string, [number, number, number][]> = new Map();
   private drawnLayers: L.Layer[] = [];
@@ -73,8 +91,13 @@ export class InterestAreaPublicViewerComponent implements OnInit {
     private cookieService: CookieService,
     public toolbarComponent: ToolbarComponent,
     private route: ActivatedRoute,
-    private interestAreaDataService: InterestAreaDataService
-  ) {}
+    private dialog: MatDialog,
+    private interestAreaDataService: InterestAreaDataService,
+    private analyticsService: AnalyticService
+
+  ) {
+  }
+
 
   ngOnInit(): void {
     if (!this.map) this.initializeMap();
@@ -174,7 +197,7 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       // Qui andrà la chiamata al servizio per i dati previsionali (forecast)
       // Esempio: this.sensorDataService.getForecast(this.id, selectedInterval).subscribe(...)
 
-      this.snackBar.open(`Caricamento previsioni per +${selectedInterval} ore...`, "OK", { duration: 2000 });
+      this.snackBar.open(`Caricamento previsioni per +${selectedInterval} ore...`, "OK", {duration: 2000});
     }
   }
 
@@ -192,7 +215,175 @@ export class InterestAreaPublicViewerComponent implements OnInit {
     if (!this.map) return;
     if (this.layerGroup) this.map.removeLayer(this.layerGroup);
     this.layerGroup = L.layerGroup().addTo(this.map);
-    this.addPointsToMap(this.cachedData.get(this.selectedSensorType) || []);
+
+    // 1. Aggiunge i punti base della mappa (dati attuali)
+    this.processAndMapLocalData();
+
+    // 2. Gestione logica Trend
+    if (this.showTrend && this.selectedSensor) {
+      const key = this.selectedSensorType;
+      this.analyticsService.getPublicSensorTrend(this.selectedSensor, key).subscribe({
+        next: (dataList: any[]) => {
+          this.sensorTrendLocalList = dataList;
+
+          // Se vuoi che la mappa mostri i punti del trend invece di quelli "latest":
+          const trendHeatData = dataList
+            .filter(d => d.latitude && d.longitude)
+            .map((d): [number, number, number] => [
+              d.latitude!,
+              d.longitude!,
+              (d.payload as any)?.[key] ?? 0
+            ]);
+
+          // Rimuovi i vecchi punti e aggiungi quelli del trend
+          if (this.layerGroup) this.layerGroup.clearLayers();
+          this.addPointsToMap(trendHeatData);
+
+          // IMPORTANTE: Chiama il grafico SOLO qui dentro
+          this.updateTrendChart();
+        },
+        error: (err) => {
+          console.error("Errore trend:", err);
+          this.updateTrendChart(); // Prova a disegnare comunque (con i dati esistenti)
+        }
+      });
+    } else {
+      // Se non mostriamo il trend, disegna il grafico con i dati normali
+      this.updateTrendChart();
+    }
+  }
+
+
+  protected updateTrendChart(): void {
+    const canvas = this.trendChartCanvas?.nativeElement;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // --- 1. SORGENTE DATI DINAMICA ---
+    // Se showTrend è true, usa la lista del trend, altrimenti la lista locale standard
+    const dataSource = this.showTrend ? this.sensorTrendLocalList : this.sensorDataLocalList;
+
+    if (!dataSource || dataSource.length === 0) {
+      this.updateGrid();
+      if (this.trendChart) {
+        this.trendChart.destroy();
+        this.trendChart = undefined;
+      }
+      return;
+    }
+
+    // --- 2. FILTRO E ORDINAMENTO ---
+    // Assicurati che il targetId sia confrontato correttamente (string vs string)
+    const targetId = this.selectedSensor ? String(this.selectedSensor).trim() : "";
+
+    const sensorSpecificData = dataSource
+      .filter(d => String(d.sensorId || '').trim() === targetId)
+      .sort((a, b) => new Date(a.timestamp!).getTime() - new Date(b.timestamp!).getTime());
+
+    if (sensorSpecificData.length === 0) {
+      this.updateGrid();
+      if (this.trendChart) {
+        this.trendChart.destroy();
+        this.trendChart = undefined;
+      }
+      return;
+    }
+
+    // --- 3. PREPARAZIONE LABEL ---
+    const historyLabels = sensorSpecificData.map(d =>
+      new Date(d.timestamp!).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})
+    );
+
+    // --- 4. CALCOLO VALORI (RAW vs SMOOTHED) ---
+    // Calcoliamo prima i valori "grezzi" (raw)
+    const rawValues = sensorSpecificData.map(d => (d.payload as any)?.[this.selectedSensorType] ?? 0);
+
+    // Calcoliamo i valori "smussati" (smoothed) usando la media mobile
+    const windowSize = 5; // Ridotto da 30 a 5 per rendere il grafico più reattivo su dataset piccoli
+    const smoothedValues = sensorSpecificData.map((d, index, arr) => {
+      const start = Math.max(0, index - windowSize + 1);
+      const slice = arr.slice(start, index + 1);
+      const sum = slice.reduce((acc, curr) => acc + ((curr.payload as any)?.[this.selectedSensorType] ?? 0), 0);
+      return sum / slice.length;
+    });
+
+    // DECISIONE: Se showTrend è true, usiamo i valori smoothed, altrimenti i raw
+    const finalValues = this.showTrend ? smoothedValues : rawValues;
+
+    // --- 5. PREPARAZIONE DATASET FORECAST ---
+    let finalLabels = [...historyLabels];
+    let forecastDataset: any = null;
+
+    if (this.isForecast && this.predictionValue !== null) {
+      finalLabels.push('Forecast');
+      const fValues = new Array(finalValues.length).fill(null);
+      fValues[finalValues.length - 1] = finalValues[finalValues.length - 1];
+      fValues.push(this.predictionValue);
+
+      forecastDataset = {
+        label: 'Previsione',
+        data: fValues,
+        borderColor: '#ff4d4d',
+        borderDash: [5, 5],
+        backgroundColor: 'transparent',
+        fill: false,
+        tension: 0.4,
+        pointRadius: 5,
+        pointBackgroundColor: '#ff4d4d',
+        order: 1
+      };
+    }
+
+    // --- 6. RENDERING ---
+    if (this.trendChart) this.trendChart.destroy();
+
+    this.trendChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: finalLabels,
+        datasets: [
+          {
+            label: this.selectedSensorType,
+            data: finalValues, // <--- Qui passiamo i dati scelti (raw o smoothed)
+            borderColor: '#0dcaf0',
+            backgroundColor: 'rgba(13, 202, 240, 0.2)',
+            fill: true,
+            tension: this.showTrend ? 0.4 : 0, // Più liscio se è trend, più angolare se è raw
+            pointRadius: finalValues.length <= 1 ? 8 : 3,
+            pointBackgroundColor: '#0dcaf0',
+            order: 2
+          },
+          ...(forecastDataset ? [forecastDataset] : [])
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        // ... resto delle opzioni invariato ...
+        interaction: {mode: 'index', intersect: false},
+        plugins: {
+          legend: { display: true, labels: {color: '#8a8d98', font: {size: 10}} },
+          tooltip: {enabled: true}
+        },
+        scales: {
+          x: { ticks: {color: '#8a8d98', font: {size: 10}}, grid: {display: false} },
+          y: { ticks: {color: '#8a8d98', font: {size: 10}}, grid: {color: 'rgba(255,255,255,0.05)'}, grace: '15%' }
+        }
+      }
+    });
+  }
+
+  private processAndMapLocalData(): void {
+    const heatData = this.sensorDataLocalList
+      .filter(d => d.latitude && d.longitude)
+      .map((d): [number, number, number] => [ // <--- Aggiungi il tipo di ritorno qui
+        d.latitude!,
+        d.longitude!,
+        (d.payload as any)?.[this.selectedSensorType] ?? 0
+      ]);
+
+    this.addPointsToMap(heatData);
   }
 
   private addPointsToMap(heatData: [number, number, number][]): void {
@@ -230,7 +421,7 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       this.removeDrawnAreas();
 
       const layer = L.geoJSON(geoJson, {
-        style: { color: 'blue', weight: 4, opacity: 0.7 }
+        style: {color: 'blue', weight: 4, opacity: 0.7}
       }).addTo(this.map);
 
       this.drawnLayers.push(layer);
@@ -263,7 +454,7 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       if (data) {
         this.map?.setView([data.latitude, data.longitude], 14);
       } else {
-        this.snackBar.open("No data for this sensor", "OK", { duration: 2000 });
+        this.snackBar.open("No data for this sensor", "OK", {duration: 2000});
       }
     }
   }
@@ -272,10 +463,14 @@ export class InterestAreaPublicViewerComponent implements OnInit {
     if (!this.id) return null;
     if (this.isRealTime) {
       switch (interval) {
-        case 5: return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId5Min(this.id);
-        case 10: return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId10Min(this.id);
-        case 15: return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId15Min(this.id);
-        default: return null;
+        case 5:
+          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId5Min(this.id);
+        case 10:
+          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId10Min(this.id);
+        case 15:
+          return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId15Min(this.id);
+        default:
+          return null;
       }
     }
     return this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id);
@@ -298,4 +493,21 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       this.updateGrid();
     });
   }
+
+  openChartModal(): void {
+    if (!this.trendChart || !this.trendChart.data) return;
+
+    this.dialog.open(TrendChartModalComponent, {
+      width: '90vw',
+      height: '80vh',
+      maxWidth: '1200px',
+      panelClass: 'trend-modal-container',
+      data: {
+        labels: this.trendChart.data.labels,
+        datasets: this.trendChart.data.datasets,
+        sensorType: this.selectedSensorType
+      }
+    });
+  }
 }
+
