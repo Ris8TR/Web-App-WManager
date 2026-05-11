@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.myTesi.aloisioUmberto.JwtAuthConverter;
+import com.myTesi.aloisioUmberto.config.JwtAuthConverter;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorDataMapper;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
@@ -602,6 +602,30 @@ public class SensorDataServiceImpl implements SensorDataService {
             return "{}";
         }
     }
+
+
+    @Override
+    public Double getAverageValueFromDb(String sensorId, String key, Date from, Date to) {
+        // 1. Filtriamo i dati (stesso filtro che useresti in una query normale)
+        Criteria criteria = Criteria.where("sensorId").is(sensorId)
+                .and("timestamp").gte(from).lte(to);
+
+        // 2. Creiamo l'aggregazione: raggruppa tutto e calcola la media del campo nel payload
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(criteria),
+                Aggregation.group().avg("payload." + key).as("avgValue")
+        );
+
+        // 3. Eseguiamo e prendiamo il risultato
+        AggregationResults<Map> results = mongoTemplate.aggregate(aggregation, "sensorData", Map.class);
+        Map<String, Object> resultMap = results.getUniqueMappedResult();
+
+        if (resultMap != null && resultMap.get("avgValue") != null) {
+            return ((Number) resultMap.get("avgValue")).doubleValue();
+        }
+        return 0.0;
+    }
+
 
     // ------------------------------------------------------------------------
     //  Handler per tipo di file

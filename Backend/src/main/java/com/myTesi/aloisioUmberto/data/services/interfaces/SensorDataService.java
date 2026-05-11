@@ -9,6 +9,7 @@ import com.myTesi.aloisioUmberto.dto.SensorDataInterestAreaDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 public interface SensorDataService  {
@@ -80,6 +81,8 @@ public interface SensorDataService  {
     SensorDataInterestAreaDto getTopPublicSensorDataByInterestAreaId(String interestAreaId);
 
     SensorDataInterestAreaDto getAllPrivateSensorDataBySensorBetweenDate(DateDto dateDto, String token);
+
+    Double getAverageValueFromDb(String sensorId, String key, Date from, Date to);
 
     List<SensorData> getRawDataForPublicSensor(String sensorId, int i);
 }

@@ -639,6 +639,13 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     }
 
+
+    @Override
+    public Double getAverageValueFromDb(String sensorId, String key, Date from, Date to) {
+        Double result = sensorDataRepository.findAverageFromJson(sensorId, key, from, to);
+        return result != null ? result : 0.0;
+    }
+
     @Override
     public SensorDataInterestAreaDto getTopPublicSensorDataByInterestAreaId(String interestAreaId) {
         List<Sensor> sensors = sensorRepository.findAllByIsPublicAndInterestAreaID(true, interestAreaId);

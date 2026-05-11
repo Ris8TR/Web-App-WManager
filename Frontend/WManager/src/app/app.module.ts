@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms'; // Import here
 
 import { AppComponent } from './app.component';
 import { AuthService } from './service/auth.service';
-import { UserService } from './service/api';
+import {UserPreferenceService, UserService} from './service/api';
 import { ToolbarComponent } from './components/elements/toolbar/toolbar.component';
 import { LoginComponent } from './components/pages/auth/login/login.component';
 import { SigninComponent } from './components/pages/auth/signin/signin.component';
@@ -25,7 +25,7 @@ import {TrendChartModalComponent} from "./components/elements/trend-chart-modal/
 @NgModule({
   declarations: [],
   imports: [BrowserModule, FormsModule, AppComponent, ToolbarComponent, LoginComponent, SigninComponent, ResetComponent, ToolbarComponent, TrendChartModalComponent, MatDialogModule, RouterModule.forRoot(routes, {useHash: false}), DeleteConfirmationDialogComponent],
-  providers: [AuthService,InterestAreaDataService,UserService,SensorService, ImageService, ToolbarComponent, AnalyticService],
+  providers: [AuthService,InterestAreaDataService,UserService,UserPreferenceService,SensorService, ImageService, ToolbarComponent, AnalyticService],
   bootstrap: [],
 })
 export class AppModule { }

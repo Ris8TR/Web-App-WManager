@@ -24,22 +24,18 @@ public class ShapefileSensorDataHandler implements SensorDataHandler {
     public void handle(SensorData data, NewSensorDataDto newSensorDataDTO, MultipartFile file) throws IOException {
         data.setPayloadType("shapefile");
 
-        // 1. Leggi i dati dello shapefile (che restituisce byte[])
+        // 1. Legge i dati dello shapefile (che restituisce byte[])
         byte[] shapefileBinary = readShapefileData((ShapefileDataStore) newSensorDataDTO.getPayload());
 
-        // 2. Avvolgi il byte[] in una Mappa
+        // 2. byte[] in una Mappa
         Map<String, Object> payloadMap = new HashMap<>();
         payloadMap.put("bytes", shapefileBinary); // I byte verranno salvati come BinData nel DB
         payloadMap.put("fileName", file.getOriginalFilename());
 
         // 3. Imposta la mappa come payload
         data.setPayload(payloadMap);
-
-        // Altre operazioni specifiche per shapefile
     }
 
-
-    //TODO Verificare che tutto funzioni
     public byte[] readShapefileData(ShapefileDataStore shapefileDataStore) throws IOException {
         return getBytes(shapefileDataStore);
     }

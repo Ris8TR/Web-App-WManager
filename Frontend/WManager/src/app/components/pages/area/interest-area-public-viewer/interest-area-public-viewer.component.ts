@@ -225,8 +225,6 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       this.analyticsService.getPublicSensorTrend(this.selectedSensor, key).subscribe({
         next: (dataList: any[]) => {
           this.sensorTrendLocalList = dataList;
-
-          // Se vuoi che la mappa mostri i punti del trend invece di quelli "latest":
           const trendHeatData = dataList
             .filter(d => d.latitude && d.longitude)
             .map((d): [number, number, number] => [
@@ -235,11 +233,9 @@ export class InterestAreaPublicViewerComponent implements OnInit {
               (d.payload as any)?.[key] ?? 0
             ]);
 
-          // Rimuovi i vecchi punti e aggiungi quelli del trend
+          // Rimuove i vecchi punti e aggiungi quelli del trend
           if (this.layerGroup) this.layerGroup.clearLayers();
           this.addPointsToMap(trendHeatData);
-
-          // IMPORTANTE: Chiama il grafico SOLO qui dentro
           this.updateTrendChart();
         },
         error: (err) => {
@@ -248,8 +244,8 @@ export class InterestAreaPublicViewerComponent implements OnInit {
         }
       });
     } else {
-      // Se non mostriamo il trend, disegna il grafico con i dati normali
-      this.updateTrendChart();
+      this.updateTrendChart(); // Se non mostriamo il trend, disegna il grafico con i dati normali
+
     }
   }
 

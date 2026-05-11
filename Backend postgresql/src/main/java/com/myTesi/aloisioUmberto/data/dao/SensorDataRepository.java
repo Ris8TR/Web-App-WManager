@@ -52,5 +52,13 @@ public interface SensorDataRepository extends JpaRepository<SensorData, String> 
         """, nativeQuery = true)
         List<SensorData> findLatestDataForSensors(@Param("sensorIds") List<UUID> sensorIds);
 
+    @Query(value = "SELECT AVG((payload->>:key)::numeric) FROM sensor_data " +
+            "WHERE sensor_id = :sensorId AND timestamp BETWEEN :from AND :to",
+            nativeQuery = true)
+    Double findAverageFromJson(@Param("sensorId") String sensorId,
+                               @Param("key") String key,
+                               @Param("from") Date from,
+                               @Param("to") Date to);
+
 
 }

@@ -9,6 +9,7 @@ import com.myTesi.aloisioUmberto.dto.SensorDataInterestAreaDto;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 
 public interface SensorDataService  {
@@ -72,6 +73,7 @@ public interface SensorDataService  {
     public SensorData saveSensorData(NewSensorDataDto newSensorDataDto);
     SensorDataDto getLatestSensorDataBySensorId(String token, String id);
     SensorDataInterestAreaDto getAllSensorDataProcessedByInterestArea(String interestAreaId, String token);
+    Double getAverageValueFromDb(String sensorId, String key, Date from, Date to);
 
     SensorDataInterestAreaDto getTopPublicSensorDataByInterestAreaId(String interestAreaId);
 }

@@ -140,9 +140,21 @@ public class SensorAnalyticsServiceImpl implements SensorAnalyticsService {
     }
 
 
-    /**
-     * Safely extracts a double value from the sensor data payload.
-     */
+    // Questo lo tieni per il test: scarica tutto e calcola in Java
+    public double calculateMovingAverageJava(List<SensorData> dataList, String key) {
+        if (dataList == null || dataList.isEmpty()) return 0.0;
+        return dataList.stream()
+                .mapToDouble(data -> getNumericValue(data, key))
+                .average()
+                .orElse(0.0);
+    }
+
+
+    public double calculateMovingAverageDB(String sensorId, String key, Date from, Date to) {
+        return sensorDataService.getAverageValueFromDb(sensorId, key, from, to);
+    }
+
+
     private double getNumericValue(SensorData data, String key) {
         if (data.getPayload() == null) return 0.0;
         Object val = data.getPayload().get(key);

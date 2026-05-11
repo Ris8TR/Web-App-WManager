@@ -10,11 +10,15 @@
  * Do not edit the class manually.
  */
 import { ObjectId } from './objectId';
+import {AnalyticsSettingsDto, MapSettingsDto, UISettingsDto} from "./userPreferenceDto";
 
 export interface NewUserPreferenceDto {
-    userId?: ObjectId;
-    dataTypesToShow?: Array<string>;
-    overlayLayers?: boolean;
-    token?: string;
+  userId?: string;
+
+  uiSettings?: UISettingsDto;
+  mapSettings?: MapSettingsDto;
+  analyticsSettings?: AnalyticsSettingsDto;
+
+  favoriteAreaIds?: string[];
 
 }

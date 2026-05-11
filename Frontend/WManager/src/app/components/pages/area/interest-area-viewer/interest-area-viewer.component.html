@@ -87,16 +87,20 @@
           </div>
         </section>
 
-        <!-- NUOVA SEZIONE: ANALYTICS INTELLIGENCE -->
+        <!-- ANALYTICS INTELLIGENCE -->
         <section class="sidebar-section animate-fade-in">
           <label class="section-label text-info">Intelligence Engine</label>
           <div class="analytics-controls bg-dark-25 p-2 rounded">
             <div class="form-check form-switch mb-2">
-              <input class="form-switch input-switch" type="checkbox" id="switchTrend" [(ngModel)]="showTrend">
+              <!-- AGGIUNTO (change) -->
+              <input class="form-switch input-switch" type="checkbox" id="switchTrend"
+                     [(ngModel)]="showTrend" (change)="onTrendToggleChange()">
               <label class="form-check-label tiny-text text-white" for="switchTrend">Show Smooth Trend</label>
             </div>
             <div class="form-check form-switch mb-2">
-              <input class="form-switch input-switch" type="checkbox" id="switchAnomalies" [(ngModel)]="showAnomalies">
+              <!-- AGGIUNTO (change) -->
+              <input class="form-switch input-switch" type="checkbox" id="switchAnomalies"
+                     [(ngModel)]="showAnomalies" (change)="onAnomaliesToggleChange()">
               <label class="form-check-label tiny-text text-white" for="switchAnomalies">Highlight Anomalies</label>
             </div>
           </div>

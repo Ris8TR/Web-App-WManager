@@ -1,26 +1,29 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule, DecimalPipe, LocationStrategy, PathLocationStrategy, APP_BASE_HREF } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute } from "@angular/router";
 import { Subscription } from "rxjs";
 import * as L from 'leaflet';
 import Chart from 'chart.js/auto';
 import { parse } from 'terraformer-wkt-parser';
 import { MatSnackBar } from "@angular/material/snack-bar";
+import { MatDialog } from "@angular/material/dialog";
 
+// Components & Services
 import { ToolbarComponent } from "../../../elements/toolbar/toolbar.component";
 import { SensorService } from "../../../../service/sensor.service";
 import { SensorDataService } from "../../../../service/sensorData.service";
 import { InterestAreaService } from "../../../../service/interestArea.service";
 import { AnalyticService } from "../../../../service/analytic.service";
+import { UserPreferenceService } from "../../../../service/userPreference.service";
 import { CookieService } from "ngx-cookie-service";
 
+// Models
 import { SensorDto } from "../../../../model/sensorDto";
 import { InterestArea } from "../../../../model/interestArea";
 import { SensorData } from "../../../../model/sensorData";
 import { DateDto } from "../../../../model/dateDto";
-import {TrendChartModalComponent} from "../../../elements/trend-chart-modal/trend-chart-modal.component";
-import {MatDialog} from "@angular/material/dialog";
+import { UserPreferenceDto } from "../../../../model/userPreferenceDto";
+import { TrendChartModalComponent } from "../../../elements/trend-chart-modal/trend-chart-modal.component";
 
 @Component({
   selector: 'app-interest-area-viewer',
@@ -75,8 +78,8 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
   public endHour?: string;
 
   temperatureScale = [
-    { label: '-10', color: '#0030ff' }, { label: '0', color: '#00ebbd' },
-    { label: '20', color: '#ffed00' }, { label: '40', color: '#940056' }
+    {label: '-10', color: '#0030ff'}, {label: '0', color: '#00ebbd'},
+    {label: '20', color: '#ffed00'}, {label: '40', color: '#940056'}
   ];
 
   constructor(
@@ -85,26 +88,34 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
     private sensorService: SensorService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog,
+    private userPreferenceService: UserPreferenceService,
     private cookieService: CookieService,
     public toolbarComponent: ToolbarComponent,
     private analyticsService: AnalyticService
-  ) {}
+  ) {
+  }
 
   // ========================================================================
   //  LIFECYCLE
   // ========================================================================
 
   ngOnInit(): void {
+    // 1. Sottoscrizione all'ID dell'area
     this.subscription = this.interestAreaService.currentId$.subscribe(id => {
-      this.id = id;
-      this.reloadComponentData();
+      if (id) {
+        this.id = id;
+        this.reloadComponentData();
+        this.loadUserPreferences(); // Carica le preferenze quando l'area è selezionata
+      }
     });
 
+    // 2. Sottoscrizioni alla Toolbar
     this.subscription.add(this.toolbarComponent.isForecast$.subscribe(v => this.isForecast = v));
     this.subscription.add(this.toolbarComponent.isObservation$.subscribe(v => this.isObservation = v));
 
     if (!this.id) this.snackBar.open("Selezionare un'area di interesse", "ok");
 
+    // 3. Caricamento Area
     this.interestAreaService.getInterestArea(this.id!).subscribe(area => {
       this.interestArea = area;
       this.toolbarComponent.inArea = true;
@@ -164,6 +175,89 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
   }
 
   // ========================================================================
+  //  PREFERENCES LOGIC (Persistence & Sync)
+  // ========================================================================
+
+  private loadUserPreferences(): void {
+    const token = this.cookieService.get('token');
+    const authHeader = `Bearer ${token}`;
+    this.userPreferenceService.getUserPreferenceByUserId(authHeader).subscribe({
+      next: (prefs: UserPreferenceDto) => {
+        if (prefs) {
+          console.log("Preferenze caricate correttamente");
+          this.applyPreferencesToUI(prefs);
+        } else {
+          this.saveCurrentPreferences(); // Crea se il body è vuoto
+        }
+      },
+      error: (err) => {
+        if (err.status === 404) {
+          console.log("Nessuna preferenza trovata. Creazione iniziale...");
+          this.saveCurrentPreferences();
+        } else {
+          console.error("Errore caricamento preferenze:", err);
+        }
+      }
+    });
+  }
+
+  private applyPreferencesToUI(prefs: UserPreferenceDto): void {
+    if (prefs.analyticsSettings) {
+      this.showTrend = prefs.analyticsSettings.showSmoothTrend;
+      this.showAnomalies = prefs.analyticsSettings.highlightAnomalies;
+    }
+    if (prefs.mapSettings) {
+      this.isRealTime = prefs.mapSettings.dataMode === 'REAL_TIME';
+      this.selectedInterval = prefs.mapSettings.refreshIntervalMinutes.toString();
+      this.selectedSensorType = prefs.mapSettings.activeSensorTypes?.[0] || "CO2";
+    }
+    if (prefs.uiSettings) {
+      this.isPanelVisible = !prefs.uiSettings.sidebarCollapsed;
+    }
+    // Refresh mappa con nuovi parametri
+    setTimeout(() => this.updateGrid(), 100);
+  }
+
+  private saveCurrentPreferences(): void {
+    const token = this.cookieService.get('token');
+    const userId = this.getUserIdFromToken(token);
+    if (!token || !userId) return;
+
+    const authHeader = `Bearer ${token}`;
+
+    const updatedPrefs: UserPreferenceDto = {
+      userId: userId,
+      analyticsSettings: {
+        showSmoothTrend: this.showTrend,
+        highlightAnomalies: this.showAnomalies,
+        forecastWindow: '12'
+      },
+      mapSettings: {
+        center: this.map ? [this.map.getCenter().lat, this.map.getCenter().lng] : [45, 7],
+        zoomLevel: this.map ? this.map.getZoom() : 5,
+        dataMode: this.isRealTime ? 'REAL_TIME' : 'LATEST',
+        refreshIntervalMinutes: parseInt(this.selectedInterval),
+        activeSensorTypes: [this.selectedSensorType],
+        showOverlayLayers: true
+      },
+      uiSettings: {
+        theme: 'dark',
+        sidebarCollapsed: !this.isPanelVisible,
+        language: 'it'
+      }
+    };
+
+    this.userPreferenceService.updateUserPreference(authHeader, userId, updatedPrefs).subscribe({
+      next: () => console.log("Preferenze sincronizzate"),
+      error: (err) => console.error("Errore salvataggio preferenze:", err)
+    });
+  }
+
+  private getUserIdFromToken(token: string): string | null {
+    return this.cookieService.get('userId');
+  }
+
+  // ========================================================================
   //  MAP RENDERING LOGIC
   // ========================================================================
 
@@ -176,14 +270,13 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
     const sensorId = this.selectedSensor;
     const key = this.selectedSensorType;
 
-    // 1. Draw Base Layer (Trend or Standard)
     if (this.showTrend) {
       this.analyticsService.getSensorTrend(sensorId, authHeader, key).subscribe({
         next: (dataList: any[]) => {
           this.sensorTrendLocalList = dataList;
           const heatData = this.sensorDataLocalList
             .filter(d => d.latitude && d.longitude)
-            .map((d): [number, number, number] => [ // <--- Aggiungi il tipo di ritorno qui
+            .map((d): [number, number, number] => [
               d.latitude!,
               d.longitude!,
               (d.payload as any)?.[this.selectedSensorType] ?? 0
@@ -201,14 +294,13 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
       if (this.showAnomalies) this.renderAnomaliesOverlay(authHeader);
     }
 
-    // 2. Always update chart if sensor is active
     this.updateTrendChart();
   }
 
   private processAndMapLocalData(): void {
     const heatData = this.sensorDataLocalList
       .filter(d => d.latitude && d.longitude)
-      .map((d): [number, number, number] => [ // <--- Aggiungi il tipo di ritorno qui
+      .map((d): [number, number, number] => [
         d.latitude!,
         d.longitude!,
         (d.payload as any)?.[this.selectedSensorType] ?? 0
@@ -251,7 +343,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
       iconSize: [18, 18],
       iconAnchor: [9, 9]
     });
-    L.marker([lat, lng], { icon }).addTo(this.layerGroup!)
+    L.marker([lat, lng], {icon}).addTo(this.layerGroup!)
       .bindPopup(`<b style="color:red">ANOMALIA RILEVATA</b><br>Valore: ${value}`);
   }
 
@@ -265,51 +357,49 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 1. Selezione sorgente dati
     const dataSource = this.showTrend ? this.sensorTrendLocalList : this.sensorDataLocalList;
 
     if (!dataSource || dataSource.length === 0) {
-      if (this.trendChart) { this.trendChart.destroy(); this.trendChart = undefined; }
+      if (this.trendChart) {
+        this.trendChart.destroy();
+        this.trendChart = undefined;
+      }
       return;
     }
 
-    // 2. Filtro e Ordinamento per il sensore selezionato
     const targetId = String(this.selectedSensor || '').trim();
     const sensorSpecificData = dataSource
       .filter(d => String(d.sensorId || '').trim() === targetId)
       .sort((a, b) => new Date(a.timestamp!).getTime() - new Date(b.timestamp!).getTime());
 
     if (sensorSpecificData.length === 0) {
-      if (this.trendChart) { this.trendChart.destroy(); this.trendChart = undefined; }
+      if (this.trendChart) {
+        this.trendChart.destroy();
+        this.trendChart = undefined;
+      }
       return;
     }
 
-    // 3. Preparazione Label
     const historyLabels = sensorSpecificData.map(d =>
-      new Date(d.timestamp!).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      new Date(d.timestamp!).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})
     );
 
-    // 4. CALCOLO MEDIA MOBILE (Smoothing)
-    // Questo risolve il problema delle fluttuazioni eccessive
-    const windowSize = 30;// Ogni 5 punti calcola la media. Aumenta a 8-10 per più morbidezza.
+    // Smoothing (Media Mobile)
+    const windowSize = 10;
     const historyValues = sensorSpecificData.map((d, index, arr) => {
       const rawValue = (d.payload as any)?.[this.selectedSensorType] ?? 0;
-
-      if (index < windowSize - 1) return rawValue; // Non medi messi i primi punti per non sballare l'inizio
-
+      if (index < windowSize - 1) return rawValue;
       const slice = arr.slice(index - windowSize + 1, index + 1);
       const sum = slice.reduce((acc, curr) => acc + ((curr.payload as any)?.[this.selectedSensorType] ?? 0), 0);
       return sum / windowSize;
     });
 
-    // 5. Preparazione Dataset Forecast
     let finalLabels = [...historyLabels];
     let forecastDataset: any = null;
 
     if (this.isForecast && this.predictionValue !== null) {
       finalLabels.push('Forecast');
       const fValues = new Array(historyValues.length).fill(null);
-      // Collega il forecast all'ultimo valore SMUSSO (per continuità visiva)
       fValues[historyValues.length - 1] = historyValues[historyValues.length - 1];
       fValues.push(this.predictionValue);
 
@@ -327,7 +417,6 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
       };
     }
 
-    // 6. Rendering Finale
     if (this.trendChart) this.trendChart.destroy();
 
     this.trendChart = new Chart(ctx, {
@@ -352,24 +441,14 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
+        interaction: {mode: 'index', intersect: false},
         plugins: {
-          legend: {
-            display: true,
-            labels: { color: '#8a8d98', font: { size: 10 } }
-          },
-          tooltip: { enabled: true }
+          legend: {display: true, labels: {color: '#8a8d98', font: {size: 10}}},
+          tooltip: {enabled: true}
         },
         scales: {
-          x: {
-            ticks: { color: '#8a8d98', font: { size: 10 } },
-            grid: { display: false }
-          },
-          y: {
-            ticks: { color: '#8a8d98', font: { size: 10 } },
-            grid: { color: 'rgba(255,255,255,0.05)' },
-            grace: '15%' // Evita che i punti tocchino i bordi superiore/inferiore
-          }
+          x: {ticks: {color: '#8a8d98', font: {size: 10}}, grid: {display: false}},
+          y: {ticks: {color: '#8a8d98', font: {size: 10}}, grid: {color: 'rgba(255,255,255,0.05)'}, grace: '15%'}
         }
       }
     });
@@ -389,7 +468,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
   }
 
   // ========================================================================
-  //  UI ACTIONS
+  //  UI ACTIONS (Triggers for save)
   // ========================================================================
 
   onSensorSelect(sensor: SensorDto): void {
@@ -406,13 +485,15 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
 
   onSensorTypeSelect(type: string): void {
     this.selectedSensorType = type;
+    this.saveCurrentPreferences(); // SALVA CAMBIO TIPO
     this.updateGrid();
     if (this.isForecast && this.selectedSensor) this.loadPrediction();
-
   }
 
-
-  onForecastIntervalSelect(): void { if (this.selectedSensor) this.loadPrediction(); }
+  onForecastIntervalSelect(): void {
+    this.saveCurrentPreferences(); // SALVA INTERVALLO PREVISIONE
+    if (this.selectedSensor) this.loadPrediction();
+  }
 
   onLatestIntervalSelect(): void {
     this.cachedData.clear();
@@ -432,17 +513,17 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
         error: (err) => console.error("Errore refresh:", err)
       });
     }
+    this.saveCurrentPreferences(); // SALVA FREQUENZA REFRESH
   }
 
-  private getIntervalObservable(interval: number) {
-    if (!this.id) return null;
-    if (this.isRealTime) {
-      if (interval === 5) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId5Min(this.id);
-      if (interval === 10) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId10Min(this.id);
-      if (interval === 15) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId15Min(this.id);
-      return null;
-    }
-    return this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id);
+  onTrendToggleChange(): void {
+    this.saveCurrentPreferences(); // SALVA TOGGLE TREND
+    this.updateGrid();
+  }
+
+  onAnomaliesToggleChange(): void {
+    this.saveCurrentPreferences(); // SALVA TOGGLE ANOMALIE
+    this.updateGrid();
   }
 
   onDateRangeSubmit(): void {
@@ -462,7 +543,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
         this.updateGrid();
         if (this.isForecast && this.selectedSensor) this.loadPrediction();
       },
-      error: (err) => this.snackBar.open("Errore nel recupero dati", "OK", { duration: 3000 })
+      error: (err) => this.snackBar.open("Errore nel recupero dati", "OK", {duration: 3000})
     });
   }
 
@@ -472,7 +553,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
 
   private initializeMap(): void {
     this.map = L.map('map').setView([45.0, 7.0], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OSM' }).addTo(this.map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OSM'}).addTo(this.map);
     this.map.on('moveend', () => this.updateGrid());
   }
 
@@ -481,11 +562,13 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
       const geoJson = parse(geometry.trim().replace(/;$/, ''));
       this.removeDrawnAreas();
       if (geoJson && (geoJson.type === 'Polygon' || geoJson.type === 'MultiPolygon')) {
-        const polygon = L.geoJSON(geoJson, { style: { color: 'blue', weight: 4, opacity: 0.7 } }).addTo(this.map!);
+        const polygon = L.geoJSON(geoJson, {style: {color: 'blue', weight: 4, opacity: 0.7}}).addTo(this.map!);
         this.drawnLayers.push(polygon);
         this.map!.fitBounds(polygon.getBounds());
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   private removeDrawnAreas(): void {
@@ -501,6 +584,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
   togglePanel(event: MouseEvent): void {
     event.stopPropagation();
     this.isPanelVisible = !this.isPanelVisible;
+    this.saveCurrentPreferences(); // Salva se l'utente chiude/apre la barra
   }
 
   openChartModal(): void {
@@ -518,4 +602,16 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
       }
     });
   }
+
+  private getIntervalObservable(interval: number) {
+    if (!this.id) return null;
+    if (this.isRealTime) {
+      if (interval === 5) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId5Min(this.id);
+      if (interval === 10) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId10Min(this.id);
+      if (interval === 15) return this.sensorDataService.getAllPrivateSensorDataByInterestAreaId15Min(this.id);
+      return null;
+    }
+    return this.sensorDataService.getLastPrivateSensorDataByInterestAreaId(this.id);
+  }
+
 }

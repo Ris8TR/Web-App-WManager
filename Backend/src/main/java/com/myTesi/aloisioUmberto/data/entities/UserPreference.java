@@ -9,19 +9,49 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import javax.persistence.Id;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Document(collection = "UserPreference")
 @Data
 public class UserPreference {
-    //DA CAMBIARE DI SICURO
     @Id
-    private ObjectId id; // Identificatore univoco del documento nel database
+    private ObjectId id;
 
     @NotNull
     @Field
-    private ObjectId userId; // ID dell'utente a cui appartengono le preferenze di visualizzazione
-    private String[] dataTypesToShow; // Tipi di dati geografici da mostrare
-    private boolean overlayLayers; // Non mi ricordo nwanche perchè l'ho messo
+    private ObjectId userId;
+
+    private UISettings uiSettings;
+
+    private MapSettings mapSettings;
+
+    private AnalyticsSettings analyticsSettings;
+
+    private List<ObjectId> favoriteAreaIds;
+}
+
+@Data
+class UISettings {
+    private String theme; // "dark", "light", "glass"
+    private boolean sidebarCollapsed;
+    private String language; // "it", "en"
+}
+
+@Data
+class MapSettings {
+    private double[] center; // [lat, lng]
+    private int zoomLevel;
+    private String dataMode; // "REAL_TIME" o "LATEST"
+    private int refreshIntervalMinutes; // 5, 10, 15...
+    private List<String> activeSensorTypes; // ["Temperature", "Humidity", etc.]
+    private boolean showOverlayLayers;
+}
+
+@Data
+class AnalyticsSettings {
+    private boolean showSmoothTrend;
+    private boolean highlightAnomalies;
+    private String forecastWindow; // "+1h", "+12h", etc.
 }

@@ -202,33 +202,52 @@ public class SensorServiceImpl implements SensorService {
                 .collect(Collectors.toList());
     }
 
+
+
     @Override
     public List<SensorDto> getAllSensor() {
         long startTime = System.currentTimeMillis();
+
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
+        int totalPublicSensors = sensors.size();
 
         List<SensorDto> sensorDtoList = sensors.stream()
-                .map(sensor -> {
-                    return sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()))
-                            .map(data -> {
-                                SensorDto dto = new SensorDto();
-                                dto.setId(String.valueOf(sensor.getId()));
-                                dto.setDescription(sensor.getDescription());
-                                dto.setUserId(sensor.getUserId());
-                                dto.setPayloadType(sensor.getPayloadType());
-                                dto.setInterestAreaID(sensor.getInterestAreaID());
-                                dto.setCompanyName(sensor.getCompanyName());
-                                dto.setLatitude(Collections.singletonList(data.getLatitude()));
-                                dto.setLongitude(Collections.singletonList(data.getLongitude()));
-                                dto.setTimestamp(String.valueOf(data.getTimestamp()));
-                                dto.setIsPublic(sensor.getIsPublic());
-                                return dto;
-                            }).orElse(null);
-                })
+                .map(sensor -> sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()))
+                        .map(data -> {
+                            SensorDto dto = new SensorDto();
+                            dto.setId(String.valueOf(sensor.getId()));
+                            dto.setDescription(sensor.getDescription());
+                            dto.setUserId(String.valueOf(sensor.getUserId()));
+                            dto.setPayloadType(sensor.getPayloadType());
+                            dto.setInterestAreaID(sensor.getInterestAreaID());
+                            dto.setCompanyName(sensor.getCompanyName());
+                            dto.setLatitude(Collections.singletonList(data.getLatitude()));
+                            dto.setLongitude(Collections.singletonList(data.getLongitude()));
+                            dto.setTimestamp(String.valueOf(data.getTimestamp()));
+                            dto.setIsPublic(sensor.getIsPublic());
+                            return dto;
+                        }).orElse(null))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        log.info("getAllSensor: processati {} sensori in {} ms", sensors.size(), (System.currentTimeMillis() - startTime));
+        // Poiché abbiamo filtrato i null, il numero di DTO è uguale al numero di SensorData trovati
+        int sensorDataCount = sensorDtoList.size();
+        long duration = System.currentTimeMillis() - startTime;
+
+        // 4. Stampa il Report dettagliato (Identico richiesto)
+        System.out.println("------------------------------------------");
+        System.out.println("REPORT ESECUZIONE (getAllSensor - Stream):");
+        System.out.println("- Tempo impiegato: " + duration + " ms");
+        System.out.println("- Record sensori pubblici analizzati: " + totalPublicSensors);
+        System.out.println("- Record SensorData trovati: " + sensorDataCount);
+        System.out.println("- Record SensorDto generati: " + sensorDtoList.size());
+        System.out.println("");
+        System.out.println("- [STRATEGIA]: Stream API (N+1 Query)");
+        System.out.println("- [AVVISO]: Se il tempo è > 1000ms, considera l'ottimizzazione SQL.");
+        System.out.println("------------------------------------------");
+
+        log.info("getAllSensor: processati {} sensori in {} ms", totalPublicSensors, duration);
+
         return sensorDtoList;
     }
 

@@ -27,6 +27,7 @@ import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.opengis.filter.identity.ObjectId;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -55,6 +56,7 @@ public class SensorServiceImpl implements SensorService {
     private final UserRepository userDao;
     private final SensorMapper sensorMapper = SensorMapper.INSTANCE;
     private final InterestAreaMapper interestAreaMapper = InterestAreaMapper.INSTANCE;
+
 
     @Autowired
     private ModelMapper modelMapper;
@@ -285,56 +287,47 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> getAllSensor() {
-        // 1. Registra il tempo di inizio
         long startTime = System.currentTimeMillis();
 
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
-        int totalPublicSensors = (sensors != null) ? sensors.size() : 0;
-        List<SensorDto> sensorDtoList = new ArrayList<>();
+        int totalPublicSensors = sensors.size();
 
-        // 2. Ciclo di recupero dati (Strategia N+1)
-        for (Sensor sensor : sensors) {
-            // Questa chiamata dentro il ciclo viene eseguita per OGNI sensore
-            Optional<SensorData> sensorDataOptional = sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()));
+        List<SensorDto> sensorDtoList = sensors.stream()
+                .map(sensor -> sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()))
+                        .map(data -> {
+                            SensorDto dto = new SensorDto();
+                            dto.setId(String.valueOf(sensor.getId()));
+                            dto.setDescription(sensor.getDescription());
+                            dto.setUserId(String.valueOf(sensor.getUserId()));
+                            dto.setPayloadType(sensor.getPayloadType());
+                            dto.setInterestAreaID(sensor.getInterestAreaID());
+                            dto.setCompanyName(sensor.getCompanyName());
+                            dto.setLatitude(Collections.singletonList(data.getLatitude()));
+                            dto.setLongitude(Collections.singletonList(data.getLongitude()));
+                            dto.setTimestamp(String.valueOf(data.getTimestamp()));
+                            dto.setIsPublic(sensor.getIsPublic());
+                            return dto;
+                        }).orElse(null))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
 
-            if (sensorDataOptional.isPresent()) {
-                SensorData sensorData = sensorDataOptional.get();
-                SensorDto sensorDto = new SensorDto();
-
-                sensorDto.setId(String.valueOf(sensor.getId()));
-                sensorDto.setDescription(sensor.getDescription());
-                sensorDto.setUserId(String.valueOf(sensor.getUserId()));
-                sensorDto.setPayloadType(sensor.getPayloadType());
-                sensorDto.setInterestAreaID(sensor.getInterestAreaID());
-                sensorDto.setCompanyName(sensor.getCompanyName());
-
-                // Imposta latitudine e longitudine come liste (come richiesto dal tuo DTO)
-                sensorDto.setLatitude(Collections.singletonList(sensorData.getLatitude()));
-                sensorDto.setLongitude(Collections.singletonList(sensorData.getLongitude()));
-
-                sensorDto.setTimestamp(String.valueOf(sensorData.getTimestamp()));
-                sensorDto.setIsPublic(sensor.getIsPublic());
-
-                sensorDtoList.add(sensorDto);
-            } else {
-                // Log opzionale per sensori senza dati
-                // System.out.println("No SensorData found for Sensor ID: " + sensor.getId());
-            }
-        }
-
-        // 3. Calcolo statistiche finali
+        // Poiché abbiamo filtrato i null, il numero di DTO è uguale al numero di SensorData trovati
+        int sensorDataCount = sensorDtoList.size();
         long duration = System.currentTimeMillis() - startTime;
 
-        // 4. Stampa del Report dettagliato
+        // 4. Stampa il Report dettagliato (Identico richiesto)
         System.out.println("------------------------------------------");
-        System.out.println("REPORT ESECUZIONE (getAllSensor):");
+        System.out.println("REPORT ESECUZIONE (getAllSensor - Stream):");
         System.out.println("- Tempo impiegato: " + duration + " ms");
         System.out.println("- Record sensori pubblici analizzati: " + totalPublicSensors);
+        System.out.println("- Record SensorData trovati: " + sensorDataCount);
         System.out.println("- Record SensorDto generati: " + sensorDtoList.size());
         System.out.println("");
-        System.out.println("- [STRATEGIA]: Ciclo iterativo (N+1 Query)");
+        System.out.println("- [STRATEGIA]: Stream API (N+1 Query)");
         System.out.println("- [AVVISO]: Se il tempo è > 1000ms, considera l'ottimizzazione SQL.");
         System.out.println("------------------------------------------");
+
+        System.out.println("getAllSensor: processati {" + totalPublicSensors + " sensori in " + duration +" ms");
 
         return sensorDtoList;
     }

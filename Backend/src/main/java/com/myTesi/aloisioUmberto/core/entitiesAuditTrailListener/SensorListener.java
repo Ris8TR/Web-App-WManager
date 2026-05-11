@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class SensorListener extends AbstractMongoEventListener<Sensor> {
-/*
+
     @Override
     public void onAfterLoad(AfterLoadEvent<Sensor> event) {
         super.onAfterLoad(event);
@@ -46,5 +46,5 @@ public class SensorListener extends AbstractMongoEventListener<Sensor> {
         ObjectId id = event.getSource().getObjectId("_id");
         log.info("[SENSOR DATA AUDIT] sensor with id: " + id + " is about to be deleted");
     }
-*/
+
 }
