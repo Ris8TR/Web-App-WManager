@@ -32,28 +32,19 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing Authorization header");
         }
-
         String token = authHeader.substring(7);
         if (!jwtTokenProvider.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid JWT Token");
         }
-
         String userIdFromToken = jwtTokenProvider.getUserIdFromUserToken(token);
         Optional<User> user = userRepository.findById(userIdFromToken);
-
-
-
         return user.get().getId();
     }
 
     @Override
     public UserPreferenceDto save(String authHeader, NewUserPreferenceDto newUserPreferenceDTO) {
-        // 1. Estrai ID dal token (nessun ID passato nell'URL per il save)
         ObjectId userId = validateAndGetUserId(authHeader);
-
-        // 2. Forza l'ID nel DTO per sicurezza
         newUserPreferenceDTO.setUserId(userId);
-
         UserPreference userPreference = modelMapper.map(newUserPreferenceDTO, UserPreference.class);
         UserPreference saved = userPreferenceRepository.save(userPreference);
         return modelMapper.map(saved, UserPreferenceDto.class);
@@ -61,7 +52,7 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 
     @Override
     public List<UserPreferenceDto> getAllUserPreferences(String authHeader) {
-        // Valida solo che il token sia valido (operazione da admin o generale)
+        // Valida solo che il token sia valido
         validateAndGetUserId(authHeader);
         return userPreferenceRepository.findAll().stream()
                 .map(entity -> modelMapper.map(entity, UserPreferenceDto.class))
@@ -80,17 +71,10 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 
     @Override
     public UserPreferenceDto update(String authHeader,  UserPreferenceDto userPreferenceDTO) {
-        // 1. Verifica permessi
         ObjectId userId =  validateAndGetUserId(authHeader);
-
-        // 2. Trova esistente
         UserPreference existing = userPreferenceRepository.findByUserId(userId.toString())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Preferences not found"));
-
-        // 3. Assicura che l'ID nel DTO sia quello corretto (evita spoofing nel body)
         userPreferenceDTO.setUserId(userId.toString());
-
-        // 4. Mappa i nuovi dati sull'oggetto esistente
         modelMapper.map(userPreferenceDTO, existing);
 
         UserPreference updated = userPreferenceRepository.save(existing);
@@ -99,7 +83,6 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 
     @Override
     public void delete(String authHeader) {
-        // Verifica permessi
         ObjectId userId= validateAndGetUserId(authHeader);
         userPreferenceRepository.deleteByUserId(userId.toString());
     }

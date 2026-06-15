@@ -32,13 +32,9 @@ public class AnalyticsController {
             @RequestHeader("Authorization") String token,
             @RequestParam String key) {
 
-        // 1. Recuperiamo i dati grezzi (es. ultimi 60 minuti)
-        // Nota: dovresti implementare un metodo nel repository o nel service per prendere una lista
+
         List<SensorData> rawData = sensorDataService.getRawDataForSensor(sensorId, 60);
 
-        // 2. Applichiamo la media mobile per il trend
-        // Qui potresti restituire un oggetto custom che contiene sia i dati grezzi che quelli smoothed
-        return ResponseEntity.ok(rawData); // Per semplicità restituiamo i dati, ma idealmente restituisci un DTO con il trend
     }
 
 

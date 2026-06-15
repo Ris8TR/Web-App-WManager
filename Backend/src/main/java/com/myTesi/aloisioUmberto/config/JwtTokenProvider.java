@@ -89,13 +89,11 @@ public class JwtTokenProvider {
                 .getBody();
         Object userIdObj = claims.get("userId");
 
-        // Verifica il tipo di userId e converti di conseguenza
         if (userIdObj instanceof String) {
             return (String) userIdObj;
         } else if (userIdObj instanceof Map) {
-            // Assumiamo che l'oggetto complesso contenga un campo "timestamp" o "date" che può essere usato come identificatore
             Map<String, Object> userIdMap = (Map<String, Object>) userIdObj;
-            return userIdMap.toString(); // o una logica di conversione più specifica
+            return userIdMap.toString();
         } else {
             throw new IllegalArgumentException("Invalid userId type in token");
         }

@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,7 +44,7 @@ public class SensorDataController {
     @PostMapping(value = "/SaveSensorData", consumes = {"multipart/form-data"})
     public ResponseEntity<SensorData> saveSensorData(
             @RequestPart("data") NewSensorDataDto newSensorDataDTO,
-            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
+            @RequestPart(value = "file", required = false) MultipartFile file) throws IOException, FactoryException, TransformException {
         System.out.println(newSensorDataDTO);
         return ResponseEntity.ok(sensorDataService.save(file, newSensorDataDTO));
     }

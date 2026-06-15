@@ -6,6 +6,8 @@ import com.myTesi.aloisioUmberto.dto.DateDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataInterestAreaDto;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -16,7 +18,7 @@ public interface SensorDataService  {
 
 
     // Metodo per salvare un nuovo dato nel database
-    SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException;
+    SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException, FactoryException, TransformException;
 
 
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 5m by sensorId

@@ -26,19 +26,15 @@ public class GeoJsonSensorDataHandler implements SensorDataHandler  {
         data.setLatitude(newSensorDataDTO.getLatitude());
         data.setLongitude(newSensorDataDTO.getLongitude());
 
-        // 1. Costruzione dell'oggetto GeoJSON (come stavi facendo)
+        // Costruzione dell'oggetto GeoJSON
         Point point = new Point(new LngLatAlt(newSensorDataDTO.getLongitude(), newSensorDataDTO.getLatitude()));
         Feature feature = new Feature();
         feature.setGeometry(point);
         FeatureCollection featureCollection = new FeatureCollection();
         featureCollection.add(feature);
 
-        // 2. CONVERSIONE DIRETTA IN MAPPA
-        // Usiamo convertValue invece di writeValueAsString.
-        // Questo trasforma il POJO FeatureCollection in una Map<String, Object>
+        // 2CONVERSIONE DIRETTA IN MAPPA
         Map<String, Object> geoJsonMap = objectMapper.convertValue(featureCollection, new TypeReference<>() {});
-
-        // 3. Salvataggio
         data.setPayload(geoJsonMap);
     }
 

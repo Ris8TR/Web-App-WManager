@@ -180,7 +180,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
         }
 
-        area.setType(dto.getType());
+        //area.setType(dto.getType());
         area.setName(dto.getName());
         area.setDescription(dto.getDescription());
         area.setIsPublic(dto.getIsPublic());

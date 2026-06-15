@@ -24,21 +24,15 @@ public class ImageServiceImpl implements ImageService {
     public String processImage(MultipartFile img, String id, Integer act) throws IOException {
 
         if (act.equals(1)) {
-
             try {
                 String realPathToUploads = System.getProperty("user.dir") + File.separator + relativePathToUploadsSensor + id;
-
-                if (!new File(realPathToUploads).exists()) { //If the directory "image" is not existent
-                    new File(realPathToUploads).mkdirs();     //Create a directory
+                if (!new File(realPathToUploads).exists()) {
+                    new File(realPathToUploads).mkdirs();
                 }
-
-
                 String orgName = FileUtil.assignProgressiveName(img);
                 String filePath = realPathToUploads + File.separator + orgName;
-
                 File dest = new File(filePath);
                 img.transferTo(dest);
-
                 return (orgName);
 
             } catch (Exception e) {
@@ -49,20 +43,14 @@ public class ImageServiceImpl implements ImageService {
             try {
                 String realPathToUploads = System.getProperty("user.dir") + File.separator + relativePathToUploadsArea + id;
 
-                if (!new File(realPathToUploads).exists()) { //If the directory "image" is not existent
-                    new File(realPathToUploads).mkdirs();     //Create a directory
+                if (!new File(realPathToUploads).exists()) {
+                    new File(realPathToUploads).mkdirs();
                 }
-
-
                 String filePath = realPathToUploads + File.separator + "preview.jpg";
-
                 System.out.println(filePath);
-
                 File dest = new File(filePath);
                 img.transferTo(dest);
-
                 return (filePath);
-
             } catch (Exception e) {
                 return null;
             }

@@ -20,31 +20,22 @@ import java.util.Map;
 @Data
 public class SensorData {
     @Id
-    private ObjectId id; // Identificatore univoco del documento nel database
-
+    private ObjectId id;
     @NotNull
     @Field
-    private String sensorId; // ID dell'utente che ha inviato i dati
-
+    private String sensorId;
     @NotNull
     @Field
     private String payloadType; // Tipo di dati (JSON, GeoJSON, Raster, Shapefile, ecc.)
-
-    private Date timestamp; // Timestamp dei dati inviati
-
-    private Date savedOnTime; // Timestamp dei dati registrati
-
+    private Date timestamp;
+    private Date savedOnTime;
     @NotNull
     private Map<String, Object> payload;
-
-
     private String interestAreaID;
-
     @NotNull
     @Field
-    private double latitude; // Latitudine delle coordinate geografiche
-
+    private double latitude;
     @NotNull
     @Field
-    private double longitude; // Longitudine delle coordinate geografiche
+    private double longitude;
 }

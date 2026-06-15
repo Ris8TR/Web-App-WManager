@@ -9,16 +9,14 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class InterestAreaDto {
-        private String id; // Identificatore univoco del documento nel database
-        private String userId; // ID dell'utente a cui appartiene l'area di interesse
-        private String token; // ID dell'utente a cui appartiene l'area di interesse
-        private String name; // Nome dell'area di interesse
-        private Boolean isPublic; // Nome dell'area di interesse
-        private String geometry; // Geometria dell'area
-        private String preview; // Preview img dell'area
-        private String Type; // tipo dell'area
-        private String description; // descrizione dell'area
-
+        private String id;
+        private String userId;
+        private String token;
+        private String name;
+        private Boolean isPublic;
+        private String geometry;
+        private String preview;
+        private String description;
     }
 
 

@@ -230,20 +230,16 @@ public class SensorServiceImpl implements SensorService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
-        // Poiché abbiamo filtrato i null, il numero di DTO è uguale al numero di SensorData trovati
         int sensorDataCount = sensorDtoList.size();
         long duration = System.currentTimeMillis() - startTime;
 
-        // 4. Stampa il Report dettagliato (Identico richiesto)
         System.out.println("------------------------------------------");
-        System.out.println("REPORT ESECUZIONE (getAllSensor - Stream):");
+        System.out.println("REPORT ESECUZIONE (getAllSensor):");
         System.out.println("- Tempo impiegato: " + duration + " ms");
         System.out.println("- Record sensori pubblici analizzati: " + totalPublicSensors);
         System.out.println("- Record SensorData trovati: " + sensorDataCount);
         System.out.println("- Record SensorDto generati: " + sensorDtoList.size());
         System.out.println("");
-        System.out.println("- [STRATEGIA]: Stream API (N+1 Query)");
-        System.out.println("- [AVVISO]: Se il tempo è > 1000ms, considera l'ottimizzazione SQL.");
         System.out.println("------------------------------------------");
 
         log.info("getAllSensor: processati {} sensori in {} ms", totalPublicSensors, duration);

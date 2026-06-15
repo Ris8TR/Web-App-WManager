@@ -27,12 +27,8 @@ public class ImageController {
 
 //TODO ADD TOKEN
     @GetMapping("/images/area/{areaId}")
-    public ResponseEntity<Resource> getAreaImage(
-            @PathVariable("areaId") String areaId
-    ) {
-        return ResponseEntity.ok()
-                .contentType(MediaType.IMAGE_JPEG)
-                .body(imageService.getAreaImage(areaId));
+    public ResponseEntity<Resource> getAreaImage(@PathVariable("areaId") String areaId) {
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageService.getAreaImage(areaId));
     }
 
 }

@@ -23,6 +23,8 @@ import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataInterestAreaDto;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -55,38 +57,29 @@ public class SensorDataServiceImpl implements SensorDataService {
     private final MongoTemplate mongoTemplate;
 
     // ========================================================================
-    //  METODI PUBBLICI (invariati nelle firme)
+    //  METODI PUBBLICI
     // ========================================================================
 
     @Override
     public SensorData saveSensorData(NewSensorDataDto newSensorDataDto) {
-        // 1. Validazione e sicurezza
         String userId = getUserIdFromValidToken(newSensorDataDto.getToken());
-
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utente non trovato"));
-
         Sensor sensor = sensorRepository.findByIdAndUserId(newSensorDataDto.getSensorId(), userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensore non trovato o non appartenente all'utente"));
-
         if (!BCrypt.checkpw(newSensorDataDto.getSensorPassword(), user.getSensorPassword())) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenziali sensore errate");
         }
-
-        // 2. Mappatura iniziale
         SensorData sensorData = sensorDataMapper.newSensorDataDtoToSensorData(newSensorDataDto);
         sensorData.setSensorId(sensor.getId().toString());
         sensorData.setInterestAreaID(sensor.getInterestAreaID());
         sensorData.setTimestamp(newSensorDataDto.getTimestamp());
         sensorData.setSavedOnTime(Date.from(Instant.now()));
 
-        // 3. Gestione del payload (conversione in Map)
         sensorData.setPayload(extractPayloadMap(newSensorDataDto));
 
-        // 4. Aggiornamento storico posizioni nel sensore
         updateSensorPositionHistory(sensor, sensorData);
 
-        // 5. Salvataggio finale
         return sensorDataRepository.save(sensorData);
     }
 
@@ -100,7 +93,7 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
     @Override
-    public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException {
+    public SensorData save(MultipartFile file, NewSensorDataDto newSensorDataDTO) throws IOException, FactoryException, TransformException {
         String userId = getUserIdFromValidToken(newSensorDataDTO.getToken());
 
         User user = userDao.findById(userId)
@@ -119,7 +112,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         data.setTimestamp(newSensorDataDTO.getTimestamp());
         data.setSavedOnTime(Date.from(Instant.now()));
 
-        // Gestione file con handler specifico oppure payload testuale
+        // Gestione file con handler specifico/payload testuale
         if (file != null && !file.isEmpty()) {
             SensorDataHandler handler = getHandlerForType(String.valueOf(sensor.getType()));
             if (handler != null) {
@@ -130,7 +123,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         }
 
         SensorData savedData = sensorDataRepository.save(data);
-        sensorRepository.save(sensor); // già salvato in updateSensorPositionHistory? Qui no, ma mantengo per coerenza
+        sensorRepository.save(sensor);
         return savedData;
     }
 
@@ -315,13 +308,11 @@ public class SensorDataServiceImpl implements SensorDataService {
         return getLatestForSensorList(ids, null, null);
     }
 
-    // ========================================================================
     //  METODI PRIVATI OTTIMIZZATI
-    // ========================================================================
 
     /**
-     * Recupera l'ultimo SensorData per una lista di sensori in un intervallo temporale (opzionale)
-     * usando un'unica aggregation pipeline MongoDB.
+     Recupera l'ultimo SensorData per una lista di sensori in un intervallo temporale (opzionale)
+     usando un'unica aggregation pipeline MongoDB.
      */
     private SensorDataInterestAreaDto getLatestForSensorList(List<String> sensorIds, Date from, Date to) {
         if (sensorIds.isEmpty()) {
@@ -380,16 +371,15 @@ public class SensorDataServiceImpl implements SensorDataService {
 
 
     /**
-     * Recupera tutti i SensorData (non solo l'ultimo) per una lista di sensori e intervallo.
-     * Utilizzato dove il metodo originale restituiva tutti i dati in teoria (es. getAllSensorDataProcessedByInterestArea).
+     Recupera tutti i SensorData (non solo l'ultimo) per una lista di sensori e intervallo.
+     Utilizzato dove il metodo originale restituiva tutti i dati in teoria
      */
     private List<SensorData> getAllDataForSensors(List<String> sensorIds, Date from, Date to) {
         if (sensorIds.isEmpty() || from == null || to == null) return Collections.emptyList();
         return sensorDataRepository.findAllBySensorIdInAndTimestampBetween(sensorIds, from, to);
     }
 
-    /**
-     * Costruisce un DTO con i dati passati e l'insieme delle chiavi dei payload.
+    /**Costruisce un DTO con i dati passati e l'insieme delle chiavi dei payload.
      */
     private SensorDataInterestAreaDto buildDtoFromList(List<SensorData> dataList) {
         HashSet<String> keys = new HashSet<>();
@@ -406,9 +396,9 @@ public class SensorDataServiceImpl implements SensorDataService {
         return new SensorDataInterestAreaDto();
     }
 
-    // ------------------------------------------------------------------------
     //  Query pubbliche generiche con range temporale
-    // ------------------------------------------------------------------------
+
+
     private SensorDataInterestAreaDto getPublicSensorDataInTimeRange(Integer minutes) {
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
         if (sensors.isEmpty()) return null;
@@ -435,9 +425,9 @@ public class SensorDataServiceImpl implements SensorDataService {
         return sensorDataRepository.findAllBySensorIdAndTimestampAfterOrderByTimestampAsc(sensorId, startDate);
     }
 
-    // ------------------------------------------------------------------------
     //  Metodi autorizzati che verificano token e recuperano sensori
-    // ------------------------------------------------------------------------
+
+
     private SensorDataInterestAreaDto getAuthorizedSensorDataInTimeRange(String sensorId, String token, int minutes) {
         String userId = getUserIdFromValidToken(token);
         List<Sensor> sensors = sensorRepository.findAllByIdAndUserId(sensorId, userId);
@@ -461,9 +451,8 @@ public class SensorDataServiceImpl implements SensorDataService {
         return getLatestForSensorList(ids, from, new Date());
     }
 
-    // ------------------------------------------------------------------------
     //  Helpers generici
-    // ------------------------------------------------------------------------
+
     private String getUserIdFromValidToken(String token) {
         if (!jwtTokenProvider.validateToken(token)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token non valido");
@@ -504,10 +493,8 @@ public class SensorDataServiceImpl implements SensorDataService {
         }
     }
 
-    /**
-     * Converte il payload del DTO in una mappa utilizzabile per MongoDB,
-     * senza serializzazioni intermedie.
-     */
+     //Converte il payload del DTO in una mappa utilizzabile per MongoDB, senza serializzazioni intermedie.
+
     private Map<String, Object> extractPayloadMap(NewSensorDataDto dto) {
         Object rawPayload = dto.getPayload();
         if (rawPayload instanceof Map) {
@@ -528,7 +515,7 @@ public class SensorDataServiceImpl implements SensorDataService {
                     }
                 }
             } catch (Exception e) {
-                // payload malformato, si lascia vuoto
+                // payload malformato, si lascia vuoto?
             }
         }
         return payloadMap;
@@ -546,9 +533,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         }
     }
 
-    // ------------------------------------------------------------------------
     //  Ottimizzazione: accesso diretto alla mappa del payload
-    // ------------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     private Map<String, Object> getPayloadMap(SensorData data) {
         if (data.getPayload() instanceof Map) {
@@ -569,9 +554,8 @@ public class SensorDataServiceImpl implements SensorDataService {
         return 0.0;
     }
 
-    // ------------------------------------------------------------------------
     //  GeoJSON (invariato ma ottimizzato nell'accesso al payload)
-    // ------------------------------------------------------------------------
+
     private String createGeoJson(List<SensorData> sensorDataList, String type) {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode geoJson = mapper.createObjectNode();
@@ -606,17 +590,13 @@ public class SensorDataServiceImpl implements SensorDataService {
 
     @Override
     public Double getAverageValueFromDb(String sensorId, String key, Date from, Date to) {
-        // 1. Filtriamo i dati (stesso filtro che useresti in una query normale)
         Criteria criteria = Criteria.where("sensorId").is(sensorId)
                 .and("timestamp").gte(from).lte(to);
-
-        // 2. Creiamo l'aggregazione: raggruppa tutto e calcola la media del campo nel payload
         Aggregation aggregation = Aggregation.newAggregation(
                 Aggregation.match(criteria),
                 Aggregation.group().avg("payload." + key).as("avgValue")
         );
 
-        // 3. Eseguiamo e prendiamo il risultato
         AggregationResults<Map> results = mongoTemplate.aggregate(aggregation, "sensorData", Map.class);
         Map<String, Object> resultMap = results.getUniqueMappedResult();
 
@@ -627,9 +607,8 @@ public class SensorDataServiceImpl implements SensorDataService {
     }
 
 
-    // ------------------------------------------------------------------------
     //  Handler per tipo di file
-    // ------------------------------------------------------------------------
+
     private SensorDataHandler getHandlerForType(String dataType) {
         return switch (dataType.toLowerCase()) {
             case "json" -> new JsonSensorDataHandler();
@@ -641,9 +620,9 @@ public class SensorDataServiceImpl implements SensorDataService {
         };
     }
 
-    // ------------------------------------------------------------------------
-    //  Supporto DateDto
-    // ------------------------------------------------------------------------
+
+    //   DateDto
+
     private Date adjustToUTC(Date date) {
         // TODO: verificare se la sottrazione di 2 ore è ancora necessaria
         return Date.from(date.toInstant().atZone(java.time.ZoneId.of("UTC")).minusHours(2).toInstant());
