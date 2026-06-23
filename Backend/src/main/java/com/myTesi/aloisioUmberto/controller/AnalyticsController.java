@@ -24,7 +24,7 @@ public class AnalyticsController {
     private final SensorDataService sensorDataService;
 
     /**
-     * Endpoint per ottenere i dati "lisciati" (smoothed) per un grafico di trend.
+     * Endpoint per ottenere i dati "allisciati" (smoothed) per un grafico di trend.
      */
     @GetMapping("/sensor/{sensorId}/trend")
     public ResponseEntity<List<SensorData>> getSensorTrend(
@@ -35,6 +35,7 @@ public class AnalyticsController {
 
         List<SensorData> rawData = sensorDataService.getRawDataForSensor(sensorId, 60);
 
+        return ResponseEntity.ok(rawData);
     }
 
 
