@@ -17,6 +17,8 @@ import org.json.JSONObject;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class SensorService {
 
@@ -28,7 +30,7 @@ public class SensorService {
         List<NewSensorDto> sensors = new ArrayList<>();
 
         for (int j = 0; j < numSensors; j++) {
-            // Prendi un'area di interesse casuale
+            // Prendo un'area di interesse casuale
             InterestAreaDto interestArea = interestAreas.get(random.nextInt(interestAreas.size()));
             NewSensorDto newSensor = createDummySensor(userId, newUser, j, random, interestArea.getId());
             String sensorId = sendNewSensor(newSensor, token);
@@ -59,6 +61,7 @@ public class SensorService {
         String sensorId = null;
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(NEW_SENSOR_URL);
+            post.setHeader("Authorization", "Bearer " + token);
             post.setHeader("Content-Type", "application/json");
             post.setHeader("Accept", "application/json");
 
@@ -90,9 +93,7 @@ public class SensorService {
                     JSONObject jsonResponse = new JSONObject(responseBody);
                     sensorId = jsonResponse.getString("id");
                     newSensor.setSensorId(sensorId);
-
                     System.out.println("Sensor created successfully: " + newSensor);
-
                 } else {
                     System.err.println("Failed to create sensor: " + response.getStatusLine().getStatusCode());
                     System.err.println("Response: " + responseBody);
@@ -119,6 +120,8 @@ public class SensorService {
                 CloseableHttpClient client = HttpClients.createDefault();
                 HttpPost post = new HttpPost(SENSOR_DATA_URL);
                 post.setHeader("Content-Type", "multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW");
+                post.setHeader("Authorization", "Bearer " + token);
+
 
                 HttpEntity entity = MultipartEntityBuilder.create()
                         .setBoundary("----WebKitFormBoundary7MA4YWxkTrZu0gW")
@@ -190,27 +193,50 @@ public class SensorService {
         return extractCoordinateFromGeometry(geometry, random, false);
     }
 
-    private double extractCoordinateFromGeometry(String geometry, Random random, boolean isLatitude) {
-        String[] parts = geometry.replace("MULTILINESTRING", "")
-                .replace("(", "")
-                .replace(")", "")
-                .split(",");
 
-        if (parts.length < 2) {
-            parts = new String[] { parts[0], parts[0] };
+    private double extractCoordinateFromGeometry(String geometry, Random random, boolean isLatitude) {
+        // Questa regex trova tutti i numeri (anche decimali e negativi) all'interno della stringa
+        // Spiegazione: [-+]? (segno opzionale) [0-9]* (cifre) \.? (punto opzionale) [0-9]+ (cifre)
+        Pattern pattern = Pattern.compile("[-+]?[0-9]*\\.?[0-9]+");
+        Matcher matcher = pattern.matcher(geometry);
+
+        List<Double> coordinates = new ArrayList<>();
+
+        while (matcher.find()) {
+            try {
+                coordinates.add(Double.parseDouble(matcher.group()));
+            } catch (NumberFormatException e) {
+                // Se un numero non è parsabile, lo ignoriamo e continuiamo
+                continue;
+            }
         }
 
-        // Seleziona una coordinata casuale
-        String[] coordinates = parts[random.nextInt(parts.length)].trim().split(" ");
+        // In una geometria WKT, i numeri appaiono a coppie: [long1, lat1, long2, lat2, ...]
+        // Verifichiamo di avere almeno una coppia (2 numeri)
+        if (coordinates.size() < 2) {
+            System.err.println("Warning: Geometry string contains insufficient coordinates: " + geometry);
+            return 0.0; // O un valore di default/fallback
+        }
 
-        // Rimuovi eventuali caratteri non numerici e converti in double
-        String coordinateString = isLatitude ? coordinates[1] : coordinates[0];
-        coordinateString = coordinateString.replaceAll("[^0.1-9\\-]", "");
+        // Scegliamo un indice casuale tra le coppie disponibili
+        // La dimensione della lista divisa per 2 ci dice quante coppie ci sono
+        int numPairs = coordinates.size() / 2;
+        int randomPairIndex = random.nextInt(numPairs);
 
-        // Aggiungi una piccola variazione alla coordinata
-        double coordinate = Double.parseDouble(coordinateString);
+        // L'indice base della coppia scelta (sarà sempre pari: 0, 2, 4...)
+        int baseIndex = randomPairIndex * 2;
+
+        // Nelle geometrie WKT standard, l'ordine è Longitudine poi Latitudine
+        // index 0 = long, index 1 = lat
+        // index 2 = long, index 3 = lat
+        double longitude = coordinates.get(baseIndex);
+        double latitude = coordinates.get(baseIndex + 1);
+
+        double result = isLatitude ? latitude : longitude;
+
+        // Aggiungi una piccola variazione per non essere esattamente sul punto della linea
         double variation = (random.nextDouble() - 0.5) * 0.00050;
-        return coordinate + variation;
+        return result + variation;
     }
 
 }

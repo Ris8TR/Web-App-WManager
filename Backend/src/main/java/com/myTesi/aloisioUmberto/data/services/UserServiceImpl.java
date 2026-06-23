@@ -60,6 +60,24 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserDto updatePrivate(String token, UserDto userDto) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
+        User existingUser = userDao.findById(userId).orElse(null);
+        assert existingUser != null;
+        existingUser.setFirstName(userDto.getFirstName());
+        existingUser.setLastName(userDto.getLastName());
+        User updatedUser = userDao.save(existingUser);
+        return userMapper.userToUserDto(updatedUser);
+    }
+
+    @Override
+    public UserDto getUser(String token) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
+        return userDao.findById(userId).map(userMapper::userToUserDto).orElse(null);
+    }
+
+
+    @Override
     public UserDto saveDto(NewUserDto newUserDto) {
         User user = userMapper.newUserDtoToUser(newUserDto);
         user.setPassword(passwordEncoder.encode(user.getPassword()));

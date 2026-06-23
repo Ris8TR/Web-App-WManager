@@ -1,6 +1,7 @@
 package com.myTesi.aloisioUmberto.controller;
 
 
+import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.services.interfaces.UserService;
 import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
@@ -32,6 +33,7 @@ public class UserController {
 
     @Autowired (required = false)
     private HttpServletRequest request;
+    private final JwtTokenProvider jwtTokenProvider;
 
 
     @Operation(
@@ -50,37 +52,48 @@ public class UserController {
     )
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/users/all-users")
+    @GetMapping("/user/admin/all-users")
     public ResponseEntity<List<UserDto>> getAll() {
         return ResponseEntity.ok(userService.getAllUserDtoSortedByLastnameAscending());
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/users/{email}")
+    @GetMapping("/user/admin/{email}")
     public ResponseEntity <UserDto> findByEmail(@PathVariable @Valid String email) {
         return ResponseEntity.ok(userService.findByEmail(email));
     }
 
-
-    @PostMapping("/users")
-    public ResponseEntity<UserDto> addUser(@RequestBody @Valid NewUserDto newUserDto) {
-        return ResponseEntity.ok(userService.saveDto(newUserDto));
-    }
-
-
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/users/{email}")
+    @PutMapping("/user/admin/{email}")
     public ResponseEntity<UserDto> updateUser(@PathVariable @Valid String email,@RequestBody @Valid UserDto userDto) {
         return ResponseEntity.ok(userService.update(email, userDto));
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/users/{email}")
+    @DeleteMapping("/user/admin/{email}")
     public ResponseEntity<Void> deleteUser(@PathVariable @Valid String email) {
         userService.deleteByEmail(email);
         return ResponseEntity.noContent().build(); // Restituisce 204 No Content
     }
+
+    @PostMapping("/user/newUser")
+    public ResponseEntity<UserDto> addUser(@RequestBody @Valid NewUserDto newUserDto) {
+        return ResponseEntity.ok(userService.saveDto(newUserDto));
+    }
+
+    @GetMapping("/user/private")
+    public ResponseEntity<UserDto> getUser(HttpServletRequest request) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
+        return ResponseEntity.ok(userService.getUser(token));
+    }
+
+    @PutMapping("/user/private")
+    public ResponseEntity<UserDto> updatePrivateUser(HttpServletRequest request, @RequestBody @Valid UserDto userDto) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
+        return ResponseEntity.ok(userService.updatePrivate(token,userDto));
+    }
+
+
+
 
 }

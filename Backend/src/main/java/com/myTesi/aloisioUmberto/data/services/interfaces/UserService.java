@@ -20,4 +20,7 @@ public interface UserService {
 
     List<UserDto> getAllUserDtoSortedByLastnameAscending();
 
+    UserDto updatePrivate(String token, @Valid UserDto userDto);
+
+    UserDto getUser(String token);
 }

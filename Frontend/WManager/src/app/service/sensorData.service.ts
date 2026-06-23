@@ -1386,34 +1386,30 @@ export class SensorDataService {
         headers = headers.set('Authorization', 'Bearer ' + accessToken);
       }
 
-        let formParams: { append(param: string, value: any): void; };
-        let useForm = false;
-        let convertFormParamsToString = false;
-        // use FormData to transmit files using content-type "multipart/form-data"
-        // see https://stackoverflow.com/questions/4007969/application-x-www-form-urlencoded-or-multipart-form-data
-        useForm = canConsumeForm;
-        if (useForm) {
-            formParams = new FormData();
-        } else {
-            formParams = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-        }
+      let formParams: FormData;
+      let useForm = true; // Since we are doing multipart
 
-        if (data !== undefined) {
-            formParams = formParams.append('data', <any>data) as any || formParams;
-        }
-        if (file !== undefined) {
-            formParams = formParams.append('file', <any>file) as any || formParams;
-        }
+      formParams = new FormData();
 
-        return this.httpClient.request<SensorData>('post',`${this.basePath}/v1/SaveSensorData`,
-            {
-                body: convertFormParamsToString ? formParams.toString() : formParams,
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
+      if (data !== undefined) {
+        // FIX: Convert the object to a JSON string and wrap it in a Blob with type 'application/json'
+        const json = JSON.stringify(data);
+        const jsonBlob = new Blob([json], { type: 'application/json' });
+        formParams.append('data', jsonBlob);
+      }
+
+      if (file !== undefined) {
+        // The file is already a Blob, so this is fine
+        formParams.append('file', file);
+      }
+
+      return this.httpClient.request<SensorData>('post', `${this.basePath}/v1/SaveSensorData`, {
+        body: formParams,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers, // IMPORTANT: Do NOT manually set 'Content-Type': 'multipart/form-data' here
+        observe: observe,
+        reportProgress: reportProgress
+      });
     }
 
     /**

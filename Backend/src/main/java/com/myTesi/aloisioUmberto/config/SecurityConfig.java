@@ -44,11 +44,14 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/swagger-resources/**",
-                                "/webjars/**"
+                                "/webjars/**",
+                                "/error"
+
                         ).permitAll()
 
                         // 2. ENDPOINT COMPLETAMENTE PUBBLICI
-                        .requestMatchers("/v1/users").permitAll()
+                        .requestMatchers("/v1/user/private/**").permitAll()
+                        .requestMatchers("/v1/user/newUser").permitAll()
                         .requestMatchers("/v1/SensorData/public/**").permitAll()
                         .requestMatchers("/v1/sensors/public/**").permitAll()
                         .requestMatchers("/v1/sensor/public/**").permitAll()
@@ -59,6 +62,8 @@ public class SecurityConfig {
                         .requestMatchers("/v1/UserPreference/user/**").permitAll()
 
                         // 3. TUTTO IL RESTO richiede autenticazione
+                        .requestMatchers("/v1/user/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -74,17 +79,6 @@ public class SecurityConfig {
         return provider;
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://192.168.15.34:4200")); // L'IP del tuo Angular
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowCredentials(true);
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

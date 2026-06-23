@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
 
 public class UserService {
 
-    private static final String USER_CREATION_URL = "http://192.168.15.34:8010/v1/users";
+    private static final String USER_CREATION_URL = "http://192.168.15.34:8010/v1/user/newUser";
     private static final String LOGIN_URL = "http://192.168.15.34:8010/v1/auth/user";
     private static final String INTEREST_AREA_URL = "http://192.168.15.34:8010/v1/interestArea";
 

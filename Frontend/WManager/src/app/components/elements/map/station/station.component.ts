@@ -6,6 +6,7 @@ import { ToolbarComponent } from '../../toolbar/toolbar.component';
 import 'leaflet.markercluster';
 import { SensorDto } from '../../../../model/sensorDto';
 import { UserService } from '../../../../service/user.service';
+import {SensorService} from "../../../../service/sensor.service";
 
 @Component({
   selector: 'app-obsmap',
@@ -19,7 +20,7 @@ import { UserService } from '../../../../service/user.service';
   styleUrls: ['./station.component.css']
 })
 export class StationComponent implements AfterViewInit, OnDestroy {
-  constructor(private http: HttpClient, private userService: UserService) {}
+  constructor(private http: HttpClient, private sensorService: SensorService) {}
 
   private obsmap!: L.Map;
   private markerClusterGroup!: L.MarkerClusterGroup;
@@ -98,7 +99,7 @@ export class StationComponent implements AfterViewInit, OnDestroy {
   }
 
   private loadSensorData(): void {
-    this.userService.getAllSensor().subscribe(
+    this.sensorService.findByUserId().subscribe(
       (sensorDtos: SensorDto[]) => {
         const markers: L.Marker[] = [];
         console.log(sensorDtos)

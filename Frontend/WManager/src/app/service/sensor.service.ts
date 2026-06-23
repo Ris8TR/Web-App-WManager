@@ -80,10 +80,13 @@ export class SensorService {
         let httpHeaderAccepts: string[] = [
             '*/*'
         ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
+      // authentication (bearerAuth) required
+      if (this.cookieService.get("token")) {
+        const accessToken = typeof this.configuration.accessToken === 'function'
+          ? this.cookieService.get("token")
+          : this.cookieService.get("token");
+        headers = headers.set('Authorization', 'Bearer ' + accessToken);
+      }
 
         // to determine the Content-Type header
         const consumes: string[] = [

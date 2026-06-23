@@ -1,5 +1,5 @@
 /**
- * OpenAPi WManager
+ * OpenAPI WManager
  * OpenApi documentation for Spring Security
  *
  * OpenAPI spec version: 1.0
@@ -11,18 +11,18 @@
  *//* tslint:disable:no-unused-variable member-ordering */
 
 import { Inject, Injectable, Optional }                      from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams, HttpResponse, HttpEvent }                           from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams,
+         HttpResponse, HttpEvent }                           from '@angular/common/http';
 import { CustomHttpUrlEncodingCodec }                        from '../encoder';
 
 import { Observable }                                        from 'rxjs';
 
 import { NewUserDto } from '../model/newUserDto';
-import { SensorDto } from '../model/sensorDto';
-import { ServiceError } from '../model/serviceError';
 import { UserDto } from '../model/userDto';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
+import {CookieService} from "ngx-cookie-service";
 
 
 @Injectable()
@@ -32,7 +32,7 @@ export class UserService {
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
+    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string,private CookiesService: CookieService, @Optional() configuration: Configuration) {
         if (basePath) {
             this.basePath = basePath;
         }
@@ -64,9 +64,9 @@ export class UserService {
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public addUser(body: NewUserDto, observe?: 'body', reportProgress?: boolean): Observable<NewUserDto>;
-    public addUser(body: NewUserDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<NewUserDto>>;
-    public addUser(body: NewUserDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<NewUserDto>>;
+    public addUser(body: NewUserDto, observe?: 'body', reportProgress?: boolean): Observable<UserDto>;
+    public addUser(body: NewUserDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserDto>>;
+    public addUser(body: NewUserDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserDto>>;
     public addUser(body: NewUserDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (body === null || body === undefined) {
@@ -75,6 +75,13 @@ export class UserService {
 
         let headers = this.defaultHeaders;
 
+        // authentication (Bearer Authentication) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
             '*/*'
@@ -93,9 +100,57 @@ export class UserService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
-        return this.httpClient.request<NewUserDto>('post',`${this.basePath}/v1/users`,
+        return this.httpClient.request<UserDto>('post',`${this.basePath}/v1/user/newUser`,
             {
                 body: body,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     *
+     *
+     * @param email
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public deleteUser(email: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+    public deleteUser(email: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+    public deleteUser(email: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+    public deleteUser(email: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (email === null || email === undefined) {
+            throw new Error('Required parameter email was null or undefined when calling deleteUser.');
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (Bearer Authentication) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            '*/*'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<any>('delete',`${this.basePath}/v1/users/admin${encodeURIComponent(String(email))}`,
+            {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -122,6 +177,13 @@ export class UserService {
 
         let headers = this.defaultHeaders;
 
+      // authentication (bearerAuth) required
+      if (this.CookiesService.get("token")) {
+        const accessToken = typeof this.configuration.accessToken === 'function'
+          ? this.CookiesService.get("token")
+          : this.CookiesService.get("token");
+        headers = headers.set('Authorization', 'Bearer ' + accessToken);
+      }
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
             '*/*'
@@ -135,7 +197,7 @@ export class UserService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<UserDto>('get',`${this.basePath}/v1/users/${encodeURIComponent(String(email))}`,
+        return this.httpClient.request<UserDto>('get',`${this.basePath}/v1/users/admin/${encodeURIComponent(String(email))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -158,6 +220,13 @@ export class UserService {
 
         let headers = this.defaultHeaders;
 
+      // authentication (bearerAuth) required
+      if (this.CookiesService.get("token")) {
+        const accessToken = typeof this.configuration.accessToken === 'function'
+          ? this.CookiesService.get("token")
+          : this.CookiesService.get("token");
+        headers = headers.set('Authorization', 'Bearer ' + accessToken);
+      }
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
             '*/*'
@@ -171,7 +240,7 @@ export class UserService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<Array<UserDto>>('get',`${this.basePath}/v1/users/all-users`,
+        return this.httpClient.request<Array<UserDto>>('get',`${this.basePath}/v1/users/admin/all-users`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
@@ -180,20 +249,81 @@ export class UserService {
             }
         );
     }
+
+
+  /**
+   * this is the list of user
+   * Get endpoint for user
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getUser(observe?: 'body', reportProgress?: boolean): Observable<UserDto>;
+  public getUser(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserDto>>;
+  public getUser(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserDto>>;
+  public getUser(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    let headers = this.defaultHeaders;
+
+    // authentication (bearerAuth) required
+    if (this.CookiesService.get("token")) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.CookiesService.get("token")
+        : this.CookiesService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<UserDto>('get',`${this.basePath}/v1/user/private`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
 
     /**
      *
      *
+     * @param body
+     * @param email
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getAllSensor(observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDto>>;
-    public getAllSensor(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDto>>>;
-    public getAllSensor(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDto>>>;
-    public getAllSensor(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public updateUser(body: UserDto, email: string, observe?: 'body', reportProgress?: boolean): Observable<UserDto>;
+    public updateUser(body: UserDto, email: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserDto>>;
+    public updateUser(body: UserDto, email: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserDto>>;
+    public updateUser(body: UserDto, email: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (body === null || body === undefined) {
+            throw new Error('Required parameter body was null or undefined when calling updateUser.');
+        }
+
+        if (email === null || email === undefined) {
+            throw new Error('Required parameter email was null or undefined when calling updateUser.');
+        }
 
         let headers = this.defaultHeaders;
 
+      // authentication (bearerAuth) required
+      if (this.CookiesService.get("token")) {
+        const accessToken = typeof this.configuration.accessToken === 'function'
+          ? this.CookiesService.get("token")
+          : this.CookiesService.get("token");
+        headers = headers.set('Authorization', 'Bearer ' + accessToken);
+      }
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
             '*/*'
@@ -205,10 +335,16 @@ export class UserService {
 
         // to determine the Content-Type header
         const consumes: string[] = [
+            'application/json'
         ];
+        const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+        if (httpContentTypeSelected != undefined) {
+            headers = headers.set('Content-Type', httpContentTypeSelected);
+        }
 
-        return this.httpClient.request<Array<SensorDto>>('get',`${this.basePath}/v1/sensors/public/all-sensors`,
+        return this.httpClient.request<UserDto>('put',`${this.basePath}/v1/user/${encodeURIComponent(String(email))}`,
             {
+                body: body,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -217,4 +353,49 @@ export class UserService {
         );
     }
 
+  public updatePrivateUser(body: UserDto,  observe?: 'body', reportProgress?: boolean): Observable<UserDto>;
+  public updatePrivateUser(body: UserDto,  observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserDto>>;
+  public updatePrivateUser(body: UserDto,  observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserDto>>;
+  public updatePrivateUser(body: UserDto,  observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    if (body === null || body === undefined) {
+      throw new Error('Required parameter body was null or undefined when calling updateUser.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (bearerAuth) required
+    if (this.CookiesService.get("token")) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.CookiesService.get("token")
+        : this.CookiesService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+      'application/json'
+    ];
+    const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected != undefined) {
+      headers = headers.set('Content-Type', httpContentTypeSelected);
+    }
+
+    return this.httpClient.request<UserDto>('put',`${this.basePath}/v1/user/private`,
+      {
+        body: body,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
 }

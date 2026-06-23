@@ -62,7 +62,7 @@ export class LoginComponent {
         this.snackBar.open("User logged in", 'OK',{ duration: 3000 });
         this.toolbar.checkUserCookie()
         this.toolbar.loadInterestAreas()
-        this.router.navigate(['/home']);
+        this.router.navigate(['/observation']);
       },
       (error: any) => {
         this.snackBar.open("Incorrect Email or Password", 'Try Again', { duration: 3000 });

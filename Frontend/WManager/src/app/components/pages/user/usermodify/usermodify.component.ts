@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {UserComponent} from "../userMenu/user.component";
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {UserDto} from "../../../../model/userDto";
+import {UserService} from "../../../../service/user.service";
 
 @Component({
   selector: 'app-usermodify',
@@ -18,7 +20,6 @@ import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
 })
 export class UsermodifyComponent implements OnInit {
 
-  // Inizializziamo l'oggetto per evitare errori "undefined" nel template
   protected userDto: any = {
     firstName: '',
     lastName: '',
@@ -27,7 +28,8 @@ export class UsermodifyComponent implements OnInit {
 
   constructor(
     private toolbar: ToolbarComponent,
-    private router: Router
+    private router: Router,
+    private userService: UserService,
   ) { }
 
   ngOnInit(): void {
@@ -47,14 +49,18 @@ export class UsermodifyComponent implements OnInit {
     this.router.navigate(['/profile']);
   }
 
-  protected onUpdateData() {
-    if (this.userDto.firstName && this.userDto.lastName) {
-      console.log('Aggiornamento dati in corso...', this.userDto);
 
-      // Qui chiamerai il tuo UserService.update(this.userDto)...
-      // Esempio di successo:
-      // alert('Profilo aggiornato con successo!');
-      // this.redirectToUserData();
-    }
+  protected onUpdateData() {
+    console.log(this.userDto);
+        if (this.userDto.firstName && this.userDto.lastName) {
+          this.userService.updatePrivateUser(this.userDto).subscribe({
+            next: (updatedUser: UserDto) => {
+              console.log('Utente aggiornato con successo:', updatedUser);
+            },
+            error: (err) => {
+              console.error('Errore durante l\'aggiornamento dell\'utente:', err);
+            },
+          });
+        }
   }
 }
