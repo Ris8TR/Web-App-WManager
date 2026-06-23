@@ -1,25 +1,42 @@
 package com.myTesi.aloisioUmberto.data.services;
 
 import com.myTesi.aloisioUmberto.config.FileUtil;
+import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
+import com.myTesi.aloisioUmberto.data.dao.UserRepository;
+import com.myTesi.aloisioUmberto.data.entities.InterestArea;
+import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.interfaces.ImageService;
+import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.persistence.EntityNotFoundException;
 import java.io.File;
 import java.io.IOException;
 
-
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ImageServiceImpl implements ImageService {
+
+    private final InterestAreaRepository interestAreaRepository;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserRepository userDao;
 
     private final String relativePathToUploadsSensor = "src\\main\\resources\\images\\sensor\\";
     private final String relativePathToUploadsArea = "src\\main\\resources\\images\\area\\";
+
+
+
 
     public String processImage(MultipartFile img, String id, Integer act) throws IOException {
 
@@ -80,9 +97,20 @@ public class ImageServiceImpl implements ImageService {
 
     @Override
     public Resource getAreaImage(String areaId) {
-        String fullPath = relativePathToUploadsArea + areaId + File.separator + "preview.jpg";
+        InterestArea area = interestAreaRepository.findById(areaId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Area not found"));
+
+        String fullPath = relativePathToUploadsArea
+                + areaId
+                + File.separator
+                + "preview.jpg";
+
         return getImageResource(fullPath);
     }
+
+
 
 
     public Resource getImageResource(String fullPath) {

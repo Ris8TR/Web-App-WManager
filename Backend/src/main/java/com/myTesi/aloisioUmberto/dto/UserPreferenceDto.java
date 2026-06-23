@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.persistence.Id;
 import java.util.List;
 
 @Data
@@ -18,15 +19,15 @@ import java.util.List;
 @Builder
 @ToString
 public class UserPreferenceDto {
+    @Id
     private String id;
     private String userId;
 
-    // Gruppi di preferenze
-    private UISettingsDto uiSettings;
-    private MapSettingsDto mapSettings;
-    private AnalyticsSettingsDto analyticsSettings;
-
+    private UserPreferenceDto.UISettingsDto uiSettings;
+    private UserPreferenceDto.MapSettingsDto mapSettings;
+    private UserPreferenceDto.AnalyticsSettingsDto analyticsSettings;
     private List<String> favoriteAreaIds;
+
 
     // --- DTO Nidificati ---
 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.myTesi.aloisioUmberto.config.JwtAuthConverter;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorDataMapper;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
@@ -16,6 +15,7 @@ import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.entities.User;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.*;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
+import com.myTesi.aloisioUmberto.data.services.interfaces.ImageService;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
 import com.myTesi.aloisioUmberto.dto.DateDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
@@ -51,10 +51,10 @@ public class SensorDataServiceImpl implements SensorDataService {
     private final UserRepository userDao;
     private final SensorDataMapper sensorDataMapper = SensorDataMapper.INSTANCE;
     private final JwtTokenProvider jwtTokenProvider;
-    private final JwtAuthConverter jwtAuthConverter;
     private final InterestAreaRepository interestAreaRepository;
     private final ModelMapper modelMapper;
     private final MongoTemplate mongoTemplate;
+    private final ImageService imageService;
 
     // ========================================================================
     //  METODI PUBBLICI
@@ -416,17 +416,20 @@ public class SensorDataServiceImpl implements SensorDataService {
 
 
     @Override
-    public List<SensorData> getRawDataForSensor(String sensorId, int minutesAgo) {
+    public List<SensorData> getRawDataForSensor(String sensorId, String token, int minutesAgo) {
+        String userId = getUserIdFromValidToken(token);
+        List<Sensor> sensors = sensorRepository.findAllByIdAndUserId(sensorId, userId);
+        if (sensors.isEmpty()) {
+            throw new RuntimeException("Access Denied: You do not have permission to access this sensor.");
+        }
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, -minutesAgo);
         Date startDate = cal.getTime();
-
-
         return sensorDataRepository.findAllBySensorIdAndTimestampAfterOrderByTimestampAsc(sensorId, startDate);
     }
 
-    //  Metodi autorizzati che verificano token e recuperano sensori
 
+    //  Metodi autorizzati che verificano token e recuperano sensori
 
     private SensorDataInterestAreaDto getAuthorizedSensorDataInTimeRange(String sensorId, String token, int minutes) {
         String userId = getUserIdFromValidToken(token);
@@ -613,7 +616,7 @@ public class SensorDataServiceImpl implements SensorDataService {
         return switch (dataType.toLowerCase()) {
             case "json" -> new JsonSensorDataHandler();
             case "geojson" -> new GeoJsonSensorDataHandler();
-            case "image" -> new ImageSensorDataHandler(new ImageServiceImpl());
+            case "image" -> new ImageSensorDataHandler(imageService);
             case "shapefile" -> new ShapefileSensorDataHandler();
             case "raster" -> new RasterSensorDataHandler();
             default -> null;

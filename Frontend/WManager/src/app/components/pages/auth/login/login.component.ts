@@ -59,7 +59,6 @@ export class LoginComponent {
         this.cookieService.set('token', token.token!)
         this.cookieService.set('refreshToken', token.refreshToken!)
         this.cookieService.set('user', this.loginUser.email!)
-        this.cookieService.set('role', "USER")
         this.snackBar.open("User logged in", 'OK',{ duration: 3000 });
         this.toolbar.checkUserCookie()
         this.toolbar.loadInterestAreas()

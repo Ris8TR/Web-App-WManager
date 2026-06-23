@@ -42,7 +42,7 @@ public class ShapefileSensorDataHandler implements SensorDataHandler {
             FileDataStore store = FileDataStoreFinder.getDataStore(tempFile.toFile());
             SimpleFeatureCollection features = store.getFeatureSource().getFeatures();
 
-            // 2. Gestione CRS (fondamentale per trasformare in Lat/Long)
+            // 2. Gestione CRS
             CoordinateReferenceSystem sourceCRS = store.getSchema().getCoordinateReferenceSystem();
             CoordinateReferenceSystem targetCRS = CRS.decode("EPSG:4326"); // WGS84
             MathTransform transform = CRS.findMathTransform(sourceCRS, targetCRS, true);

@@ -291,12 +291,8 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       new Date(d.timestamp!).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})
     );
 
-    // --- 4. CALCOLO VALORI (RAW vs SMOOTHED) ---
-    // Calcoliamo prima i valori "grezzi" (raw)
     const rawValues = sensorSpecificData.map(d => (d.payload as any)?.[this.selectedSensorType] ?? 0);
-
-    // Calcoliamo i valori "smussati" (smoothed) usando la media mobile
-    const windowSize = 5; // Ridotto da 30 a 5 per rendere il grafico più reattivo su dataset piccoli
+    const windowSize = 5;
     const smoothedValues = sensorSpecificData.map((d, index, arr) => {
       const start = Math.max(0, index - windowSize + 1);
       const slice = arr.slice(start, index + 1);
@@ -304,10 +300,8 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       return sum / slice.length;
     });
 
-    // DECISIONE: Se showTrend è true, usiamo i valori smoothed, altrimenti i raw
     const finalValues = this.showTrend ? smoothedValues : rawValues;
 
-    // --- 5. PREPARAZIONE DATASET FORECAST ---
     let finalLabels = [...historyLabels];
     let forecastDataset: any = null;
 

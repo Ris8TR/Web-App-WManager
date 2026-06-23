@@ -10,7 +10,7 @@ import org.bson.types.ObjectId;
 @NoArgsConstructor
 @ToString
 public class NewUserPreferenceDto {
-    private ObjectId userId;
+    private String userId;
     private String[] dataTypesToShow;
     private boolean overlayLayers;
     private String token;

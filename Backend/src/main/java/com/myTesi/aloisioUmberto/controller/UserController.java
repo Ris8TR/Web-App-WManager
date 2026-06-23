@@ -6,12 +6,14 @@ import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -47,15 +49,14 @@ public class UserController {
             }
     )
 
-    //TODO Admin
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/all-users")
     public ResponseEntity<List<UserDto>> getAll() {
         return ResponseEntity.ok(userService.getAllUserDtoSortedByLastnameAscending());
     }
 
 
-
-    //TODO Admin
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users/{email}")
     public ResponseEntity <UserDto> findByEmail(@PathVariable @Valid String email) {
         return ResponseEntity.ok(userService.findByEmail(email));
@@ -68,6 +69,18 @@ public class UserController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/users/{email}")
+    public ResponseEntity<UserDto> updateUser(@PathVariable @Valid String email,@RequestBody @Valid UserDto userDto) {
+        return ResponseEntity.ok(userService.update(email, userDto));
+    }
 
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/users/{email}")
+    public ResponseEntity<Void> deleteUser(@PathVariable @Valid String email) {
+        userService.deleteByEmail(email);
+        return ResponseEntity.noContent().build(); // Restituisce 204 No Content
+    }
 
 }

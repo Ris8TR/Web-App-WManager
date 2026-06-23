@@ -181,7 +181,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
   private loadUserPreferences(): void {
     const token = this.cookieService.get('token');
     const authHeader = `Bearer ${token}`;
-    this.userPreferenceService.getUserPreferenceByUserId(authHeader).subscribe({
+    this.userPreferenceService.getUserPreferenceByUserId().subscribe({
       next: (prefs: UserPreferenceDto) => {
         if (prefs) {
           console.log("Preferenze caricate correttamente");
@@ -191,10 +191,12 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
         }
       },
       error: (err) => {
+        this.saveCurrentPreferences()
         if (err.status === 404) {
           console.log("Nessuna preferenza trovata. Creazione iniziale...");
           this.saveCurrentPreferences();
         } else {
+          this.saveCurrentPreferences()
           console.error("Errore caricamento preferenze:", err);
         }
       }
@@ -220,13 +222,8 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
 
   private saveCurrentPreferences(): void {
     const token = this.cookieService.get('token');
-    const userId = this.getUserIdFromToken(token);
-    if (!token || !userId) return;
-
-    const authHeader = `Bearer ${token}`;
-
     const updatedPrefs: UserPreferenceDto = {
-      userId: userId,
+      userId: token,
       analyticsSettings: {
         showSmoothTrend: this.showTrend,
         highlightAnomalies: this.showAnomalies,
@@ -247,7 +244,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
       }
     };
 
-    this.userPreferenceService.updateUserPreference(authHeader, userId, updatedPrefs).subscribe({
+    this.userPreferenceService.saveUserPreference(updatedPrefs).subscribe({
       next: () => console.log("Preferenze sincronizzate"),
       error: (err) => console.error("Errore salvataggio preferenze:", err)
     });

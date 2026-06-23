@@ -63,7 +63,7 @@ public interface SensorDataService  {
     SensorDataInterestAreaDto getAllPublicSensorDataIn15Min();
 
     // Nel file SensorDataService.java
-    List<SensorData> getRawDataForSensor(String sensorId, int minutesAgo);
+    List<SensorData> getRawDataForSensor(String sensorId,String token, int minutesAgo);
 
     // <SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto);
     SensorDataInterestAreaDto getAllSensorDataBySensorBetweenDate(DateDto dateDto);

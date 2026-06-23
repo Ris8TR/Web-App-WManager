@@ -1,35 +1,43 @@
 package com.myTesi.aloisioUmberto.config;
 
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
-import io.swagger.v3.oas.annotations.info.Contact;
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.annotations.security.SecurityScheme;
-import io.swagger.v3.oas.annotations.servers.Server;
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
+import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@OpenAPIDefinition(
-        info = @Info(
-                contact = @Contact(
-                        name = "Umberto Aloisio"
-                ),
-                description = "OpenApi documentation for Spring Security",
-                title = "OpenAPi WManager",
-                version = "1.0"
-        ),
-        servers = {
-                @Server(
-                        description = "local IT",
-                        url = "http://192.168.15.34:8010"
-                )
+import java.util.List;
 
-        }
-)
-@SecurityScheme(
-        name = "Bearer Authentication",
-        type = SecuritySchemeType.HTTP,
-        bearerFormat = "JWT",
-        scheme = "bearer"
-)
-public class OpenApiConfig { // mette "in sicurezza" la documentazione di Swagger
+@Configuration
+public class OpenApiConfig {
 
+    @Bean
+    public OpenAPI customOpenAPI() {
+        final String securitySchemeName = "Bearer Authentication";
+
+        return new OpenAPI()
+                .info(new Info()
+                        .title("OpenAPI WManager")
+                        .version("1.0")
+                        .description("OpenApi documentation for Spring Security")
+                        .contact(new Contact().name("Umberto Aloisio")))
+
+                .servers(List.of(new Server()
+                        .url("http://192.168.15.34:8010")
+                        .description("local IT")))
+
+                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+
+                .components(new Components()
+                        .addSecuritySchemes(securitySchemeName,
+                                new SecurityScheme()
+                                        .name(securitySchemeName)
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
+    }
 }

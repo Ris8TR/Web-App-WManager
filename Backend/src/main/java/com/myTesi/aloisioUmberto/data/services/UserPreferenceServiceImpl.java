@@ -28,22 +28,10 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
     private final ModelMapper modelMapper = new ModelMapper();
     private final UserRepository userRepository;
 
-    private ObjectId validateAndGetUserId(String authHeader) {
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Missing Authorization header");
-        }
-        String token = authHeader.substring(7);
-        if (!jwtTokenProvider.validateToken(token)) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid JWT Token");
-        }
-        String userIdFromToken = jwtTokenProvider.getUserIdFromUserToken(token);
-        Optional<User> user = userRepository.findById(userIdFromToken);
-        return user.get().getId();
-    }
 
     @Override
-    public UserPreferenceDto save(String authHeader, NewUserPreferenceDto newUserPreferenceDTO) {
-        ObjectId userId = validateAndGetUserId(authHeader);
+    public UserPreferenceDto save(String token, NewUserPreferenceDto newUserPreferenceDTO) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         newUserPreferenceDTO.setUserId(userId);
         UserPreference userPreference = modelMapper.map(newUserPreferenceDTO, UserPreference.class);
         UserPreference saved = userPreferenceRepository.save(userPreference);
@@ -51,30 +39,27 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
     }
 
     @Override
-    public List<UserPreferenceDto> getAllUserPreferences(String authHeader) {
-        // Valida solo che il token sia valido
-        validateAndGetUserId(authHeader);
+    public List<UserPreferenceDto> getAllUserPreferences(String token) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         return userPreferenceRepository.findAll().stream()
                 .map(entity -> modelMapper.map(entity, UserPreferenceDto.class))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public UserPreferenceDto getUserPreferenceByUserId(String authHeader) {
-        // Verifica che l'utente stia chiedendo i propri dati
-        ObjectId userId= validateAndGetUserId(authHeader);
-
-        return userPreferenceRepository.findByUserId(userId.toString())
+    public UserPreferenceDto getUserPreferenceByUserId(String token) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
+        return userPreferenceRepository.findByUserId(userId)
                 .map(preference -> modelMapper.map(preference, UserPreferenceDto.class))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Preferences not found"));
     }
 
     @Override
-    public UserPreferenceDto update(String authHeader,  UserPreferenceDto userPreferenceDTO) {
-        ObjectId userId =  validateAndGetUserId(authHeader);
-        UserPreference existing = userPreferenceRepository.findByUserId(userId.toString())
+    public UserPreferenceDto update(String token,  UserPreferenceDto userPreferenceDTO) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
+        UserPreference existing = userPreferenceRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Preferences not found"));
-        userPreferenceDTO.setUserId(userId.toString());
+        userPreferenceDTO.setUserId(userId);
         modelMapper.map(userPreferenceDTO, existing);
 
         UserPreference updated = userPreferenceRepository.save(existing);
@@ -82,8 +67,8 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
     }
 
     @Override
-    public void delete(String authHeader) {
-        ObjectId userId= validateAndGetUserId(authHeader);
-        userPreferenceRepository.deleteByUserId(userId.toString());
+    public void delete(String token) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
+        userPreferenceRepository.deleteByUserId(userId);
     }
 }

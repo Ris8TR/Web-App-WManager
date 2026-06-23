@@ -108,6 +108,18 @@ public class JwtTokenProvider {
         return (String) claims.get("type");
     }
 
+    public String getRoleFromToken(String token) {
+        try {
+            Claims claims = Jwts.parser()
+                    .setSigningKey(secret)
+                    .parseClaimsJws(token)
+                    .getBody();
+            return (String) claims.get("role");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public boolean validateToken(String token) {
         try {
             Jwts.parser().setSigningKey(secret).parseClaimsJws(token);

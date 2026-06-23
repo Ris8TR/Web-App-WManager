@@ -51,7 +51,7 @@ export class InterestAreaService {
       }
 
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration, private cookieService: CookieService,
+    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string,private CookiesService: CookieService, @Optional() configuration: Configuration, private cookieService: CookieService,
     ) {
         if (basePath) {
             this.basePath = basePath;
@@ -93,13 +93,22 @@ export class InterestAreaService {
       'multipart/form-data'
     ];
 
+    // authentication (bearerAuth) required
+    if (this.CookiesService.get("token")) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.CookiesService.get("token")
+        : this.CookiesService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+
+
     const formData = new FormData();
-    formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' })); // Assuming data is JSON
-    formData.append('file', file!); // Assuming file is a Blob or File object
+    formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    formData.append('file', file!);
 
     return this.httpClient.post<InterestAreaDto>(`${this.basePath}/v1/interestArea`, formData, {
       withCredentials: this.configuration.withCredentials,
-      headers: headers, // headers should not include Content-Type
+      headers: headers,
       observe: observe,
       reportProgress: reportProgress
     });

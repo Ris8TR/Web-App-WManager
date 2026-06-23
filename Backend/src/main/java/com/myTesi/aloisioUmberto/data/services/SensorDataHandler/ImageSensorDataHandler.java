@@ -1,10 +1,12 @@
 package com.myTesi.aloisioUmberto.data.services.SensorDataHandler;
 
-import com.myTesi.aloisioUmberto.data.services.ImageServiceImpl;
 import com.myTesi.aloisioUmberto.data.services.SensorDataHandler.interfaces.SensorDataHandler;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
+import com.myTesi.aloisioUmberto.data.services.interfaces.ImageService;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
+
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -12,10 +14,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ImageSensorDataHandler implements SensorDataHandler {
 
-    private final ImageServiceImpl imageService;
+    private final ImageService imageService;
+
 
 
     @Override

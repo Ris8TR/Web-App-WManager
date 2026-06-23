@@ -13,6 +13,7 @@ import com.myTesi.aloisioUmberto.dto.SensorDto;
 import com.myTesi.aloisioUmberto.dto.UserDto;
 import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import lombok.RequiredArgsConstructor;
+import org.bson.types.ObjectId;
 import org.modelmapper.ModelMapper;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
@@ -68,7 +69,28 @@ public class UserServiceImpl implements UserService {
             userDao.save(user);
             return userMapper.userToUserDto(user);
         } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "L'indirizzo email è già stato utilizzato.", e);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use.", e);
+        }
+    }
+
+    @Override
+    public UserDto update(String email, UserDto userDto) {
+        User existingUser = userDao.findUserByEmail(email).orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        existingUser.setFirstName(userDto.getFirstName());
+        existingUser.setLastName(userDto.getLastName());
+        User updatedUser = userDao.save(existingUser);
+        return userMapper.userToUserDto(updatedUser);
+    }
+
+
+    @Override
+    public void deleteByEmail(String email) {
+        ObjectId id = userDao.findUserByEmail(email).get().getId();
+        if (userDao.findUserByEmail(email).isPresent()) {
+            if (!userDao.existsById(id.toString())) {
+                throw new RuntimeException("Cannot delete: User not found");
+            }
+            userDao.deleteById(id.toString());
         }
     }
 }

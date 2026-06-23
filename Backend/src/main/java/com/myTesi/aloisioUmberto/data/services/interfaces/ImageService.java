@@ -10,10 +10,7 @@ import java.io.IOException;
 public interface ImageService {
 
     public String processImage(MultipartFile img, String userId, Integer act)throws IOException;
-
     public Resource getImage(String UserId, String imagePath);
-
     Resource getSensorImage(String userId, String imagePath);
-
-    Resource getAreaImage(String userId );
+    Resource getAreaImage(String areaId ) ;
 }

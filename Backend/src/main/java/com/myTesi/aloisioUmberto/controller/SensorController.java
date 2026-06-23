@@ -36,8 +36,6 @@ public class SensorController {
     private final SensorService sensorService;
     private final JwtTokenProvider jwtTokenProvider;
 
-
-
     //CREATE & UPDATE
     @PostMapping("/sensors")
     public ResponseEntity<SensorDto> addSensor(@RequestBody @Valid NewSensorDto newSensorDto) {
@@ -63,10 +61,6 @@ public class SensorController {
         sensorService.deleteSensorById(id, token);
         return ResponseEntity.noContent().build();
     }
-
-
-
-
 
     //PUBLIC
     @GetMapping("/sensors/public/all-sensors")

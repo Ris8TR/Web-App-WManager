@@ -137,7 +137,6 @@ public class SensorDataController {
     }
 
 
-    //TODO
     @SecurityRequirement(name="Bearer Authentication")
     @PostMapping("/SensorData/private/date/sensor")
     public ResponseEntity<SensorDataInterestAreaDto> getAllPrivateSensorDataBySensorBetweenDate(HttpServletRequest request ,@RequestBody DateDto date) {
