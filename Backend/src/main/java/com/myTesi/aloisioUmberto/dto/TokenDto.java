@@ -11,4 +11,5 @@ public class TokenDto {
     private String token;
     private String refreshToken;
     private String session;
+    private String role;
 }

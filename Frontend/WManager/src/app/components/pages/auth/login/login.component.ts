@@ -39,7 +39,8 @@ export class LoginComponent {
   showResetPasswordModal: boolean = false;
   loginUser: LoginDto = {
     email: '',
-    password: ''
+    password: '',
+    role:''
   };
 
 
@@ -58,6 +59,7 @@ export class LoginComponent {
       (token  ) => {
         this.cookieService.set('token', token.token!)
         this.cookieService.set('refreshToken', token.refreshToken!)
+        this.cookieService.set('role', token.role!)
         this.cookieService.set('user', this.loginUser.email!)
         this.snackBar.open("User logged in", 'OK',{ duration: 3000 });
         this.toolbar.checkUserCookie()

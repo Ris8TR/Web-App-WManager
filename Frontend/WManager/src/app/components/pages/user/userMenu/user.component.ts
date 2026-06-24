@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import { Router, RouterLink, RouterOutlet } from '@angular/router';
 import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
+import {CookieService} from "ngx-cookie-service";
 
 @Component({
   selector: 'app-user',
@@ -10,13 +11,16 @@ import {ToolbarComponent} from "../../../elements/toolbar/toolbar.component";
   styleUrl: './user.component.css'
 })
 export class UserComponent implements OnInit{
-  constructor(private router: Router,     private toolbar: ToolbarComponent) {
-
+  constructor(private router: Router,     private toolbar: ToolbarComponent, private cookieService: CookieService) {
   }
+
+  role: any = '';
 
 
   ngOnInit(): void {
     this.toolbar.refreshToken()
+    this.role = this.cookieService.get('role') ;
+    console.log(this.role);
   }
 
 
@@ -52,7 +56,13 @@ export class UserComponent implements OnInit{
 
   }
 
+  redirectToAdminDashboard(): void {
+    this.router.navigate(['/admin/dashboard']);
+  }
+
   protected logout() {
+    this.toolbar.logOut()
+    this.toolbar.checkUserCookie()
 
   }
 }

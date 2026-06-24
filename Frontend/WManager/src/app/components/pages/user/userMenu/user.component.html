@@ -57,8 +57,22 @@
       </ul>
     </nav>
 
-    <!-- Footer Logout (Opzionale ma consigliato per UX) -->
-    <div class="sidebar-footer p-3">
+    <!-- Admin Dashboard Section -->
+    <div class="admin-section px-3 mt-auto" [@ngIf]="role=='ADMIN'">
+      <hr class="border-secondary opacity-25">
+      <div class="small-label text-uppercase mb-2" style="color: #6c757d; font-size: 0.7rem; letter-spacing: 0.05rem;">Admin</div>
+      <ul class="nav nav-pills flex-column gap-2">
+        <li class="nav-item">
+          <a (click)="redirectToAdminDashboard()" class="nav-link-custom">
+            <i class="fas fa-tachometer-alt"></i>
+            <span>Admin Dashboard</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+
+    <div class="sidebar-footer p-3" style="margin-bottom:25% ">
       <button class="btn btn-logout w-100" (click)="logout()">
         <i class="fas fa-power-off me-2"></i>
         <span>Sign Out</span>

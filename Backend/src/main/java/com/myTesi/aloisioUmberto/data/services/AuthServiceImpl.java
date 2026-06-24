@@ -53,7 +53,7 @@ public class AuthServiceImpl implements AuthService {
             tokenDto.setToken(token);
             tokenDto.setRefreshToken(refreshToken);
             tokenDto.setSession(session.getId());
-            System.out.println(tokenDto);
+            tokenDto.setRole(String.valueOf(user.get().getRole()));
             return ResponseEntity.ok(tokenDto);
         } else {
             return ResponseEntity.notFound().build();
