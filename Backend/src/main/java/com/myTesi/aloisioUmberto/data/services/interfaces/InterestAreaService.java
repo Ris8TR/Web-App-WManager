@@ -28,6 +28,8 @@ public interface InterestAreaService {
 
 
     void deleteInterestArea(ObjectId id, String token);
+    void deleteInterestAreaAdmin(ObjectId id);
 
     InterestAreaDto updateAdmin(InterestAreaDto data, MultipartFile geometry, MultipartFile preview) throws IOException;
+
 }

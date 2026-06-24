@@ -199,7 +199,13 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         InterestArea area = interestAreaRepository.findByIdAndUserId(id.toString(), userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Area not found"));
+        interestAreaRepository.deleteById(area.getId().toString());
+    }
 
+    @Override
+    public void deleteInterestAreaAdmin(ObjectId id) {
+        InterestArea area = interestAreaRepository.findById(id.toString())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Area not found"));
         interestAreaRepository.deleteById(area.getId().toString());
     }
 

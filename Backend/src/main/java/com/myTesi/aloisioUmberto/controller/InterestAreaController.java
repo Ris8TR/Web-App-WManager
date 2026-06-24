@@ -55,6 +55,7 @@ public class InterestAreaController {
         return ResponseEntity.ok(interestAreaService.getAllPublicInterestArea());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/interestArea/admin/getUserAreas/{id}")
     public ResponseEntity<List<InterestAreaDto>> getAllInterestAreasByUserAdmin(HttpServletRequest request, @PathVariable String id) {
@@ -62,6 +63,7 @@ public class InterestAreaController {
         return ResponseEntity.ok(interestAreas);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/interestArea/admin/getUserArea/{id}")
     public ResponseEntity<InterestAreaDto> getInterestAreasByUserAdmin(HttpServletRequest request, @PathVariable String id) {
@@ -69,7 +71,7 @@ public class InterestAreaController {
         return ResponseEntity.ok(interestArea);
     }
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/interestArea/admin/update")
     public ResponseEntity<InterestAreaDto> updateInterestAreaAdmin(HttpServletRequest request, @RequestPart(value = "data") InterestAreaDto data,@RequestPart(value = "geometry", required = false) MultipartFile geometry, @RequestPart(value = "preview", required = false) MultipartFile preview) throws IOException {
@@ -77,6 +79,17 @@ public class InterestAreaController {
     }
 
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @SecurityRequirement(name="Bearer Authentication")
+    @DeleteMapping("/interestArea/admin/{id}")
+    public ResponseEntity<Void> deleteInterestAreaAdmin( @PathVariable ObjectId id) {
+        interestAreaService.deleteInterestAreaAdmin(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    //PRIVATE
+    //TODO AGGIUNGERE interestArea/ nell'url
     @GetMapping("/{interestAreaId}/latest-sensor-data/{token}")
     public ResponseEntity<List<SensorDataDto>> getLatestSensorDataInInterestArea(HttpServletRequest request ,@PathVariable String interestAreaId, @PathVariable String token) {
         List<SensorDataDto> sensorDataList = interestAreaService.getLatestSensorDataInInterestArea(interestAreaId, token);
