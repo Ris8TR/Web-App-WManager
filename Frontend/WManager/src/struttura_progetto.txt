@@ -101,7 +101,6 @@ src/
 │   │           ├── userdata
 │   │           │   ├── userdata.component.css
 │   │           │   ├── userdata.component.html
-│   │           │   ├── userdata.component.spec.ts
 │   │           │   └── userdata.component.ts
 │   │           ├── userMenu
 │   │           │   ├── user.component.css
@@ -110,7 +109,6 @@ src/
 │   │           └── usermodify
 │   │               ├── usermodify.component.css
 │   │               ├── usermodify.component.html
-│   │               ├── usermodify.component.spec.ts
 │   │               └── usermodify.component.ts
 │   ├── model
 │   │   ├── enum

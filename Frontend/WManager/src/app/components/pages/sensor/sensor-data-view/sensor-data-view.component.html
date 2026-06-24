@@ -1,8 +1,6 @@
 <div class="dashboard-wrapper d-flex">
-  <!-- Barra laterale sinistra -->
   <app-user class="sidebar-component"></app-user>
 
-  <!-- Contenitore Principale -->
   <main class="content-area flex-grow-1 p-4">
     <div class="glass-card animate-fade-in">
 
@@ -16,24 +14,28 @@
         </button>
       </header>
 
-      <div class="table-responsive-custom">
-        <table class="modern-table">
-          <thead>
-          <tr>
-            <th>Company & Type</th>
-            <th>Sensor ID</th>
-            <th>Description</th>
-            <th>Config</th>
-            <th>Security</th>
-            <th>Visibility</th>
-            <th class="text-center">Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr *ngFor="let sensor of sensorList" [class.row-editing]="sensor.isEditing">
+      <!-- Contenitore della tabella che occupa lo spazio rimanente -->
+      <div class="table-container">
+
+        <!-- HEADER FISSO (Fuori dal viewport) -->
+        <div class="grid-header">
+          <div class="col-comp">Company & Type</div>
+          <div class="col-id">Sensor ID</div>
+          <div class="col-desc">Description</div>
+          <div class="col-config">Config</div>
+          <div class="col-sec">Security</div>
+          <div class="col-vis">Visibility</div>
+          <div class="col-act text-center">Actions</div>
+        </div>
+
+        <!-- VIEWPORT SCORREVOLE -->
+        <cdk-virtual-scroll-viewport itemSize="70" class="viewport-container">
+          <div *cdkVirtualFor="let sensor of sensorList"
+               class="grid-row"
+               [class.row-editing]="sensor.isEditing">
 
             <!-- Company & Type -->
-            <td>
+            <div class="col-comp">
               <div *ngIf="!sensor.isEditing">
                 <div class="fw-bold text-white">{{ sensor.companyName }}</div>
                 <div class="tiny-text text-primary-light">{{ sensor.type }}</div>
@@ -42,59 +44,54 @@
                 <input type="text" class="table-input mb-1" [(ngModel)]="sensor.companyName" placeholder="Company">
                 <input type="text" class="table-input" [(ngModel)]="sensor.type" placeholder="Type">
               </div>
-            </td>
+            </div>
 
             <!-- ID -->
-            <td>
-              <code class="sensor-id"
-                    [matTooltip]="sensor.id!"
-                    matTooltipPosition="above"
-                    style="cursor: help;">
+            <div class="col-id">
+              <code class="sensor-id" [matTooltip]="sensor.id!" matTooltipPosition="above" style="cursor: help;">
                 {{ sensor.id | slice:0:8 }}...
               </code>
-            </td>
+            </div>
+
             <!-- Description -->
-            <td>
+            <div class="col-desc">
               <span *ngIf="!sensor.isEditing" class="small text-white-50">{{ sensor.description }}</span>
               <input *ngIf="sensor.isEditing" type="text" class="table-input" [(ngModel)]="sensor.description">
-            </td>
+            </div>
 
-            <!-- Config (Payload & Area) -->
-            <td>
-              <div class="small">
-                <span class="text-muted">Format:</span> {{ sensor.payloadType }}<br>
-                <span class="text-muted">Area:</span> {{ sensor.interestAreaID || 'None' }}
-              </div>
-            </td>
+            <!-- Config -->
+            <div class="col-config small">
+              <span class="text-muted">Fmt:</span> {{ sensor.payloadType }}<br>
+              <span class="text-muted">Area:</span> {{ sensor.interestAreaID || 'None' }}
+            </div>
 
             <!-- Password -->
-            <td>
+            <div class="col-sec">
               <div *ngIf="!sensor.isEditing" class="text-muted">••••••••</div>
               <div *ngIf="sensor.isEditing">
                 <input type="password" class="table-input" placeholder="New Pwd"
                        [(ngModel)]="tempPassword" (ngModelChange)="sensor.password = tempPassword">
               </div>
-            </td>
+            </div>
 
             <!-- Visibility -->
-            <td>
+            <div class="col-vis">
               <div *ngIf="!sensor.isEditing">
-                  <span class="badge" [ngClass]="sensor.isPublic ? 'bg-success-glass' : 'bg-secondary-glass'">
-                    {{ sensor.isPublic ? 'Public' : 'Private' }}
-                  </span>
+                <span class="badge" [ngClass]="sensor.isPublic ? 'bg-success-glass' : 'bg-secondary-glass'">
+                  {{ sensor.isPublic ? 'Public' : 'Private' }}
+                </span>
               </div>
               <div *ngIf="sensor.isEditing">
                 <mat-radio-group [(ngModel)]="sensor.isPublic" class="small-radio-group">
-                  <mat-radio-button [value]="true" class="tiny-radio">Yes</mat-radio-button>
-                  <mat-radio-button [value]="false" class="tiny-radio">No</mat-radio-button>
+                  <mat-radio-button [value]="true" class="tiny-radio">Public</mat-radio-button>
+                  <mat-radio-button [value]="false" class="tiny-radio">Private</mat-radio-button>
                 </mat-radio-group>
               </div>
-            </td>
+            </div>
 
             <!-- Actions -->
-            <td class="text-center">
+            <div class="col-act text-center">
               <div class="d-flex gap-2 justify-content-center">
-                <!-- Edit/Save Buttons -->
                 <ng-container *ngIf="!sensor.isEditing">
                   <button class="btn-action btn-edit" (click)="startEdit(sensor)" title="Modify">
                     <i class="fas fa-edit"></i>
@@ -113,10 +110,10 @@
                   </button>
                 </ng-container>
               </div>
-            </td>
-          </tr>
-          </tbody>
-        </table>
+            </div>
+
+          </div>
+        </cdk-virtual-scroll-viewport>
       </div>
 
     </div>

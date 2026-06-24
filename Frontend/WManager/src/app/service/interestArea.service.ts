@@ -371,7 +371,7 @@ export class InterestAreaService {
 
 
 
-  public updateInterestArea(data: InterestAreaDto, geometry?: Blob,  preview?: Blob,  observe: any = 'body', reportProgress: boolean = false): Observable<any> {
+  public updateInterestArea(data: InterestAreaDto, geometry?: Blob, preview?: Blob, observe: any = 'body', reportProgress: boolean = false): Observable<any> {
 
     if (data === null || data === undefined) {
       throw new Error('Required parameter body was null or undefined when calling updateInterestArea.');
@@ -379,32 +379,48 @@ export class InterestAreaService {
 
     let headers = this.defaultHeaders;
 
-    // Set headers for Accept (no need to manually set Content-Type for multipart requests)
+    // 1. Authentication (resta uguale)
+    if (this.CookiesService.get("token")) {
+      const accessToken = this.CookiesService.get("token");
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+
+    // 2. Accept Header (resta uguale)
     let httpHeaderAccepts: string[] = ['*/*'];
-    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    const httpHeaderAcceptSelected = this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
       headers = headers.set('Accept', httpHeaderAcceptSelected);
     }
 
-    // FormData is used to send both JSON data and a file
+    // 3. PREPARAZIONE FORM DATA
     const formData = new FormData();
-    formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' })); // JSON data
+    formData.append('data', new Blob([JSON.stringify(data)], { type: 'application/json' }));
     if (geometry) {
-      formData.append('geometry', geometry); // Geometry data
+      formData.append('geometry', geometry);
     }
     if (preview) {
-      formData.append('preview', preview); // Preview data
+      formData.append('preview', preview);
     }
 
-    // Post request with FormData (don't manually set Content-Type for multipart)
+    // 4. LOGICA CORRETTA PER IL CONTENT-TYPE
+    // Se stiamo inviando un FormData, NON impostare Content-Type.
+    // Lascia che sia il browser a farlo automaticamente con il boundary.
+    if (!(formData instanceof FormData)) {
+      const consumes: string[] = ['application/json'];
+      const httpContentTypeSelected = this.configuration.selectHeaderContentType(consumes);
+      if (httpContentTypeSelected != undefined) {
+        headers = headers.set('Content-Type', httpContentTypeSelected);
+      }
+    }
+
+    // Post request
     return this.httpClient.put<InterestAreaDto>(`${this.basePath}/v1/interestArea/update`, formData, {
       withCredentials: this.configuration.withCredentials,
-      headers: headers,
+      headers: headers, // Ora gli headers non contengono Content-Type: application/json
       observe: observe,
       reportProgress: reportProgress
     });
   }
-
   /**
    *
    *

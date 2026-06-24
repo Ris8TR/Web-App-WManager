@@ -26,6 +26,8 @@ export class UsermodifyComponent implements OnInit {
     password: ''
   };
 
+  isSaved: boolean = false;
+
   constructor(
     private toolbar: ToolbarComponent,
     private router: Router,
@@ -38,8 +40,6 @@ export class UsermodifyComponent implements OnInit {
   }
 
   private loadUserData() {
-    // Qui dovresti caricare i dati dell'utente dal tuo Service
-    // Esempio placeholder:
     const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
     this.userDto = { ...savedUser, password: '' };
   }
@@ -51,16 +51,21 @@ export class UsermodifyComponent implements OnInit {
 
 
   protected onUpdateData() {
-    console.log(this.userDto);
-        if (this.userDto.firstName && this.userDto.lastName) {
-          this.userService.updatePrivateUser(this.userDto).subscribe({
-            next: (updatedUser: UserDto) => {
-              console.log('Utente aggiornato con successo:', updatedUser);
-            },
-            error: (err) => {
-              console.error('Errore durante l\'aggiornamento dell\'utente:', err);
-            },
-          });
-        }
+    if (this.isSaved) return;
+    if (this.userDto.firstName && this.userDto.lastName) {
+      this.userService.updatePrivateUser(this.userDto).subscribe({
+        next: (updatedUser: UserDto) => {
+          this.isSaved = true;
+          console.log('Utente aggiornato con successo:', updatedUser);
+
+          setTimeout(() => {
+            this.router.navigate(['/userData']);
+          }, 3000);
+        },
+        error: (err) => {
+          console.error('Errore durante l\'aggiornamento dell\'utente:', err);
+        },
+      });
+    }
   }
 }

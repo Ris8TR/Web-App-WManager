@@ -1,11 +1,9 @@
 <div class="dashboard-wrapper d-flex">
-  <!-- Sidebar componente utente -->
   <app-user class="sidebar-component"></app-user>
 
   <main class="content-wrapper flex-grow-1 d-flex align-items-center justify-content-center">
     <div class="container">
       <div class="row justify-content-center">
-
         <div class="col-md-10 col-lg-6 col-xl-5">
           <div class="login-card shadow-lg animate-fade-in">
 
@@ -27,7 +25,8 @@
                   <i class="fas fa-user"></i>
                   <input style="margin-left: 3%" type="text" class="form-control-custom"
                          placeholder="Enter your name" id="first" name="first"
-                         [(ngModel)]="userDto.firstName" required />
+                         [(ngModel)]="userDto.firstName" required
+                         [disabled]="isSaved" /> <!-- DISABILITA INPUT -->
                 </div>
               </div>
 
@@ -38,17 +37,23 @@
                   <i class="fas fa-signature"></i>
                   <input style="margin-left: 3%" type="text" class="form-control-custom"
                          placeholder="Enter your last name" id="last" name="last"
-                         [(ngModel)]="userDto.lastName" required />
+                         [(ngModel)]="userDto.lastName" required
+                         [disabled]="isSaved" /> <!-- DISABILITA INPUT -->
                 </div>
               </div>
 
-
               <!-- Azioni -->
               <div class="text-center">
-                <button type="submit" class="btn-login-submit w-100 mb-2">
-                  <i class="fas fa-save me-2" (click)="onUpdateData()"></i> Save Changes
+                <button type="submit"
+                        class="btn-login-submit w-100 mb-2"
+                        [disabled]="isSaved"
+                        [ngClass]="{'btn-success-custom': isSaved}">
+
+                  <i class="fas me-2" [ngClass]="isSaved ? 'fa-check-circle' : 'fa-save'"></i>
+                  {{ isSaved ? 'Save complete' : 'Save Changes' }}
                 </button>
-                <button type="button" class="btn btn-link text-muted btn-sm" (click)="redirectToUserData()">
+
+                <button *ngIf="!isSaved" type="button" class="btn btn-link text-muted btn-sm" (click)="redirectToUserData()">
                   Discard Changes
                 </button>
               </div>
@@ -56,7 +61,6 @@
             </form>
           </div>
         </div>
-
       </div>
     </div>
   </main>

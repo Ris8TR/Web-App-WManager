@@ -1,5 +1,6 @@
 package com.myTesi.aloisioUmberto.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
@@ -111,12 +112,24 @@ public class InterestAreaController {
         return ResponseEntity.ok(interestAreas);
     }
 
-    @SecurityRequirement(name = "Bearer Authentication")
+
     @PutMapping("/interestArea/update")
-    public ResponseEntity<InterestAreaDto> updateInterestArea(@RequestPart(value = "data") InterestAreaDto data,@RequestPart(value = "geometry", required = false) MultipartFile geometry, @RequestPart(value = "preview", required = false) MultipartFile preview) throws IOException {
+    public ResponseEntity<InterestAreaDto> updateInterestArea(
+            @RequestPart(value = "data") String dataJson, // Leggiamo la stringa pura
+            @RequestPart(value = "geometry", required = false) MultipartFile geometry,
+            @RequestPart(value = "preview", required = false) MultipartFile preview
+    ) throws IOException {
+
+        // 1. Usiamo ObjectMapper per convertire la stringa.
+        // Questo ignorerà anche i campi extra come 'isEditing' se configurato bene.
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        // Questa riga è "blindata": se il JSON è scritto bene, funzionerà sempre.
+        InterestAreaDto data = objectMapper.readValue(dataJson, InterestAreaDto.class);
+
+        // 2. Passiamo l'oggetto convertito al servizio
         return ResponseEntity.ok(interestAreaService.update(data, geometry, preview));
     }
-
 
     @SecurityRequirement(name="Bearer Authentication")
     @DeleteMapping("/interestArea/{id}")
