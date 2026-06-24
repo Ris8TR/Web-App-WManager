@@ -22,7 +22,6 @@ import { UserPreferenceDto } from '../model/userPreferenceDto';
 
 import { BASE_PATH, COLLECTION_FORMATS }                     from '../variables';
 import { Configuration }                                     from '../configuration';
-import {CookieService} from "ngx-cookie-service";
 
 
 @Injectable()
@@ -32,7 +31,7 @@ export class UserPreferenceService {
     public defaultHeaders = new HttpHeaders();
     public configuration = new Configuration();
 
-    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string,private CookiesService: CookieService,  @Optional() configuration: Configuration) {
+    constructor(protected httpClient: HttpClient, @Optional()@Inject(BASE_PATH) basePath: string, @Optional() configuration: Configuration) {
         if (basePath) {
             this.basePath = basePath;
         }
@@ -85,17 +84,8 @@ export class UserPreferenceService {
         if (httpHeaderAcceptSelected != undefined) {
             headers = headers.set('Accept', httpHeaderAcceptSelected);
         }
-      // authentication (bearerAuth) required
-      if (this.CookiesService.get("token")) {
-        const accessToken = typeof this.configuration.accessToken === 'function'
-          ? this.CookiesService.get("token")
-          : this.CookiesService.get("token");
-        headers = headers.set('Authorization', 'Bearer ' + accessToken);
-      }
 
-
-
-      // to determine the Content-Type header
+        // to determine the Content-Type header
         const consumes: string[] = [
         ];
 
@@ -181,16 +171,7 @@ export class UserPreferenceService {
             headers = headers.set('Accept', httpHeaderAcceptSelected);
         }
 
-      // authentication (bearerAuth) required
-      if (this.CookiesService.get("token")) {
-        const accessToken = typeof this.configuration.accessToken === 'function'
-          ? this.CookiesService.get("token")
-          : this.CookiesService.get("token");
-        headers = headers.set('Authorization', 'Bearer ' + accessToken);
-      }
-
-
-      // to determine the Content-Type header
+        // to determine the Content-Type header
         const consumes: string[] = [
         ];
 
@@ -222,15 +203,14 @@ export class UserPreferenceService {
 
         let headers = this.defaultHeaders;
 
-      // authentication (bearerAuth) required
-      if (this.CookiesService.get("token")) {
-        const accessToken = typeof this.configuration.accessToken === 'function'
-          ? this.CookiesService.get("token")
-          : this.CookiesService.get("token");
-        headers = headers.set('Authorization', 'Bearer ' + accessToken);
-      }
-
-      // to determine the Accept header
+        // authentication (Bearer Authentication) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+        // to determine the Accept header
         let httpHeaderAccepts: string[] = [
             '*/*'
         ];
@@ -302,16 +282,7 @@ export class UserPreferenceService {
             headers = headers.set('Content-Type', httpContentTypeSelected);
         }
 
-      // authentication (bearerAuth) required
-      if (this.CookiesService.get("token")) {
-        const accessToken = typeof this.configuration.accessToken === 'function'
-          ? this.CookiesService.get("token")
-          : this.CookiesService.get("token");
-        headers = headers.set('Authorization', 'Bearer ' + accessToken);
-      }
-
-
-      return this.httpClient.request<UserPreferenceDto>('put',`${this.basePath}/v1/UserPreference/user`,
+        return this.httpClient.request<UserPreferenceDto>('put',`${this.basePath}/v1/UserPreference/user`,
             {
                 body: body,
                 withCredentials: this.configuration.withCredentials,

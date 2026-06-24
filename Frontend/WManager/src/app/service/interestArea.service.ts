@@ -359,7 +359,7 @@ export class InterestAreaService {
     ];
 
 
-    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/${encodeURIComponent(String(interestAreaId))}/latest-sensor-data/${encodeURIComponent(String(token))}`,
+    return this.httpClient.request<Array<SensorDataDto>>('get',`${this.basePath}/v1/interestArea/${encodeURIComponent(String(interestAreaId))}/latest-sensor-data/${encodeURIComponent(String(token))}`,
       {
         withCredentials: this.configuration.withCredentials,
         headers: headers,
@@ -403,6 +403,197 @@ export class InterestAreaService {
       observe: observe,
       reportProgress: reportProgress
     });
+  }
+
+  /**
+   *
+   *
+   * @param id
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public deleteInterestAreaAdmin(id: ObjectId, observe?: 'body', reportProgress?: boolean): Observable<any>;
+  public deleteInterestAreaAdmin(id: ObjectId, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+  public deleteInterestAreaAdmin(id: ObjectId, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+  public deleteInterestAreaAdmin(id: ObjectId, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (id === null || id === undefined) {
+      throw new Error('Required parameter id was null or undefined when calling deleteInterestAreaAdmin.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<any>('delete',`${this.basePath}/v1/interestArea/admin/${encodeURIComponent(String(id))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllInterestAreaAdmin(observe?: 'body', reportProgress?: boolean): Observable<Array<InterestAreaDto>>;
+  public getAllInterestAreaAdmin(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<InterestAreaDto>>>;
+  public getAllInterestAreaAdmin(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<InterestAreaDto>>>;
+  public getAllInterestAreaAdmin(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<InterestAreaDto>>('get',`${this.basePath}/v1/interestArea/admin/getAll`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param id
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getInterestAreasByUserAdmin(id: string, observe?: 'body', reportProgress?: boolean): Observable<InterestAreaDto>;
+  public getInterestAreasByUserAdmin(id: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestAreaDto>>;
+  public getInterestAreasByUserAdmin(id: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestAreaDto>>;
+  public getInterestAreasByUserAdmin(id: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (id === null || id === undefined) {
+      throw new Error('Required parameter id was null or undefined when calling getInterestAreasByUserAdmin.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<InterestAreaDto>('get',`${this.basePath}/v1/interestArea/admin/getUserArea/${encodeURIComponent(String(id))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+
+  /**
+   *
+   *
+   * @param body
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public updateInterestAreaAdmin(body?: InterestAreaDto, observe?: 'body', reportProgress?: boolean): Observable<InterestAreaDto>;
+  public updateInterestAreaAdmin(body?: InterestAreaDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<InterestAreaDto>>;
+  public updateInterestAreaAdmin(body?: InterestAreaDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<InterestAreaDto>>;
+  public updateInterestAreaAdmin(body?: InterestAreaDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+      'application/json'
+    ];
+    const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected != undefined) {
+      headers = headers.set('Content-Type', httpContentTypeSelected);
+    }
+
+    return this.httpClient.request<InterestAreaDto>('put',`${this.basePath}/v1/interestArea/admin/update`,
+      {
+        body: body,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
   }
 
 }

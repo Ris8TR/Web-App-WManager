@@ -2,6 +2,7 @@ package com.myTesi.aloisioUmberto.controller;
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.services.interfaces.ImageService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.core.io.Resource;
@@ -22,13 +23,13 @@ public class ImageController {
 
     private final ImageService imageService;
 
-
+    @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/images/{userId}/{imagePath}")
     public ResponseEntity<Resource> getImageById(@PathVariable ("userId") String userId, @PathVariable("imagePath") String imagePath){
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(imageService.getImage(userId, imagePath));
     }
 
-
+    //Non serve il token
     @GetMapping("/images/area/{areaId}")
     public ResponseEntity<Resource> getAreaImage(@PathVariable("areaId") String areaId) throws IOException {
         return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(imageService.getAreaImage(areaId));

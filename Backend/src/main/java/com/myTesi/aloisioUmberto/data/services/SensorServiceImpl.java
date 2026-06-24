@@ -52,15 +52,7 @@ public class SensorServiceImpl implements SensorService {
     private final InterestAreaMapper interestAreaMapper = InterestAreaMapper.INSTANCE;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    /**
-     * Helper per validare il token e restituire l'ID utente.
-     */
-    private String getValidatedUserId(String token) {
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            return jwtTokenProvider.getUserIdFromUserToken(token);
-        }
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid or expired token");
-    }
+
 
     /**
      * Helper per recuperare l'utente e validare le credenziali.
@@ -85,7 +77,7 @@ public class SensorServiceImpl implements SensorService {
         Map<String, Object> data = objectMapper.readValue(file.getInputStream(), Map.class);
 
         String token = String.valueOf(data.get("token"));
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         String password = String.valueOf(data.get("password"));
 
         validateUserCredentials(userId, password);
@@ -187,7 +179,7 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public Optional<SensorDto> findById(String id, String token) {
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         return sensorRepository.findById(id)
                 .filter(s -> s.getUserId().equals(userId))
                 .map(sensorMapper::sensorToSensorDto);
@@ -195,7 +187,7 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> findByCompanyName(String companyName, String token) {
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         return sensorRepository.findAllByCompanyNameAndUserId(companyName, userId)
                 .stream()
                 .map(sensorMapper::sensorToSensorDto)
@@ -205,13 +197,14 @@ public class SensorServiceImpl implements SensorService {
 
 
     @Override
-    public List<SensorDto> getAllSensor() {
+    public List<SensorDto> getAllPublicSensor() {
         long startTime = System.currentTimeMillis();
 
         List<Sensor> sensors = sensorRepository.findAllByIsPublic(true);
         int totalPublicSensors = sensors.size();
 
-        List<SensorDto> sensorDtoList = sensors.stream()
+        List<SensorDto> sensorDtoList;
+        sensorDtoList = sensors.stream()
                 .map(sensor -> sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()))
                         .map(data -> {
                             SensorDto dto = new SensorDto();
@@ -249,7 +242,7 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> findByUserId(String token) {
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         return sensorRepository.findAllByUserId(userId)
                 .stream()
                 .map(sensorMapper::sensorToSensorDto)
@@ -258,7 +251,7 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public SensorAndAreas findAndAreaByUserId(String token) {
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
 
         if (!userDao.existsById(userId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
@@ -278,7 +271,7 @@ public class SensorServiceImpl implements SensorService {
 
     @Override
     public List<SensorDto> findByTypeAndUser(String type, String token) {
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         return sensorRepository.findAllByUserIdAndType(userId, type)
                 .stream()
                 .map(sensorMapper::sensorToSensorDto)
@@ -297,7 +290,7 @@ public class SensorServiceImpl implements SensorService {
                     .collect(Collectors.toList());
         }
 
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         return sensorRepository.findAllByInterestAreaIDAndUserId(interestAreaId, userId)
                 .stream()
                 .map(sensorMapper::sensorToSensorDto)
@@ -307,7 +300,7 @@ public class SensorServiceImpl implements SensorService {
     @Override
     @Transactional
     public SensorDto update(SensorDto sensorDto) {
-        String userId = getValidatedUserId(sensorDto.getToken());
+        String userId = jwtTokenProvider.getUserIdFromUserToken(sensorDto.getToken());
 
         Sensor existingSensor = sensorRepository.findById(sensorDto.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor not found"));
@@ -316,6 +309,67 @@ public class SensorServiceImpl implements SensorService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "You don't have permission to update this sensor");
         }
 
+        return getSensorDto(sensorDto, existingSensor);
+    }
+
+    @Override
+    @Transactional
+    public void deleteSensorById(ObjectId id, String token) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
+        Sensor sensor = sensorRepository.findByIdAndUserId(id.toString(), userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor not found or access denied"));
+
+        sensorRepository.deleteById(sensor.getId().toString());
+    }
+
+    @Override
+    public List<SensorDto> findAllAdmin(String token) {
+        List<Sensor> sensors = sensorRepository.findAll();
+        List<SensorDto> list = new ArrayList<>();
+        for (Sensor sensor : sensors) {
+            sensorDataRepository.findTopBySensorIdOrderByTimestampDesc(String.valueOf(sensor.getId()))
+                    .map(data -> {
+                        SensorDto dto = new SensorDto();
+                        dto.setId(String.valueOf(sensor.getId()));
+                        dto.setDescription(sensor.getDescription());
+                        dto.setUserId(String.valueOf(sensor.getUserId()));
+                        dto.setPayloadType(sensor.getPayloadType());
+                        dto.setInterestAreaID(sensor.getInterestAreaID());
+                        dto.setCompanyName(sensor.getCompanyName());
+                        dto.setLatitude(Collections.singletonList(data.getLatitude()));
+                        dto.setLongitude(Collections.singletonList(data.getLongitude()));
+                        dto.setTimestamp(String.valueOf(data.getTimestamp()));
+                        dto.setIsPublic(sensor.getIsPublic());
+                        return dto;
+                    }).ifPresent(list::add);
+        }
+        return list;
+    }
+
+    @Override
+    public Optional<SensorDto> findByIdAdmin(String id) {
+        return sensorRepository.findById((id))
+                .map(sensorMapper::sensorToSensorDto);
+    }
+
+    @Override
+    public void deleteSensorByIdAdmin(String id) {
+        Sensor sensor = sensorRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor not found or access denied"));
+
+        sensorRepository.deleteById(sensor.getId().toString());
+    }
+
+    @Override
+    public SensorDto updateAdmin(SensorDto sensorDto) {
+        Sensor existingSensor = sensorRepository.findById(sensorDto.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor not found"));
+        return getSensorDto(sensorDto, existingSensor);
+    }
+
+
+
+    private SensorDto getSensorDto(SensorDto sensorDto, Sensor existingSensor) {
         existingSensor.setIsPublic(sensorDto.getIsPublic());
         existingSensor.setType(String.valueOf(sensorDto.getType()));
         existingSensor.setDescription(sensorDto.getDescription());
@@ -331,13 +385,4 @@ public class SensorServiceImpl implements SensorService {
         return modelMapper.map(updated, SensorDto.class);
     }
 
-    @Override
-    @Transactional
-    public void deleteSensorById(ObjectId id, String token) {
-        String userId = getValidatedUserId(token);
-        Sensor sensor = sensorRepository.findByIdAndUserId(id.toString(), userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sensor not found or access denied"));
-
-        sensorRepository.deleteById(sensor.getId().toString());
-    }
 }

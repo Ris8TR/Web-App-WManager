@@ -6,6 +6,7 @@ import com.myTesi.aloisioUmberto.data.entities.SensorData;
 
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorAnalyticsService;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorDataService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -55,8 +56,9 @@ public class AnalyticsController {
     /**
      * Endpoint per ottenere i dati "allisciati" (smoothed) per il grafico.
      */
+    @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/sensor/{sensorId}/trend")
-    public ResponseEntity<List<SensorData>> getSensorTrend(HttpServletRequest request , @PathVariable String sensorId, @RequestParam String key) {
+    public ResponseEntity<List<SensorData>> getSensorTrend(HttpServletRequest request , @PathVariable String sensorId) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         List<SensorData> rawData = sensorDataService.getRawDataForSensor(sensorId, token, 600000);
         return ResponseEntity.ok(rawData);
@@ -65,6 +67,7 @@ public class AnalyticsController {
     /**
      * Endpoint per identificare le anomalie.
      */
+    @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/sensor/{sensorId}/anomalies")
     public ResponseEntity<List<SensorData>> getAnomalies(HttpServletRequest request ,@PathVariable String sensorId,@RequestParam String key,@RequestParam(defaultValue = "3.0") double threshold) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
@@ -77,6 +80,7 @@ public class AnalyticsController {
     /**
      * Endpoint per la predizione del prossimo valore.
      */
+    @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/sensor/{sensorId}/predict")
     public ResponseEntity<Map<String, Object>> getPrediction(HttpServletRequest request, @PathVariable String sensorId,@RequestParam String key) {
         String token = jwtTokenProvider.getTokenFromRequest(request);

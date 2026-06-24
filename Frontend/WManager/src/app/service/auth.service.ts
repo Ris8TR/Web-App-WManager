@@ -228,7 +228,7 @@ export class AuthService {
         const consumes: string[] = [
         ];
 
-        return this.httpClient.request<any>('post',`${this.basePath}/v1/login/resetpsw/${encodeURIComponent(String(email))}`,
+        return this.httpClient.request<any>('post',`${this.basePath}/v1/auth/resetpsw/${encodeURIComponent(String(email))}`,
             {
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,

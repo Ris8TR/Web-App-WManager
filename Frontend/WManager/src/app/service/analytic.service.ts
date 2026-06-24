@@ -1,5 +1,5 @@
 /**
- * OpenAPi WManager
+ * OpenAPI WManager
  * OpenApi documentation for Spring Security
  *
  * OpenAPI spec version: 1.0
@@ -59,23 +59,18 @@ export class AnalyticService {
      *
      *
      * @param sensorId
-     * @param authorization
      * @param key
      * @param threshold
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getAnomalies(sensorId: string, authorization: string, key: string, threshold?: number, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorData>>;
-    public getAnomalies(sensorId: string, authorization: string, key: string, threshold?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorData>>>;
-    public getAnomalies(sensorId: string, authorization: string, key: string, threshold?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorData>>>;
-    public getAnomalies(sensorId: string, authorization: string, key: string, threshold?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getAnomalies(sensorId: string, key: string, threshold?: number, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorData>>;
+    public getAnomalies(sensorId: string, key: string, threshold?: number, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorData>>>;
+    public getAnomalies(sensorId: string, key: string, threshold?: number, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorData>>>;
+    public getAnomalies(sensorId: string, key: string, threshold?: number, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (sensorId === null || sensorId === undefined) {
             throw new Error('Required parameter sensorId was null or undefined when calling getAnomalies.');
-        }
-
-        if (authorization === null || authorization === undefined) {
-            throw new Error('Required parameter authorization was null or undefined when calling getAnomalies.');
         }
 
         if (key === null || key === undefined) {
@@ -92,10 +87,14 @@ export class AnalyticService {
         }
 
         let headers = this.defaultHeaders;
-        if (authorization !== undefined && authorization !== null) {
-            headers = headers.set('Authorization', String(authorization));
-        }
 
+        // authentication (Bearer Authentication) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
             '*/*'
@@ -124,22 +123,17 @@ export class AnalyticService {
      *
      *
      * @param sensorId
-     * @param authorization
      * @param key
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getPrediction(sensorId: string, authorization: string, key: string, observe?: 'body', reportProgress?: boolean): Observable<{ [key: string]: any; }>;
-    public getPrediction(sensorId: string, authorization: string, key: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<{ [key: string]: any; }>>;
-    public getPrediction(sensorId: string, authorization: string, key: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<{ [key: string]: any; }>>;
-    public getPrediction(sensorId: string, authorization: string, key: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getPrediction(sensorId: string, key: string, observe?: 'body', reportProgress?: boolean): Observable<{ [key: string]: any; }>;
+    public getPrediction(sensorId: string, key: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<{ [key: string]: any; }>>;
+    public getPrediction(sensorId: string, key: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<{ [key: string]: any; }>>;
+    public getPrediction(sensorId: string, key: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (sensorId === null || sensorId === undefined) {
             throw new Error('Required parameter sensorId was null or undefined when calling getPrediction.');
-        }
-
-        if (authorization === null || authorization === undefined) {
-            throw new Error('Required parameter authorization was null or undefined when calling getPrediction.');
         }
 
         if (key === null || key === undefined) {
@@ -152,10 +146,14 @@ export class AnalyticService {
         }
 
         let headers = this.defaultHeaders;
-        if (authorization !== undefined && authorization !== null) {
-            headers = headers.set('Authorization', String(authorization));
-        }
 
+        // authentication (Bearer Authentication) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
             '*/*'
@@ -184,26 +182,21 @@ export class AnalyticService {
      *
      *
      * @param sensorId
-     * @param authorization
      * @param key
      * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
      * @param reportProgress flag to report request and response progress.
      */
-    public getSensorTrend(sensorId: string, authorization: string, key: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorData>>;
-    public getSensorTrend(sensorId: string, authorization: string, key: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorData>>>;
-    public getSensorTrend(sensorId: string, authorization: string, key: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorData>>>;
-    public getSensorTrend(sensorId: string, authorization: string, key: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+    public getPublicPrediction(sensorId: string, key: string, observe?: 'body', reportProgress?: boolean): Observable<{ [key: string]: any; }>;
+    public getPublicPrediction(sensorId: string, key: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<{ [key: string]: any; }>>;
+    public getPublicPrediction(sensorId: string, key: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<{ [key: string]: any; }>>;
+    public getPublicPrediction(sensorId: string, key: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
         if (sensorId === null || sensorId === undefined) {
-            throw new Error('Required parameter sensorId was null or undefined when calling getSensorTrend.');
-        }
-
-        if (authorization === null || authorization === undefined) {
-            throw new Error('Required parameter authorization was null or undefined when calling getSensorTrend.');
+            throw new Error('Required parameter sensorId was null or undefined when calling getPublicPrediction.');
         }
 
         if (key === null || key === undefined) {
-            throw new Error('Required parameter key was null or undefined when calling getSensorTrend.');
+            throw new Error('Required parameter key was null or undefined when calling getPublicPrediction.');
         }
 
         let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
@@ -212,10 +205,125 @@ export class AnalyticService {
         }
 
         let headers = this.defaultHeaders;
-        if (authorization !== undefined && authorization !== null) {
-            headers = headers.set('Authorization', String(authorization));
+
+        // authentication (Bearer Authentication) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            '*/*'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
         }
 
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<{ [key: string]: any; }>('get',`${this.basePath}/v1/sensor/public/${encodeURIComponent(String(sensorId))}/predict`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     *
+     *
+     * @param sensorId
+     * @param key
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getPublicSensorTrend(sensorId: string, key: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorData>>;
+    public getPublicSensorTrend(sensorId: string, key: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorData>>>;
+    public getPublicSensorTrend(sensorId: string, key: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorData>>>;
+    public getPublicSensorTrend(sensorId: string, key: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (sensorId === null || sensorId === undefined) {
+            throw new Error('Required parameter sensorId was null or undefined when calling getPublicSensorTrend.');
+        }
+
+        if (key === null || key === undefined) {
+            throw new Error('Required parameter key was null or undefined when calling getPublicSensorTrend.');
+        }
+
+        let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
+        if (key !== undefined && key !== null) {
+            queryParameters = queryParameters.set('key', <any>key);
+        }
+
+        let headers = this.defaultHeaders;
+
+        // authentication (Bearer Authentication) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
+        // to determine the Accept header
+        let httpHeaderAccepts: string[] = [
+            '*/*'
+        ];
+        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+        if (httpHeaderAcceptSelected != undefined) {
+            headers = headers.set('Accept', httpHeaderAcceptSelected);
+        }
+
+        // to determine the Content-Type header
+        const consumes: string[] = [
+        ];
+
+        return this.httpClient.request<Array<SensorData>>('get',`${this.basePath}/v1/sensor/public/${encodeURIComponent(String(sensorId))}/trend`,
+            {
+                params: queryParameters,
+                withCredentials: this.configuration.withCredentials,
+                headers: headers,
+                observe: observe,
+                reportProgress: reportProgress
+            }
+        );
+    }
+
+    /**
+     *
+     *
+     * @param sensorId
+     * @param key
+     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+     * @param reportProgress flag to report request and response progress.
+     */
+    public getSensorTrend(sensorId: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorData>>;
+    public getSensorTrend(sensorId: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorData>>>;
+    public getSensorTrend(sensorId: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorData>>>;
+    public getSensorTrend(sensorId: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+        if (sensorId === null || sensorId === undefined) {
+            throw new Error('Required parameter sensorId was null or undefined when calling getSensorTrend.');
+        }
+
+
+
+        let headers = this.defaultHeaders;
+
+        // authentication (Bearer Authentication) required
+        if (this.configuration.accessToken) {
+            const accessToken = typeof this.configuration.accessToken === 'function'
+                ? this.configuration.accessToken()
+                : this.configuration.accessToken;
+            headers = headers.set('Authorization', 'Bearer ' + accessToken);
+        }
         // to determine the Accept header
         let httpHeaderAccepts: string[] = [
             '*/*'
@@ -231,7 +339,6 @@ export class AnalyticService {
 
         return this.httpClient.request<Array<SensorData>>('get',`${this.basePath}/v1/sensor/${encodeURIComponent(String(sensorId))}/trend`,
             {
-                params: queryParameters,
                 withCredentials: this.configuration.withCredentials,
                 headers: headers,
                 observe: observe,
@@ -240,113 +347,4 @@ export class AnalyticService {
         );
     }
 
-
-  /**
-   *
-   *
-   * @param sensorId
-   * @param authorization
-   * @param key
-   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-   * @param reportProgress flag to report request and response progress.
-   */
-  public getPublicSensorTrend(sensorId: string, key: string, observe?: 'body', reportProgress?: boolean): Observable<Array<SensorData>>;
-  public getPublicSensorTrend(sensorId: string, key: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorData>>>;
-  public getPublicSensorTrend(sensorId: string, key: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorData>>>;
-  public getPublicSensorTrend(sensorId: string, key: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
-    if (sensorId === null || sensorId === undefined) {
-      throw new Error('Required parameter sensorId was null or undefined when calling getSensorTrend.');
-    }
-
-
-
-    if (key === null || key === undefined) {
-      throw new Error('Required parameter key was null or undefined when calling getSensorTrend.');
-    }
-
-    let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-    if (key !== undefined && key !== null) {
-      queryParameters = queryParameters.set('key', <any>key);
-    }
-
-    let headers = this.defaultHeaders;
-
-    // to determine the Accept header
-    let httpHeaderAccepts: string[] = [
-      '*/*'
-    ];
-    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-    if (httpHeaderAcceptSelected != undefined) {
-      headers = headers.set('Accept', httpHeaderAcceptSelected);
-    }
-
-    // to determine the Content-Type header
-    const consumes: string[] = [
-    ];
-
-    return this.httpClient.request<Array<SensorData>>('get',`${this.basePath}/v1/sensor/public/${encodeURIComponent(String(sensorId))}/trend`,
-      {
-        params: queryParameters,
-        withCredentials: this.configuration.withCredentials,
-        headers: headers,
-        observe: observe,
-        reportProgress: reportProgress
-      }
-    );
-  }
-  /**
-   *
-   *
-   * @param sensorId
-   * @param authorization
-   * @param key
-   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-   * @param reportProgress flag to report request and response progress.
-   */
-  public getPublicPrediction(sensorId: string, authorization: string, key: string, observe?: 'body', reportProgress?: boolean): Observable<{ [key: string]: any; }>;
-  public getPublicPrediction(sensorId: string, authorization: string, key: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<{ [key: string]: any; }>>;
-  public getPublicPrediction(sensorId: string, authorization: string, key: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<{ [key: string]: any; }>>;
-  public getPublicPrediction(sensorId: string, authorization: string, key: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
-    if (sensorId === null || sensorId === undefined) {
-      throw new Error('Required parameter sensorId was null or undefined when calling getSensorTrend.');
-    }
-
-
-
-    if (key === null || key === undefined) {
-      throw new Error('Required parameter key was null or undefined when calling getSensorTrend.');
-    }
-
-    let queryParameters = new HttpParams({encoder: new CustomHttpUrlEncodingCodec()});
-    if (key !== undefined && key !== null) {
-      queryParameters = queryParameters.set('key', <any>key);
-    }
-
-    let headers = this.defaultHeaders;
-
-    // to determine the Accept header
-    let httpHeaderAccepts: string[] = [
-      '*/*'
-    ];
-    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-    if (httpHeaderAcceptSelected != undefined) {
-      headers = headers.set('Accept', httpHeaderAcceptSelected);
-    }
-
-    // to determine the Content-Type header
-    const consumes: string[] = [
-    ];
-
-    return this.httpClient.request<Array<SensorData>>('get',`${this.basePath}/v1/sensor/public/${encodeURIComponent(String(sensorId))}/predict`,
-      {
-        params: queryParameters,
-        withCredentials: this.configuration.withCredentials,
-        headers: headers,
-        observe: observe,
-        reportProgress: reportProgress
-      }
-    );
-  }
 }

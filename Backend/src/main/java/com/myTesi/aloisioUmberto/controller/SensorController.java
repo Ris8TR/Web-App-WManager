@@ -1,15 +1,10 @@
 package com.myTesi.aloisioUmberto.controller;
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
-import com.myTesi.aloisioUmberto.data.entities.SensorData;
-import com.myTesi.aloisioUmberto.data.services.SensorServiceImpl;
 import com.myTesi.aloisioUmberto.data.services.interfaces.SensorService;
-import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.New.NewSensorDto;
-import com.myTesi.aloisioUmberto.dto.New.NewUserDto;
 import com.myTesi.aloisioUmberto.dto.SensorAndAreas;
 import com.myTesi.aloisioUmberto.dto.SensorDto;
-import com.myTesi.aloisioUmberto.dto.UserDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,8 +60,8 @@ public class SensorController {
 
     //PUBLIC
     @GetMapping("/sensors/public/all-sensors")
-    public ResponseEntity<List<SensorDto>> getAllSensor() {
-        return ResponseEntity.ok(sensorService.getAllSensor());
+    public ResponseEntity<List<SensorDto>> getAllPublicSensor() {
+        return ResponseEntity.ok(sensorService.getAllPublicSensor());
     }
 
     @GetMapping("/sensors/public/company/{companyName}")
@@ -129,6 +125,35 @@ public class SensorController {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorService.findAndAreaByUserId(token));
     }
+
+    //ADMIN
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/sensors/admin")
+    public ResponseEntity<List<SensorDto>> getAllSensorsAdmin(HttpServletRequest request) {
+        String token = jwtTokenProvider.getTokenFromRequest(request);
+        return ResponseEntity.ok(sensorService.findAllAdmin(token));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/sensors/admin/{id}")
+    public ResponseEntity<Optional<SensorDto>> getSensorById( @PathVariable String id) {
+        return ResponseEntity.ok(sensorService.findByIdAdmin(id));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/sensors/admin/update")
+    public ResponseEntity<SensorDto> updateSensorAdmin(@RequestBody SensorDto sensorDto) {
+        return ResponseEntity.ok(sensorService.updateAdmin(sensorDto));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/sensors/admin/{id}")
+    public ResponseEntity<Void> DeleteSensorAdmin(@PathVariable String id) {
+        sensorService.deleteSensorByIdAdmin(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
 
 
 

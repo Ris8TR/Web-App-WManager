@@ -715,4 +715,149 @@ export class SensorService {
     );
   }
 
+  /**
+   *
+   *
+   * @param id
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public deleteSensorAdmin(id: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+  public deleteSensorAdmin(id: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+  public deleteSensorAdmin(id: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+  public deleteSensorAdmin(id: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (id === null || id === undefined) {
+      throw new Error('Required parameter id was null or undefined when calling deleteSensorAdmin.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<any>('delete',`${this.basePath}/v1/sensors/admin/${encodeURIComponent(String(id))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+  /**
+   *
+   *
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAllSensorsAdmin(observe?: 'body', reportProgress?: boolean): Observable<Array<SensorDto>>;
+  public getAllSensorsAdmin(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<SensorDto>>>;
+  public getAllSensorsAdmin(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<SensorDto>>>;
+  public getAllSensorsAdmin(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<SensorDto>>('get',`${this.basePath}/v1/sensors/admin`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param body
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public updateSensorAdmin(body: SensorDto, observe?: 'body', reportProgress?: boolean): Observable<SensorDto>;
+  public updateSensorAdmin(body: SensorDto, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<SensorDto>>;
+  public updateSensorAdmin(body: SensorDto, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<SensorDto>>;
+  public updateSensorAdmin(body: SensorDto, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (body === null || body === undefined) {
+      throw new Error('Required parameter body was null or undefined when calling updateSensorAdmin.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+      'application/json'
+    ];
+    const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected != undefined) {
+      headers = headers.set('Content-Type', httpContentTypeSelected);
+    }
+
+    return this.httpClient.request<SensorDto>('put',`${this.basePath}/v1/sensors/admin/update`,
+      {
+        body: body,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+
 }

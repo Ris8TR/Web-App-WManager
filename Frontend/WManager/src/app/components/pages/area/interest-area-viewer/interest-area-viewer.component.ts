@@ -268,7 +268,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
     const key = this.selectedSensorType;
 
     if (this.showTrend) {
-      this.analyticsService.getSensorTrend(sensorId, authHeader, key).subscribe({
+      this.analyticsService.getSensorTrend(sensorId).subscribe({
         next: (dataList: any[]) => {
           this.sensorTrendLocalList = dataList;
           const heatData = this.sensorDataLocalList
@@ -322,7 +322,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
 
   private renderAnomaliesOverlay(authHeader: string): void {
     if (!this.selectedSensor) return;
-    this.analyticsService.getAnomalies(this.selectedSensor, authHeader, this.selectedSensorType, 3.0)
+    this.analyticsService.getAnomalies(this.selectedSensor, authHeader, 3.0)
       .subscribe({
         next: (anomalies) => {
           anomalies?.forEach(a => {
@@ -454,7 +454,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
   private loadPrediction(): void {
     const token = this.cookieService.get('token');
     if (!this.selectedSensor) return;
-    this.analyticsService.getPrediction(this.selectedSensor, `Bearer ${token}`, this.selectedSensorType)
+    this.analyticsService.getPrediction(this.selectedSensor, this.selectedSensorType)
       .subscribe({
         next: (res) => {
           this.predictionValue = res['predictedValue'];

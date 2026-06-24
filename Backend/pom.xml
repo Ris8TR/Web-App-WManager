@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
@@ -117,13 +117,13 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-config</artifactId>
-			<version>7.0.5</version>
+			<version> 6.2.4</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
-			<version>7.0.5</version>
+			<version> 6.2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
@@ -175,10 +175,9 @@
 			<artifactId>jjwt</artifactId>
 			<version> 0.9.1</version>
 		</dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-	        <version>4.0.4</version>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
@@ -189,10 +188,10 @@
 
 	</dependencies>
 	<repositories>
-	<repository>
-		<id>geo-solutions</id>
-		<url>https://maven.geo-solutions.it/</url>
-	</repository>
+		<repository>
+			<id>geo-solutions</id>
+			<url>https://maven.geo-solutions.it/</url>
+		</repository>
 	</repositories>
 
 	<build>
@@ -217,8 +216,8 @@
 				<dependencies>
 					<dependency>
 						<groupId>org.springframework.restdocs</groupId>
-						<artifactId>spring-restdocs-bom</artifactId>
-						<version>3.0.1</version>
+						<artifactId>spring-restdocs-asciidoctor</artifactId>
+						<version>${spring-restdocs.version}</version>
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -234,18 +233,16 @@
 					</excludes>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>8</source>
-                    <target>8</target>
-                </configuration>
-            </plugin>
-        </plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>8</source>
+					<target>8</target>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 
 </project>
-
-

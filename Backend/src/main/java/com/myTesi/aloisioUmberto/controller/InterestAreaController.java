@@ -2,18 +2,15 @@ package com.myTesi.aloisioUmberto.controller;
 
 import com.myTesi.aloisioUmberto.config.JwtTokenProvider;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
-import com.myTesi.aloisioUmberto.data.entities.SensorData;
 import com.myTesi.aloisioUmberto.data.services.interfaces.InterestAreaService;
 import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
-import com.myTesi.aloisioUmberto.dto.New.NewSensorDataDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -78,7 +75,6 @@ public class InterestAreaController {
         return ResponseEntity.ok(interestAreaService.updateAdmin(data, geometry, preview));
     }
 
-
     @PreAuthorize("hasRole('ADMIN')")
     @SecurityRequirement(name="Bearer Authentication")
     @DeleteMapping("/interestArea/admin/{id}")
@@ -89,8 +85,8 @@ public class InterestAreaController {
 
 
     //PRIVATE
-    //TODO AGGIUNGERE interestArea/ nell'url
-    @GetMapping("/{interestAreaId}/latest-sensor-data/{token}")
+    @SecurityRequirement(name="Bearer Authentication")
+    @GetMapping("/interestArea/{interestAreaId}/latest-sensor-data/{token}")
     public ResponseEntity<List<SensorDataDto>> getLatestSensorDataInInterestArea(HttpServletRequest request ,@PathVariable String interestAreaId, @PathVariable String token) {
         List<SensorDataDto> sensorDataList = interestAreaService.getLatestSensorDataInInterestArea(interestAreaId, token);
         if (sensorDataList != null && !sensorDataList.isEmpty()) {
@@ -117,8 +113,7 @@ public class InterestAreaController {
 
     @SecurityRequirement(name = "Bearer Authentication")
     @PutMapping("/interestArea/update")
-    public ResponseEntity<InterestAreaDto> updateInterestArea(HttpServletRequest request, @RequestPart(value = "data") InterestAreaDto data,@RequestPart(value = "geometry", required = false) MultipartFile geometry, @RequestPart(value = "preview", required = false) MultipartFile preview) throws IOException {
-        String token = jwtTokenProvider.getTokenFromRequest(request);
+    public ResponseEntity<InterestAreaDto> updateInterestArea(@RequestPart(value = "data") InterestAreaDto data,@RequestPart(value = "geometry", required = false) MultipartFile geometry, @RequestPart(value = "preview", required = false) MultipartFile preview) throws IOException {
         return ResponseEntity.ok(interestAreaService.update(data, geometry, preview));
     }
 

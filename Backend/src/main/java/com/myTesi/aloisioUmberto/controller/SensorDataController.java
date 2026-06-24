@@ -19,9 +19,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
@@ -164,6 +161,7 @@ public class SensorDataController {
     public ResponseEntity<SensorDataInterestAreaDto> getAllPublicSensorDataOnTop() {
         return ResponseEntity.ok(sensorDataService.getTopPublicSensorData());
     }
+
     @SecurityRequirement(name="Bearer Authentication")
     @GetMapping("/SensorData/public/top-by-interestAreaId/{interestAreaId}")
     public ResponseEntity<SensorDataInterestAreaDto> getLastPublicSensorDataByInterestAreaId(@PathVariable String interestAreaId) {
@@ -188,22 +186,26 @@ public class SensorDataController {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorDataService.getLatestSensorDataBySensorId(token,id));
     }
+
     @PutMapping("/SensorData/private")
     public ResponseEntity<SensorData> updateSensorData(HttpServletRequest request, @RequestBody NewSensorDataDto newSensorDataDto) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok(sensorDataService.update(newSensorDataDto));
     }
+
     @DeleteMapping("/SensorData/private/{id}")
     public HttpStatus deleteSensorData(HttpServletRequest request, @PathVariable String id) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         sensorDataService.delete(token,id);
         return HttpStatus.OK;
     }
+
     @GetMapping("/SensorData/private/area/{interestAreaId}")
     public ResponseEntity<SensorDataInterestAreaDto> getPrivateSensorDataByInterestArea(HttpServletRequest request, @PathVariable String interestAreaId  ) {
         String token = jwtTokenProvider.getTokenFromRequest(request);
         return ResponseEntity.ok( sensorDataService.getAllSensorDataProcessedByInterestArea( interestAreaId, token));
     }
+
     @GetMapping("/SensorData/public/processed/{type}")
     public ResponseEntity<String> getPublicProcessedDataByType(HttpServletRequest request, @PathVariable String type ) {
         String token = jwtTokenProvider.getTokenFromRequest(request);

@@ -49,21 +49,46 @@ public class SecurityConfig {
 
                         ).permitAll()
 
-                        // 2. ENDPOINT COMPLETAMENTE PUBBLICI
+                        //ENDPOINT PUBBLICI
+                        //USER
                         .requestMatchers("/v1/user/private/**").permitAll()
                         .requestMatchers("/v1/user/newUser").permitAll()
+                        .requestMatchers("/v1/user/").permitAll()
+
+                        //SENSOR DATA
                         .requestMatchers("/v1/SensorData/public/**").permitAll()
+
+                        //SENSOR
                         .requestMatchers("/v1/sensors/public/**").permitAll()
                         .requestMatchers("/v1/sensor/public/**").permitAll()
+
+                        //INTEREST AREA
                         .requestMatchers("/v1/interestArea/public/**").permitAll()
-                        .requestMatchers("/v1/interestArea/**").permitAll()
+
+                        //AUTH
                         .requestMatchers("/v1/auth/**").permitAll()
+
+                        //IMAGES
                         .requestMatchers("/v1/images/area/**").permitAll()
+
+                        //USERPREF
                         .requestMatchers("/v1/UserPreference/user/**").permitAll()
 
-                        // 3. TUTTO IL RESTO richiede autenticazione
+
+
+                        //ADMIN
+                        //USER
                         .requestMatchers("/v1/user/admin/**").hasRole("ADMIN")
 
+                        //SENSOR
+                        .requestMatchers("/v1/sensors/admin/**").hasRole("ADMIN")
+
+                        //INTEREST AREA
+                        .requestMatchers("/v1/interestArea/admin/**").hasRole("ADMIN")
+
+
+
+                        //TUTTO IL RESTO richiede autenticazione
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -36,7 +36,7 @@ public class AuthController {
         return authService.loginUser(req, resp, loginDto);
     }
 
-    @PostMapping("/login/resetpsw/{email}")
+    @PostMapping("/auth/resetpsw/{email}")
     public ResponseEntity<Object> resetPass(@PathVariable @Valid String email) {
         return ResponseEntity.ok(authService.resetPass(email));
     }

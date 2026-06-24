@@ -159,96 +159,8 @@ export class UserService {
         );
     }
 
-    /**
-     *
-     *
-     * @param email
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public findByEmail(email: string, observe?: 'body', reportProgress?: boolean): Observable<UserDto>;
-    public findByEmail(email: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserDto>>;
-    public findByEmail(email: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserDto>>;
-    public findByEmail(email: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
 
-        if (email === null || email === undefined) {
-            throw new Error('Required parameter email was null or undefined when calling findByEmail.');
-        }
 
-        let headers = this.defaultHeaders;
-
-      // authentication (bearerAuth) required
-      if (this.CookiesService.get("token")) {
-        const accessToken = typeof this.configuration.accessToken === 'function'
-          ? this.CookiesService.get("token")
-          : this.CookiesService.get("token");
-        headers = headers.set('Authorization', 'Bearer ' + accessToken);
-      }
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            '*/*'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        return this.httpClient.request<UserDto>('get',`${this.basePath}/v1/users/admin/${encodeURIComponent(String(email))}`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
-
-    /**
-     * this is the list of user
-     * Get endpoint for user
-     * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
-     * @param reportProgress flag to report request and response progress.
-     */
-    public getAll(observe?: 'body', reportProgress?: boolean): Observable<Array<UserDto>>;
-    public getAll(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<UserDto>>>;
-    public getAll(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<UserDto>>>;
-    public getAll(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
-
-        let headers = this.defaultHeaders;
-
-      // authentication (bearerAuth) required
-      if (this.CookiesService.get("token")) {
-        const accessToken = typeof this.configuration.accessToken === 'function'
-          ? this.CookiesService.get("token")
-          : this.CookiesService.get("token");
-        headers = headers.set('Authorization', 'Bearer ' + accessToken);
-      }
-        // to determine the Accept header
-        let httpHeaderAccepts: string[] = [
-            '*/*'
-        ];
-        const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
-        if (httpHeaderAcceptSelected != undefined) {
-            headers = headers.set('Accept', httpHeaderAcceptSelected);
-        }
-
-        // to determine the Content-Type header
-        const consumes: string[] = [
-        ];
-
-        return this.httpClient.request<Array<UserDto>>('get',`${this.basePath}/v1/users/admin/all-users`,
-            {
-                withCredentials: this.configuration.withCredentials,
-                headers: headers,
-                observe: observe,
-                reportProgress: reportProgress
-            }
-        );
-    }
 
 
   /**
@@ -389,6 +301,200 @@ export class UserService {
     }
 
     return this.httpClient.request<UserDto>('put',`${this.basePath}/v1/user/private`,
+      {
+        body: body,
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+
+  public deleteUserAdmin(email: string, observe?: 'body', reportProgress?: boolean): Observable<any>;
+  public deleteUserAdmin(email: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<any>>;
+  public deleteUserAdmin(email: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<any>>;
+  public deleteUserAdmin(email: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (email === null || email === undefined) {
+      throw new Error('Required parameter email was null or undefined when calling deleteUser.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<any>('delete',`${this.basePath}/v1/user/admin/${encodeURIComponent(String(email))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param email
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+
+
+  public findByEmailAdmin(email: string, observe?: 'body', reportProgress?: boolean): Observable<UserDto>;
+  public findByEmailAdmin(email: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserDto>>;
+  public findByEmailAdmin(email: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserDto>>;
+  public findByEmailAdmin(email: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (email === null || email === undefined) {
+      throw new Error('Required parameter email was null or undefined when calling findByEmail.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<UserDto>('get',`${this.basePath}/v1/user/admin/${encodeURIComponent(String(email))}`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   * this is the list of user
+   * Get endpoint for user
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public getAll(observe?: 'body', reportProgress?: boolean): Observable<Array<UserDto>>;
+  public getAll(observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<Array<UserDto>>>;
+  public getAll(observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<Array<UserDto>>>;
+  public getAll(observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+    ];
+
+    return this.httpClient.request<Array<UserDto>>('get',`${this.basePath}/v1/user/admin/all-users`,
+      {
+        withCredentials: this.configuration.withCredentials,
+        headers: headers,
+        observe: observe,
+        reportProgress: reportProgress
+      }
+    );
+  }
+
+  /**
+   *
+   *
+   * @param body
+   * @param email
+   * @param observe set whether or not to return the data Observable as the body, response or events. defaults to returning the body.
+   * @param reportProgress flag to report request and response progress.
+   */
+  public updateUserAdmin(body: UserDto, email: string, observe?: 'body', reportProgress?: boolean): Observable<UserDto>;
+  public updateUserAdmin(body: UserDto, email: string, observe?: 'response', reportProgress?: boolean): Observable<HttpResponse<UserDto>>;
+  public updateUserAdmin(body: UserDto, email: string, observe?: 'events', reportProgress?: boolean): Observable<HttpEvent<UserDto>>;
+  public updateUserAdmin(body: UserDto, email: string, observe: any = 'body', reportProgress: boolean = false ): Observable<any> {
+
+    if (body === null || body === undefined) {
+      throw new Error('Required parameter body was null or undefined when calling updateUser.');
+    }
+
+    if (email === null || email === undefined) {
+      throw new Error('Required parameter email was null or undefined when calling updateUser.');
+    }
+
+    let headers = this.defaultHeaders;
+
+    // authentication (Bearer Authentication) required
+    if (this.configuration.accessToken) {
+      const accessToken = typeof this.configuration.accessToken === 'function'
+        ? this.configuration.accessToken()
+        : this.configuration.accessToken;
+      headers = headers.set('Authorization', 'Bearer ' + accessToken);
+    }
+    // to determine the Accept header
+    let httpHeaderAccepts: string[] = [
+      '*/*'
+    ];
+    const httpHeaderAcceptSelected: string | undefined = this.configuration.selectHeaderAccept(httpHeaderAccepts);
+    if (httpHeaderAcceptSelected != undefined) {
+      headers = headers.set('Accept', httpHeaderAcceptSelected);
+    }
+
+    // to determine the Content-Type header
+    const consumes: string[] = [
+      'application/json'
+    ];
+    const httpContentTypeSelected: string | undefined = this.configuration.selectHeaderContentType(consumes);
+    if (httpContentTypeSelected != undefined) {
+      headers = headers.set('Content-Type', httpContentTypeSelected);
+    }
+
+    return this.httpClient.request<UserDto>('put',`${this.basePath}/v1/user/admin/${encodeURIComponent(String(email))}`,
       {
         body: body,
         withCredentials: this.configuration.withCredentials,
