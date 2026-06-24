@@ -16,12 +16,18 @@ public interface InterestAreaService {
 
     InterestArea getInterestArea(String id, String token);
 
+    InterestAreaDto getInterestAreaAdmin(String id);
+
     List<SensorDataDto> getLatestSensorDataInInterestArea(String interestAreaId, String token);
     List<InterestAreaDto> getAllPublicInterestArea();
 
     List<InterestAreaDto> getInterestAreasByUserId(String userId);
+    List<InterestAreaDto> getInterestAreasByUserIdAdmin(String userId);
 
     InterestAreaDto update(InterestAreaDto InterestAreaDto, MultipartFile geometry, MultipartFile preview ) throws IOException;
 
+
     void deleteInterestArea(ObjectId id, String token);
+
+    InterestAreaDto updateAdmin(InterestAreaDto data, MultipartFile geometry, MultipartFile preview) throws IOException;
 }

@@ -117,13 +117,13 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-config</artifactId>
-			<version> 6.2.4</version>
+			<version>7.0.5</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
-			<version> 6.2.4</version>
+			<version>7.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.geotools</groupId>
@@ -178,7 +178,8 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
+	        <version>4.0.4</version>
+		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
@@ -216,8 +217,8 @@
 				<dependencies>
 					<dependency>
 						<groupId>org.springframework.restdocs</groupId>
-						<artifactId>spring-restdocs-asciidoctor</artifactId>
-						<version>${spring-restdocs.version}</version>
+						<artifactId>spring-restdocs-bom</artifactId>
+						<version>3.0.1</version>
 					</dependency>
 				</dependencies>
 			</plugin>

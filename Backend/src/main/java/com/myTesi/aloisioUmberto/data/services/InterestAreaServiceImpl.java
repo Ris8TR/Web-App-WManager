@@ -6,7 +6,6 @@ import com.myTesi.aloisioUmberto.core.modelMapper.InterestAreaMapper;
 import com.myTesi.aloisioUmberto.core.modelMapper.SensorDataMapper;
 import com.myTesi.aloisioUmberto.data.dao.InterestAreaRepository;
 import com.myTesi.aloisioUmberto.data.dao.SensorDataRepository;
-import com.myTesi.aloisioUmberto.data.dao.SensorRepository;
 import com.myTesi.aloisioUmberto.data.dao.UserRepository;
 import com.myTesi.aloisioUmberto.data.entities.InterestArea;
 import com.myTesi.aloisioUmberto.data.entities.SensorData;
@@ -17,6 +16,7 @@ import com.myTesi.aloisioUmberto.dto.InterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.New.NewInterestAreaDto;
 import com.myTesi.aloisioUmberto.dto.SensorDataDto;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.geotools.data.FileDataStore;
@@ -30,10 +30,7 @@ import org.locationtech.jts.geom.Geometry;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +38,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -65,20 +61,10 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     private final InterestAreaMapper interestAreaMapper = InterestAreaMapper.INSTANCE;
     private final SensorDataMapper sensorDataMapper = SensorDataMapper.INSTANCE;
 
-    /**
-     * Helper per validazione token
-     */
-    private String getValidatedUserId(String token) {
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            return jwtTokenProvider.getUserIdFromUserToken(token);
-        }
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token");
-    }
-
     @Override
     @Transactional
     public InterestAreaDto save(NewInterestAreaDto dto, MultipartFile file) throws IOException {
-        String userId = getValidatedUserId(dto.getToken());
+        String userId = jwtTokenProvider.getUserIdFromUserToken(dto.getToken());
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -151,14 +137,25 @@ public class InterestAreaServiceImpl implements InterestAreaService {
 
     @Override
     public InterestArea getInterestArea(String id, String token) {
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         return interestAreaRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interest Area not found"));
     }
 
+    //TODO Verificare che funzioni correttamente
+    @Override
+    public InterestAreaDto getInterestAreaAdmin(String id) {
+        return (InterestAreaDto) interestAreaRepository.findById(id).stream()
+                .map(area -> {
+                    InterestAreaDto dto = interestAreaMapper.interestAreaToInterestAreaDto(area);
+                    dto.setId(area.getId().toString());
+                    return dto;
+                });
+    }
+
     @Override
     public List<InterestAreaDto> getInterestAreasByUserId(String token) {
-        String userId = getValidatedUserId(token);
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
         return interestAreaRepository.findAllByUserId(userId).stream()
                 .map(area -> {
                     InterestAreaDto dto = interestAreaMapper.interestAreaToInterestAreaDto(area);
@@ -169,9 +166,20 @@ public class InterestAreaServiceImpl implements InterestAreaService {
     }
 
     @Override
+    public List<InterestAreaDto> getInterestAreasByUserIdAdmin(String userId) {
+        return interestAreaRepository.findAllByUserId(userId).stream()
+                .map(area -> {
+                    InterestAreaDto dto = interestAreaMapper.interestAreaToInterestAreaDto(area);
+                    dto.setId(area.getId().toString());
+                    return dto;
+                })
+                .collect(Collectors.toList());    }
+
+
+    @Override
     @Transactional
     public InterestAreaDto update(InterestAreaDto dto, MultipartFile geometry, MultipartFile preview) throws IOException {
-        String userId = getValidatedUserId(dto.getToken());
+        String userId = jwtTokenProvider.getUserIdFromUserToken(dto.getToken());
 
         InterestArea area = interestAreaRepository.findById(dto.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interest Area not found"));
@@ -181,9 +189,34 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         }
 
         //area.setType(dto.getType());
-        area.setName(dto.getName());
-        area.setDescription(dto.getDescription());
-        area.setIsPublic(dto.getIsPublic());
+        return getInterestAreaDto(dto, geometry, preview, area);
+    }
+
+
+    @Override
+    @Transactional
+    public void deleteInterestArea(ObjectId id, String token) {
+        String userId = jwtTokenProvider.getUserIdFromUserToken(token);
+        InterestArea area = interestAreaRepository.findByIdAndUserId(id.toString(), userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Area not found"));
+
+        interestAreaRepository.deleteById(area.getId().toString());
+    }
+
+    @Override
+    public InterestAreaDto updateAdmin(InterestAreaDto data, MultipartFile geometry, MultipartFile preview) throws IOException {
+        InterestArea area = interestAreaRepository.findById(data.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Interest Area not found"));
+
+        //area.setType(dto.getType());
+        return getInterestAreaDto(data, geometry, preview, area);
+    }
+
+    @NonNull
+    private InterestAreaDto getInterestAreaDto(InterestAreaDto data, MultipartFile geometry, MultipartFile preview, InterestArea area) throws IOException {
+        area.setName(data.getName());
+        area.setDescription(data.getDescription());
+        area.setIsPublic(data.getIsPublic());
 
         if (geometry != null && !geometry.isEmpty()) {
             File tempFile = convertMultipartFileToTempFile(geometry);
@@ -199,17 +232,7 @@ public class InterestAreaServiceImpl implements InterestAreaService {
         }
 
         interestAreaRepository.save(area);
-        return dto;
-    }
-
-    @Override
-    @Transactional
-    public void deleteInterestArea(ObjectId id, String token) {
-        String userId = getValidatedUserId(token);
-        InterestArea area = interestAreaRepository.findByIdAndUserId(id.toString(), userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Area not found"));
-
-        interestAreaRepository.deleteById(area.getId().toString());
+        return data;
     }
 
     @Override

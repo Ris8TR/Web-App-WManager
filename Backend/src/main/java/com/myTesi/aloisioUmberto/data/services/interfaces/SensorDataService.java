@@ -61,13 +61,8 @@ public interface SensorDataService  {
     SensorDataInterestAreaDto getAllPublicSensorDataIn10Min();
     // Metodo per ottenere i sensorDatadto di un sensore negli ultimi 15m by sensorId
     SensorDataInterestAreaDto getAllPublicSensorDataIn15Min();
-
-    // Nel file SensorDataService.java
     List<SensorData> getRawDataForSensor(String sensorId,String token, int minutesAgo);
-
-    // <SensorDataDto> getAllSensorDataBetweenDate(DateDto dateDto);
     SensorDataInterestAreaDto getAllSensorDataBySensorBetweenDate(DateDto dateDto);
-
     // Metodo per ottenere un dato specifico per ID
     SensorDataDto getSensorDataById(Object id);
     // Metodo per aggiornare un dato esistente nel database
