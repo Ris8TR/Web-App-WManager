@@ -309,9 +309,9 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
   private addPointsToMap(heatData: [number, number, number][], isTrend: boolean): void {
     heatData.forEach(([lat, lng, value]) => {
       const marker = L.circleMarker([lat, lng], {
-        radius: isTrend ? 10 : 6,
-        fillColor: isTrend ? '#0dcaf0' : this.getColor(value),
-        color: isTrend ? '#ffffff' : '#000',
+        radius:  6,
+        fillColor: this.getColor(value),
+        color:  '#000',
         weight: 1,
         opacity: 1,
         fillOpacity: 0.7
@@ -320,6 +320,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
     });
   }
 
+
   private renderAnomaliesOverlay(authHeader: string): void {
     if (!this.selectedSensor) return;
     this.analyticsService.getAnomalies(this.selectedSensor, authHeader, 3.0)
@@ -327,6 +328,7 @@ export class InterestAreaViewerComponent implements OnInit, AfterViewInit, OnDes
         next: (anomalies) => {
           anomalies?.forEach(a => {
             if (a.latitude && a.longitude) this.addAnomalyMarker(a.latitude, a.longitude, (a.payload as any)[this.selectedSensorType]);
+            console.log(anomalies)
           });
         },
         error: (err) => console.error("Errore anomalie:", err)

@@ -277,7 +277,6 @@ export class SensorService {
 
     let headers = this.defaultHeaders;
 
-    // authentication (bearerAuth) required
     if (this.cookieService.get("token")) {
       const accessToken = typeof this.configuration.accessToken === 'function'
         ? this.cookieService.get("token")

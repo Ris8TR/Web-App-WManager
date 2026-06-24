@@ -335,11 +335,11 @@ export class InterestAreaPublicViewerComponent implements OnInit {
         datasets: [
           {
             label: this.selectedSensorType,
-            data: finalValues, // <--- Qui passiamo i dati scelti (raw o smoothed)
+            data: finalValues,
             borderColor: '#0dcaf0',
             backgroundColor: 'rgba(13, 202, 240, 0.2)',
             fill: true,
-            tension: this.showTrend ? 0.4 : 0, // Più liscio se è trend, più angolare se è raw
+            tension: this.showTrend ? 0.4 : 0,
             pointRadius: finalValues.length <= 1 ? 8 : 3,
             pointBackgroundColor: '#0dcaf0',
             order: 2
@@ -350,7 +350,6 @@ export class InterestAreaPublicViewerComponent implements OnInit {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        // ... resto delle opzioni invariato ...
         interaction: {mode: 'index', intersect: false},
         plugins: {
           legend: { display: true, labels: {color: '#8a8d98', font: {size: 10}} },
