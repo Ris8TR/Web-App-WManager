@@ -1,0 +1,212 @@
+<div class="dashboard-wrapper d-flex">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">ADMIN PANEL</div>
+    <nav class="nav-menu">
+      <div class="nav-item" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
+        <span class="icon">👥</span> Users
+      </div>
+      <div class="nav-item" [class.active]="activeTab === 'sensors'" (click)="switchTab('sensors')">
+        <span class="icon">📡</span> Sensors
+      </div>
+      <div class="nav-item" [class.active]="activeTab === 'areas'" (click)="switchTab('areas')">
+        <span class="icon">🗺️</span> Interest Areas
+      </div>
+    </nav>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="content-area flex-grow-1 p-4">
+    <div class="glass-card animate-fade-in">
+
+      <header class="card-header-custom d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h3 class="text-white fw-bold m-0">
+            <i class="fas fa-shield-alt text-primary me-2"></i>
+            {{ activeTab | titlecase }} Management
+          </h3>
+          <p class="text-muted small m-0">Centralized administration dashboard</p>
+        </div>
+        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="loadData()">
+          <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+      </header>
+
+      <div class="table-container" *ngIf="!isLoading; else loading">
+
+        <!-- HEADER USERS -->
+        <div class="grid-header grid-users" *ngIf="activeTab === 'users'">
+          <div class="col-name">Name</div>
+          <div class="col-email">Email</div>
+          <div class="col-id">ID</div>
+          <div class="col-act text-center">Actions</div>
+        </div>
+
+        <!-- HEADER SENSORS -->
+        <div class="grid-header grid-sensors" *ngIf="activeTab === 'sensors'">
+          <div class="col-comp">Company & Type</div>
+          <div class="col-id">Sensor ID</div>
+          <div class="col-desc">Description</div>
+          <div class="col-config">Config</div>
+          <div class="col-sec">Security</div>
+          <div class="col-vis">Visibility</div>
+          <div class="col-act text-center">Actions</div>
+        </div>
+
+        <!-- HEADER AREAS -->
+        <div class="grid-header grid-areas" *ngIf="activeTab === 'areas'">
+          <div class="col-name">Name</div>
+          <div class="col-desc">Description</div>
+          <div class="col-vis">Public</div>
+          <div class="col-act text-center">Actions</div>
+        </div>
+
+        <!-- VIEWPORT -->
+        <cdk-virtual-scroll-viewport itemSize="70" class="viewport-container">
+
+          <!-- TAB USERS (INLINE EDITING) -->
+          <ng-container *ngIf="activeTab === 'users'">
+            <div *cdkVirtualFor="let user of users" class="grid-row grid-users" [class.row-editing]="user.isEditing">
+              <div class="col-name">
+                <div *ngIf="!user.isEditing" class="fw-bold text-white">{{ user.firstName }} {{ user.lastName }}</div>
+                <div *ngIf="user.isEditing" class="edit-group">
+                  <input type="text" class="table-input mb-1" [(ngModel)]="user.firstName" name="fn">
+                  <input type="text" class="table-input" [(ngModel)]="user.lastName" name="ln">
+                </div>
+              </div>
+              <div class="col-email">
+                <span *ngIf="!user.isEditing" class="text-white-50">{{ user.email }}</span>
+                <input *ngIf="user.isEditing" type="text" class="table-input" [(ngModel)]="user.email" name="em">
+              </div>
+              <div class="col-id text-info"><small>{{ user.id }}</small></div>
+              <div class="col-act">
+                <ng-container *ngIf="!user.isEditing">
+                  <button class="btn-action btn-edit" (click)="startEdit(user)"><i class="fas fa-edit"></i></button>
+                  <button class="btn-action btn-delete" (click)="deleteEntity(user.id!, 'users')"><i class="fas fa-trash-alt"></i></button>
+                </ng-container>
+                <ng-container *ngIf="user.isEditing">
+                  <button class="btn-action btn-save" (click)="saveEntityInline(user)"><i class="fas fa-check"></i></button>
+                  <button class="btn-action btn-cancel" (click)="cancelEdit(user)"><i class="fas fa-times"></i></button>
+                </ng-container>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- TAB SENSORS (INLINE EDITING) -->
+          <ng-container *ngIf="activeTab === 'sensors'">
+            <div *cdkVirtualFor="let sensor of sensors" class="grid-row grid-sensors" [class.row-editing]="sensor.isEditing">
+              <div class="col-comp">
+                <div *ngIf="!sensor.isEditing">
+                  <div class="fw-bold text-white">{{ sensor.companyName }}</div>
+                  <div class="tiny-text text-primary-light">{{ sensor.type }}</div>
+                </div>
+                <div *ngIf="sensor.isEditing" class="edit-group">
+                  <input type="text" class="table-input mb-1" [(ngModel)]="sensor.companyName" name="cn">
+                  <input type="text" class="table-input" [(ngModel)]="sensor.type" name="ct">
+                </div>
+              </div>
+              <div class="col-id"><code class="sensor-id">{{ sensor.id | slice:0:8 }}...</code></div>
+              <div class="col-desc">
+                <span *ngIf="!sensor.isEditing" class="small text-white-50">{{ sensor.description }}</span>
+                <input *ngIf="sensor.isEditing" type="text" class="table-input" [(ngModel)]="sensor.description" name="ds">
+              </div>
+              <div class="col-config small text-muted">Fmt: {{ sensor.payloadType }}</div>
+              <div class="col-sec">
+                <div *ngIf="!sensor.isEditing" class="text-muted">••••••••</div>
+                <div *ngIf="sensor.isEditing">
+                  <input type="password" class="table-input" [(ngModel)]="tempPassword" (ngModelChange)="sensor.password = tempPassword" name="pw">
+                </div>
+              </div>
+              <div class="col-vis">
+                <div *ngIf="!sensor.isEditing">
+                  <span class="badge" [ngClass]="sensor.isPublic ? 'bg-success-glass' : 'bg-secondary-glass'">
+                    {{ sensor.isPublic ? 'Public' : 'Private' }}
+                  </span>
+                </div>
+                <div *ngIf="sensor.isEditing">
+                  <mat-radio-group [(ngModel)]="sensor.isPublic" class="small-radio-group">
+                    <mat-radio-button [value]="true"  class="tiny-radio">Public</mat-radio-button>
+                    <mat-radio-button [value]="false" class="tiny-radio">Private</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+              </div>
+              <div class="col-act">
+                <div class="button-group">
+                  <ng-container *ngIf="!sensor.isEditing">
+                    <button class="btn-action btn-edit" (click)="startEdit(sensor)" title="Modify">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn-action btn-delete" (click="deleteEntity(sensor.id!, 'sensors')" title="Delete">
+                      <i class="fas fa-trash-alt"></i>
+                    </button>
+                  </ng-container>
+                  <ng-container *ngIf="sensor.isEditing">
+                    <button class="btn-action btn-save" (click)="saveEntityInline(sensor)" title="Save">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn-action btn-cancel" (click)="cancelEdit(sensor)" title="Cancel">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </ng-container>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- TAB AREAS (MODAL EDITING) -->
+          <ng-container *ngIf="activeTab === 'areas'">
+            <div *cdkVirtualFor="let area of areas" class="grid-row grid-areas">
+              <div class="col-name text-white">{{ area.name }}</div>
+              <div class="col-desc text-white-50">{{ area.description }}</div>
+              <div class="col-vis">
+                <span class="badge" [ngClass]="area.isPublic ? 'bg-success-glass' : 'bg-secondary-glass'">
+                  {{ area.isPublic ? 'Public' : 'Private' }}
+                </span>
+              </div>
+              <div style="display: flex" class="button-group">
+                <button style="transform: scale(0.7);" class="btn-action btn-edit" (click)="openEditModal(area, 'areas')">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn-action btn-delete" (click)="deleteEntity(area.id!, 'areas')">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
+          </ng-container>
+
+        </cdk-virtual-scroll-viewport>
+      </div>
+
+      <ng-template #loading>
+        <div class="loader-container"><div class="loader"></div></div>
+      </ng-template>
+    </div>
+  </main>
+
+  <!-- MODAL SOLO PER AREAS (MULTIPART) -->
+  <div class="modal-overlay" *ngIf="isModalOpen">
+    <div class="modal-card">
+      <h2 class="text-white mb-4">Edit {{ currentEntityType | titlecase }}</h2>
+      <form class="modal-form" (ngSubmit)="saveModalEntity()">
+        <div *ngIf="currentEntityType === 'areas'" class="multipart-section">
+          <div class="form-group">
+            <label class="text-muted small">Geometry (File)</label>
+            <input type="file" class="table-input" (change)="onFileSelected($event, 'geometry')">
+          </div>
+          <div class="form-group">
+            <label class="text-muted small">Preview (File)</label>
+            <input type="file" class="table-input" (change)="onFileSelected($event, 'preview')">
+          </div>
+          <div class="form-group">
+            <label class="text-muted small">Description</label>
+            <textarea class="table-input" [(ngModel)]="editingEntity.description" name="desc" rows="3"></textarea>
+          </div>
+        </div>
+        <div class="modal-actions mt-4">
+          <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn-save">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

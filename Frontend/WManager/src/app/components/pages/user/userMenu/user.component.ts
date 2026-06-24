@@ -57,7 +57,7 @@ export class UserComponent implements OnInit{
   }
 
   redirectToAdminDashboard(): void {
-    this.router.navigate(['/admin/dashboard']);
+    this.router.navigate(['/adminDashboard']);
   }
 
   protected logout() {

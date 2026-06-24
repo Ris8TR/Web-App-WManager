@@ -32,6 +32,7 @@ import {
 import {
   InterestAreaPublicViewerComponent
 } from "./components/pages/area/interest-area-public-viewer/interest-area-public-viewer.component";
+import {AdminDashboardComponent} from "./components/pages/admin/admin-dashboard/admin-dashboard.component";
 
 
 
@@ -56,6 +57,7 @@ export const routes: Routes = [
     {path: 'PublicInterestAreaView', title: "Public InterestArea View", component: InterestAreaPublicViewerComponent },
     {path: 'Show-Sensor', title: "", component: SensorDataViewComponent },
     {path: 'Show-Areas', title: "", component: InterestAreaDataViewComponent },
+    {path: 'adminDashboard', title: "", component: AdminDashboardComponent },
 
     {path: 'reset/:token', title: "Password reset", component: ResetComponent },
 
@@ -65,6 +67,6 @@ export const routes: Routes = [
     {path: 'not-found',title:"Not Found", component: NotFoundComponent},
     {path: 'refused',title:"Refused", component: RefusedComponent},
     //Others:
-    { path: '**', redirectTo: "/forecast", pathMatch:"full" },
+    { path: '**', redirectTo: "/observation", pathMatch:"full" },
   ];
 

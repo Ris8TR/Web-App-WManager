@@ -4601,7 +4601,7 @@ textarea.form-control-lg {
   --bs-badge-border-radius: 0.5rem;
   display: inline-block;
   padding: var(--bs-badge-padding-y) var(--bs-badge-padding-x);
-  font-size: var(--bs-badge-font-size);
+  font-size: 3PX;
   font-weight: var(--bs-badge-font-weight);
   line-height: 1;
   color: var(--bs-badge-color);

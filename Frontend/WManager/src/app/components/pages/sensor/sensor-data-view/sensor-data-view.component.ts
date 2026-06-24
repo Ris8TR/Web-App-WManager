@@ -42,7 +42,7 @@ export class SensorDataViewComponent implements OnInit {
     private cookieService: CookieService,
     private router: Router,
     private dialog: MatDialog,
-    private cdr: ChangeDetectorRef // Iniettato per forzare l'aggiornamento della UI
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -55,7 +55,7 @@ export class SensorDataViewComponent implements OnInit {
       this.sensorService.findByUserId().subscribe({
         next: (response) => {
           this.sensorList = response.map((sensor: SensorDto) => ({ ...sensor, isEditing: false }));
-          this.cdr.markForCheck(); // <--- FONDAMENTALE: Notifica Angular che i dati sono pronti
+          this.cdr.markForCheck();
         },
         error: (error) => {
           this.snackBar.open("Errore durante il caricamento dei dati.", 'OK');

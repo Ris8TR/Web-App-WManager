@@ -732,13 +732,14 @@ export class SensorService {
 
     let headers = this.defaultHeaders;
 
-    // authentication (Bearer Authentication) required
-    if (this.configuration.accessToken) {
+    // authentication (bearerAuth) required
+    if (this.cookieService.get("token")) {
       const accessToken = typeof this.configuration.accessToken === 'function'
-        ? this.configuration.accessToken()
-        : this.configuration.accessToken;
+        ? this.cookieService.get("token")
+        : this.cookieService.get("token");
       headers = headers.set('Authorization', 'Bearer ' + accessToken);
     }
+
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [
       '*/*'
@@ -774,13 +775,14 @@ export class SensorService {
 
     let headers = this.defaultHeaders;
 
-    // authentication (Bearer Authentication) required
-    if (this.configuration.accessToken) {
+    // authentication (bearerAuth) required
+    if (this.cookieService.get("token")) {
       const accessToken = typeof this.configuration.accessToken === 'function'
-        ? this.configuration.accessToken()
-        : this.configuration.accessToken;
+        ? this.cookieService.get("token")
+        : this.cookieService.get("token");
       headers = headers.set('Authorization', 'Bearer ' + accessToken);
     }
+
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [
       '*/*'
@@ -822,13 +824,14 @@ export class SensorService {
 
     let headers = this.defaultHeaders;
 
-    // authentication (Bearer Authentication) required
-    if (this.configuration.accessToken) {
+    // authentication (bearerAuth) required
+    if (this.cookieService.get("token")) {
       const accessToken = typeof this.configuration.accessToken === 'function'
-        ? this.configuration.accessToken()
-        : this.configuration.accessToken;
+        ? this.cookieService.get("token")
+        : this.cookieService.get("token");
       headers = headers.set('Authorization', 'Bearer ' + accessToken);
     }
+
     // to determine the Accept header
     let httpHeaderAccepts: string[] = [
       '*/*'

@@ -114,20 +114,9 @@ public class InterestAreaController {
 
 
     @PutMapping("/interestArea/update")
-    public ResponseEntity<InterestAreaDto> updateInterestArea(
-            @RequestPart(value = "data") String dataJson, // Leggiamo la stringa pura
-            @RequestPart(value = "geometry", required = false) MultipartFile geometry,
-            @RequestPart(value = "preview", required = false) MultipartFile preview
-    ) throws IOException {
-
-        // 1. Usiamo ObjectMapper per convertire la stringa.
-        // Questo ignorerà anche i campi extra come 'isEditing' se configurato bene.
+    public ResponseEntity<InterestAreaDto> updateInterestArea(@RequestPart(value = "data") String dataJson,@RequestPart(value = "geometry", required = false) MultipartFile geometry,@RequestPart(value = "preview", required = false) MultipartFile preview) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
-
-        // Questa riga è "blindata": se il JSON è scritto bene, funzionerà sempre.
         InterestAreaDto data = objectMapper.readValue(dataJson, InterestAreaDto.class);
-
-        // 2. Passiamo l'oggetto convertito al servizio
         return ResponseEntity.ok(interestAreaService.update(data, geometry, preview));
     }
 
