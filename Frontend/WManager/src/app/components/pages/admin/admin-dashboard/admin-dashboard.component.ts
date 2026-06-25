@@ -8,7 +8,8 @@ import { SensorService } from "../../../../service/sensor.service";
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatRadioModule } from '@angular/material/radio';
 import { ScrollingModule } from '@angular/cdk/scrolling';
-import {area} from "@turf/turf";
+import { UserService } from "../../../../service/user.service";
+import { InterestAreaService } from "../../../../service/interestArea.service";
 
 type DashboardTab = 'users' | 'sensors' | 'areas';
 
@@ -23,52 +24,98 @@ export class AdminDashboardComponent implements OnInit {
   activeTab: DashboardTab = 'users';
   isLoading = false;
 
-  // Liste con proprietà isEditing aggiunta tramite mapping
   users: any[] = [];
   sensors: any[] = [];
   areas: any[] = [];
 
-  // Per gestione Modal (solo per Areas che richiedono file)
   isModalOpen = false;
   editingEntity: any = null;
   currentEntityType: string | null = null;
-
   tempPassword: string = "";
 
   constructor(
+    private userService: UserService,
     private sensorService: SensorService,
+    private interestAreaService: InterestAreaService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadData();
+    this.loadDataByTab();
   }
 
-  loadData() {
+  /**
+   * Carica i dati SOLO per la tab attiva.
+   * Evita di sovraccaricare il server e la memoria.
+   */
+  loadDataByTab() {
     this.isLoading = true;
-    // Esempio di caricamento (Qui dovresti chiamare i tuoi service reali)
-    this.sensorService.getAllSensorsAdmin().subscribe({
-      next: (response) => {
-        this.sensors = response.map((s: SensorDto) => ({ ...s, isEditing: false }));
-        // Simuliamo il caricamento degli altri per l'esempio
-        this.users = [];
-        this.areas = [];
-        this.isLoading = false;
-        this.cdr.markForCheck();
+
+    switch (this.activeTab) {
+      case 'users':
+        this.fetchUsers();
+        break;
+      case 'sensors':
+        this.fetchSensors();
+        break;
+      case 'areas':
+        this.fetchAreas();
+        break;
+    }
+  }
+
+  private fetchUsers() {
+    this.userService.getAll().subscribe({
+      next: (res) => {
+        this.users = res.map((u: UserDto) => ({ ...u, isEditing: false }));
+        this.finalizeLoading();
       },
-      error: (err) => {
-        console.error(err);
-        this.isLoading = false;
-        this.cdr.markForCheck();
-      }
+      error: (err) => this.handleError(err)
     });
   }
 
-  switchTab(tab: DashboardTab) {
-    this.activeTab = tab;
+  private fetchSensors() {
+    this.sensorService.getAllSensorsAdmin().subscribe({
+      next: (res) => {
+        this.sensors = res.map((s: SensorDto) => ({ ...s, isEditing: false }));
+        this.finalizeLoading();
+      },
+      error: (err) => this.handleError(err)
+    });
   }
 
-  // --- LOGICA INLINE EDITING ---
+  private fetchAreas() {
+    this.interestAreaService.getAllInterestAreaAdmin().subscribe({
+      next: (res) => {
+        this.areas = res.map((a: InterestAreaDto) => ({ ...a, isEditing: false }));
+        this.finalizeLoading();
+      },
+      error: (err) => this.handleError(err)
+    });
+  }
+
+  // --- GESTIONE TAB ---
+
+  switchTab(tab: DashboardTab) {
+    if (this.activeTab === tab) return; // Non fare nulla se clicchi la tab già attiva
+    this.activeTab = tab;
+    this.loadDataByTab(); // Carica i dati della nuova tab
+  }
+
+  // --- HELPERS ---
+
+  private finalizeLoading() {
+    this.isLoading = false;
+    this.cdr.markForCheck();
+  }
+
+  private handleError(err: any) {
+    console.error("Error loading data:", err);
+    this.isLoading = false;
+    this.cdr.markForCheck();
+  }
+
+  // --- LOGICA EDIT/DELETE/MODAL (Rimasta invariata ma pulita) ---
 
   startEdit(entity: any) {
     entity.isEditing = true;
@@ -77,13 +124,9 @@ export class AdminDashboardComponent implements OnInit {
 
   async saveEntityInline(entity: any) {
     try {
-      // Qui inserisci la logica di salvataggio basata sul tipo
-      // if (this.activeTab === 'users') ...
-      console.log("Salvando in linea:", entity);
-
+      console.log("Salvando:", entity);
       entity.isEditing = false;
       this.cdr.markForCheck();
-      // this.loadData(); // Opzionale: ricarica per essere sicuri
     } catch (error) {
       console.error(error);
     }
@@ -91,10 +134,8 @@ export class AdminDashboardComponent implements OnInit {
 
   cancelEdit(entity: any) {
     entity.isEditing = false;
-    this.loadData(); // Ricarica i dati originali dal server
+    this.loadDataByTab(); // Ricarica per resettare i cambiamenti non salvati
   }
-
-  // --- LOGICA MODAL (Solo per Areas/Files) ---
 
   openEditModal(entity: any, type: DashboardTab) {
     this.editingEntity = { ...entity };
@@ -111,20 +152,14 @@ export class AdminDashboardComponent implements OnInit {
   async saveModalEntity() {
     console.log("Salvando via Modal:", this.editingEntity);
     this.closeModal();
-    this.loadData();
+    this.loadDataByTab();
   }
-
-  // --- DELETE ---
 
   async deleteEntity(id: string, type: DashboardTab) {
     if (!confirm('Sei sicuro di voler eliminare questo elemento?')) return;
-    // Logica delete...
-    this.loadData();
+    // Logica delete qui...
+    this.loadDataByTab();
   }
 
-  onFileSelected(event: any, field: string) {
-    // Logica file...
-  }
-
-  protected readonly area = area;
+  onFileSelected(event: any, field: string) { /* ... */ }
 }

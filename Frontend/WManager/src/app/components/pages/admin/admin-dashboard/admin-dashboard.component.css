@@ -69,7 +69,11 @@
 }
 
 /* Grid per USERS: Name, Email, ID, Actions */
-.grid-users { grid-template-columns: 1.5fr 2fr 1fr 100px; }
+.grid-users {
+  display: grid;
+  grid-template-columns: 1.2fr 1.2fr 2fr 2fr 1fr 100px;
+  align-items: center;
+  gap: 10px;}
 
 /* Grid per SENSORS: Company, ID, Desc, Config, Sec, Vis, Actions */
 .grid-sensors { grid-template-columns: 2fr 1fr 2fr 1.5fr 1fr 1fr 120px; }

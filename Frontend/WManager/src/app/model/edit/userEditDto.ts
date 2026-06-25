@@ -10,9 +10,8 @@
  * Do not edit the class manually.
  */
 
-export interface UserDto {
-    email?: string;
+export interface UserEditDto {
     firstName?: string;
     lastName?: string;
-    id?: string;
+    password?: string;
 }

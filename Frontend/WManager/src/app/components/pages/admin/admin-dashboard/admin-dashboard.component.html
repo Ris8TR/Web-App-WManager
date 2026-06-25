@@ -27,7 +27,7 @@
           </h3>
           <p class="text-muted small m-0">Centralized administration dashboard</p>
         </div>
-        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="loadData()">
+        <button class="btn btn-sm btn-outline-primary rounded-pill px-3" (click)="loadDataByTab()">
           <i class="fas fa-sync-alt me-1"></i> Refresh
         </button>
       </header>
@@ -36,11 +36,14 @@
 
         <!-- HEADER USERS -->
         <div class="grid-header grid-users" *ngIf="activeTab === 'users'">
-          <div class="col-name">Name</div>
+          <div class="col-fname">First Name</div>
+          <div class="col-lname">Last Name</div>
           <div class="col-email">Email</div>
+          <div class="col-password">Password</div>
           <div class="col-id">ID</div>
           <div class="col-act text-center">Actions</div>
         </div>
+
 
         <!-- HEADER SENSORS -->
         <div class="grid-header grid-sensors" *ngIf="activeTab === 'sensors'">
@@ -67,27 +70,46 @@
           <!-- TAB USERS (INLINE EDITING) -->
           <ng-container *ngIf="activeTab === 'users'">
             <div *cdkVirtualFor="let user of users" class="grid-row grid-users" [class.row-editing]="user.isEditing">
-              <div class="col-name">
-                <div *ngIf="!user.isEditing" class="fw-bold text-white">{{ user.firstName }} {{ user.lastName }}</div>
-                <div *ngIf="user.isEditing" class="edit-group">
-                  <input type="text" class="table-input mb-1" [(ngModel)]="user.firstName" name="fn">
-                  <input type="text" class="table-input" [(ngModel)]="user.lastName" name="ln">
-                </div>
+
+              <!-- Colonna First Name -->
+              <div class="col-fname">
+                <div *ngIf="!user.isEditing" class="fw-bold text-white">{{ user.firstName }}</div>
+                <input *ngIf="user.isEditing" type="text" class="table-input" [(ngModel)]="user.firstName" name="fn_{{user.id}}">
               </div>
+
+              <!-- Colonna Last Name -->
+              <div class="col-lname">
+                <div *ngIf="!user.isEditing" class="fw-bold text-white">{{ user.lastName }}</div>
+                <input *ngIf="user.isEditing" type="text" class="table-input" [(ngModel)]="user.lastName" name="ln_{{user.id}}">
+              </div>
+
+              <!-- Colonna Email -->
               <div class="col-email">
                 <span *ngIf="!user.isEditing" class="text-white-50">{{ user.email }}</span>
-                <input *ngIf="user.isEditing" type="text" class="table-input" [(ngModel)]="user.email" name="em">
+                <span *ngIf="user.isEditing" class="text-white-50">{{ user.email }}</span>
               </div>
+
+              <!-- Colonna password -->
+              <div class="col-password">
+                <span *ngIf="!user.isEditing" class="text-white-50">•••••••••••</span>
+                <span *ngIf="user.isEditing" class="text-white-50">{{ user.email }}</span>
+              </div>
+
+              <!-- Colonna ID -->
               <div class="col-id text-info"><small>{{ user.id }}</small></div>
+
+              <!-- Colonna Actions -->
               <div class="col-act">
-                <ng-container *ngIf="!user.isEditing">
-                  <button class="btn-action btn-edit" (click)="startEdit(user)"><i class="fas fa-edit"></i></button>
-                  <button class="btn-action btn-delete" (click)="deleteEntity(user.id!, 'users')"><i class="fas fa-trash-alt"></i></button>
-                </ng-container>
-                <ng-container *ngIf="user.isEditing">
-                  <button class="btn-action btn-save" (click)="saveEntityInline(user)"><i class="fas fa-check"></i></button>
-                  <button class="btn-action btn-cancel" (click)="cancelEdit(user)"><i class="fas fa-times"></i></button>
-                </ng-container>
+                <div class="button-group">
+                  <ng-container *ngIf="!user.isEditing">
+                    <button class="btn-action btn-edit" (click)="startEdit(user)"><i class="fas fa-edit"></i></button>
+                    <button class="btn-action btn-delete" (click)="deleteEntity(user.id!, 'users')"><i class="fas fa-trash-alt"></i></button>
+                  </ng-container>
+                  <ng-container *ngIf="user.isEditing">
+                    <button class="btn-action btn-save" (click)="saveEntityInline(user)"><i class="fas fa-check"></i></button>
+                    <button class="btn-action btn-cancel" (click)="cancelEdit(user)"><i class="fas fa-times"></i></button>
+                  </ng-container>
+                </div>
               </div>
             </div>
           </ng-container>
@@ -102,10 +124,9 @@
                 </div>
                 <div *ngIf="sensor.isEditing" class="edit-group">
                   <input type="text" class="table-input mb-1" [(ngModel)]="sensor.companyName" name="cn">
-                  <input type="text" class="table-input" [(ngModel)]="sensor.type" name="ct">
                 </div>
               </div>
-              <div class="col-id"><code class="sensor-id">{{ sensor.id | slice:0:8 }}...</code></div>
+              <div class="col-id"><code class="sensor-id">{{ sensor.id  }}</code></div>
               <div class="col-desc">
                 <span *ngIf="!sensor.isEditing" class="small text-white-50">{{ sensor.description }}</span>
                 <input *ngIf="sensor.isEditing" type="text" class="table-input" [(ngModel)]="sensor.description" name="ds">
@@ -164,7 +185,7 @@
                 </span>
               </div>
               <div style="display: flex" class="button-group">
-                <button style="transform: scale(0.7);" class="btn-action btn-edit" (click)="openEditModal(area, 'areas')">
+                <button  class="btn-action btn-edit" (click)="openEditModal(area, 'areas')">
                   <i class="fas fa-edit"></i>
                 </button>
                 <button class="btn-action btn-delete" (click)="deleteEntity(area.id!, 'areas')">
@@ -190,6 +211,10 @@
       <form class="modal-form" (ngSubmit)="saveModalEntity()">
         <div *ngIf="currentEntityType === 'areas'" class="multipart-section">
           <div class="form-group">
+            <div class="form-group">
+              <label class="text-muted small">Name</label>
+              <textarea class="table-input" [(ngModel)]="editingEntity.name" name="name" rows="3"></textarea>
+            </div>
             <label class="text-muted small">Geometry (File)</label>
             <input type="file" class="table-input" (change)="onFileSelected($event, 'geometry')">
           </div>
