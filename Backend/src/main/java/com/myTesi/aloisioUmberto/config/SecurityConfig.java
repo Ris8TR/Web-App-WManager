@@ -51,9 +51,7 @@ public class SecurityConfig {
 
                         //ENDPOINT PUBBLICI
                         //USER
-                        .requestMatchers("/v1/user/private/**").permitAll()
                         .requestMatchers("/v1/user/newUser").permitAll()
-                        .requestMatchers("/v1/user/").permitAll()
 
                         //SENSOR DATA
                         .requestMatchers("/v1/SensorData/public/**").permitAll()
