@@ -13,6 +13,7 @@ import org.mapstruct.factory.Mappers;
 public interface UserMapper {
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
+    @Mapping(source = "role", target = "role")
     UserDto userToUserDto(User user);
 
     @Mapping(target = "id", ignore = true)

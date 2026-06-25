@@ -34,7 +34,7 @@
             <!-- ID con Tooltip -->
             <td>
               <code class="sensor-id" [matTooltip]="area.id!" matTooltipPosition="above" style="cursor: help;">
-                {{ area.id | slice:0:8 }}...
+                {{ area.id  }}
               </code>
             </td>
 
@@ -59,14 +59,14 @@
             <!-- Visibility -->
             <td>
               <div *ngIf="!area.isEditing">
-                  <span class="badge" [ngClass]="area.isPublic ? 'bg-success-glass' : 'bg-secondary-glass'">
+                  <span class="badge" style="scale: 2.8" [ngClass]="area.isPublic ? 'bg-success-glass' : 'bg-secondary-glass'">
                     {{ area.isPublic ? 'Public' : 'Private' }}
                   </span>
               </div>
               <div *ngIf="area.isEditing">
                 <mat-radio-group [(ngModel)]="area.isPublic" class="small-radio-group">
-                  <mat-radio-button [value]="true" class="tiny-radio">Public</mat-radio-button>
-                  <mat-radio-button [value]="false" class="tiny-radio">Private</mat-radio-button>
+                  <mat-radio-button color="primary" [value]="true" class="tiny-radio">Public</mat-radio-button>
+                  <mat-radio-button color="primary" [value]="false" class="tiny-radio">Private</mat-radio-button>
                 </mat-radio-group>
               </div>
             </td>

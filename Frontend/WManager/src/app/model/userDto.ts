@@ -15,4 +15,5 @@ export interface UserDto {
     firstName?: string;
     lastName?: string;
     id?: string;
+    role?: string;
 }

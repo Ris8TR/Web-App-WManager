@@ -83,8 +83,8 @@
               </div>
               <div *ngIf="sensor.isEditing">
                 <mat-radio-group [(ngModel)]="sensor.isPublic" class="small-radio-group">
-                  <mat-radio-button [value]="true" class="tiny-radio">Public</mat-radio-button>
-                  <mat-radio-button [value]="false" class="tiny-radio">Private</mat-radio-button>
+                  <mat-radio-button color="primary" [value]="true" class="tiny-radio">Public</mat-radio-button>
+                  <mat-radio-button color="primary" [value]="false" class="tiny-radio">Private</mat-radio-button>
                 </mat-radio-group>
               </div>
             </div>

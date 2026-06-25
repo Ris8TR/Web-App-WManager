@@ -81,7 +81,7 @@
                 <div class="area-selection-box">
                   <mat-radio-group [(ngModel)]="data.interestAreaId" name="interestArea" required>
                     <div class="area-grid">
-                      <mat-radio-button *ngFor="let area of interestAreaNames" [value]="area.id" class="modern-radio">
+                      <mat-radio-button color="primary" *ngFor="let area of interestAreaNames" [value]="area.id" class="modern-radio">
                         <span class="area-name-label">{{ area.name }}</span>
                       </mat-radio-button>
                     </div>

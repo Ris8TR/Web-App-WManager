@@ -32,35 +32,104 @@
         </button>
       </header>
 
+
+      <!-- FILTERS SECTION -->
+      <div class="filters-section mb-4 animate-fade-in">
+        <div class="row g-3 align-items-end">
+
+          <!-- FILTERS FOR USERS -->
+          <ng-container *ngIf="activeTab === 'users'">
+            <div class="col-md-6">
+              <label class="form-label text-white-50 small">Search Users</label>
+              <div class="input-group-custom">
+                <i class="fas fa-search filter-icon"></i>
+                <input type="text" class="filter-input" placeholder="Search by name or email..."
+                       [(ngModel)]="filters.users.search" (input)="applyFilters()">
+              </div>
+            </div>
+          </ng-container>
+
+          <!-- FILTERS FOR SENSORS -->
+          <ng-container *ngIf="activeTab === 'sensors'">
+            <div class="col-md-4">
+              <label class="form-label text-white-50 small">Search Sensor</label>
+              <div class="input-group-custom">
+                <i class="fas fa-search filter-icon"></i>
+                <input type="text" class="filter-input" placeholder="Company or ID..."
+                       [(ngModel)]="filters.sensors.search" (input)="applyFilters()">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-white-50 small">Visibility</label>
+              <select class="filter-select" [(ngModel)]="filters.sensors.isPublic" (change)="applyFilters()">
+                <option [ngValue]="null">All</option>
+                <option [ngValue]="true">Public</option>
+                <option [ngValue]="false">Private</option>
+              </select>
+            </div>
+          </ng-container>
+
+          <!-- FILTERS FOR AREAS -->
+          <ng-container *ngIf="activeTab === 'areas'">
+            <div class="col-md-6">
+              <label class="form-label text-white-50 small">Search Area</label>
+              <div class="input-group-custom">
+                <i class="fas fa-search filter-icon"></i>
+                <input type="text" class="filter-input" placeholder="Search by name..."
+                       [(ngModel)]="filters.areas.search" (input)="applyFilters()">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label class="form-label text-white-50 small">Visibility</label>
+              <select class="filter-select" [(ngModel)]="filters.areas.isPublic" (change)="applyFilters()">
+                <option [ngValue]="null">All</option>
+                <option [ngValue]="true">Public</option>
+                <option [ngValue]="false">Private</option>
+              </select>
+            </div>
+          </ng-container>
+
+          <!-- CLEAR FILTERS BUTTON -->
+          <div class="col-md-auto">
+            <button class="btn btn-sm btn-outline-light-glass" (click)="resetFilters()">
+              <i class="fas fa-undo me-1"></i> Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="table-container" *ngIf="!isLoading; else loading">
 
         <!-- HEADER USERS -->
         <div class="grid-header grid-users" *ngIf="activeTab === 'users'">
+          <div class="col-id">User ID</div>
           <div class="col-fname">First Name</div>
           <div class="col-lname">Last Name</div>
           <div class="col-email">Email</div>
+          <div class="col-email">Role</div>
           <div class="col-password">Password</div>
-          <div class="col-id">ID</div>
           <div class="col-act text-center">Actions</div>
         </div>
 
 
         <!-- HEADER SENSORS -->
         <div class="grid-header grid-sensors" *ngIf="activeTab === 'sensors'">
-          <div class="col-comp">Company & Type</div>
           <div class="col-id">Sensor ID</div>
-          <div class="col-desc">Description</div>
-          <div class="col-config">Config</div>
-          <div class="col-sec">Security</div>
+          <div class="col-comp">Company & Type</div>
+          <div class="col-config">Sensor Password</div>
           <div class="col-vis">Visibility</div>
+          <div class="col-vis">User ID</div>
+          <div class="col-vis">Interest Area ID</div>
           <div class="col-act text-center">Actions</div>
         </div>
 
         <!-- HEADER AREAS -->
         <div class="grid-header grid-areas" *ngIf="activeTab === 'areas'">
+          <div class="col-name">Interest Area ID</div>
           <div class="col-name">Name</div>
           <div class="col-desc">Description</div>
-          <div class="col-vis">Public</div>
+          <div class="col-vis">Visibility</div>
+          <div class="col-vis">User ID</div>
           <div class="col-act text-center">Actions</div>
         </div>
 
@@ -69,7 +138,9 @@
 
           <!-- TAB USERS (INLINE EDITING) -->
           <ng-container *ngIf="activeTab === 'users'">
-            <div *cdkVirtualFor="let user of users" class="grid-row grid-users" [class.row-editing]="user.isEditing">
+            <div *cdkVirtualFor="let user of filteredUsers" class="grid-row grid-users" [class.row-editing]="user.isEditing">
+              <!-- Colonna ID -->
+              <div class="col-id text-info"><small>{{ user.id }}</small></div>
 
               <!-- Colonna First Name -->
               <div class="col-fname">
@@ -89,14 +160,21 @@
                 <span *ngIf="user.isEditing" class="text-white-50">{{ user.email }}</span>
               </div>
 
+              <!-- Colonna Role -->
+              <div  *ngIf="!user.isEditing" class="col-id text-info"><small>{{ user.role }}</small></div>
+              <div *ngIf="user.isEditing">
+                <mat-radio-group [(ngModel)]="user.role" class="small-radio-group">
+                  <mat-radio-button color="primary"  class="glass-radio-button selected-icon-color" [value]="'USER'"  class="tiny-radio">User</mat-radio-button>
+                  <mat-radio-button color="primary"  class="glass-radio-button selected-icon-color" [value]="'ADMIN'" class="tiny-radio">Admin</mat-radio-button>
+                </mat-radio-group>
+              </div>
+
               <!-- Colonna password -->
               <div class="col-password">
                 <span *ngIf="!user.isEditing" class="text-white-50">•••••••••••</span>
-                <span *ngIf="user.isEditing" class="text-white-50">{{ user.email }}</span>
+                <span *ngIf="user.isEditing" class="text-white-50">{{ user.password }}</span>
               </div>
 
-              <!-- Colonna ID -->
-              <div class="col-id text-info"><small>{{ user.id }}</small></div>
 
               <!-- Colonna Actions -->
               <div class="col-act">
@@ -116,22 +194,21 @@
 
           <!-- TAB SENSORS (INLINE EDITING) -->
           <ng-container *ngIf="activeTab === 'sensors'">
-            <div *cdkVirtualFor="let sensor of sensors" class="grid-row grid-sensors" [class.row-editing]="sensor.isEditing">
+            <div *cdkVirtualFor="let sensor of filteredSensors" class="grid-row grid-sensors" [class.row-editing]="sensor.isEditing">
+              <div class="col-id"><code class="sensor-id">{{ sensor.id  }}</code></div>
+              <div class="col-desc">
               <div class="col-comp">
                 <div *ngIf="!sensor.isEditing">
                   <div class="fw-bold text-white">{{ sensor.companyName }}</div>
-                  <div class="tiny-text text-primary-light">{{ sensor.type }}</div>
                 </div>
                 <div *ngIf="sensor.isEditing" class="edit-group">
                   <input type="text" class="table-input mb-1" [(ngModel)]="sensor.companyName" name="cn">
                 </div>
               </div>
-              <div class="col-id"><code class="sensor-id">{{ sensor.id  }}</code></div>
-              <div class="col-desc">
+
                 <span *ngIf="!sensor.isEditing" class="small text-white-50">{{ sensor.description }}</span>
                 <input *ngIf="sensor.isEditing" type="text" class="table-input" [(ngModel)]="sensor.description" name="ds">
               </div>
-              <div class="col-config small text-muted">Fmt: {{ sensor.payloadType }}</div>
               <div class="col-sec">
                 <div *ngIf="!sensor.isEditing" class="text-muted">••••••••</div>
                 <div *ngIf="sensor.isEditing">
@@ -146,9 +223,19 @@
                 </div>
                 <div *ngIf="sensor.isEditing">
                   <mat-radio-group [(ngModel)]="sensor.isPublic" class="small-radio-group">
-                    <mat-radio-button [value]="true"  class="tiny-radio">Public</mat-radio-button>
-                    <mat-radio-button [value]="false" class="tiny-radio">Private</mat-radio-button>
+                    <mat-radio-button color="primary" [value]="true"  class="tiny-radio">Public</mat-radio-button>
+                    <mat-radio-button color="primary" [value]="false" class="tiny-radio">Private</mat-radio-button>
                   </mat-radio-group>
+                </div>
+              </div>
+              <div class="col-vis">
+                <div *ngIf="!sensor.isEditing">
+                  <div class="col-id"><code class="user-id">{{ sensor.userId  }}</code></div>
+                </div>
+              </div>
+              <div class="col-vis">
+                <div *ngIf="!sensor.isEditing">
+                  <div class="col-id"><code class="area-id">{{ sensor.interestAreaID  }}</code></div>
                 </div>
               </div>
               <div class="col-act">
@@ -176,7 +263,8 @@
 
           <!-- TAB AREAS (MODAL EDITING) -->
           <ng-container *ngIf="activeTab === 'areas'">
-            <div *cdkVirtualFor="let area of areas" class="grid-row grid-areas">
+            <div *cdkVirtualFor="let area of filteredAreas; trackBy: trackById" class="grid-row grid-areas">
+              <div class="col-id text-info"><small>{{ area.id }}</small></div>
               <div class="col-name text-white">{{ area.name }}</div>
               <div class="col-desc text-white-50">{{ area.description }}</div>
               <div class="col-vis">
@@ -184,6 +272,7 @@
                   {{ area.isPublic ? 'Public' : 'Private' }}
                 </span>
               </div>
+              <div class="col-id text-info"><small>{{ area.userId }}</small></div>
               <div style="display: flex" class="button-group">
                 <button  class="btn-action btn-edit" (click)="openEditModal(area, 'areas')">
                   <i class="fas fa-edit"></i>
@@ -226,6 +315,12 @@
             <label class="text-muted small">Description</label>
             <textarea class="table-input" [(ngModel)]="editingEntity.description" name="desc" rows="3"></textarea>
           </div>
+        </div>
+        <div class="form-group">
+          <mat-radio-group [(ngModel)]="editingEntity.isPublic" name="isPublic" class="small-radio-group">
+            <mat-radio-button color="primary" [value]="true" class="tiny-radio">Public</mat-radio-button>
+            <mat-radio-button color="primary" [value]="false" class="tiny-radio">Private</mat-radio-button>
+          </mat-radio-group>
         </div>
         <div class="modal-actions mt-4">
           <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>

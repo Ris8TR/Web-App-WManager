@@ -1,6 +1,7 @@
 package com.myTesi.aloisioUmberto.dto;
 
 
+import com.myTesi.aloisioUmberto.dto.enumetation.Role;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,5 +18,6 @@ public class UserDto {
     private String firstName;
     private String lastName;
     private String id;
+    private Role role;
 
 }

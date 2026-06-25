@@ -11,6 +11,7 @@
   border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+
 .logo {
   padding: 30px;
   color: #0d6efd;
@@ -71,15 +72,15 @@
 /* Grid per USERS: Name, Email, ID, Actions */
 .grid-users {
   display: grid;
-  grid-template-columns: 1.2fr 1.2fr 2fr 2fr 1fr 100px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 100px;
   align-items: center;
   gap: 10px;}
 
 /* Grid per SENSORS: Company, ID, Desc, Config, Sec, Vis, Actions */
-.grid-sensors { grid-template-columns: 2fr 1fr 2fr 1.5fr 1fr 1fr 120px; }
+.grid-sensors { grid-template-columns: 0.5fr 0.5fr 0.5fr 1fr 0.8fr 0.8fr 120px; }
 
 /* Grid per AREAS: Name, Desc, Public, Actions */
-.grid-areas { grid-template-columns: 1.5fr 2fr 1fr 100px; }
+.grid-areas { grid-template-columns: 1fr 1fr 1fr 1fr 1fr 100px; }
 
 .grid-header {
   background: rgba(255, 255, 255, 0.05);
@@ -108,8 +109,8 @@
 .col-id { font-family: monospace; }
 .col-comp { overflow: hidden; }
 .col-desc { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.col-vis { min-width: 80px; }
-.col-act { min-width: 100px; }
+.col-vis { min-width: 60px; }
+.col-act { min-width: 20px; }
 
 .button-group {
   display: flex;
@@ -153,6 +154,71 @@
   width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
   color: white; padding: 6px 10px; border-radius: 6px;
 }
+
+/* Filters Container */
+.filters-section {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1.5rem;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Custom Input Group with Icon */
+.input-group-custom {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-icon {
+  position: absolute;
+  left: 12px;
+  color: rgba(255, 255, 255, 0.3);
+  pointer-events: none;
+}
+
+.filter-input, .filter-select {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 8px 12px 8px 35px; /* Extra padding left for icon */
+  color: white;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.filter-select {
+  padding-left: 12px; /* No icon for select */
+}
+
+.filter-input:focus, .filter-select:focus {
+  outline: none;
+  border-color: var(--bs-primary);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
+}
+
+.filter-select option {
+  background: #212529; /* Dark background for dropdown options */
+  color: white;
+}
+
+/* Reset Button */
+.btn-outline-light-glass {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  background: transparent;
+  transition: all 0.3s;
+}
+
+.btn-outline-light-glass:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: white;
+}
+
+
 
 .btn-save { background: #0d6efd; color: white; border: none; padding: 8px 20px; border-radius: 8px; }
 .btn-cancel { background: transparent; color: #adb5bd; border: none; padding: 8px 20px; }
