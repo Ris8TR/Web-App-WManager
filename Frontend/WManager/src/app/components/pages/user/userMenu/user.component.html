@@ -58,7 +58,7 @@
     </nav>
 
     <!-- Admin Dashboard Section -->
-    <div class="admin-section px-3 mt-auto" [@ngIf]="role=='ADMIN'">
+    <div class="admin-section px-3 mt-auto"  *ngIf="role === 'ADMIN'">
       <hr class="border-secondary opacity-25">
       <div class="small-label text-uppercase mb-2" style="color: #6c757d; font-size: 0.7rem; letter-spacing: 0.05rem;">Admin</div>
       <ul class="nav nav-pills flex-column gap-2">
